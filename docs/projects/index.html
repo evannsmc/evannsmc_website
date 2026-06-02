@@ -948,7 +948,7 @@ body.quarto-dark .project-action.paper:focus {
   <div class="projects-filter-strip">
     <input class="projects-filter-input" type="search" placeholder="filter by title, topic, or #tag…" aria-label="Filter projects" autocomplete="off">
     <span class="projects-filter-count" aria-live="polite">
-      showing <strong id="projects-count-shown">10</strong> of <strong id="projects-count-total">10</strong>
+      showing <strong id="projects-count-shown">8</strong> of <strong id="projects-count-total">8</strong>
     </span>
   </div>
 
@@ -1276,66 +1276,6 @@ body.quarto-dark .project-action.paper:focus {
           </div>
         </details>
 
-        <details class="project-card" data-project-href="../projects/codegraph-live/" open="">
-          <summary>
-            <div class="project-summary">
-              <div class="project-copy">
-                <div class="project-tags">
-                  <span class="project-tag">TypeScript</span>
-                  <span class="project-tag">Claude Code</span>
-                  <span class="project-tag">Developer Tools</span>
-                </div>
-                <div class="project-name-row">
-                  <div class="project-name-group">
-                    <span class="project-number">02</span>
-                    <p class="project-name">CodeGraph Live</p>
-                  </div>
-                  <button class="project-toggle" type="button" aria-label="Hide or show details"></button>
-                </div>
-                <p class="project-preview-copy">
-                  A fork of colbymchenry/codegraph that adds an always-on background daemon to keep a semantic code knowledge graph fresh across all your projects — even when Claude Code is closed. Claude queries it via MCP instead of reading files, saving tokens and giving it structural understanding of the codebase.
-                </p>
-                <p class="project-cta-hint">Tap anywhere on this panel to open the project page.</p>
-              </div>
-              <div class="project-preview-panel">
-                <div class="project-preview-custom">
-                  <p class="project-preview-title">Always-on code intelligence for Claude</p>
-                  <div class="project-preview-lines">
-                    <div class="project-preview-line">inotify daemon — syncs on every file save</div>
-                    <div class="project-preview-line">systemd user service — starts at login</div>
-                    <div class="project-preview-line">MCP tools — callers, callees, impact, explore</div>
-                  </div>
-                  <div class="project-preview-metrics">
-                    <span class="project-preview-metric">TypeScript</span>
-                    <span class="project-preview-metric">Node.js</span>
-                    <span class="project-preview-metric">SQLite</span>
-                    <span class="project-preview-metric">MCP</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </summary>
-          <div class="project-body">
-            <div class="project-body-grid">
-              <div class="project-detail-copy">
-                <p>
-                  CodeGraph Live solves the stale-graph problem in AI-assisted development: when you edit files outside Claude Code, the code graph falls behind, so Claude wastes tokens reading files it should already know. This fork adds a systemd user service that watches all your initialized projects simultaneously via Linux inotify — every save from any editor is detected and synced within one second.
-                </p>
-                <ul class="project-detail-list">
-                  <li>Background daemon discovers new projects automatically by scanning <code>$HOME</code> every 30s.</li>
-                  <li>Claude Code hooks (<code>PostToolUse</code> → mark-dirty, <code>Stop</code> → sync) keep Claude's own edits in sync mid-session.</li>
-                  <li>MCP server exposes graph query tools so Claude navigates call graphs and impact radii instead of grepping source files.</li>
-                  <li>Two-phase install: <code>codegraph-live install</code> writes global Claude Code config once; <code>codegraph-live init</code> per project.</li>
-                </ul>
-              </div>
-              <div class="project-actions">
-                <a class="project-action primary" href="../projects/codegraph-live/">Open Project Page</a>
-                <a class="project-action" href="https://github.com/evannsmc/codegraph-live" target="_blank">GitHub ↗</a>
-              </div>
-            </div>
-          </div>
-        </details>
-
         <details class="project-card" data-project-href="../projects/quartocv/" open="">
           <summary>
             <div class="project-summary">
@@ -1347,7 +1287,7 @@ body.quarto-dark .project-action.paper:focus {
                 </div>
                 <div class="project-name-row">
                   <div class="project-name-group">
-                    <span class="project-number">03</span>
+                    <span class="project-number">02</span>
                     <p class="project-name">QuartoCV</p>
                   </div>
                   <button class="project-toggle" type="button" aria-label="Hide or show details"></button>
@@ -1396,65 +1336,6 @@ body.quarto-dark .project-action.paper:focus {
           </div>
         </details>
 
-        <details class="project-card" data-project-href="../projects/relay/" open="">
-          <summary>
-            <div class="project-summary">
-              <div class="project-copy">
-                <div class="project-tags">
-                  <span class="project-tag">Claude Code</span>
-                  <span class="project-tag">Codex</span>
-                  <span class="project-tag">Developer Tools</span>
-                </div>
-                <div class="project-name-row">
-                  <div class="project-name-group">
-                    <span class="project-number">04</span>
-                    <p class="project-name">relay</p>
-                  </div>
-                  <button class="project-toggle" type="button" aria-label="Hide or show details"></button>
-                </div>
-                <p class="project-preview-copy">
-                  A bash orchestration script that runs a four-step Plan → Code → Review → Cleanup loop over a dependency-ordered task list, dispatching each step to a fresh Claude or Codex subprocess so nothing leaks between tasks.
-                </p>
-                <p class="project-cta-hint">Tap anywhere on this panel to open the project page.</p>
-              </div>
-              <div class="project-preview-panel">
-                <div class="project-preview-custom">
-                  <p class="project-preview-title">Multi-agent pipeline, no config required</p>
-                  <div class="project-preview-lines">
-                    <div class="project-preview-line">Plan → Code → Review → Cleanup per task</div>
-                    <div class="project-preview-line">Beads (<code>bd</code>) for dependency-ordered task tracking</div>
-                    <div class="project-preview-line">Drop-in: copy pipeline.sh, run it</div>
-                  </div>
-                  <div class="project-preview-metrics">
-                    <span class="project-preview-metric">Bash</span>
-                    <span class="project-preview-metric">Claude Code</span>
-                    <span class="project-preview-metric">Codex</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </summary>
-          <div class="project-body">
-            <div class="project-body-grid">
-              <div class="project-detail-copy">
-                <p>
-                  relay is a zero-dependency bash script that automates the full agentic development loop. Each task from <code>prd.json</code> is handed to a fresh Claude subprocess to plan, a fresh Codex subprocess to implement, another to adversarially review the diff, and a final Claude pass to clean up — with no state leaking between steps.
-                </p>
-                <ul class="project-detail-list">
-                  <li>Uses Beads (<code>bd</code>) to resolve task dependencies and claim tasks atomically before starting.</li>
-                  <li>Automatic fallback to Claude when Codex is unavailable or out of tokens.</li>
-                  <li>Context-rot guard detects when a subprocess is going in circles and resets it.</li>
-                  <li>No daemon, no server, no install — just copy <code>pipeline.sh</code> into your project's <code>.claude/</code> directory.</li>
-                </ul>
-              </div>
-              <div class="project-actions">
-                <a class="project-action primary" href="../projects/relay/">Open Project Page</a>
-                <a class="project-action" href="https://github.com/evannsmc/relay" target="_blank">GitHub ↗</a>
-              </div>
-            </div>
-          </div>
-        </details>
-
         <details class="project-card" data-project-href="../projects/gatech-slides/" open="">
           <summary>
             <div class="project-summary">
@@ -1465,7 +1346,7 @@ body.quarto-dark .project-action.paper:focus {
                 </div>
                 <div class="project-name-row">
                   <div class="project-name-group">
-                    <span class="project-number">05</span>
+                    <span class="project-number">03</span>
                     <p class="project-name">Quarto Georgia Tech Slides</p>
                   </div>
                   <button class="project-toggle" type="button" aria-label="Hide or show details"></button>
@@ -1523,7 +1404,7 @@ body.quarto-dark .project-action.paper:focus {
                 </div>
                 <div class="project-name-row">
                   <div class="project-name-group">
-                    <span class="project-number">06</span>
+                    <span class="project-number">04</span>
                     <p class="project-name">Beginner Homelab on a Raspberry Pi</p>
                   </div>
                   <button class="project-toggle" type="button" aria-label="Hide or show details"></button>
