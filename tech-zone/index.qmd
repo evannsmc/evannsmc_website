@@ -631,7 +631,7 @@ main.content.column-page {
       autocomplete="off"
     />
     <span class="tz-filter-count" aria-live="polite">
-      showing <strong id="tz-count-shown">10</strong> of <strong>10</strong>
+      showing <strong id="tz-count-shown">11</strong> of <strong>11</strong>
     </span>
   </div>
 
@@ -645,8 +645,67 @@ main.content.column-page {
        with Caelestia #03, pacman/AUR reference #04, Caelestia desktop split-out
        from #03 is #05, three-variant install compilation is #06,
        dual-boot Arch + Ubuntu with shared data partition is #07 (promoted from
-       planned now that the draft is complete; not yet executed end-to-end). -->
+       planned now that the draft is complete; not yet executed end-to-end),
+       and the beginner Raspberry Pi homelab (Tailscale/Pi-hole/Caddy/VPN,
+       tested on my own Pi) is #08. -->
   <div class="tz-card-grid" id="tz-card-grid">
+
+    <!-- CARD 08 — Beginner homelab on a Raspberry Pi (Tailscale, Pi-hole, Caddy, VPN) -->
+    <a class="tz-card success" href="./posts/2026-06-02-beginner-homelab-raspberry-pi/"
+       data-tags="raspberry pi homelab tailscale docker pi-hole caddy audiobookshelf vpn mullvad wireguard dns self-hosting networking reverse proxy exit node"
+       aria-label="Read: A Beginner Homelab on a Raspberry Pi — One Pi, One Tailnet, Nothing Exposed">
+      <div class="tz-card-summary">
+        <div class="tz-card-tags">
+          <span class="tz-tag">raspberry pi</span>
+          <span class="tz-tag">tailscale</span>
+          <span class="tz-tag">pi-hole</span>
+          <span class="tz-tag">caddy</span>
+          <span class="tz-tag">vpn</span>
+          <span class="tz-tag">self-hosting</span>
+        </div>
+
+        <div class="tz-card-name-row">
+          <span class="tz-card-number">08</span>
+          <h3 class="tz-card-name">A Beginner Homelab on a Raspberry Pi — One Pi, One Tailnet, Nothing Exposed</h3>
+        </div>
+
+        <div class="tz-card-meta">
+          <span class="tz-card-date">2026-06-02</span>
+          <span class="tz-status-pill ok">tested on my own Pi</span>
+        </div>
+
+        <p class="tz-card-preview-copy">
+          A build-one-job-at-a-time guide I wrote and tested: a single always-on Raspberry Pi that
+          streams my media (<code>Audiobookshelf</code>), blocks ads for the whole house
+          (<code>Pi-hole</code>), serves pretty HTTPS URLs behind <code>Caddy</code>, hands me one
+          dashboard at <code>home.home</code>, reaches everything from my phone, and routes traffic
+          through a VPN — all over a private <code>Tailscale</code> mesh with <strong>no port
+          forwarding and nothing on the public internet</strong>. Includes the honest VPN chapter:
+          why two full-device VPNs can't both be on, and what I actually run.
+        </p>
+
+        <div class="tz-screen" aria-hidden="true">
+          <div class="tz-screen-bar">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            <span class="label">private by default — reached over the tailnet</span>
+            <span class="badge ok">homelab</span>
+          </div>
+          <div class="tz-screen-body"><span class="p">[evanns@homelab ~]$</span> <span class="c">tailscale status --self | head -1</span>
+100.x.y.z   <span class="ok">homelab</span>   evanns@   linux   <span class="ok">-</span>
+
+<span class="p">[evanns@homelab ~]$</span> <span class="c">docker compose ls --format '{{.Name}}'</span>
+audiobookshelf  pihole  caddy  dashboard
+
+<span class="p">[laptop ~]$</span> <span class="c">curl -sI https://home.home | head -1</span>
+HTTP/2 <span class="ok">200</span>   <span class="mute"># Caddy + local DNS, real HTTPS, no ports</span>
+
+<span class="p">[laptop ~]$</span> <span class="c">dig +short doubleclick.net @100.x.y.z</span>
+<span class="ok">0.0.0.0</span>   <span class="mute"># Pi-hole follows me over Tailscale</span><span class="u">_</span></div>
+        </div>
+
+        <span class="tz-card-cta">read the homelab build <span class="arrow">→</span></span>
+      </div>
+    </a>
 
     <!-- CARD 07 — Dual-boot Arch + Ubuntu with shared data partition -->
     <a class="tz-card success" href="./posts/2026-05-19-arch-ubuntu-dual-boot-shared-data/"

@@ -6,8 +6,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Evanns Morales-Cuadrado">
+<meta name="dcterms.date" content="2026-06-02">
+<meta name="description" content="A build-one-job-at-a-time homelab guide I wrote: a single always-on Raspberry Pi that streams my media (Audiobookshelf), blocks ads for the whole house (Pi-hole), serves pretty HTTPS URLs behind Caddy, hands me one dashboard at home.home, reaches everything from my phone, and routes traffic through a VPN — all over a private Tailscale mesh with no port forwarding and nothing on the public internet. This post is the tour and the design decisions; the full guide (README + PDF) lives on GitHub.">
 
-<title>claude – evannsmc</title>
+<title>A Beginner Homelab on a Raspberry Pi — One Pi, One Tailnet, Nothing Exposed – evannsmc</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,28 +26,28 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<link href="./files/site_icon/favicon.png" rel="icon" type="image/png">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-befe23ebd2f54d8af2c8a89d1a1611f1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-71d377fd5de2ab829bf86f8ce9e65e3a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../files/site_icon/favicon.png" rel="icon" type="image/png">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-befe23ebd2f54d8af2c8a89d1a1611f1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-71d377fd5de2ab829bf86f8ce9e65e3a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -127,10 +130,12 @@ document.addEventListener('DOMContentLoaded', function () {
 <script data-goatcounter="https://evannsmc.goatcounter.com/count" async="" src="//gc.zgo.at/count.js"></script>
 
 
-<link rel="stylesheet" href="styles.css">
-<meta property="og:title" content="evannsmc">
+<link rel="stylesheet" href="../../../styles.css">
+<meta property="og:title" content="A Beginner Homelab on a Raspberry Pi — One Pi, One Tailnet, Nothing Exposed – evannsmc">
+<meta property="og:description" content="A build-one-job-at-a-time homelab guide I wrote: a single always-on Raspberry Pi that streams my media (Audiobookshelf), blocks ads for the whole house (Pi-hole), serves pretty HTTPS URLs behind Caddy, hands me one dashboard at home.home, reaches everything from my phone, and routes traffic through a VPN — all over a private Tailscale mesh with no port forwarding and nothing on the public internet. This post is the tour and the design decisions; the full guide (README + PDF) lives on GitHub.">
 <meta property="og:site_name" content="evannsmc">
-<meta name="twitter:title" content="evannsmc">
+<meta name="twitter:title" content="A Beginner Homelab on a Raspberry Pi — One Pi, One Tailnet, Nothing Exposed – evannsmc">
+<meta name="twitter:description" content="A build-one-job-at-a-time homelab guide I wrote: a single always-on Raspberry Pi that streams my media (Audiobookshelf), blocks ads for the whole house (Pi-hole), serves pretty HTTPS URLs behind Caddy, hands me one dashboard at home.home, reaches everything from my phone, and routes traffic through a VPN — all over a private Tailscale mesh with no port forwarding and nothing on the public internet. This post is the tour and the design decisions; the full guide (README + PDF) lives on GitHub.">
 <meta name="twitter:card" content="summary">
 </head>
 
@@ -303,10 +308,10 @@ document.addEventListener('DOMContentLoaded', function () {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="./index.html" class="navbar-brand navbar-brand-logo">
-    <img src="./files/site_icon/favicon.png" alt="" class="navbar-logo">
+    <a href="../../../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo">
     </a>
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">evannsmc</span>
     </a>
   </div>
@@ -317,35 +322,35 @@ document.addEventListener('DOMContentLoaded', function () {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link" href="../../../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./cv"> 
+    <a class="nav-link" href="../../../cv"> 
 <span class="menu-text">CV &amp; Résumé</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./publications"> 
+    <a class="nav-link" href="../../../publications"> 
 <span class="menu-text">Publications</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./projects"> 
+    <a class="nav-link" href="../../../projects"> 
 <span class="menu-text">Projects</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./blog"> 
+    <a class="nav-link" href="../../../blog"> 
 <span class="menu-text">Research Blog</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./tech-zone"> 
+    <a class="nav-link" href="../../../tech-zone"> 
 <span class="menu-text">The Tech Zone</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about"> 
+    <a class="nav-link" href="../../../about"> 
 <span class="menu-text">About Me</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./journey"> 
+    <a class="nav-link" href="../../../journey"> 
 <span class="menu-text">Journey</span></a>
   </li>  
 </ul>
@@ -362,49 +367,124 @@ document.addEventListener('DOMContentLoaded', function () {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
 
 <a class="skip-to-content" href="#quarto-content">Skip to main content</a>
 
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">A Beginner Homelab on a Raspberry Pi — One Pi, One Tailnet, Nothing Exposed</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">raspberry pi</div>
+    <div class="quarto-category">homelab</div>
+    <div class="quarto-category">self-hosting</div>
+    <div class="quarto-category">tailscale</div>
+    <div class="quarto-category">docker</div>
+    <div class="quarto-category">pi-hole</div>
+    <div class="quarto-category">caddy</div>
+    <div class="quarto-category">audiobookshelf</div>
+    <div class="quarto-category">vpn</div>
+    <div class="quarto-category">mullvad</div>
+    <div class="quarto-category">networking</div>
+    <div class="quarto-category">dns</div>
+    <div class="quarto-category">wireguard</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    A build-one-job-at-a-time homelab guide I wrote: a single always-on Raspberry Pi that streams my media (Audiobookshelf), blocks ads for the whole house (Pi-hole), serves pretty HTTPS URLs behind Caddy, hands me one dashboard at home.home, reaches everything from my phone, and routes traffic through a VPN — all over a private Tailscale mesh with no port forwarding and nothing on the public internet. This post is the tour and the design decisions; the full guide (README + PDF) lives on GitHub.
+  </div>
+</div>
 
 
+<div class="quarto-title-meta">
 
-<section id="personal-website" class="level2">
-<h2 class="anchored" data-anchor-id="personal-website">Personal Website</h2>
-<section id="quarto" class="level3">
-<h3 class="anchored" data-anchor-id="quarto">Quarto</h3>
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Evanns Morales-Cuadrado </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 2, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What this is
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A companion post to a guide I wrote and tested on my own hardware: <strong><a href="https://github.com/evannsmc/BeginnerHomelabGuide" target="_blank" rel="noopener">Beginner Homelab on a Raspberry Pi</a></strong>. It’s a beginner-friendly, build-one-job-at-a-time walkthrough for standing up a small, <strong>private</strong> homelab on a single Raspberry Pi. The whole thing is reachable from anywhere over a <a href="https://tailscale.com" target="_blank" rel="noopener">Tailscale</a> mesh, with <strong>no port forwarding, no dynamic DNS, and nothing exposed to the public internet</strong>. The repo has a per-chapter <code>README.md</code>, a standalone PDF per chapter, and a single whole-book PDF.</p>
+</div>
+</div>
+<p>I keep meeting people who want a homelab but bounce off the usual advice: open a port here, expose a dashboard there, paste forty commands you can’t reproduce next month. I wanted the opposite — a setup that is private by default, that I could hand to a beginner, and where every step does <em>one</em> job, gets verified, and then we move on. This post is the tour and the reasoning. The actual commands, compose files, and helper scripts live in the <a href="https://github.com/evannsmc/BeginnerHomelabGuide" target="_blank" rel="noopener">repo</a>.</p>
+<section id="the-spine-tailscale-not-port-forwarding" class="level2">
+<h2 class="anchored" data-anchor-id="the-spine-tailscale-not-port-forwarding">The spine: Tailscale, not port forwarding</h2>
+<p>The single decision that shapes everything else is that the homelab is reached over a <strong>Tailscale tailnet</strong>, never by opening router ports. Each service binds to the Pi and is reached over an authenticated WireGuard mesh. The practical payoff:</p>
 <ul>
-<li>Site is Quarto-based — edit <code>.qmd</code> source, never the rendered output in <code>docs/</code></li>
-<li>Build with <code>quarto render</code>; preview with <code>quarto preview</code></li>
-<li>Check for post-render hooks before modifying the build pipeline</li>
-<li><strong>Never push to remote until the user has previewed and approved the changes.</strong> <code>main</code> is the live site — pushing is deploying. Always render, ask the user to <code>quarto preview</code>, and wait for confirmation before committing and pushing.</li>
+<li>It’s <strong>private by default</strong> — there’s no public attack surface to harden.</li>
+<li>It works on <strong>locked-down corporate / café Wi-Fi</strong>, because it’s just outbound WireGuard.</li>
+<li>It needs <strong>zero router configuration</strong>. You sign in once per device and everything finds everything else by name (MagicDNS).</li>
 </ul>
+<p>Everything in the guide is built so that the answer to “how do I reach this from outside?” is always “you’re already on the tailnet.”</p>
 </section>
-<section id="styling" class="level3">
-<h3 class="anchored" data-anchor-id="styling">Styling</h3>
-<ul>
-<li>Plain CSS on Bootstrap themes (light/dark) — no Tailwind/SCSS</li>
-<li>Test all changes in both light and dark mode</li>
-<li>Must work equally well on mobile and desktop — test responsiveness</li>
-</ul>
+<section id="the-build-one-job-at-a-time" class="level2">
+<h2 class="anchored" data-anchor-id="the-build-one-job-at-a-time">The build, one job at a time</h2>
+<p>The guide is organized into three short volumes.</p>
+<p><strong>Volume I — building the homelab:</strong></p>
+<ol type="1">
+<li><strong>Foundation.</strong> Flash a headless 64-bit Ubuntu Server, key-based SSH only, install Docker, and put the Pi, a laptop, and a phone on one Tailscale network with MagicDNS.</li>
+<li><strong>Audiobookshelf.</strong> Serve spoken audio from the Pi with proper resume tracking. My running example is a language course I ripped from CD so I can study anywhere without carrying the discs.</li>
+<li><strong>Pi-hole.</strong> Run Pi-hole as the network’s DNS server so every device is ad-blocked with zero per-device setup.</li>
+<li><strong>Pretty URLs.</strong> Add <strong>Caddy</strong> as a reverse proxy plus local DNS, so I type <code>https://pihole.home</code> and <code>https://abs.home</code> — no ports, no IPs, real HTTPS.</li>
+<li><strong>A one-URL dashboard.</strong> Homepage + Portainer slotted into Caddy at <code>https://home.home</code> as a single landing page.</li>
+</ol>
+<p><strong>Volume II — VPNs and remote access:</strong></p>
+<ol start="6" type="1">
+<li><strong>Why a VPN, and Mullvad vs.&nbsp;a standard app like Aura.</strong> What a VPN actually does, and why <strong>Mullvad</strong>’s portable WireGuard configs are the feature that lets a VPN mesh with a homelab (a sealed consumer app can’t).</li>
+<li><strong>Exit nodes, the Mullvad add-on, and what I actually run.</strong> The one rule that governs VPNs on the road, and an honest account of my own setup (more below).</li>
+</ol>
+<p><strong>Volume III — extras:</strong> remoting into the Pi from a phone (Termius + NoMachine), and wiring a phone into Linux machines (LocalSend, with KDE Connect as an optional companion).</p>
 </section>
-<section id="content" class="level3">
-<h3 class="anchored" data-anchor-id="content">Content</h3>
-<ul>
-<li>Publication data is immutable — never alter titles, authors, venues, dates</li>
-<li>Paper PDFs: <code>target="_blank" rel="noopener"</code></li>
-<li>Compress images before committing; strip EXIF/metadata</li>
-</ul>
+<section id="the-part-im-most-honest-about-vpn-homelab-on-the-road" class="level2">
+<h2 class="anchored" data-anchor-id="the-part-im-most-honest-about-vpn-homelab-on-the-road">The part I’m most honest about: VPN + homelab on the road</h2>
+<p>The chapter I rewrote the most is the VPN one, because the truthful answer isn’t the tidy one. The governing rule is simple and unforgiving:</p>
+<blockquote class="blockquote">
+<p>A full-device VPN owns the default route <strong>and</strong> the DNS, and a device runs only one such VPN at a time — by policy on a phone, by <strong>routing</strong> on a laptop.</p>
+</blockquote>
+<p>So with two separate apps you cannot have your privacy VPN, your tailnet (homelab + Pi-hole), all live at once. What I actually run is the boring, bulletproof option: <strong>a standalone Mullvad subscription and Tailscale side by side, only one on at a time.</strong> Tailscale on for the homelab and Pi-hole; Mullvad on when I want privacy, accepting that the homelab is dark for that stretch. I spent real hours trying to make split tunneling and route priority let both coexist on the laptop, and never got something that survived a reconnect or reboot.</p>
+<p>There <em>is</em> an architecture that escapes the trap — a Tailscale <strong>exit node</strong>, most easily the paid <strong>Mullvad add-on</strong>, which keeps you on Tailscale while your traffic exits through Mullvad. It’s genuine best-of-both, but you trade control of your own Mullvad config and pay a bit more. The guide lays out that trade plainly instead of pretending there’s a free lunch, and even flags an untested lead a more experienced friend gave me (a router-level VPN client) that I couldn’t try on my current router firmware.</p>
 </section>
-<section id="privacy" class="level3">
-<h3 class="anchored" data-anchor-id="privacy">Privacy</h3>
+<section id="why-its-written-the-way-it-is" class="level2">
+<h2 class="anchored" data-anchor-id="why-its-written-the-way-it-is">Why it’s written the way it is</h2>
+<p>A few conventions I stuck to throughout, in case you fork it for your own setup:</p>
 <ul>
-<li>Never publish PII: home address, phone, private email, student ID, DOB</li>
-<li>Review new content and file metadata for accidental PII before committing</li>
+<li><strong>Manual commands first, scripts beside them.</strong> Every chapter shows the actual files and commands, and <em>also</em> ships numbered helper scripts for the same steps if you’d rather automate the copy/paste. The scripts are standalone and small enough to audit before running.</li>
+<li><strong>Safe to commit to a public repo.</strong> Secrets always come from a local <code>.env</code> that’s git-ignored; nothing real is ever committed.</li>
+<li><strong>Placeholders everywhere.</strong> Tailnet names, IPs, and usernames are stand-ins, so there’s nothing identifying to scrub.</li>
 </ul>
+<p>If you’ve wanted a homelab but didn’t want to expose anything to the internet, this is the path I’d hand you.</p>
+<p>➡️ <strong><a href="https://github.com/evannsmc/BeginnerHomelabGuide" target="_blank" rel="noopener">Beginner Homelab on a Raspberry Pi on GitHub</a></strong> — per-chapter READMEs, standalone PDFs, and the full whole-book PDF.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->

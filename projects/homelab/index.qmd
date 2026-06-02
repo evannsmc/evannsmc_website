@@ -1,0 +1,29 @@
+---
+title: "Beginner Homelab on a Raspberry Pi"
+description: "A beginner-friendly, build-one-job-at-a-time guide to a private Raspberry Pi homelab on Tailscale: media streaming, network-wide ad blocking, pretty HTTPS URLs, a one-URL dashboard, phone access, and a VPN — with no port forwarding and nothing exposed to the public internet."
+categories: [Raspberry Pi, Self-Hosting, Tailscale, Docker, Networking]
+---
+
+[View on GitHub](https://github.com/evannsmc/BeginnerHomelabGuide){.btn .btn-sm .btn-primary target="_blank"}
+
+A beginner-friendly guide I wrote and tested for standing up a small but real homelab on a single Raspberry Pi. The whole thing is **private by default**: every service is reached over a [Tailscale](https://tailscale.com) WireGuard mesh, with **no port forwarding, no dynamic DNS, and nothing exposed to the public internet**. It's organized so each chapter does exactly one job, verifies it, and moves on — no forty-command dumps you can't reproduce later.
+
+By the end, following along gives you one always-on Pi that serves your media, blocks ads on every device in the house, hands you a single dashboard URL, reaches everything from your phone, and can route your traffic through a VPN when that makes sense.
+
+**What it builds, one job at a time:**
+
+- **Foundation** — a headless 64-bit Ubuntu Server with key-based SSH, Docker, and the Pi + laptop + phone on one Tailscale network with MagicDNS, reachable by name from anywhere.
+- **Audiobookshelf** — spoken-audio streaming from the Pi with proper resume tracking.
+- **Pi-hole** — network-wide ad blocking as the tailnet's DNS, with zero per-device setup.
+- **Pretty URLs** — Caddy as a reverse proxy plus local DNS, so you type `https://pihole.home` and `https://abs.home` with real HTTPS, no ports or IPs.
+- **A one-URL dashboard** — Homepage + Portainer at `https://home.home` as a single landing page.
+- **VPN privacy** — what a VPN actually does, Mullvad vs. a standard consumer app, Tailscale exit nodes, and an honest account of why a privacy VPN and your homelab can't both be live at once with two apps (and what to do about it).
+- **Extras** — remoting into the Pi from a phone (Termius + NoMachine) and wiring a phone into Linux machines (LocalSend, KDE Connect).
+
+**How it's written:**
+
+- **Manual commands first, scripts beside them** — every chapter shows the actual files and commands, and also ships small, auditable helper scripts for the same steps if you'd rather automate the copy/paste.
+- **Safe to commit to a public repo** — secrets always read from a git-ignored local `.env`; nothing real is ever committed, and all tailnet names, IPs, and usernames are placeholders.
+- **Reproducible** — a Quarto source builds the per-chapter READMEs, the standalone per-chapter PDFs, and a single whole-book PDF.
+
+**Built with:** Raspberry Pi · Tailscale · Docker Compose · Pi-hole · Caddy · Audiobookshelf · Quarto

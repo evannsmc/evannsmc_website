@@ -1,155 +1,159 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://evannsmc.com/CLAUDE.html</loc>
-    <lastmod>2026-04-07T05:53:53.015Z</lastmod>
+    <loc>https://evannsmc.com/tech-zone/posts/2026-06-02-beginner-homelab-raspberry-pi/index.html</loc>
+    <lastmod>2026-06-02T07:55:45.485Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/posts/2026-05-18-caelestia-desktop/index.html</loc>
-    <lastmod>2026-05-18T19:37:57.091Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.172Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/posts/2026-05-17-pacman-yay-aur-prompts/index.html</loc>
-    <lastmod>2026-05-18T20:16:55.629Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.172Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/posts/2026-05-05-arch-luks-btrfs-lessons/index.html</loc>
-    <lastmod>2026-05-18T14:06:53.353Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.172Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/index.html</loc>
-    <lastmod>2026-05-20T01:47:54.920Z</lastmod>
+    <lastmod>2026-06-02T07:56:37.869Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/projects/rtd-rax/index.html</loc>
-    <lastmod>2026-04-07T07:01:09.747Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.171Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/projects/quartocv/index.html</loc>
-    <lastmod>2026-04-03T05:35:27.944Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.148Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/projects/nmpc-acados/index.html</loc>
-    <lastmod>2026-04-07T06:41:42.781Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.148Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/projects/mocap4px4/index.html</loc>
-    <lastmod>2026-04-03T05:35:27.935Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.148Z</lastmod>
   </url>
   <url>
-    <loc>https://evannsmc.com/projects/gatech-slides/index.html</loc>
-    <lastmod>2026-04-03T05:35:27.951Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/journey/index.html</loc>
-    <lastmod>2026-04-07T06:21:07.694Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/independent-projects/index.html</loc>
-    <lastmod>2026-04-07T22:16:52.422Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/cv/resume-html.html</loc>
-    <lastmod>2026-03-25T19:29:59.803Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/cv/cv-html.html</loc>
-    <lastmod>2026-03-23T14:42:10.844Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/blog/posts/2025-11-11-UnderstandingReachability/index.html</loc>
-    <lastmod>2026-05-12T21:52:37.483Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/blog/posts/2025-11-11-UnderstandingOptimalControl/index.html</loc>
-    <lastmod>2026-05-12T21:52:37.480Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/blog/posts/2025-11-11-GameTheoreticControl/index.html</loc>
-    <lastmod>2026-05-12T21:52:37.475Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/blog/posts/2025-09-29-QuadrotorDynamics/index.html</loc>
-    <lastmod>2026-05-12T21:52:37.470Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/about/index.html</loc>
-    <lastmod>2026-05-12T20:17:42.880Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/blog/index.html</loc>
-    <lastmod>2026-05-17T18:34:23.669Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/blog/posts/2025-05-22-NewtonRaphsonFlow/index.html</loc>
-    <lastmod>2026-05-12T21:52:37.466Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/blog/posts/2025-10-15-UnderstandingPX4/index.html</loc>
-    <lastmod>2026-05-12T21:52:37.474Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/blog/posts/2025-11-11-UnderstandingJax/index.html</loc>
-    <lastmod>2026-05-12T21:52:37.478Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/blog/posts/2025-11-11-UnderstandingRL/index.html</loc>
-    <lastmod>2026-05-12T21:52:37.486Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/community/index.html</loc>
-    <lastmod>2026-04-07T06:20:53.368Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/cv/index.html</loc>
-    <lastmod>2026-05-25T05:33:35.195Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/fuq/u/index.html</loc>
-    <lastmod>2026-04-07T22:43:16.942Z</lastmod>
-  </url>
-  <url>
-    <loc>https://evannsmc.com/index.html</loc>
-    <lastmod>2026-04-21T09:07:34.450Z</lastmod>
+    <loc>https://evannsmc.com/projects/homelab/index.html</loc>
+    <lastmod>2026-06-02T07:56:55.164Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/projects/codegraph-live/index.html</loc>
-    <lastmod>2026-04-07T20:46:28.818Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.148Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/index.html</loc>
+    <lastmod>2026-06-02T07:48:12.148Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/fuq/u/index.html</loc>
+    <lastmod>2026-06-02T07:48:12.148Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/cv/index.html</loc>
+    <lastmod>2026-06-02T07:48:11.128Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/community/index.html</loc>
+    <lastmod>2026-06-02T07:48:11.127Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/blog/posts/2025-11-11-UnderstandingRL/index.html</loc>
+    <lastmod>2026-06-02T07:48:11.127Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/blog/posts/2025-11-11-UnderstandingJax/index.html</loc>
+    <lastmod>2026-06-02T07:48:11.127Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/blog/posts/2025-10-15-UnderstandingPX4/index.html</loc>
+    <lastmod>2026-06-02T07:48:11.127Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/blog/posts/2025-05-22-NewtonRaphsonFlow/index.html</loc>
+    <lastmod>2026-06-02T07:48:11.127Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/blog/index.html</loc>
+    <lastmod>2026-06-02T07:48:11.126Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/about/index.html</loc>
+    <lastmod>2026-06-02T07:48:11.122Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/blog/posts/2025-09-29-QuadrotorDynamics/index.html</loc>
+    <lastmod>2026-06-02T07:48:11.127Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/blog/posts/2025-11-11-GameTheoreticControl/index.html</loc>
+    <lastmod>2026-06-02T07:48:11.127Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/blog/posts/2025-11-11-UnderstandingOptimalControl/index.html</loc>
+    <lastmod>2026-06-02T07:48:11.127Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/blog/posts/2025-11-11-UnderstandingReachability/index.html</loc>
+    <lastmod>2026-06-02T07:48:11.127Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/cv/cv-html.html</loc>
+    <lastmod>2026-06-02T07:48:11.128Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/cv/resume-html.html</loc>
+    <lastmod>2026-06-02T07:48:11.128Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/independent-projects/index.html</loc>
+    <lastmod>2026-06-02T07:48:12.148Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/journey/index.html</loc>
+    <lastmod>2026-06-02T07:48:12.148Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/projects/gatech-slides/index.html</loc>
+    <lastmod>2026-06-02T07:48:12.148Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/projects/index.html</loc>
-    <lastmod>2026-05-12T19:32:21.939Z</lastmod>
+    <lastmod>2026-06-02T07:57:21.188Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/projects/nahs/index.html</loc>
-    <lastmod>2026-04-07T06:41:46.722Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.148Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/projects/nr-flow/index.html</loc>
-    <lastmod>2026-04-07T06:41:51.206Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.148Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/projects/relay/index.html</loc>
-    <lastmod>2026-04-07T22:12:01.593Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.148Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/publications/index.html</loc>
-    <lastmod>2026-04-07T06:21:16.782Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.171Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/posts/2026-05-01-first-arch-install/index.html</loc>
-    <lastmod>2026-05-18T14:06:53.354Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.172Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/posts/2026-05-17-arch-luks-btrfs-caelestia/index.html</loc>
-    <lastmod>2026-05-19T02:10:16.858Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.172Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/posts/2026-05-18-arch-install-variants/index.html</loc>
-    <lastmod>2026-05-18T19:37:21.749Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.172Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/posts/2026-05-19-arch-ubuntu-dual-boot-shared-data/index.html</loc>
-    <lastmod>2026-05-20T01:47:10.886Z</lastmod>
+    <lastmod>2026-06-02T07:48:12.172Z</lastmod>
   </url>
 </urlset>

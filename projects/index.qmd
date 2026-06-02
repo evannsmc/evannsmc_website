@@ -562,7 +562,7 @@ body.quarto-dark .project-action.paper:focus {
       autocomplete="off"
     />
     <span class="projects-filter-count" aria-live="polite">
-      showing <strong id="projects-count-shown">9</strong> of <strong id="projects-count-total">9</strong>
+      showing <strong id="projects-count-shown">10</strong> of <strong id="projects-count-total">10</strong>
     </span>
   </div>
 
@@ -1121,6 +1121,65 @@ body.quarto-dark .project-action.paper:focus {
               <div class="project-actions">
                 <a class="project-action primary" href="../projects/gatech-slides/">Open Project Page</a>
                 <a class="project-action" href="https://github.com/evannsmc/quarto-gatech-slides" target="_blank">GitHub ↗</a>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="project-card" data-project-href="../projects/homelab/" open>
+          <summary>
+            <div class="project-summary">
+              <div class="project-copy">
+                <div class="project-tags">
+                  <span class="project-tag">Raspberry Pi</span>
+                  <span class="project-tag">Tailscale</span>
+                  <span class="project-tag">Self-Hosting</span>
+                </div>
+                <div class="project-name-row">
+                  <div class="project-name-group">
+                    <span class="project-number">06</span>
+                    <p class="project-name">Beginner Homelab on a Raspberry Pi</p>
+                  </div>
+                  <button class="project-toggle" type="button" aria-label="Hide or show details"></button>
+                </div>
+                <p class="project-preview-copy">
+                  A build-one-job-at-a-time guide to a private Raspberry Pi homelab: media streaming, network-wide ad blocking, pretty HTTPS URLs, a one-URL dashboard, phone access, and a VPN — all over a Tailscale mesh with no port forwarding and nothing exposed to the public internet.
+                </p>
+                <p class="project-cta-hint">Tap anywhere on this panel to open the project page.</p>
+              </div>
+              <div class="project-preview-panel">
+                <div class="project-preview-custom">
+                  <p class="project-preview-title">One Pi, one tailnet, nothing exposed</p>
+                  <div class="project-preview-lines">
+                    <div class="project-preview-line">Audiobookshelf + Pi-hole + Caddy + dashboard</div>
+                    <div class="project-preview-line">Private over Tailscale, no port forwarding</div>
+                    <div class="project-preview-line">An honest VPN-on-the-road chapter</div>
+                  </div>
+                  <div class="project-preview-metrics">
+                    <span class="project-preview-metric">Raspberry Pi</span>
+                    <span class="project-preview-metric">Tailscale</span>
+                    <span class="project-preview-metric">Docker</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </summary>
+          <div class="project-body">
+            <div class="project-body-grid">
+              <div class="project-detail-copy">
+                <p>
+                  A beginner-friendly homelab guide I wrote and tested on my own hardware. Each chapter does exactly one job and verifies it: a headless Pi on Tailscale, Audiobookshelf for media, Pi-hole for network-wide ad blocking, Caddy for real-HTTPS pretty URLs, a single <code>home.home</code> dashboard, phone remoting, and a VPN — all private by default, with secrets read from a git-ignored <code>.env</code> and nothing on the public internet.
+                </p>
+                <ul class="project-detail-list">
+                  <li>Reached entirely over a Tailscale WireGuard mesh — no port forwarding, no dynamic DNS.</li>
+                  <li>Manual commands first, with small auditable helper scripts beside them.</li>
+                  <li>A Quarto source builds per-chapter READMEs, standalone PDFs, and a whole-book PDF.</li>
+                  <li>An honest VPN chapter on why a privacy VPN and your homelab can't both be live at once — and what I actually run.</li>
+                </ul>
+              </div>
+              <div class="project-actions">
+                <a class="project-action primary" href="../projects/homelab/">Open Project Page</a>
+                <a class="project-action" href="https://github.com/evannsmc/BeginnerHomelabGuide" target="_blank">GitHub ↗</a>
               </div>
             </div>
           </div>
