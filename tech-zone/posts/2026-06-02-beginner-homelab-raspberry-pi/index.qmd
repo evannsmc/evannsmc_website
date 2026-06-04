@@ -1,6 +1,6 @@
 ---
 title: "A Beginner Homelab on a Raspberry Pi — One Pi, One Tailnet, Nothing Exposed"
-description: "A build-one-job-at-a-time homelab guide I wrote: a single always-on Raspberry Pi that streams my media (Audiobookshelf), blocks ads for the whole house (Pi-hole), serves pretty HTTPS URLs behind Caddy, hands me one dashboard at home.home, reaches everything from my phone, and routes traffic through a VPN — all over a private Tailscale mesh with no port forwarding and nothing on the public internet. This post is the tour and the design decisions; the full guide (README + PDF) lives on GitHub."
+description: "A homelab guide I wrote. Centered on an always-on Raspberry Pi that streams my media, blocks ads across my network, serves my custom HTTPS URLs through Caddy, provides a dashboard for managing services, and can be reached from anywhere over Tailscale without opening ports to the public internet."
 author: "Evanns Morales-Cuadrado"
 date: "2026-06-02"
 categories: [raspberry pi, homelab, self-hosting, tailscale, docker, pi-hole, caddy, audiobookshelf, vpn, mullvad, networking, dns, wireguard]
@@ -12,106 +12,84 @@ draft: false
 
 A companion post to a guide I wrote and tested on my own hardware:
 **[Beginner Homelab on a Raspberry Pi](https://github.com/evannsmc/BeginnerHomelabGuide){target="_blank" rel="noopener"}**.
-It's a beginner-friendly, build-one-job-at-a-time walkthrough for standing up a
-small, **private** homelab on a single Raspberry Pi. The whole thing is reachable
-from anywhere over a [Tailscale](https://tailscale.com){target="_blank" rel="noopener"}
-mesh, with **no port forwarding, no dynamic DNS, and nothing exposed to the public
-internet**. The repo has a per-chapter `README.md`, a standalone PDF per chapter,
-and a single whole-book PDF.
+
+It's a beginner-friendly, build-one-job-at-a-time walkthrough for standing up a small, private homelab on a single Raspberry Pi. Everything is reachable through a Tailscale tailnet with no need for port forwarding, no dynamic DNS, and nothing exposed to the public internet.
+
+The repository contains a per-chapter README, a standalone PDF for each chapter, and a complete whole-book PDF.
 :::
 
-I keep meeting people who want a homelab but bounce off the usual advice: open a
-port here, expose a dashboard there, paste forty commands you can't reproduce
-next month. I wanted the opposite — a setup that is private by default, that I
-could hand to a beginner, and where every step does *one* job, gets verified, and
-then we move on. This post is the tour and the reasoning. The actual commands,
-compose files, and helper scripts live in the [repo](https://github.com/evannsmc/BeginnerHomelabGuide){target="_blank" rel="noopener"}.
+I kept getting overwhelmed with most homelab guides I would find online. They went very far very quickly, and I didn't feel like the point of each step was clear. This guide hopefully does a better job. I also wanted a setup that was easy to reproduce months later. I also wanted to understand the networking concepts behind it rather than treating everything as magic.
 
-## The spine: Tailscale, not port forwarding
+## The foundation: Tailscale instead of port forwarding
 
-The single decision that shapes everything else is that the homelab is reached
-over a **Tailscale tailnet**, never by opening router ports. Each service binds to
-the Pi and is reached over an authenticated WireGuard mesh. The practical payoff:
+The biggest design decision in the entire guide is that everything is built around Tailscale.
 
-- It's **private by default** — there's no public attack surface to harden.
-- It works on **locked-down corporate / café Wi-Fi**, because it's just outbound
-  WireGuard.
-- It needs **zero router configuration**. You sign in once per device and
-  everything finds everything else by name (MagicDNS).
+Rather than exposing services through router port forwarding, every device joins the same tailnet and communicates through Tailscale's WireGuard mesh. That one decision simplifies almost everything else.
 
-Everything in the guide is built so that the answer to "how do I reach this from
-outside?" is always "you're already on the tailnet."
+A few practical benefits:
 
-## The build, one job at a time
+- No public-facing services to secure.
+- No router configuration.
+- No dynamic DNS.
+- I can reach my homelab from home, coffee shops, hotels, universities, and corporate networks.
+- Every device can reach every other device by a custom name I gave them through MagicDNS in Tailscale.
+
+The answer to "how do I access this when I'm away from home?" is always the same:
+
+**Join the tailnet.**
+
+## The build
 
 The guide is organized into three short volumes.
 
-**Volume I — building the homelab:**
+### Volume I — Building the homelab
 
-1. **Foundation.** Flash a headless 64-bit Ubuntu Server, key-based SSH only,
-   install Docker, and put the Pi, a laptop, and a phone on one Tailscale network
-   with MagicDNS.
-2. **Audiobookshelf.** Serve spoken audio from the Pi with proper resume tracking.
-   My running example is a language course I ripped from CD so I can study
-   anywhere without carrying the discs.
-3. **Pi-hole.** Run Pi-hole as the network's DNS server so every device is
-   ad-blocked with zero per-device setup.
-4. **Pretty URLs.** Add **Caddy** as a reverse proxy plus local DNS, so I type
-   `https://pihole.home` and `https://abs.home` — no ports, no IPs, real HTTPS.
-5. **A one-URL dashboard.** Homepage + Portainer slotted into Caddy at
-   `https://home.home` as a single landing page.
+1. **Foundation.** Install Ubuntu Server, configure SSH, install Docker, and connect a laptop, phone, and Raspberry Pi to the same tailnet.
+2. **Audiobookshelf.** Self-host audiobooks, podcasts, language courses, and other spoken audio with proper resume tracking.
+3. **Pi-hole.** Block ads and trackers across the network by making Pi-hole the DNS server.
+4. **Pretty URLs.** Use Caddy and local DNS so services live at addresses like `https://pihole.home` and `https://abs.home` instead of IP addresses and ports.
+5. **A one-URL dashboard.** Put Homepage and Portainer behind Caddy at `https://home.home` as a central landing page.
 
-**Volume II — VPNs and remote access:**
+### Volume II — VPNs and remote access
 
-6. **Why a VPN, and Mullvad vs. a standard app like Aura.** What a VPN actually
-   does, and why **Mullvad**'s portable WireGuard configs are the feature that
-   lets a VPN mesh with a homelab (a sealed consumer app can't).
-7. **Exit nodes, the Mullvad add-on, and what I actually run.** The one rule that
-   governs VPNs on the road, and an honest account of my own setup (more below).
+6. **Why a VPN, and why Mullvad.** What a VPN actually does, what it doesn't do, and why portable WireGuard configurations matter if you want a VPN to coexist with a homelab.
+7. **Exit nodes and real-world tradeoffs.** Tailscale exit nodes, the Mullvad add-on, and the tradeoffs I ran into while trying to combine privacy VPNs with a private tailnet.
 
-**Volume III — extras:** remoting into the Pi from a phone (Termius + NoMachine),
-and wiring a phone into Linux machines (LocalSend, with KDE Connect as an optional
-companion).
+### Volume III — Extras
 
-## The part I'm most honest about: VPN + homelab on the road
+A few quality-of-life additions I found useful:
 
-The chapter I rewrote the most is the VPN one, because the truthful answer isn't
-the tidy one. The governing rule is simple and unforgiving:
+- Accessing the my computers from other computer remotely, or even from my phone using Termius and NoMachine.
+- Sending files between phones and Linux machines with LocalSend.
 
-> A full-device VPN owns the default route **and** the DNS, and a device runs only
-> one such VPN at a time — by policy on a phone, by **routing** on a laptop.
+## Next Steps and Room for Improvement 
 
-So with two separate apps you cannot have your privacy VPN, your tailnet
-(homelab + Pi-hole), all live at once. What I actually run is the boring,
-bulletproof option: **a standalone Mullvad subscription and Tailscale side by
-side, only one on at a time.** Tailscale on for the homelab and Pi-hole;
-Mullvad on when I want privacy, accepting that the homelab is dark for that
-stretch. I spent real hours trying to make split tunneling and route priority let
-both coexist on the laptop, and never got something that survived a reconnect or
-reboot.
+The VPN chapter changed the most as I worked through the guide because reality turned out to be messier than the simple explanation.
 
-There *is* an architecture that escapes the trap — a Tailscale **exit node**,
-most easily the paid **Mullvad add-on**, which keeps you on Tailscale while your
-traffic exits through Mullvad. It's genuine best-of-both, but you trade control of
-your own Mullvad config and pay a bit more. The guide lays out that trade plainly
-instead of pretending there's a free lunch, and even flags an untested lead a
-more experienced friend gave me (a router-level VPN client) that I couldn't try on
-my current router firmware.
+The core problem is straightforward: I wanted to keep the same setup I use at home on the road. However, it's really hard to have two VPNs on at one, since both Tailscale and Mullvad want to take over your whole device. I wanted two steams: one for my homelab traffic through tailscale and one for the public internet through Mullvad to protect myself online, with my DNS sinkhole for good measure.
 
-## Why it's written the way it is
+In practice, that means running Tailscale and a traditional VPN side-by-side is often more complicated than it first appears.
 
-A few conventions I stuck to throughout, in case you fork it for your own setup:
+After a lot of experimentation, the setup I personally use is the boring one:
+- Tailscale when I want access to my homelab.
+- Mullvad when I want VPN privacy. At home, I can set the DNS address to my RPI's static IP. Anywhere else, I can just use Mullvad's DNS blocking settings.
+- One active at a time (usually Mullvad is on, and I switch to Tailscale when I want to access my hosted media).
 
-- **Manual commands first, scripts beside them.** Every chapter shows the actual
-  files and commands, and *also* ships numbered helper scripts for the same steps
-  if you'd rather automate the copy/paste. The scripts are standalone and small
-  enough to audit before running.
-- **Safe to commit to a public repo.** Secrets always come from a local `.env`
-  that's git-ignored; nothing real is ever committed.
-- **Placeholders everywhere.** Tailnet names, IPs, and usernames are stand-ins, so
-  there's nothing identifying to scrub.
+There are ways around this. Tailscale exit nodes, especially the Mullvad add-on, provide a cleaner integration and can give you the benefits of both at once. But they also introduce tradeoffs in flexibility, and control.
 
-If you've wanted a homelab but didn't want to expose anything to the internet,
-this is the path I'd hand you.
+Rather than pretending there is a perfect solution, the guide walks through the tradeoffs and explains why I ultimately chose the setup I did. I also mention an untested idea suggested by friend more experienced in homelabbing — running the VPN at the router level instead of the device level — but I couldn't evaluate it on my own hardware because my router firmware doesn't support it.
 
-➡️ **[Beginner Homelab on a Raspberry Pi on GitHub](https://github.com/evannsmc/BeginnerHomelabGuide){target="_blank" rel="noopener"}** — per-chapter READMEs, standalone PDFs, and the full whole-book PDF.
+## Why I wrote it this way
+
+A few conventions I followed throughout the guide:
+
+- **Manual commands first, scripts beside them.** Every chapter shows the actual files and commands, and also includes small helper scripts for the same steps if you'd rather automate the copy-and-paste. The scripts are intentionally short enough to audit before running.
+- **Safe for public repositories.** Secrets come from a local git-ignored `.env` file; nothing real is ever committed.
+- **Placeholders everywhere.** Tailnet names, usernames, and IP addresses are stand-ins, so there's nothing identifying to scrub.
+- **Fully reproducible.** The Quarto source generates the chapter READMEs, standalone PDFs, and the complete guide.
+
+More than anything, the project became a way to learn how the pieces fit together: Docker, DNS, TLS certificates, reverse proxies, VPNs, local networking, and the tradeoffs involved in modern self-hosting.
+
+If you've wanted a homelab but didn't want to expose anything to the public internet, this is the path I'd hand you.
+
+➡️ **[Beginner Homelab on a Raspberry Pi on GitHub](https://github.com/evannsmc/BeginnerHomelabGuide){target="_blank" rel="noopener"}** — per-chapter READMEs, standalone PDFs, and the complete whole-book PDF.

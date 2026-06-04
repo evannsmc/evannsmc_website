@@ -4,26 +4,33 @@ description: "A beginner-friendly, build-one-job-at-a-time guide to a private Ra
 categories: [Raspberry Pi, Self-Hosting, Tailscale, Docker, Networking]
 ---
 
-[View on GitHub](https://github.com/evannsmc/BeginnerHomelabGuide){.btn .btn-sm .btn-primary target="_blank"}
+[View on GitHub](https://github.com/evannsmc/BeginnerHomelabGuide)
 
-A beginner-friendly guide I wrote and tested for standing up a small but real homelab on a single Raspberry Pi. The whole thing is **private by default**: every service is reached over a [Tailscale](https://tailscale.com) WireGuard mesh, with **no port forwarding, no dynamic DNS, and nothing exposed to the public internet**. It's organized so each chapter does exactly one job, verifies it, and moves on — no forty-command dumps you can't reproduce later.
+This is a beginner-friendly guide to building a real homelab on a Raspberry Pi from scratch. Along the way you'll learn how to self-host services, block ads across your network, securely access your Pi from anywhere, create HTTPS URLs for local services, and understand the networking concepts that make it all work.
 
-By the end, following along gives you one always-on Pi that serves your media, blocks ads on every device in the house, hands you a single dashboard URL, reaches everything from your phone, and can route your traffic through a VPN when that makes sense.
+My goal wasn't to get a bunch of containers running. It was to understand what each piece does, why it's there, and how everything fits together. I made this guide for similarly-minded people. Every chapter focuses on a single job, helps you to verif that it works, and then builds on top of it.
 
-**What it builds, one job at a time:**
+The homelab is private by default. Services are accessed through Tailscale rather than being exposed to the public internet, so there is no port forwarding, no dynamic DNS, and no need to open ports on your router.
 
-- **Foundation** — a headless 64-bit Ubuntu Server with key-based SSH, Docker, and the Pi + laptop + phone on one Tailscale network with MagicDNS, reachable by name from anywhere.
-- **Audiobookshelf** — spoken-audio streaming from the Pi with proper resume tracking.
-- **Pi-hole** — network-wide ad blocking as the tailnet's DNS, with zero per-device setup.
-- **Pretty URLs** — Caddy as a reverse proxy plus local DNS, so you type `https://pihole.home` and `https://abs.home` with real HTTPS, no ports or IPs.
-- **A one-URL dashboard** — Homepage + Portainer at `https://home.home` as a single landing page.
-- **VPN privacy** — what a VPN actually does, Mullvad vs. a standard consumer app, Tailscale exit nodes, and an honest account of why a privacy VPN and your homelab can't both be live at once with two apps (and what to do about it).
-- **Extras** — remoting into the Pi from a phone (Termius + NoMachine) and wiring a phone into Linux machines (LocalSend, KDE Connect).
+By the end you'll have a Raspberry Pi that can host your media, block ads across your network, provide a centralized dashboard for managing services, securely connect to your devices from anywhere, and optionally route traffic through a privacy-focused VPN.
 
-**How it's written:**
+### Current stack:
 
-- **Manual commands first, scripts beside them** — every chapter shows the actual files and commands, and also ships small, auditable helper scripts for the same steps if you'd rather automate the copy/paste.
-- **Safe to commit to a public repo** — secrets always read from a git-ignored local `.env`; nothing real is ever committed, and all tailnet names, IPs, and usernames are placeholders.
-- **Reproducible** — a Quarto source builds the per-chapter READMEs, the standalone per-chapter PDFs, and a single whole-book PDF.
+* **A Raspberry Pi foundation** with Ubuntu Server, SSH, Docker, and Tailscale.
+* **Audiobookshelf** for self-hosting audiobooks, podcasts, language courses, and other spoken audio.
+* **Pi-hole** for network-wide ad and tracker blocking.
+* **Caddy** for HTTPS reverse proxies and memorable URLs like `https://pihole.home` and `https://abs.home`.
+* **Homepage** and **Portainer** for a centralized dashboard and service management interface.
+* **Remote access** from phones, laptops, and other devices without exposing anything to the public internet.
+* **VPN integration** using Mullvad, Tailscale exit nodes, and an exploration of the privacy, security, and usability tradeoffs involved.
 
-**Built with:** Raspberry Pi · Tailscale · Docker Compose · Pi-hole · Caddy · Audiobookshelf · Quarto
+### How the guide is written
+
+* **Build one thing at a time.** Each chapter has a single objective and verifies that it works before moving on.
+* **Manual steps come first.** Helper scripts are included where useful, but you always see what they're doing.
+* **Safe for public repositories.** Secrets live in git-ignored files and every example uses placeholders.
+* **Fully reproducible.** The Quarto source generates the chapter READMEs, individual PDFs, and the complete guide.
+
+Along the way you'll also pick up practical knowledge about Docker, DNS, VPNs, TLS certificates, reverse proxies, local networking, and the tradeoffs involved in modern self-hosting.
+
+**Built with:** Raspberry Pi · Ubuntu Server · Docker Compose · Tailscale · Pi-hole · Caddy · Audiobookshelf · Homepage · Portainer · Quarto
