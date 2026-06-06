@@ -1051,12 +1051,13 @@ deb http://archive.ubuntu.com/ubuntu        noble-updates   main restricted univ
 deb http://security.ubuntu.com/ubuntu       noble-security  main restricted universe multiverse
 EOF
 apt update
-apt install -y ubuntu-standard linux-image-generic grub-efi-amd64 \
+apt install -y ubuntu-standard linux-image-generic grub-efi-amd64 os-prober \
     cryptsetup cryptsetup-initramfs btrfs-progs network-manager sudo locales tzdata
 
 # The initramfs must unlock the root; GRUB must unlock /boot just to reach the kernel.
 echo "crypt_ubuntu UUID=$(blkid -s UUID -o value /dev/nvme0n1p4) none luks,discard" >> /etc/crypttab
 echo "GRUB_ENABLE_CRYPTODISK=y" >> /etc/default/grub
+echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub   # 24.04 disables os-prober by default
 
 update-initramfs -u -k all
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Ubuntu --recheck
