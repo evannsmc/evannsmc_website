@@ -1,7 +1,7 @@
 ---
 title: "An Ambitious Arch Install That Didn't Boot — LUKS, Btrfs, and What I Learned"
 description: "A post-mortem on my second pass at installing Arch Linux: full-disk LUKS encryption, Btrfs subvolumes for / and /home, zram for everyday swap, a shared data partition, and a dedicated encrypted swap partition for hibernation, set up to dual-boot with Ubuntu. GRUB loaded, the LUKS prompt accepted my passphrase, and then the kernel dropped me into emergency mode. Here's the plan, the failure, and everything I've tried so far."
-author: "Evanns Morales-Cuadrado"
+author: "Evanns Morales"
 date: "2026-05-05"
 categories: [arch linux, linux, installation, luks, btrfs, grub, mkinitcpio, debugging, dual-boot]
 image: ../../../files/tech-zone/arch-logo-dark.svg

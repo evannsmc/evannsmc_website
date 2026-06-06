@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Evanns Morales-Cuadrado">
+<meta name="author" content="Evanns Morales">
 <meta name="dcterms.date" content="2026-05-17">
 <meta name="description" content="A practical reference for the interactive prompts, warnings, and errors you’ll see when installing packages on Arch Linux. Decodes every common pacman question (Y/n confirmations, optional dependencies, provider selection, file conflicts, hooks), every yay/paru question (cleanBuild, diffs, PKGBUILDs to edit), and the warnings that look scary but aren’t (snap-pac perl errors, missing-firmware messages, sd-vconsole notices). Written so future-you can paste a prompt into the search and find the right answer in five seconds.">
 
@@ -436,7 +436,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Evanns Morales-Cuadrado </p>
+             <p>Evanns Morales </p>
           </div>
   </div>
     
@@ -1593,7 +1593,7 @@ Click to expand: what each prompt means
 <section id="two-rules-that-keep-this-clean" class="level2">
 <h2 class="anchored" data-anchor-id="two-rules-that-keep-this-clean">Two rules that keep this clean</h2>
 <ol type="1">
-<li><p><strong>Your stow packages should <em>add</em> files to <code>~/.config/</code>, never <em>replace</em> what the bundle installed.</strong> Use new filenames (<code>99-evanns.fish</code>, <code>personal-binds.conf</code>), or use subdirectories the bundle leaves alone (<code>conf.d/</code>, <code>local/</code>, <code>plugins/</code>). If you stow a file that has the same path as a bundle symlink, stow refuses with a “would override” error — which is the <em>right</em> behavior; it’s telling you to pick a non-colliding name.</p></li>
+<li><p><strong>Your stow packages should <em>add</em> files to <code>~/.config/</code>, never <em>replace</em> what the bundle installed.</strong> Use new filenames (<code>99-user.fish</code>, <code>personal-binds.conf</code>), or use subdirectories the bundle leaves alone (<code>conf.d/</code>, <code>local/</code>, <code>plugins/</code>). If you stow a file that has the same path as a bundle symlink, stow refuses with a “would override” error — which is the <em>right</em> behavior; it’s telling you to pick a non-colliding name.</p></li>
 <li><p><strong>Treat both the bundle’s repo and your overlay as part of the install.</strong> Back up both. On a reinstall, restore both. If you ever want to remove your overlay cleanly: <code>cd ~/dotfiles &amp;&amp; stow -D */</code> removes every symlink in one shot.</p></li>
 </ol>
 </section>

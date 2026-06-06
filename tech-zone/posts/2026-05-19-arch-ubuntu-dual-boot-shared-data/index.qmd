@@ -1,7 +1,7 @@
 ---
 title: "Dual-Boot Arch + Ubuntu — With a Shared Data Partition"
 description: "A dual-boot install that bolts an Ubuntu 24 LTS install alongside the LUKS+Btrfs single-boot Arch from Article 03 — two independently encrypted root partitions and one shared 150 GiB Btrfs data partition both distros mount read-write. Both roots are LUKS2 + Btrfs (`@`, `@home`, `@snapshots`, `@var_log`, `@swap`). The shared partition is LUKS-encrypted and auto-unlocked at boot via a keyfile stored inside each distro's already-unlocked root — no double passphrase prompt. Each distro runs zram for everyday compressed swap and hibernates to its own NoCOW Btrfs swap file inside its own encrypted root, so there are no cross-OS resume-image collisions. GRUB on the single shared ESP, with `os-prober` enabled."
-author: "Evanns Morales-Cuadrado"
+author: "Evanns Morales"
 date: "2026-05-19"
 categories: [arch linux, ubuntu, linux, installation, dual-boot, luks, btrfs, snapper, hibernation, grub, os-prober, mkinitcpio, sd-encrypt, zram, keyfile, shared partition]
 image: ../../../files/tech-zone/arch-logo-dark.svg
@@ -47,7 +47,7 @@ Adding Ubuntu introduces five concerns that single-boot didn't have:
 1. **Who owns GRUB?** Both distros want to install their own bootloader to the same ESP. We pick one as the menu driver (Ubuntu, because its installer wires up `os-prober` for you out of the box) and let it discover Arch automatically.
 2. **How does the shared encrypted data partition get unlocked from both sides without prompting twice?** A LUKS container can hold up to 8 keyslots. We add the user's passphrase as slot 0 (for recovery from a live USB), then add a 4096-byte keyfile as slot 1 — and store a copy of that keyfile inside each (already-unlocked) root, referenced from each distro's `/etc/crypttab`. Boot order: root unlock by passphrase → root mounts → crypttab reads keyfile → shared partition unlocks silently.
 3. **Resume-image collisions.** Two OSes hibernating to the same swap target would overwrite each other's resume image. We sidestep this entirely by giving each OS its own NoCOW Btrfs swap file inside its own LUKS root, plus zram for everyday compressed swap — exactly the [Article 03 pattern](../2026-05-17-arch-luks-btrfs/#chapter-7-the-hibernation-swap-file), applied twice. There's no shared swap partition at all: zram handles ~all everyday memory pressure on either OS, and hibernation never has to share state across the boundary.
-4. **UID/GID coordination for the shared partition.** If `youruser` is UID 1000 on Arch and UID 1001 on Ubuntu, every file on `/data` looks like it belongs to a different user depending on which OS you booted into. We pin UID 1000 on both sides during user creation.
+4. **UID/GID coordination for the shared partition.** If `user` is UID 1000 on Arch and UID 1001 on Ubuntu, every file on `/data` looks like it belongs to a different user depending on which OS you booted into. We pin UID 1000 on both sides during user creation.
 5. **`os-prober` is off by default on Arch.** Modern Arch GRUB ships with `GRUB_DISABLE_OS_PROBER=true`. We flip it for both distros so a re-run of `grub-mkconfig` from either side regenerates a complete menu.
 
 The result is the install I plan to put on my next workstation when I retire the Dell Precision: Arch for daily-driver work, Ubuntu for the (research-y) packages that don't have decent Arch coverage, and a single home directory's worth of documents living in one place — mounted, not synced, not copied.
@@ -459,22 +459,22 @@ EOF
 passwd
 
 # User account — UID and GID pinned to 1000 (matches Ubuntu's default first-user UID)
-groupadd -g 1000 youruser
-useradd -m -u 1000 -g 1000 -G wheel,video,audio,input youruser
-passwd youruser
+groupadd -g 1000 user
+useradd -m -u 1000 -g 1000 -G wheel,video,audio,input user
+passwd user
 
 # sudo for wheel
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 ```
 
-Replace `youruser` with whatever username you want; the only thing that matters is that you use the **same username and the same `-u 1000 -g 1000`** when you create the user during Ubuntu install later.
+Replace `user` with whatever username you want; the only thing that matters is that you use the **same username and the same `-u 1000 -g 1000`** when you create the user during Ubuntu install later.
 
 ::: {.callout-important}
 ## The pinned UID is the load-bearing part of "shared data partition"
 
-Linux filesystems store file ownership as integers, not names. If `youruser` is UID 1000 on Arch and `youruser` is UID 1001 on Ubuntu, the file ownership on `/data` literally cannot match in both directions — *somebody's* `ls -l /data` will show `1001` instead of `youruser`. Pin the UID at user-create time on both sides and the problem disappears before it starts.
+Linux filesystems store file ownership as integers, not names. If `user` is UID 1000 on Arch and `user` is UID 1001 on Ubuntu, the file ownership on `/data` literally cannot match in both directions — *somebody's* `ls -l /data` will show `1001` instead of `user`. Pin the UID at user-create time on both sides and the problem disappears before it starts.
 
-If you forget to pin during Ubuntu install and the user ends up as UID 1001, the recovery is `usermod -u 1000 youruser && groupmod -g 1000 youruser && find / -uid 1001 -exec chown 1000 {} +` — workable but tedious. Pin in advance.
+If you forget to pin during Ubuntu install and the user ends up as UID 1001, the recovery is `usermod -u 1000 user && groupmod -g 1000 user && find / -uid 1001 -exec chown 1000 {} +` — workable but tedious. Pin in advance.
 :::
 
 ---
@@ -876,13 +876,13 @@ Write a probe file as your user, then check it from a root shell:
 ```bash
 echo "written from arch" > /data/probe-arch.txt
 ls -l /data/probe-arch.txt
-# Should print: -rw-r--r-- 1 youruser youruser ... /data/probe-arch.txt
+# Should print: -rw-r--r-- 1 user user ... /data/probe-arch.txt
 #                            ^^^^^^^^^^^^^ — user/group name, not raw UID
 stat -c '%u %g' /data/probe-arch.txt
 # Should print: 1000 1000
 ```
 
-The point of the second `stat` line is to confirm the *integer* UID is 1000 — that's what Ubuntu's `youruser` will see when it mounts `/data` later. If the integer is anything other than 1000, your `useradd` in Chapter 6 didn't pin correctly; fix it now with `usermod -u 1000 youruser && chown -R 1000:1000 /home/youruser /data/*-by-youruser`.
+The point of the second `stat` line is to confirm the *integer* UID is 1000 — that's what Ubuntu's `user` will see when it mounts `/data` later. If the integer is anything other than 1000, your `useradd` in Chapter 6 didn't pin correctly; fix it now with `usermod -u 1000 user && chown -R 1000:1000 /home/user /data/*-by-user`.
 
 ### Configure snapper for `/`
 
@@ -972,7 +972,7 @@ Run that from the *Arch* side, before booting the Ubuntu installer.
     - **`/dev/nvme0n1p4`** — select it, **"Change"**, **set "Use as: physical volume for encryption"**, **format checked**. The installer will prompt for a LUKS passphrase. Use a distinct passphrase from Arch's root — save it in your password manager as `LUKS — ubuntu root`.
     - After confirming the encryption setup, the partition will show as a mapper (e.g., `/dev/mapper/nvme0n1p4_crypt`). Select that mapper, **"Change"**, set "Use as: btrfs journaling file system", "Mount point: /", **format checked**.
 5. **"Device for boot loader installation"** — set this to `/dev/nvme0n1` (the *disk*, not a partition). Ubuntu's `grub-install` will write to the ESP we created.
-6. **User account creation**: username `youruser` (match exactly what you used on Arch), tick **"Log in automatically"** off, password whatever. The installer does not expose the UID for the first user — it's hard-coded to 1000, which is exactly what we want.
+6. **User account creation**: username `user` (match exactly what you used on Arch), tick **"Log in automatically"** off, password whatever. The installer does not expose the UID for the first user — it's hard-coded to 1000, which is exactly what we want.
 7. Confirm, install.
 
 ::: {.callout-note}
@@ -1081,7 +1081,7 @@ Ubuntu's installer doesn't create a hibernation swap file by default. We mirror 
 
 After the reboot, pick **Ubuntu** from the GRUB menu (or `Arch Linux` to flip back if you want to compare; we'll boot Ubuntu first to finish its config).
 
-Log in as `youruser`. Open a terminal:
+Log in as `user`. Open a terminal:
 
 ```bash
 # Find the Btrfs filesystem mounted at / — should be /dev/mapper/nvme0n1p4_crypt
@@ -1134,7 +1134,7 @@ Confirm Ubuntu sees the shared partition and its own swap correctly:
 findmnt /data                 # /dev/mapper/cryptshared, subvol=@data
 swapon --show                 # zram (recent Ubuntu sets it up automatically) + /swap/swapfile
 cryptsetup status cryptshared
-ls -l /data                   # files written from Arch should appear, owned by youruser
+ls -l /data                   # files written from Arch should appear, owned by user
 ```
 
 Test hibernation:
@@ -1212,7 +1212,7 @@ swapon --show                   # zram + /swap/swapfile (Ubuntu's own, distinct 
 cryptsetup status nvme0n1p4_crypt
 cryptsetup status cryptshared
 sudo systemctl hibernate        # works, resumes into Ubuntu (separate from Arch's hibernation)
-ls -l /data                     # same files as Arch sees, owned by youruser
+ls -l /data                     # same files as Arch sees, owned by user
 stat -c '%u %g %n' /data/*      # all UIDs/GIDs == 1000
 ```
 
@@ -1281,13 +1281,13 @@ Fix the cmdline (Arch: `/etc/default/grub` → `grub-mkconfig`; Ubuntu: `/etc/de
 The Ubuntu installer assigned the user UID 1001 because there was already a UID 1000 in some inherited config (rare, but possible). Fix from Ubuntu:
 
 ```bash
-sudo usermod -u 1000 youruser
-sudo groupmod -g 1000 youruser
+sudo usermod -u 1000 user
+sudo groupmod -g 1000 user
 sudo find / -uid 1001 -not -path '/proc/*' -not -path '/sys/*' -exec chown 1000 {} +
 sudo find / -gid 1001 -not -path '/proc/*' -not -path '/sys/*' -exec chgrp 1000 {} +
 ```
 
-Reboot Ubuntu. Now `id youruser` prints `uid=1000(youruser) gid=1000(youruser)`.
+Reboot Ubuntu. Now `id user` prints `uid=1000(user) gid=1000(user)`.
 
 ### 6. Ubuntu installer can't see the Arch ESP
 

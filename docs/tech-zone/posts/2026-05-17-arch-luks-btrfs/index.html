@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Evanns Morales-Cuadrado">
+<meta name="author" content="Evanns Morales">
 <meta name="dcterms.date" content="2026-05-17">
 <meta name="description" content="Single-boot Arch Linux on an NVMe SSD: LUKS2 full-disk encryption, Btrfs with proper subvolumes (@, @home, @snapshots, @var_log, @swap), zram for everyday compressed swap, a NoCOW swap file on Btrfs for hibernation, snapper + grub-btrfs for bootable snapshots. A working, copy-pasteable expansion of my basic Arch install — with every correction from the failed-boot post-mortem already baked in. The desktop layer is deliberately a separate choice, see Part 4.">
 
@@ -440,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Evanns Morales-Cuadrado </p>
+             <p>Evanns Morales </p>
           </div>
   </div>
     
@@ -861,12 +861,12 @@ Sanity-check the generated fstab
 <span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span></span>
 <span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a><span class="co"># User account</span></span>
-<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-g</span> users <span class="at">-G</span> wheel,video,audio,input evanns</span>
-<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> evanns</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-g</span> users <span class="at">-G</span> wheel,video,audio,input user</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> user</span>
 <span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a><span class="co"># sudo for wheel</span></span>
 <span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/'</span> /etc/sudoers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Replace <code>evanns</code> with whatever username you want. I’m using <code>arch</code> as the bare hostname (so the shell prompt reads <code>evanns@arch</code>) — if you’d rather have a more descriptive hostname like <code>arch-thinkpad</code> or <code>lab-laptop</code>, change both the <code>/etc/hostname</code> line and the trailing <code>arch.localdomain arch</code> token in <code>/etc/hosts</code>. The extra groups (<code>video</code>, <code>audio</code>, <code>input</code>) preempt small annoyances later with Hyprland (<code>video</code> for GPU access, <code>input</code> for libinput devices, <code>audio</code> for the legacy ALSA path some apps still want).</p>
+<p>Replace <code>user</code> with whatever username you want. I’m using <code>arch</code> as the bare hostname (so the shell prompt reads <code>user@arch</code>) — if you’d rather have a more descriptive hostname like <code>arch-thinkpad</code> or <code>lab-laptop</code>, change both the <code>/etc/hostname</code> line and the trailing <code>arch.localdomain arch</code> token in <code>/etc/hosts</code>. The extra groups (<code>video</code>, <code>audio</code>, <code>input</code>) preempt small annoyances later with Hyprland (<code>video</code> for GPU access, <code>input</code> for libinput devices, <code>audio</code> for the legacy ALSA path some apps still want).</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1291,7 +1291,7 @@ The swapon –show line above
 <span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>           <span class="co"># Should show /dev/zram0 (pri 100) AND /swap/swapfile</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <section id="verify-your-hostname-and-fix-it-if-its-off" class="level3">
 <h3 class="anchored" data-anchor-id="verify-your-hostname-and-fix-it-if-its-off">Verify your hostname (and fix it if it’s off)</h3>
-<p>Your shell prompt should already be reading <code>&lt;your-user&gt;@arch</code> (e.g.&nbsp;<code>evanns@arch</code>). If you instead see something like <code>evanns@evanns-arch</code> — because you copy-pasted the chroot block from an earlier draft of this article, or just picked a different name in Chapter 6 — fix it now. The hostname is what shows up in your prompt, in <code>mDNS</code> (<code>arch.local</code> for things like AirDrop-style discovery), in NetworkManager’s DHCP requests, and in every <code>journalctl</code> entry from now on; getting it right early saves grep noise forever.</p>
+<p>Your shell prompt should already be reading <code>&lt;your-user&gt;@arch</code> (e.g.&nbsp;<code>user@arch</code>). If you instead see something like <code>user@user-arch</code> — because you copy-pasted the chroot block from an earlier draft of this article, or just picked a different name in Chapter 6 — fix it now. The hostname is what shows up in your prompt, in <code>mDNS</code> (<code>arch.local</code> for things like AirDrop-style discovery), in NetworkManager’s DHCP requests, and in every <code>journalctl</code> entry from now on; getting it right early saves grep noise forever.</p>
 <p>Check what’s currently set:</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hostnamectl</span>                       <span class="co"># full status (Static hostname, Icon name, Chassis, …)</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /etc/hosts                    <span class="co"># should have 3 lines — see below</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1646,7 +1646,7 @@ Click to expand
 (2/2) Performing snapper post snapshots for the following configurations...
 ==&gt; root: 2
 
-[evanns@arch ~]$ sudo snapper -c root list
+[user@arch ~]$ sudo snapper -c root list
 # │ Type   │ Pre # │ Date                            │ User │ Cleanup │ Description    │ Userdata
 ──┼────────┼───────┼─────────────────────────────────┼──────┼─────────┼────────────────┼─────────
 0 │ single │       │                                 │ root │         │ current        │

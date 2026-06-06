@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Evanns Morales-Cuadrado">
+<meta name="author" content="Evanns Morales">
 <meta name="dcterms.date" content="2026-05-01">
 <meta name="description" content="A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop — verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install.">
 
@@ -436,7 +436,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Evanns Morales-Cuadrado </p>
+             <p>Evanns Morales </p>
           </div>
   </div>
     
@@ -910,11 +910,11 @@ Click to expand: what each package does
 </section>
 <section id="create-your-user-account" class="level3">
 <h3 class="anchored" data-anchor-id="create-your-user-account">6. Create your user account</h3>
-<div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-g</span> users <span class="at">-G</span> wheel evanns</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> evanns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Replace <code>evanns</code> with whatever your username should be. Flag-by-flag:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-g</span> users <span class="at">-G</span> wheel user</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> user</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Replace <code>user</code> with whatever your username should be. Flag-by-flag:</p>
 <ul>
-<li><code>-m</code> — create a home directory at <code>/home/evanns</code>.</li>
+<li><code>-m</code> — create a home directory at <code>/home/user</code>.</li>
 <li><code>-g users</code> — primary group is <code>users</code>.</li>
 <li><code>-G wheel</code> — <em>also</em> add the user to the <code>wheel</code> group.</li>
 </ul>

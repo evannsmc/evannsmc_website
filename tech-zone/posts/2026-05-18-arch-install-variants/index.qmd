@@ -1,7 +1,7 @@
 ---
 title: "Three Single-Boot Arch Variants: Btrfs, LUKS, or Both"
 description: "A side-by-side compilation of three single-boot Arch Linux install procedures derived from what I learned writing Articles 01–04: Arch + Btrfs subvolumes (no encryption), Arch + LUKS (no Btrfs), and Arch + LUKS + Btrfs (the snapshot-ready encrypted single-boot from Article 03). Use the tab switcher to pick the variant you want. Each tab is a complete, copy-pasteable procedure isolated to one variable change relative to the basic install, and stops on the console — the desktop layer is a separate choice."
-author: "Evanns Morales-Cuadrado"
+author: "Evanns Morales"
 date: "2026-05-18"
 categories: [arch linux, linux, installation, btrfs, luks, snapper, grub, mkinitcpio, zram, single-boot]
 image: ../../../files/tech-zone/arch-logo-dark.svg

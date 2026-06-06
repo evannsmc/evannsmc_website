@@ -1,7 +1,7 @@
 ---
 title: "Pacman, Yay, Paru, and the AUR: What Every Prompt Actually Means"
 description: "A practical reference for the interactive prompts, warnings, and errors you'll see when installing packages on Arch Linux. Decodes every common pacman question (Y/n confirmations, optional dependencies, provider selection, file conflicts, hooks), every yay/paru question (cleanBuild, diffs, PKGBUILDs to edit), and the warnings that look scary but aren't (snap-pac perl errors, missing-firmware messages, sd-vconsole notices). Written so future-you can paste a prompt into the search and find the right answer in five seconds."
-author: "Evanns Morales-Cuadrado"
+author: "Evanns Morales"
 date: "2026-05-17"
 categories: [arch linux, pacman, aur, yay, paru, package management, reference]
 image: ../../../files/tech-zone/arch-logo-dark.svg
@@ -734,7 +734,7 @@ stow */
 ## Two rules that keep this clean
 
 1. **Your stow packages should *add* files to `~/.config/`, never *replace* what the bundle installed.**
-   Use new filenames (`99-evanns.fish`, `personal-binds.conf`), or use subdirectories the bundle leaves alone (`conf.d/`, `local/`, `plugins/`). If you stow a file that has the same path as a bundle symlink, stow refuses with a "would override" error — which is the *right* behavior; it's telling you to pick a non-colliding name.
+   Use new filenames (`99-user.fish`, `personal-binds.conf`), or use subdirectories the bundle leaves alone (`conf.d/`, `local/`, `plugins/`). If you stow a file that has the same path as a bundle symlink, stow refuses with a "would override" error — which is the *right* behavior; it's telling you to pick a non-colliding name.
 
 2. **Treat both the bundle's repo and your overlay as part of the install.** Back up both. On a reinstall, restore both. If you ever want to remove your overlay cleanly: `cd ~/dotfiles && stow -D */` removes every symlink in one shot.
 

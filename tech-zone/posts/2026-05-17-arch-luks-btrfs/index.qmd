@@ -1,7 +1,7 @@
 ---
 title: "Arch + LUKS + Btrfs — Encrypted, Snapshot-Ready Single-Boot"
 description: "Single-boot Arch Linux on an NVMe SSD: LUKS2 full-disk encryption, Btrfs with proper subvolumes (@, @home, @snapshots, @var_log, @swap), zram for everyday compressed swap, a NoCOW swap file on Btrfs for hibernation, snapper + grub-btrfs for bootable snapshots. A working, copy-pasteable expansion of my basic Arch install — with every correction from the failed-boot post-mortem already baked in. The desktop layer is deliberately a separate choice, see Part 4."
-author: "Evanns Morales-Cuadrado"
+author: "Evanns Morales"
 date: "2026-05-17"
 categories: [arch linux, linux, installation, luks, btrfs, snapper, hibernation, grub, mkinitcpio, systemd, zram]
 image: ../../../files/tech-zone/arch-logo-dark.svg
@@ -328,14 +328,14 @@ EOF
 passwd
 
 # User account
-useradd -m -g users -G wheel,video,audio,input evanns
-passwd evanns
+useradd -m -g users -G wheel,video,audio,input user
+passwd user
 
 # sudo for wheel
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 ```
 
-Replace `evanns` with whatever username you want. I'm using `arch` as the bare hostname (so the shell prompt reads `evanns@arch`) — if you'd rather have a more descriptive hostname like `arch-thinkpad` or `lab-laptop`, change both the `/etc/hostname` line and the trailing `arch.localdomain arch` token in `/etc/hosts`. The extra groups (`video`, `audio`, `input`) preempt small annoyances later with Hyprland (`video` for GPU access, `input` for libinput devices, `audio` for the legacy ALSA path some apps still want).
+Replace `user` with whatever username you want. I'm using `arch` as the bare hostname (so the shell prompt reads `user@arch`) — if you'd rather have a more descriptive hostname like `arch-thinkpad` or `lab-laptop`, change both the `/etc/hostname` line and the trailing `arch.localdomain arch` token in `/etc/hosts`. The extra groups (`video`, `audio`, `input`) preempt small annoyances later with Hyprland (`video` for GPU access, `input` for libinput devices, `audio` for the legacy ALSA path some apps still want).
 
 ::: {.callout-important}
 ## Substitute *your* timezone — don't inherit mine
@@ -682,7 +682,7 @@ swapon --show           # Should show /dev/zram0 (pri 100) AND /swap/swapfile
 
 ### Verify your hostname (and fix it if it's off)
 
-Your shell prompt should already be reading `<your-user>@arch` (e.g. `evanns@arch`). If you instead see something like `evanns@evanns-arch` — because you copy-pasted the chroot block from an earlier draft of this article, or just picked a different name in Chapter 6 — fix it now. The hostname is what shows up in your prompt, in `mDNS` (`arch.local` for things like AirDrop-style discovery), in NetworkManager's DHCP requests, and in every `journalctl` entry from now on; getting it right early saves grep noise forever.
+Your shell prompt should already be reading `<your-user>@arch` (e.g. `user@arch`). If you instead see something like `user@user-arch` — because you copy-pasted the chroot block from an earlier draft of this article, or just picked a different name in Chapter 6 — fix it now. The hostname is what shows up in your prompt, in `mDNS` (`arch.local` for things like AirDrop-style discovery), in NetworkManager's DHCP requests, and in every `journalctl` entry from now on; getting it right early saves grep noise forever.
 
 Check what's currently set:
 
@@ -970,7 +970,7 @@ After `Option B`, the snap-pac hook output during the install confirms snapshots
 (2/2) Performing snapper post snapshots for the following configurations...
 ==> root: 2
 
-[evanns@arch ~]$ sudo snapper -c root list
+[user@arch ~]$ sudo snapper -c root list
 # │ Type   │ Pre # │ Date                            │ User │ Cleanup │ Description    │ Userdata
 ──┼────────┼───────┼─────────────────────────────────┼──────┼─────────┼────────────────┼─────────
 0 │ single │       │                                 │ root │         │ current        │

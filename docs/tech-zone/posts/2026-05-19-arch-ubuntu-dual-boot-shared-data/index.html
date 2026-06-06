@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Evanns Morales-Cuadrado">
+<meta name="author" content="Evanns Morales">
 <meta name="dcterms.date" content="2026-05-19">
 <meta name="description" content="A dual-boot install that bolts an Ubuntu 24 LTS install alongside the LUKS+Btrfs single-boot Arch from Article 03 — two independently encrypted root partitions and one shared 150 GiB Btrfs data partition both distros mount read-write. Both roots are LUKS2 + Btrfs (@, @home, @snapshots, @var_log, @swap). The shared partition is LUKS-encrypted and auto-unlocked at boot via a keyfile stored inside each distro’s already-unlocked root — no double passphrase prompt. Each distro runs zram for everyday compressed swap and hibernates to its own NoCOW Btrfs swap file inside its own encrypted root, so there are no cross-OS resume-image collisions. GRUB on the single shared ESP, with os-prober enabled.">
 
@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Evanns Morales-Cuadrado </p>
+             <p>Evanns Morales </p>
           </div>
   </div>
     
@@ -514,7 +514,7 @@ What this is
 <li><strong>Who owns GRUB?</strong> Both distros want to install their own bootloader to the same ESP. We pick one as the menu driver (Ubuntu, because its installer wires up <code>os-prober</code> for you out of the box) and let it discover Arch automatically.</li>
 <li><strong>How does the shared encrypted data partition get unlocked from both sides without prompting twice?</strong> A LUKS container can hold up to 8 keyslots. We add the user’s passphrase as slot 0 (for recovery from a live USB), then add a 4096-byte keyfile as slot 1 — and store a copy of that keyfile inside each (already-unlocked) root, referenced from each distro’s <code>/etc/crypttab</code>. Boot order: root unlock by passphrase → root mounts → crypttab reads keyfile → shared partition unlocks silently.</li>
 <li><strong>Resume-image collisions.</strong> Two OSes hibernating to the same swap target would overwrite each other’s resume image. We sidestep this entirely by giving each OS its own NoCOW Btrfs swap file inside its own LUKS root, plus zram for everyday compressed swap — exactly the <a href="../2026-05-17-arch-luks-btrfs/#chapter-7-the-hibernation-swap-file">Article 03 pattern</a>, applied twice. There’s no shared swap partition at all: zram handles ~all everyday memory pressure on either OS, and hibernation never has to share state across the boundary.</li>
-<li><strong>UID/GID coordination for the shared partition.</strong> If <code>youruser</code> is UID 1000 on Arch and UID 1001 on Ubuntu, every file on <code>/data</code> looks like it belongs to a different user depending on which OS you booted into. We pin UID 1000 on both sides during user creation.</li>
+<li><strong>UID/GID coordination for the shared partition.</strong> If <code>user</code> is UID 1000 on Arch and UID 1001 on Ubuntu, every file on <code>/data</code> looks like it belongs to a different user depending on which OS you booted into. We pin UID 1000 on both sides during user creation.</li>
 <li><strong><code>os-prober</code> is off by default on Arch.</strong> Modern Arch GRUB ships with <code>GRUB_DISABLE_OS_PROBER=true</code>. We flip it for both distros so a re-run of <code>grub-mkconfig</code> from either side regenerates a complete menu.</li>
 </ol>
 <p>The result is the install I plan to put on my next workstation when I retire the Dell Precision: Arch for daily-driver work, Ubuntu for the (research-y) packages that don’t have decent Arch coverage, and a single home directory’s worth of documents living in one place — mounted, not synced, not copied.</p>
@@ -997,13 +997,13 @@ Sanity-check the generated fstab
 <span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span></span>
 <span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a><span class="co"># User account — UID and GID pinned to 1000 (matches Ubuntu's default first-user UID)</span></span>
-<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 youruser</span>
-<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-G</span> wheel,video,audio,input youruser</span>
-<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> youruser</span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 user</span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-G</span> wheel,video,audio,input user</span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> user</span>
 <span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a><span class="co"># sudo for wheel</span></span>
 <span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/'</span> /etc/sudoers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Replace <code>youruser</code> with whatever username you want; the only thing that matters is that you use the <strong>same username and the same <code>-u 1000 -g 1000</code></strong> when you create the user during Ubuntu install later.</p>
+<p>Replace <code>user</code> with whatever username you want; the only thing that matters is that you use the <strong>same username and the same <code>-u 1000 -g 1000</code></strong> when you create the user during Ubuntu install later.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1014,8 +1014,8 @@ The pinned UID is the load-bearing part of “shared data partition”
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Linux filesystems store file ownership as integers, not names. If <code>youruser</code> is UID 1000 on Arch and <code>youruser</code> is UID 1001 on Ubuntu, the file ownership on <code>/data</code> literally cannot match in both directions — <em>somebody’s</em> <code>ls -l /data</code> will show <code>1001</code> instead of <code>youruser</code>. Pin the UID at user-create time on both sides and the problem disappears before it starts.</p>
-<p>If you forget to pin during Ubuntu install and the user ends up as UID 1001, the recovery is <code>usermod -u 1000 youruser &amp;&amp; groupmod -g 1000 youruser &amp;&amp; find / -uid 1001 -exec chown 1000 {} +</code> — workable but tedious. Pin in advance.</p>
+<p>Linux filesystems store file ownership as integers, not names. If <code>user</code> is UID 1000 on Arch and <code>user</code> is UID 1001 on Ubuntu, the file ownership on <code>/data</code> literally cannot match in both directions — <em>somebody’s</em> <code>ls -l /data</code> will show <code>1001</code> instead of <code>user</code>. Pin the UID at user-create time on both sides and the problem disappears before it starts.</p>
+<p>If you forget to pin during Ubuntu install and the user ends up as UID 1001, the recovery is <code>usermod -u 1000 user &amp;&amp; groupmod -g 1000 user &amp;&amp; find / -uid 1001 -exec chown 1000 {} +</code> — workable but tedious. Pin in advance.</p>
 </div>
 </div>
 <hr>
@@ -1437,11 +1437,11 @@ cryptshared UUID=&lt;shared-luks-uuid&gt; /etc/cryptsetup-keys.d/shared.key luks
 <p>Write a probe file as your user, then check it from a root shell:</p>
 <div class="sourceCode" id="cb51"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"written from arch"</span> <span class="op">&gt;</span> /data/probe-arch.txt</span>
 <span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data/probe-arch.txt</span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Should print: -rw-r--r-- 1 youruser youruser ... /data/probe-arch.txt</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Should print: -rw-r--r-- 1 user user ... /data/probe-arch.txt</span></span>
 <span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="co">#                            ^^^^^^^^^^^^^ — user/group name, not raw UID</span></span>
 <span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g'</span> /data/probe-arch.txt</span>
 <span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Should print: 1000 1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The point of the second <code>stat</code> line is to confirm the <em>integer</em> UID is 1000 — that’s what Ubuntu’s <code>youruser</code> will see when it mounts <code>/data</code> later. If the integer is anything other than 1000, your <code>useradd</code> in Chapter 6 didn’t pin correctly; fix it now with <code>usermod -u 1000 youruser &amp;&amp; chown -R 1000:1000 /home/youruser /data/*-by-youruser</code>.</p>
+<p>The point of the second <code>stat</code> line is to confirm the <em>integer</em> UID is 1000 — that’s what Ubuntu’s <code>user</code> will see when it mounts <code>/data</code> later. If the integer is anything other than 1000, your <code>useradd</code> in Chapter 6 didn’t pin correctly; fix it now with <code>usermod -u 1000 user &amp;&amp; chown -R 1000:1000 /home/user /data/*-by-user</code>.</p>
 </section>
 <section id="configure-snapper-for" class="level3">
 <h3 class="anchored" data-anchor-id="configure-snapper-for">Configure snapper for <code>/</code></h3>
@@ -1533,7 +1533,7 @@ Ubuntu will overwrite the EFI NVRAM <code>BootOrder</code>
 <li>After confirming the encryption setup, the partition will show as a mapper (e.g., <code>/dev/mapper/nvme0n1p4_crypt</code>). Select that mapper, <strong>“Change”</strong>, set “Use as: btrfs journaling file system”, “Mount point: /”, <strong>format checked</strong>.</li>
 </ul></li>
 <li><strong>“Device for boot loader installation”</strong> — set this to <code>/dev/nvme0n1</code> (the <em>disk</em>, not a partition). Ubuntu’s <code>grub-install</code> will write to the ESP we created.</li>
-<li><strong>User account creation</strong>: username <code>youruser</code> (match exactly what you used on Arch), tick <strong>“Log in automatically”</strong> off, password whatever. The installer does not expose the UID for the first user — it’s hard-coded to 1000, which is exactly what we want.</li>
+<li><strong>User account creation</strong>: username <code>user</code> (match exactly what you used on Arch), tick <strong>“Log in automatically”</strong> off, password whatever. The installer does not expose the UID for the first user — it’s hard-coded to 1000, which is exactly what we want.</li>
 <li>Confirm, install.</li>
 </ol>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -1614,7 +1614,7 @@ What the Ubuntu installer is actually doing under the hood
 <h2 class="anchored" data-anchor-id="chapter-15-add-the-hibernation-swap-file-on-ubuntu">Chapter 15: Add the hibernation swap file on Ubuntu</h2>
 <p>Ubuntu’s installer doesn’t create a hibernation swap file by default. We mirror Arch’s Chapter 9 from inside the running Ubuntu system.</p>
 <p>After the reboot, pick <strong>Ubuntu</strong> from the GRUB menu (or <code>Arch Linux</code> to flip back if you want to compare; we’ll boot Ubuntu first to finish its config).</p>
-<p>Log in as <code>youruser</code>. Open a terminal:</p>
+<p>Log in as <code>user</code>. Open a terminal:</p>
 <div class="sourceCode" id="cb64"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the Btrfs filesystem mounted at / — should be /dev/mapper/nvme0n1p4_crypt</span></span>
 <span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /</span>
 <span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1656,7 +1656,7 @@ Why the explicit <code>/etc/initramfs-tools/conf.d/resume</code> file
 <div class="sourceCode" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data                 <span class="co"># /dev/mapper/cryptshared, subvol=@data</span></span>
 <span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                 <span class="co"># zram (recent Ubuntu sets it up automatically) + /swap/swapfile</span></span>
 <span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> status cryptshared</span>
-<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                   <span class="co"># files written from Arch should appear, owned by youruser</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                   <span class="co"># files written from Arch should appear, owned by user</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Test hibernation:</p>
 <div class="sourceCode" id="cb69"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Screen goes dark, fans stop. Press the power button to resume. You should see: GRUB menu → kernel/initramfs → Ubuntu LUKS passphrase prompt → resume completes, exact same desktop state as before.</p>
@@ -1708,7 +1708,7 @@ Why the explicit <code>/etc/initramfs-tools/conf.d/resume</code> file
 <span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> status nvme0n1p4_crypt</span>
 <span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> status cryptshared</span>
 <span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate        <span class="co"># works, resumes into Ubuntu (separate from Arch's hibernation)</span></span>
-<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                     <span class="co"># same files as Arch sees, owned by youruser</span></span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                     <span class="co"># same files as Arch sees, owned by user</span></span>
 <span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>      <span class="co"># all UIDs/GIDs == 1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>What pass looks like at the system level:</strong> each OS hibernates and resumes into itself without touching the other, both mount <code>/data</code> with identical file ownership, both see exactly two swap devices (zram + their own per-OS swap file), and the GRUB menu lists both OSes regardless of which <code>grub-mkconfig</code>/<code>update-grub</code> regenerated it last.</p>
 <p>If any of these fail, the <a href="#emergency-failure-modes">emergency section</a> below covers the common dual-boot-specific failure modes.</p>
@@ -1772,11 +1772,11 @@ Why the explicit <code>/etc/initramfs-tools/conf.d/resume</code> file
 <section id="file-ownership-on-data-looks-like-1001-from-ubuntu-1000-from-arch" class="level3">
 <h3 class="anchored" data-anchor-id="file-ownership-on-data-looks-like-1001-from-ubuntu-1000-from-arch">5. File ownership on <code>/data</code> looks like <code>1001</code> from Ubuntu, <code>1000</code> from Arch</h3>
 <p>The Ubuntu installer assigned the user UID 1001 because there was already a UID 1000 in some inherited config (rare, but possible). Fix from Ubuntu:</p>
-<div class="sourceCode" id="cb76"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> usermod <span class="at">-u</span> 1000 youruser</span>
-<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> groupmod <span class="at">-g</span> 1000 youruser</span>
+<div class="sourceCode" id="cb76"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> usermod <span class="at">-u</span> 1000 user</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> groupmod <span class="at">-g</span> 1000 user</span>
 <span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find / <span class="at">-uid</span> 1001 <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/proc/*'</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/sys/*'</span> <span class="at">-exec</span> chown 1000 {} +</span>
 <span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find / <span class="at">-gid</span> 1001 <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/proc/*'</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/sys/*'</span> <span class="at">-exec</span> chgrp 1000 {} +</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Reboot Ubuntu. Now <code>id youruser</code> prints <code>uid=1000(youruser) gid=1000(youruser)</code>.</p>
+<p>Reboot Ubuntu. Now <code>id user</code> prints <code>uid=1000(user) gid=1000(user)</code>.</p>
 </section>
 <section id="ubuntu-installer-cant-see-the-arch-esp" class="level3">
 <h3 class="anchored" data-anchor-id="ubuntu-installer-cant-see-the-arch-esp">6. Ubuntu installer can’t see the Arch ESP</h3>

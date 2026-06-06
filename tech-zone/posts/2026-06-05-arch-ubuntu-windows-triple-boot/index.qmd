@@ -1,7 +1,7 @@
 ---
 title: "Triple-Boot Arch + Ubuntu + Windows — Closing the Loop on Article 01"
 description: "The full-circle finale of the install series: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS. Windows goes on first so it can't stomp the bootloader; Arch and Ubuntu layer on exactly as in the dual-boot article — two independently LUKS2+Btrfs-encrypted roots, one shared 150 GiB LUKS+Btrfs `/data` partition the two Linux distros mount read-write, per-OS zram + NoCOW Btrfs hibernation. Windows stays out of the encrypted pool entirely (it can't read LUKS or Btrfs); cross-OS exchange with Windows happens through a separate plain exFAT partition every OS can read. One GRUB on the shared 1 GiB ESP with os-prober enabled, chainloading the Windows boot manager. Secure Boot off, BitLocker off — the simplest reliable triple-boot, with every lesson from Articles 01–07 underneath."
-author: "Evanns Morales-Cuadrado"
+author: "Evanns Morales"
 date: "2026-06-05"
 categories: [arch linux, ubuntu, windows, linux, installation, triple-boot, luks, btrfs, snapper, hibernation, grub, os-prober, mkinitcpio, sd-encrypt, zram, exfat, esp, bitlocker, secure boot, shared partition]
 image: ../../../files/tech-zone/arch-logo-dark.svg
@@ -359,14 +359,14 @@ EOF
 
 passwd
 
-groupadd -g 1000 youruser
-useradd -m -u 1000 -g 1000 -G wheel,video,audio,input youruser
-passwd youruser
+groupadd -g 1000 user
+useradd -m -u 1000 -g 1000 -G wheel,video,audio,input user
+passwd user
 
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 ```
 
-Replace `youruser` with whatever username you actually want — it's a placeholder, not a name to copy verbatim. The **pinned UID/GID 1000** is what makes file ownership on the shared `/data` match between Arch and Ubuntu — Ubuntu's installer also assigns its first user UID 1000. Use the **same username and UID** when you create the Ubuntu user later. [Why the pinned UID is load-bearing →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-6-locale-time-hostname-user-with-a-pinned-uid)
+Replace `user` with whatever username you actually want — it's a placeholder, not a name to copy verbatim. The **pinned UID/GID 1000** is what makes file ownership on the shared `/data` match between Arch and Ubuntu — Ubuntu's installer also assigns its first user UID 1000. Use the **same username and UID** when you create the Ubuntu user later. [Why the pinned UID is load-bearing →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-6-locale-time-hostname-user-with-a-pinned-uid)
 
 ### Keyfile + crypttab for the shared `/data`
 
@@ -537,7 +537,7 @@ timedatectl status      # correct Time zone, "System clock synchronized: yes", "
 
 ```bash
 echo "hello from arch" > /exchange/from-arch.txt      # Windows will be able to read this
-ls -l /exchange/from-arch.txt                          # owned by youruser (uid=1000 from the mount options)
+ls -l /exchange/from-arch.txt                          # owned by user (uid=1000 from the mount options)
 
 echo "secret from arch" > /data/probe-arch.txt         # Linux-only, encrypted
 stat -c '%u %g' /data/probe-arch.txt                   # 1000 1000 — confirms the pinned UID
@@ -596,7 +596,7 @@ Boot a verified Ubuntu 24.04 LTS Desktop USB. In the installer:
    - **`p3` (Windows), `p4` (exchange), `p5` (shared LUKS), `p6` (Arch root)** — **leave all alone.** Ubuntu must not touch Windows, the exchange, or either encrypted volume it doesn't own.
    - **`p7`** — *Use as: physical volume for encryption*, **format checked**. Set a LUKS passphrase distinct from Arch's (`LUKS — ubuntu root`). On the resulting mapper, *Use as: btrfs, Mount point: /*, **format checked**.
 3. **"Device for boot loader installation"** → `/dev/nvme0n1` (the disk).
-4. **User account**: username `youruser` (match Arch exactly). The installer hard-codes the first user to UID 1000 — exactly what we want for `/data` ownership parity.
+4. **User account**: username `user` (match Arch exactly). The installer hard-codes the first user to UID 1000 — exactly what we want for `/data` ownership parity.
 5. Install, but at the end pick **"Continue Testing"** (don't reboot yet).
 
 ::: {.callout-warning}
@@ -687,7 +687,7 @@ Confirm Ubuntu sees the shared and exchange partitions, then test hibernation:
 ```bash
 findmnt /data /exchange
 swapon --show                    # zram + /swap/swapfile
-ls -l /data /exchange            # files written from Arch appear, owned by youruser
+ls -l /data /exchange            # files written from Arch appear, owned by user
 sudo systemctl hibernate         # resumes into Ubuntu, separate from Arch's image
 ```
 

@@ -1,7 +1,7 @@
 ---
 title: "My First Arch Linux Install: A Basic Setup on an Old Laptop"
 description: "A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop — verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install."
-author: "Evanns Morales-Cuadrado"
+author: "Evanns Morales"
 date: "2026-05-01"
 categories: [arch linux, linux, installation, dotfiles, bootloader, grub, systemd]
 image: ../../../files/tech-zone/arch-logo-dark.svg
@@ -464,13 +464,13 @@ passwd
 ### 6. Create your user account
 
 ```bash
-useradd -m -g users -G wheel evanns
-passwd evanns
+useradd -m -g users -G wheel user
+passwd user
 ```
 
-Replace `evanns` with whatever your username should be. Flag-by-flag:
+Replace `user` with whatever your username should be. Flag-by-flag:
 
-- `-m` — create a home directory at `/home/evanns`.
+- `-m` — create a home directory at `/home/user`.
 - `-g users` — primary group is `users`.
 - `-G wheel` — *also* add the user to the `wheel` group.
 

@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Evanns Morales-Cuadrado">
+<meta name="author" content="Evanns Morales">
 <meta name="dcterms.date" content="2026-06-05">
 <meta name="description" content="The full-circle finale of the install series: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS. Windows goes on first so it can’t stomp the bootloader; Arch and Ubuntu layer on exactly as in the dual-boot article — two independently LUKS2+Btrfs-encrypted roots, one shared 150 GiB LUKS+Btrfs /data partition the two Linux distros mount read-write, per-OS zram + NoCOW Btrfs hibernation. Windows stays out of the encrypted pool entirely (it can’t read LUKS or Btrfs); cross-OS exchange with Windows happens through a separate plain exFAT partition every OS can read. One GRUB on the shared 1 GiB ESP with os-prober enabled, chainloading the Windows boot manager. Secure Boot off, BitLocker off — the simplest reliable triple-boot, with every lesson from Articles 01–07 underneath.">
 
@@ -449,7 +449,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Evanns Morales-Cuadrado </p>
+             <p>Evanns Morales </p>
           </div>
   </div>
     
@@ -898,12 +898,12 @@ Why we fix the clock on the Windows side, not the Linux side
 <span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span></span>
 <span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 youruser</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-G</span> wheel,video,audio,input youruser</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> youruser</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 user</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-G</span> wheel,video,audio,input user</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> user</span>
 <span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/'</span> /etc/sudoers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Replace <code>youruser</code> with whatever username you actually want — it’s a placeholder, not a name to copy verbatim. The <strong>pinned UID/GID 1000</strong> is what makes file ownership on the shared <code>/data</code> match between Arch and Ubuntu — Ubuntu’s installer also assigns its first user UID 1000. Use the <strong>same username and UID</strong> when you create the Ubuntu user later. <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-6-locale-time-hostname-user-with-a-pinned-uid">Why the pinned UID is load-bearing →</a></p>
+<p>Replace <code>user</code> with whatever username you actually want — it’s a placeholder, not a name to copy verbatim. The <strong>pinned UID/GID 1000</strong> is what makes file ownership on the shared <code>/data</code> match between Arch and Ubuntu — Ubuntu’s installer also assigns its first user UID 1000. Use the <strong>same username and UID</strong> when you create the Ubuntu user later. <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-6-locale-time-hostname-user-with-a-pinned-uid">Why the pinned UID is load-bearing →</a></p>
 </section>
 <section id="keyfile-crypttab-for-the-shared-data" class="level3">
 <h3 class="anchored" data-anchor-id="keyfile-crypttab-for-the-shared-data">Keyfile + crypttab for the shared <code>/data</code></h3>
@@ -1027,7 +1027,7 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 <section id="verify-the-exchange-partition-is-shared-and-the-data-partition-is-private" class="level3">
 <h3 class="anchored" data-anchor-id="verify-the-exchange-partition-is-shared-and-the-data-partition-is-private">Verify the exchange partition is shared, and the data partition is private</h3>
 <div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"hello from arch"</span> <span class="op">&gt;</span> /exchange/from-arch.txt      <span class="co"># Windows will be able to read this</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /exchange/from-arch.txt                          <span class="co"># owned by youruser (uid=1000 from the mount options)</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /exchange/from-arch.txt                          <span class="co"># owned by user (uid=1000 from the mount options)</span></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"secret from arch"</span> <span class="op">&gt;</span> /data/probe-arch.txt         <span class="co"># Linux-only, encrypted</span></span>
 <span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g'</span> /data/probe-arch.txt                   <span class="co"># 1000 1000 — confirms the pinned UID</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1083,7 +1083,7 @@ Verify hibernation <strong>now</strong>, while only Arch + Windows exist
 <li><strong><code>p7</code></strong> — <em>Use as: physical volume for encryption</em>, <strong>format checked</strong>. Set a LUKS passphrase distinct from Arch’s (<code>LUKS — ubuntu root</code>). On the resulting mapper, <em>Use as: btrfs, Mount point: /</em>, <strong>format checked</strong>.</li>
 </ul></li>
 <li><strong>“Device for boot loader installation”</strong> → <code>/dev/nvme0n1</code> (the disk).</li>
-<li><strong>User account</strong>: username <code>youruser</code> (match Arch exactly). The installer hard-codes the first user to UID 1000 — exactly what we want for <code>/data</code> ownership parity.</li>
+<li><strong>User account</strong>: username <code>user</code> (match Arch exactly). The installer hard-codes the first user to UID 1000 — exactly what we want for <code>/data</code> ownership parity.</li>
 <li>Install, but at the end pick <strong>“Continue Testing”</strong> (don’t reboot yet).</li>
 </ol>
 <div class="callout callout-style-default callout-warning callout-titled">
@@ -1156,7 +1156,7 @@ Ubuntu reorders NVRAM to boot its own GRUB first
 <p>Confirm Ubuntu sees the shared and exchange partitions, then test hibernation:</p>
 <div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data /exchange</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                    <span class="co"># zram + /swap/swapfile</span></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data /exchange            <span class="co"># files written from Arch appear, owned by youruser</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data /exchange            <span class="co"># files written from Arch appear, owned by user</span></span>
 <span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate         <span class="co"># resumes into Ubuntu, separate from Arch's image</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
 </section>

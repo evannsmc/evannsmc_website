@@ -1,7 +1,7 @@
 ---
 title: "A Beginner Homelab on a Raspberry Pi — One Pi, One Tailnet, Nothing Exposed"
 description: "A homelab guide I wrote. Centered on an always-on Raspberry Pi that streams my media, blocks ads across my network, serves my custom HTTPS URLs through Caddy, provides a dashboard for managing services, and can be reached from anywhere over Tailscale without opening ports to the public internet."
-author: "Evanns Morales-Cuadrado"
+author: "Evanns Morales"
 date: "2026-06-02"
 categories: [raspberry pi, homelab, self-hosting, tailscale, docker, pi-hole, caddy, audiobookshelf, vpn, mullvad, networking, dns, wireguard]
 draft: false
