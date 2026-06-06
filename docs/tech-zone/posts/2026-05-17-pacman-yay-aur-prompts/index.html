@@ -466,7 +466,7 @@ What this is
 </div>
 <div class="callout-body-container callout-body">
 <p>A <strong>reference</strong> post, not a tutorial. The goal is that the next time you paste <code>==&gt; Packages to cleanBuild?</code> or <code>:: There are 2 providers available for jack</code> into a search box, this article is the first thing that comes up and tells you exactly what to type and why.</p>
-<p>I’m writing this because midway through my <a href="../2026-05-17-arch-luks-btrfs-caelestia/">LUKS + Btrfs + Caelestia install</a> I hit a dozen prompts in a row from pacman and yay, and realized that the answer to “what does this mean” is buried in eight different wiki pages, each of which assumes you already know the others. This post puts them all in one place, in the order you encounter them, with the answers I actually use.</p>
+<p>I’m writing this because midway through my <a href="../2026-05-17-arch-luks-btrfs/">LUKS + Btrfs + Caelestia install</a> I hit a dozen prompts in a row from pacman and yay, and realized that the answer to “what does this mean” is buried in eight different wiki pages, each of which assumes you already know the others. This post puts them all in one place, in the order you encounter them, with the answers I actually use.</p>
 </div>
 </div>
 <section id="part-1-the-mental-model" class="level1">
@@ -1383,7 +1383,7 @@ Quick decision rubric
 <li><strong>Pick <code>yay</code></strong> if you want the most-installed-by-default option (Caelestia and most install guides reach for yay first), you’re already used to its flag set, you don’t care about reviewing PKGBUILDs, or you simply want zero opinions about which to use and the most established option.</li>
 <li><strong>Pick both</strong> if you can’t decide — they coexist fine, share zero state, and you can experiment with each on the same machine.</li>
 </ul>
-<p>For the install in <a href="../2026-05-17-arch-luks-btrfs-caelestia/">Article 03</a>, either works. The Caelestia install script accepts <code>--aur-helper=paru</code> and behaves identically.</p>
+<p>For the install in <a href="../2026-05-17-arch-luks-btrfs/">Article 03</a>, either works. The Caelestia install script accepts <code>--aur-helper=paru</code> and behaves identically.</p>
 </div>
 </div>
 <hr>
@@ -1546,7 +1546,7 @@ Click to expand: what each prompt means
 <p>A specific pattern worth naming: how to layer <strong>your personal customizations</strong> on top of an opinionated dotfile bundle (Caelestia, AstroNvim, LazyVim, Oh-My-Zsh, prezto, etc.) without fighting it on every update.</p>
 <section id="the-problem" class="level2">
 <h2 class="anchored" data-anchor-id="the-problem">The problem</h2>
-<p>A bundle like <a href="../2026-05-17-arch-luks-btrfs-caelestia/">Caelestia</a> ships its own <code>install.fish</code> (or <code>install.sh</code>, or makefile) that <strong>symlinks configs from the bundle’s repo into <code>~/.config/</code></strong>. The instructions usually include some version of:</p>
+<p>A bundle like <a href="../2026-05-17-arch-luks-btrfs/">Caelestia</a> ships its own <code>install.fish</code> (or <code>install.sh</code>, or makefile) that <strong>symlinks configs from the bundle’s repo into <code>~/.config/</code></strong>. The instructions usually include some version of:</p>
 <blockquote class="blockquote">
 <p><em>Do not move the cloned repo after running install.fish. The symlinks in <code>~/.config/</code> point back into it; moving or deleting the source orphans every symlink.</em></p>
 </blockquote>

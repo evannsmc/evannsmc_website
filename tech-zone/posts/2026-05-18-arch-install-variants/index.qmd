@@ -12,7 +12,7 @@ draft: false
 ::: {.callout-warning}
 ## Honesty disclaimer: I haven't run these three exactly line-by-line
 
-Unlike [Article 02 (basic install)](../2026-05-01-first-arch-install/), [Article 01 (failed dual-boot post-mortem)](../2026-05-05-arch-luks-btrfs-lessons/), and [Article 03 (LUKS+Btrfs single-boot)](../2026-05-17-arch-luks-btrfs-caelestia/) — which are first-hand install logs I executed and can vouch for command-by-command — **the three procedures in this compilation are reasoned derivations**. They're built from what I learned in those four articles plus the [Arch wiki](https://wiki.archlinux.org/title/Installation_guide){target="_blank" rel="noopener"} and standard practice for each technology in isolation. I've verified every command in the man pages and the wiki, but I have **not** run all three end-to-end on a real machine and watched them boot.
+Unlike [Article 02 (basic install)](../2026-05-01-first-arch-install/), [Article 01 (failed dual-boot post-mortem)](../2026-05-05-arch-luks-btrfs-lessons/), and [Article 03 (LUKS+Btrfs single-boot)](../2026-05-17-arch-luks-btrfs/) — which are first-hand install logs I executed and can vouch for command-by-command — **the three procedures in this compilation are reasoned derivations**. They're built from what I learned in those four articles plus the [Arch wiki](https://wiki.archlinux.org/title/Installation_guide){target="_blank" rel="noopener"} and standard practice for each technology in isolation. I've verified every command in the man pages and the wiki, but I have **not** run all three end-to-end on a real machine and watched them boot.
 
 If you spot something wrong, the canonical sources are:
 
@@ -190,7 +190,7 @@ Same three partitions as the basic install — but the root partition is a LUKS 
 
 **Two notes on the swap partition:**
 
-- For this variant I'm assuming you want an unencrypted regular partition swap-only (no hibernation). If you want hibernation-safe encrypted swap, see [Article 01's plan](../2026-05-05-arch-luks-btrfs-lessons/) — but be aware Article 01 didn't boot, so use the [Article 03 swap-file-in-LUKS pattern](../2026-05-17-arch-luks-btrfs-caelestia/) instead (which lives in the `LUKS + Btrfs` tab on this page).
+- For this variant I'm assuming you want an unencrypted regular partition swap-only (no hibernation). If you want hibernation-safe encrypted swap, see [Article 01's plan](../2026-05-05-arch-luks-btrfs-lessons/) — but be aware Article 01 didn't boot, so use the [Article 03 swap-file-in-LUKS pattern](../2026-05-17-arch-luks-btrfs/) instead (which lives in the `LUKS + Btrfs` tab on this page).
 - The most-common simple pattern in 2026 is **skip the swap partition entirely** and use zram. Add `zram-generator` after first boot.
 
 ### Format and open the LUKS container
@@ -322,7 +322,7 @@ lsblk -f
 
 ## Arch + LUKS + Btrfs
 
-**What this variant gives you:** the full single-boot install from [Article 03](../2026-05-17-arch-luks-btrfs-caelestia/), condensed. LUKS2 underneath, Btrfs subvolumes on top, zram for everyday swap, a NoCOW Btrfs swap file for hibernation, snapper + grub-btrfs from day one. Stops on the console — desktop layer is your call (Caelestia, custom Hyprland, GNOME, Plasma, sway, dwm, …).
+**What this variant gives you:** the full single-boot install from [Article 03](../2026-05-17-arch-luks-btrfs/), condensed. LUKS2 underneath, Btrfs subvolumes on top, zram for everyday swap, a NoCOW Btrfs swap file for hibernation, snapper + grub-btrfs from day one. Stops on the console — desktop layer is your call (Caelestia, custom Hyprland, GNOME, Plasma, sway, dwm, …).
 
 **What's the same as Article 03:** every command in Parts 1–3 of that article — partitioning, LUKS format, Btrfs subvolume layout, mount options, pacstrap, mkinitcpio hooks, GRUB cmdline, snapper config, first-boot verification.
 

@@ -292,7 +292,7 @@ cryptsetup open /dev/nvme0n1p2 crypt_shared
 cryptsetup open /dev/nvme0n1p3 crypt_arch
 ```
 
-The mapper names matter — they're the contract between this step, the kernel cmdline, `/etc/crypttab`, and `/etc/fstab`. Pick a naming convention and stick with it. I'm using `crypt_arch` for the Arch root and `crypt_shared` for the data partition (Article 03 calls the Arch root `cryptroot`; here it becomes `crypt_arch` so the name itself says *which* OS's root it is, now that more than one is in play). Ubuntu's root is the third piece of the scheme — conceptually `crypt_ubuntu` — but you don't get to pick it the same way: Ubuntu's guided installer auto-names the mapper after its partition, typically `nvme0n1p4_crypt`, and that's the name that ends up in Ubuntu's own `/etc/crypttab` and `resume=` line. We use that installer name verbatim later in the article rather than fight it.
+The mapper names matter — they're the contract between this step, the kernel cmdline, `/etc/crypttab`, and `/etc/fstab`. Pick a naming convention and stick with it. I'm using `crypt_arch` for the Arch root and `crypt_shared` for the data partition (Article 03 calls the Arch root `cryptroot`; here it becomes `crypt_arch` so the name itself says *which* OS's root it is, now that more than one is in play). Ubuntu's root is the third piece of the scheme — conceptually `crypt_ubuntu` — but you don't get to pick it the same way: Ubuntu's guided installer auto-names the mapper after its partition, typically `crypt_ubuntu`, and that's the name that ends up in Ubuntu's own `/etc/crypttab` and `resume=` line. We use that installer name verbatim later in the article rather than fight it.
 
 Format the inside of each container:
 
@@ -970,64 +970,121 @@ efibootmgr -v > ~/efi-before-ubuntu.txt
 Run that from the *Arch* side, before booting the Ubuntu installer.
 :::
 
-### In the Ubuntu installer
+### Install Ubuntu by hand from the live session
 
-1. Pick **"Install Ubuntu"** (not "Try Ubuntu without installing", though either gets you to the installer eventually).
-2. **Keyboard, network, updates** — answer normally. Network: connect to the same Wi-Fi as before so `/dev/disk/by-uuid` mappings the live system sees match what the installed system will see.
-3. **Installation type** → **"Something else"** (the manual-partitioning option — the other choices will try to wipe the whole disk).
-4. In the partition table editor:
-    - **`/dev/nvme0n1p1`** — select it, **"Change"**, set "Use as: EFI System Partition" → **DO NOT FORMAT** (the checkbox at the bottom — leave it unchecked). This shares Arch's ESP with Ubuntu.
-    - **`/dev/nvme0n1p2`** — leave it alone (Ubuntu will recognize it as a LUKS container holding the shared `/data`; don't let the installer touch it).
-    - **`/dev/nvme0n1p3`** — same, leave alone (this is Arch's root; Ubuntu must not even read it).
-    - **`/dev/nvme0n1p4`** — select it, **"Change"**, **set "Use as: physical volume for encryption"**, **format checked**. The installer will prompt for a LUKS passphrase. Use a distinct passphrase from Arch's root — save it in your password manager as `LUKS — ubuntu root`.
-    - After confirming the encryption setup, the partition will show as a mapper (e.g., `/dev/mapper/nvme0n1p4_crypt`). Select that mapper, **"Change"**, set "Use as: btrfs journaling file system", "Mount point: /", **format checked**.
-5. **"Device for boot loader installation"** — set this to `/dev/nvme0n1` (the *disk*, not a partition). Ubuntu's `grub-install` will write to the ESP we created.
-6. **User account creation**: username `user` (match exactly what you used on Arch), tick **"Log in automatically"** off, password whatever. The installer does not expose the UID for the first user — it's hard-coded to 1000, which is exactly what we want.
-7. Confirm, install.
+**Heads-up — the graphical installer can't do this anymore.** Ubuntu 24.04 ships the rewritten Flutter/Subiquity installer, and its **manual ("Something else") partitioning dropped on-partition encryption** — it won't mark a partition *physical volume for encryption*, and it won't even expose the *EFI System Partition* type. So we skip the GUI for the root entirely and build the encrypted Btrfs root by hand from the live session — the same `cryptsetup` + `mkfs.btrfs` + subvolume primitives Arch used — then lay Ubuntu down with `debootstrap`. More steps, but full control and an exact-parity layout.
 
-::: {.callout-note}
-## What the Ubuntu installer is actually doing under the hood
-
-The `Something else` flow gives you a partition table editor that drives `parted`, `cryptsetup`, `mkfs.btrfs`, and `grub-install` for you. Equivalent to roughly:
+Boot the Ubuntu Desktop USB, choose **"Try Ubuntu"**, connect to Wi-Fi (`debootstrap` needs the network), open a terminal, and become root:
 
 ```bash
-cryptsetup luksFormat --type luks2 /dev/nvme0n1p4
-cryptsetup open /dev/nvme0n1p4 nvme0n1p4_crypt
-mkfs.btrfs -L ubuntu /dev/mapper/nvme0n1p4_crypt
-# … debootstrap of Ubuntu rootfs into a Btrfs filesystem with @ and @home subvolumes …
-mount /dev/nvme0n1p1 /target/boot/efi
-grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Ubuntu /dev/nvme0n1
-update-initramfs -u
-update-grub                        # Ubuntu's wrapper around grub-mkconfig
+sudo -i
+apt update && apt install -y debootstrap cryptsetup-bin
 ```
 
-`update-grub` with `os-prober` enabled (which is the Ubuntu default) discovers Arch on `/dev/nvme0n1p3`: it sees the LUKS container exists and adds an "Arch Linux GNU/Linux" entry that chainloads our `/boot/EFI/GRUB/grubx64.efi`. Functionally: at the GRUB menu after Ubuntu install, picking "Ubuntu" boots Ubuntu directly; picking "Arch Linux" chains to Arch's GRUB and from there to Arch.
+**1 — Encrypt p4 and create the Btrfs layout.** Use a passphrase *distinct* from Arch's root (save it as `LUKS — ubuntu root`). The `--pbkdf pbkdf2` is load-bearing: unlike Arch — whose kernel lives on the *unencrypted* ESP at `/boot` — Ubuntu keeps `/boot` *inside* this encrypted root, so **GRUB itself** has to unlock it, and GRUB reads PBKDF2 keyslots far more reliably than the LUKS2 default (Argon2id).
+
+```bash
+cryptsetup luksFormat --type luks2 --pbkdf pbkdf2 /dev/nvme0n1p4
+cryptsetup open /dev/nvme0n1p4 crypt_ubuntu          # crypt_arch / crypt_ubuntu / crypt_shared — one naming scheme
+mkfs.btrfs -L ubuntu /dev/mapper/crypt_ubuntu
+
+mount /dev/mapper/crypt_ubuntu /mnt
+btrfs subvolume create /mnt/@
+btrfs subvolume create /mnt/@home
+umount /mnt
+```
+
+**2 — Mount the target, reusing the existing shared ESP.**
+
+```bash
+mount -o noatime,compress=zstd:3,subvol=@ /dev/mapper/crypt_ubuntu /mnt
+mkdir -p /mnt/home /mnt/boot/efi
+mount -o noatime,compress=zstd:3,subvol=@home /dev/mapper/crypt_ubuntu /mnt/home
+mount /dev/nvme0n1p1 /mnt/boot/efi                   # the shared ESP — never reformat it
+```
+
+**3 — Bootstrap a minimal Ubuntu 24.04 (`noble`) and write its `fstab`.**
+
+```bash
+debootstrap --arch amd64 noble /mnt http://archive.ubuntu.com/ubuntu
+
+UB=$(blkid -s UUID -o value /dev/mapper/crypt_ubuntu)
+ESP=$(blkid -s UUID -o value /dev/nvme0n1p1)
+cat >> /mnt/etc/fstab <<EOF
+UUID=$UB   /          btrfs  noatime,compress=zstd:3,subvol=@      0 0
+UUID=$UB   /home      btrfs  noatime,compress=zstd:3,subvol=@home 0 0
+UUID=$ESP  /boot/efi  vfat   umask=0077                            0 1
+EOF
+```
+
+**4 — Enter the chroot.**
+
+```bash
+cp /etc/resolv.conf /mnt/etc/resolv.conf
+for d in dev dev/pts proc sys run; do mount --rbind /$d /mnt/$d 2>/dev/null || mount --bind /$d /mnt/$d; done
+chroot /mnt /bin/bash
+```
+
+**5 — Inside the chroot: sources, kernel, GRUB, encryption tooling, user, desktop.** `debootstrap` writes a `main`-only sources list; widen it so `ubuntu-desktop` resolves:
+
+```bash
+cat > /etc/apt/sources.list <<EOF
+deb http://archive.ubuntu.com/ubuntu        noble           main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu        noble-updates   main restricted universe multiverse
+deb http://security.ubuntu.com/ubuntu       noble-security  main restricted universe multiverse
+EOF
+apt update
+apt install -y ubuntu-standard linux-image-generic grub-efi-amd64 \
+    cryptsetup cryptsetup-initramfs btrfs-progs network-manager sudo locales tzdata
+
+# The initramfs must unlock the root; GRUB must unlock /boot just to reach the kernel.
+echo "crypt_ubuntu UUID=$(blkid -s UUID -o value /dev/nvme0n1p4) none luks,discard" >> /etc/crypttab
+echo "GRUB_ENABLE_CRYPTODISK=y" >> /etc/default/grub
+
+update-initramfs -u -k all
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Ubuntu --recheck
+update-grub                                          # os-prober finds Arch on p3
+
+# locale, timezone, a hostname distinct from Arch's
+locale-gen en_US.UTF-8 && update-locale LANG=en_US.UTF-8
+ln -sf /usr/share/zoneinfo/America/Chicago /etc/localtime && echo "ubuntu" > /etc/hostname
+
+# the UID-1000 user — same NAME and UID as Arch, for /data ownership parity
+groupadd -g 1000 user; useradd -m -u 1000 -g 1000 -s /bin/bash -G sudo,adm,cdrom,dip,plugdev user
+passwd user
+
+apt install -y ubuntu-desktop-minimal               # the graphical layer (skip for a server box)
+```
+
+::: {.callout-important}
+## Why two passphrase prompts — and how to get back to one
+
+With `/boot` inside the LUKS container, you'll be asked for the Ubuntu passphrase **twice** at boot: once by **GRUB** (to read the kernel and initramfs), then again by the **initramfs** (to unlock the root for real — GRUB's unlock doesn't carry into the booted kernel). That's correct, just mildly annoying. GRUB's unlock is also *slow* (it runs PBKDF2 under tight memory limits), so expect a few seconds.
+
+To collapse it to a single prompt, embed a keyfile in the initramfs — the same trick Chapter 14 uses for `/data`, except this keyfile lives on the now-GRUB-unlocked `/boot`, so it isn't exposed:
+
+```bash
+dd if=/dev/urandom of=/etc/cryptsetup-keys.d/root.key bs=512 count=4
+chmod 0400 /etc/cryptsetup-keys.d/root.key
+cryptsetup luksAddKey /dev/nvme0n1p4 /etc/cryptsetup-keys.d/root.key   # type the passphrase once
+sed -i 's# none luks,discard# /etc/cryptsetup-keys.d/root.key luks,discard#' /etc/crypttab
+echo 'KEYFILE_PATTERN="/etc/cryptsetup-keys.d/*.key"' >> /etc/cryptsetup-initramfs/conf-hook
+echo 'UMASK=0077' >> /etc/initramfs-tools/initramfs.conf
+update-initramfs -u -k all
+```
+
+Now GRUB still prompts once to reach the kernel, and the initramfs unlocks silently with the embedded key. (Argon2-capable GRUB 2.14+ can eventually retire the PBKDF2 dance, but it isn't in 24.04 yet.)
 :::
 
-8. When the installer finishes, **don't reboot yet** — instead pick **"Continue Testing"**, open a terminal in the live session, and continue with Chapter 14 below.
+**Don't exit the chroot yet** — Chapter 14 copies the shared `/data` keyfile and writes its `crypttab`/`fstab` while you're still inside it.
 
 ---
 
 ## Chapter 14: Configure Ubuntu's shared-partition unlock from the live ISO
 
-The cleanest place to set up Ubuntu's keyfile + crypttab + fstab is from within the Ubuntu live ISO, while the installed system's root is still mountable as `/target`. (If you reboot first, the same configuration is doable from inside the Ubuntu install — but you'll be working without a network until you set up Wi-Fi from a fresh Ubuntu login.)
+You're still in the chroot from Part 4, with the installed Ubuntu mounted at `/mnt` (its root device unlocked as `crypt_ubuntu`) — the perfect place to give it the shared keyfile, since the Arch root is still reachable too.
 
-Mount the installed Ubuntu system and bind-mount the essentials:
-
-```bash
-sudo cryptsetup open /dev/nvme0n1p4 ubunturoot
-sudo mkdir -p /mnt/ubuntu
-sudo mount -o subvol=@ /dev/mapper/ubunturoot /mnt/ubuntu
-sudo mount /dev/nvme0n1p1 /mnt/ubuntu/boot/efi
-for d in dev dev/pts proc sys run; do
-    sudo mount --bind /$d /mnt/ubuntu/$d
-done
-sudo chroot /mnt/ubuntu
-```
-
-The mapper name `ubunturoot` here is a *temporary* name for the live ISO's use — the installed system uses whatever name Ubuntu's installer chose (typically `nvme0n1p4_crypt`). Inside the chroot, you're working with the installed system's filesystem layout.
-
-Inside the chroot, mount the still-unlocked Arch root just long enough to copy the keyfile:
+Inside that chroot, mount the still-unlocked Arch root just long enough to copy the keyfile:
 
 ```bash
 cryptsetup open /dev/nvme0n1p3 archroot_tmp
@@ -1042,7 +1099,7 @@ cryptsetup close archroot_tmp
 
 The keyfile is now on the *Ubuntu* encrypted root with the same bytes as the *Arch* copy. Either OS's copy unlocks the same shared LUKS container.
 
-Now write Ubuntu's `/etc/crypttab` entry (Ubuntu uses the same format as Arch, parsed by the same `systemd-cryptsetup-generator`):
+Now append Ubuntu's `/etc/crypttab` entry for the shared partition (Ubuntu uses the same format as Arch, parsed by the same `systemd-cryptsetup-generator`):
 
 ```bash
 SHARED_UUID=$(blkid -s UUID -o value /dev/nvme0n1p2)
@@ -1050,7 +1107,7 @@ SHARED_UUID=$(blkid -s UUID -o value /dev/nvme0n1p2)
 echo "crypt_shared UUID=${SHARED_UUID} /etc/cryptsetup-keys.d/shared.key luks,nofail" >> /etc/crypttab
 ```
 
-(The Ubuntu installer already wrote a root-LUKS line at the top of `/etc/crypttab` — leave that line alone, just append this one below it.) The `nofail` here matters for exactly the same reason as on the Arch side: a shared-partition unlock failure should never keep *Ubuntu* from booting.
+You already added the **root** unlock line (`crypt_ubuntu …`) to `/etc/crypttab` in Part 4 — just append this **shared-partition** line below it. The `nofail` here matters for exactly the same reason as on the Arch side: a shared-partition unlock failure should never keep *Ubuntu* from booting.
 
 Add the corresponding `/etc/fstab` line — also `nofail`, also with a short device timeout:
 
@@ -1072,13 +1129,10 @@ Exit the chroot and unmount cleanly:
 
 ```bash
 exit
-for d in run sys proc dev/pts dev; do
-    sudo umount /mnt/ubuntu/$d
-done
-sudo umount /mnt/ubuntu/boot/efi
-sudo umount /mnt/ubuntu
-sudo cryptsetup close ubunturoot
-sudo reboot
+for d in run sys proc dev/pts dev; do umount -R /mnt/$d 2>/dev/null; done
+umount /mnt/home /mnt/boot/efi /mnt
+cryptsetup close crypt_ubuntu
+reboot
 ```
 
 Pull the Ubuntu USB as the laptop restarts.
@@ -1094,7 +1148,7 @@ After the reboot, pick **Ubuntu** from the GRUB menu (or `Arch Linux` to flip ba
 Log in as `user`. Open a terminal:
 
 ```bash
-# Find the Btrfs filesystem mounted at / — should be /dev/mapper/nvme0n1p4_crypt
+# Find the Btrfs filesystem mounted at / — should be /dev/mapper/crypt_ubuntu
 findmnt /
 
 # Create the swap subvolume (Ubuntu's installer doesn't ship one)
@@ -1111,7 +1165,7 @@ sudo btrfs inspect-internal map-swapfile -r /swap/swapfile
 # Save the integer — Ubuntu calls it RESUME_OFFSET too.
 ```
 
-Edit `/etc/default/grub`. Ubuntu's `GRUB_CMDLINE_LINUX_DEFAULT` typically reads `quiet splash`. Add the `resume=` and `resume_offset=` parameters, using the *Ubuntu root LUKS partition's* UUID (not Arch's), the mapper name Ubuntu uses (`nvme0n1p4_crypt`), and the offset from the previous step:
+Edit `/etc/default/grub`. Ubuntu's `GRUB_CMDLINE_LINUX_DEFAULT` typically reads `quiet splash`. Add the `resume=` and `resume_offset=` parameters, using the *Ubuntu root LUKS partition's* UUID (not Arch's), the mapper name Ubuntu uses (`crypt_ubuntu`), and the offset from the previous step:
 
 ```bash
 sudo blkid -s UUID -o value /dev/nvme0n1p4     # save this as <UBUNTU_LUKS_UUID>
@@ -1121,13 +1175,13 @@ sudoedit /etc/default/grub
 Set:
 
 ```text
-GRUB_CMDLINE_LINUX_DEFAULT="quiet splash resume=/dev/mapper/nvme0n1p4_crypt resume_offset=<UBUNTU_RESUME_OFFSET>"
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash resume=/dev/mapper/crypt_ubuntu resume_offset=<UBUNTU_RESUME_OFFSET>"
 ```
 
 Tell Ubuntu's initramfs builder about the hibernation device:
 
 ```bash
-echo "RESUME=/dev/mapper/nvme0n1p4_crypt" | sudo tee /etc/initramfs-tools/conf.d/resume
+echo "RESUME=/dev/mapper/crypt_ubuntu" | sudo tee /etc/initramfs-tools/conf.d/resume
 sudo update-initramfs -u -k all
 sudo update-grub
 ```
@@ -1215,11 +1269,11 @@ stat -c '%u %g %n' /data/*      # all UIDs/GIDs == 1000
 ### From Ubuntu (reboot, pick Ubuntu)
 
 ```bash
-findmnt /                       # subvol=/@, on nvme0n1p4_crypt
+findmnt /                       # subvol=/@, on crypt_ubuntu
 findmnt /home                   # subvol=/@home
 findmnt /data                   # subvol=/@data, on crypt_shared (same UUID as Arch sees)
 swapon --show                   # zram + /swap/swapfile (Ubuntu's own, distinct from Arch's)
-sudo cryptsetup status nvme0n1p4_crypt
+sudo cryptsetup status crypt_ubuntu
 sudo cryptsetup status crypt_shared
 sudo systemctl hibernate        # works, resumes into Ubuntu (separate from Arch's hibernation)
 ls -l /data                     # same files as Arch sees, owned by user
@@ -1282,7 +1336,7 @@ After fixing, re-run `grub-mkconfig -o /boot/grub/grub.cfg` (Arch) or `update-gr
 
 ### 4. Hibernation from one OS resumes into the *other* OS
 
-This means both OSes' `resume=` parameters point at the *same* device, and whichever boots last reads the other's image. The fix: each OS's `resume=` parameter should point at its own per-OS Btrfs swap file's underlying mapper — `/dev/mapper/crypt_arch` for Arch, `/dev/mapper/nvme0n1p4_crypt` for Ubuntu — and never at the *other* OS's mapper.
+This means both OSes' `resume=` parameters point at the *same* device, and whichever boots last reads the other's image. The fix: each OS's `resume=` parameter should point at its own per-OS Btrfs swap file's underlying mapper — `/dev/mapper/crypt_arch` for Arch, `/dev/mapper/crypt_ubuntu` for Ubuntu — and never at the *other* OS's mapper.
 
 Fix the cmdline (Arch: `/etc/default/grub` → `grub-mkconfig`; Ubuntu: `/etc/default/grub` → `update-grub`; Ubuntu also: `/etc/initramfs-tools/conf.d/resume` → `update-initramfs -u -k all`).
 

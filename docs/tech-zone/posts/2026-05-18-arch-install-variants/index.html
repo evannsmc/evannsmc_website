@@ -468,7 +468,7 @@ Honesty disclaimer: I haven’t run these three exactly line-by-line
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Unlike <a href="../2026-05-01-first-arch-install/">Article 02 (basic install)</a>, <a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01 (failed dual-boot post-mortem)</a>, and <a href="../2026-05-17-arch-luks-btrfs-caelestia/">Article 03 (LUKS+Btrfs single-boot)</a> — which are first-hand install logs I executed and can vouch for command-by-command — <strong>the three procedures in this compilation are reasoned derivations</strong>. They’re built from what I learned in those four articles plus the <a href="https://wiki.archlinux.org/title/Installation_guide" target="_blank" rel="noopener">Arch wiki</a> and standard practice for each technology in isolation. I’ve verified every command in the man pages and the wiki, but I have <strong>not</strong> run all three end-to-end on a real machine and watched them boot.</p>
+<p>Unlike <a href="../2026-05-01-first-arch-install/">Article 02 (basic install)</a>, <a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01 (failed dual-boot post-mortem)</a>, and <a href="../2026-05-17-arch-luks-btrfs/">Article 03 (LUKS+Btrfs single-boot)</a> — which are first-hand install logs I executed and can vouch for command-by-command — <strong>the three procedures in this compilation are reasoned derivations</strong>. They’re built from what I learned in those four articles plus the <a href="https://wiki.archlinux.org/title/Installation_guide" target="_blank" rel="noopener">Arch wiki</a> and standard practice for each technology in isolation. I’ve verified every command in the man pages and the wiki, but I have <strong>not</strong> run all three end-to-end on a real machine and watched them boot.</p>
 <p>If you spot something wrong, the canonical sources are:</p>
 <ul>
 <li><a href="https://man.archlinux.org/man/mkinitcpio.8" target="_blank" rel="noopener"><code>mkinitcpio</code></a> (initramfs hook configuration)</li>
@@ -664,7 +664,7 @@ HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont bl
 </table>
 <p><strong>Two notes on the swap partition:</strong></p>
 <ul>
-<li>For this variant I’m assuming you want an unencrypted regular partition swap-only (no hibernation). If you want hibernation-safe encrypted swap, see <a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01’s plan</a> — but be aware Article 01 didn’t boot, so use the <a href="../2026-05-17-arch-luks-btrfs-caelestia/">Article 03 swap-file-in-LUKS pattern</a> instead (which lives in the <code>LUKS + Btrfs</code> tab on this page).</li>
+<li>For this variant I’m assuming you want an unencrypted regular partition swap-only (no hibernation). If you want hibernation-safe encrypted swap, see <a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01’s plan</a> — but be aware Article 01 didn’t boot, so use the <a href="../2026-05-17-arch-luks-btrfs/">Article 03 swap-file-in-LUKS pattern</a> instead (which lives in the <code>LUKS + Btrfs</code> tab on this page).</li>
 <li>The most-common simple pattern in 2026 is <strong>skip the swap partition entirely</strong> and use zram. Add <code>zram-generator</code> after first boot.</li>
 </ul>
 </section>
@@ -763,7 +763,7 @@ cryptroot UUID=&lt;LUKS-UUID&gt; none luks</code></pre>
 </section>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<p><strong>What this variant gives you:</strong> the full single-boot install from <a href="../2026-05-17-arch-luks-btrfs-caelestia/">Article 03</a>, condensed. LUKS2 underneath, Btrfs subvolumes on top, zram for everyday swap, a NoCOW Btrfs swap file for hibernation, snapper + grub-btrfs from day one. Stops on the console — desktop layer is your call (Caelestia, custom Hyprland, GNOME, Plasma, sway, dwm, …).</p>
+<p><strong>What this variant gives you:</strong> the full single-boot install from <a href="../2026-05-17-arch-luks-btrfs/">Article 03</a>, condensed. LUKS2 underneath, Btrfs subvolumes on top, zram for everyday swap, a NoCOW Btrfs swap file for hibernation, snapper + grub-btrfs from day one. Stops on the console — desktop layer is your call (Caelestia, custom Hyprland, GNOME, Plasma, sway, dwm, …).</p>
 <p><strong>What’s the same as Article 03:</strong> every command in Parts 1–3 of that article — partitioning, LUKS format, Btrfs subvolume layout, mount options, pacstrap, mkinitcpio hooks, GRUB cmdline, snapper config, first-boot verification.</p>
 <p><strong>What’s different:</strong> this tab is a quick procedural distillation — read it as a checklist. The full prose explanations (why each <code>cryptdevice=</code> option is shaped the way it is, why <code>compress=zstd:3</code> specifically, why a NoCOW swap file vs.&nbsp;an encrypted swap partition) live in Article 03.</p>
 <section id="partition-layout-same-as-article-03" class="level3">

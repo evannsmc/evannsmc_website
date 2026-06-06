@@ -12,7 +12,7 @@ draft: false
 ::: {.callout-warning}
 ## Honesty disclaimer: this is the reasoned culmination, not yet a live-tested run
 
-Like the [dual-boot article (Article 07)](../2026-05-19-arch-ubuntu-dual-boot-shared-data/), this is a **carefully reasoned blueprint**, not a command-by-command install log I've already executed. It stacks the parts I *have* run first-hand — the [LUKS+Btrfs single-boot (Article 03)](../2026-05-17-arch-luks-btrfs-caelestia/) and the dual-boot extension — and adds a Windows partition plus the three-way integration on top, built from the [Arch wiki on dual-booting Windows](https://wiki.archlinux.org/title/Dual_boot_with_Windows){target="_blank" rel="noopener"}, Microsoft's [UEFI/GPT install docs](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/configure-uefigpt-based-hard-drive-partitions){target="_blank" rel="noopener"}, and the `os-prober` / `efibootmgr` man pages.
+Like the [dual-boot article (Article 07)](../2026-05-19-arch-ubuntu-dual-boot-shared-data/), this is a **carefully reasoned blueprint**, not a command-by-command install log I've already executed. It stacks the parts I *have* run first-hand — the [LUKS+Btrfs single-boot (Article 03)](../2026-05-17-arch-luks-btrfs/) and the dual-boot extension — and adds a Windows partition plus the three-way integration on top, built from the [Arch wiki on dual-booting Windows](https://wiki.archlinux.org/title/Dual_boot_with_Windows){target="_blank" rel="noopener"}, Microsoft's [UEFI/GPT install docs](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/configure-uefigpt-based-hard-drive-partitions){target="_blank" rel="noopener"}, and the `os-prober` / `efibootmgr` man pages.
 
 I'll run it for real on the next workstation build and update in place if anything changes. Canonical sources to re-read as you go:
 
@@ -592,16 +592,53 @@ From the Arch side, snapshot the current NVRAM so you can compare after Ubuntu r
 efibootmgr -v > ~/efi-before-ubuntu.txt
 ```
 
-Boot a verified Ubuntu 24.04 LTS Desktop USB. In the installer:
+Boot a verified Ubuntu 24.04 LTS Desktop USB and pick **"Try Ubuntu"** — **not** the installer. As covered in the [dual-boot Part 4](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session), Ubuntu 24.04's new installer can no longer encrypt a manually-chosen partition, so we build Ubuntu's encrypted root by hand from the live session. The procedure is identical to the dual-boot's, with **p7** as Ubuntu's root (and Windows already present, which changes nothing — `os-prober` will simply find Windows *and* Arch). Open a terminal, `sudo -i`, `apt update && apt install -y debootstrap cryptsetup-bin`, then:
 
-1. **"Install Ubuntu"** → **"Something else"** (manual partitioning).
-2. In the partition editor:
-   - **`p1`** — *Use as: EFI System Partition*, **do not format** (shares our ESP).
-   - **`p3` (Windows), `p4` (exchange), `p5` (shared LUKS), `p6` (Arch root)** — **leave all alone.** Ubuntu must not touch Windows, the exchange, or either encrypted volume it doesn't own.
-   - **`p7`** — *Use as: physical volume for encryption*, **format checked**. Set a LUKS passphrase distinct from Arch's (`LUKS — ubuntu root`). On the resulting mapper, *Use as: btrfs, Mount point: /*, **format checked**.
-3. **"Device for boot loader installation"** → `/dev/nvme0n1` (the disk).
-4. **User account**: username `user` (match Arch exactly). The installer hard-codes the first user to UID 1000 — exactly what we want for `/data` ownership parity.
-5. Install, but at the end pick **"Continue Testing"** (don't reboot yet).
+```bash
+# 1 — encrypt p7 (pbkdf2 so GRUB can unlock the in-root /boot), Btrfs + subvolumes
+cryptsetup luksFormat --type luks2 --pbkdf pbkdf2 /dev/nvme0n1p7
+cryptsetup open /dev/nvme0n1p7 crypt_ubuntu
+mkfs.btrfs -L ubuntu /dev/mapper/crypt_ubuntu
+mount /dev/mapper/crypt_ubuntu /mnt
+btrfs subvolume create /mnt/@ && btrfs subvolume create /mnt/@home && umount /mnt
+
+# 2 — mount target + shared ESP
+mount -o noatime,compress=zstd:3,subvol=@ /dev/mapper/crypt_ubuntu /mnt
+mkdir -p /mnt/home /mnt/boot/efi
+mount -o noatime,compress=zstd:3,subvol=@home /dev/mapper/crypt_ubuntu /mnt/home
+mount /dev/nvme0n1p1 /mnt/boot/efi                   # shared ESP — do not reformat
+
+# 3 — bootstrap + fstab
+debootstrap --arch amd64 noble /mnt http://archive.ubuntu.com/ubuntu
+UB=$(blkid -s UUID -o value /dev/mapper/crypt_ubuntu); ESP=$(blkid -s UUID -o value /dev/nvme0n1p1)
+printf 'UUID=%s / btrfs noatime,compress=zstd:3,subvol=@ 0 0\nUUID=%s /home btrfs noatime,compress=zstd:3,subvol=@home 0 0\nUUID=%s /boot/efi vfat umask=0077 0 1\n' "$UB" "$UB" "$ESP" >> /mnt/etc/fstab
+
+# 4 — chroot
+cp /etc/resolv.conf /mnt/etc/resolv.conf
+for d in dev dev/pts proc sys run; do mount --rbind /$d /mnt/$d 2>/dev/null || mount --bind /$d /mnt/$d; done
+chroot /mnt /bin/bash
+```
+
+Inside the chroot, widen the sources list to `universe`/`multiverse`, then install the system, wire the root unlock, and create the UID-1000 user — **identical to [dual-boot Part 4 step 5](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session)** (note the root LUKS device here is `/dev/nvme0n1p7`):
+
+```bash
+cat > /etc/apt/sources.list <<EOF
+deb http://archive.ubuntu.com/ubuntu  noble           main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu  noble-updates   main restricted universe multiverse
+deb http://security.ubuntu.com/ubuntu noble-security  main restricted universe multiverse
+EOF
+apt update
+apt install -y ubuntu-standard linux-image-generic grub-efi-amd64 cryptsetup cryptsetup-initramfs btrfs-progs network-manager sudo locales tzdata
+echo "crypt_ubuntu UUID=$(blkid -s UUID -o value /dev/nvme0n1p7) none luks,discard" >> /etc/crypttab
+echo "GRUB_ENABLE_CRYPTODISK=y" >> /etc/default/grub
+update-initramfs -u -k all
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Ubuntu --recheck
+update-grub                                          # os-prober finds Windows AND Arch
+groupadd -g 1000 user; useradd -m -u 1000 -g 1000 -s /bin/bash -G sudo,adm,cdrom,dip,plugdev user && passwd user
+apt install -y ubuntu-desktop-minimal
+```
+
+The same two-prompt / single-prompt-keyfile note from the [dual-boot installer callout](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session) applies verbatim (swap `p4`→`p7`). **Stay in the chroot** — Chapter 12 wires up the shared `/data` and the exchange partition before you reboot.
 
 ::: {.callout-warning}
 ## Ubuntu reorders NVRAM to boot its own GRUB first
@@ -611,18 +648,7 @@ That's fine — Ubuntu's GRUB has `os-prober` on by default and will list Window
 
 ## Chapter 12: From the Ubuntu live ISO, wire up the shared partition and exchange
 
-Mount the installed Ubuntu and chroot in (the installer's mapper is typically `nvme0n1p7_crypt`; we use a temporary name from the live ISO):
-
-```bash
-sudo cryptsetup open /dev/nvme0n1p7 ubunturoot
-sudo mkdir -p /mnt/ubuntu
-sudo mount -o subvol=@ /dev/mapper/ubunturoot /mnt/ubuntu
-sudo mount /dev/nvme0n1p1 /mnt/ubuntu/boot/efi
-for d in dev dev/pts proc sys run; do sudo mount --bind /$d /mnt/ubuntu/$d; done
-sudo chroot /mnt/ubuntu
-```
-
-Copy the shared keyfile off the (still-unlocked) Arch root:
+You're still in the chroot from Part 6 (installed Ubuntu mounted at `/mnt`, unlocked as `crypt_ubuntu`). Copy the shared keyfile off the still-unlocked Arch root (`p6`):
 
 ```bash
 cryptsetup open /dev/nvme0n1p6 archroot_tmp
@@ -655,11 +681,10 @@ update-grub                       # runs os-prober → finds Arch AND Windows
 
 ```bash
 exit
-for d in run sys proc dev/pts dev; do sudo umount /mnt/ubuntu/$d; done
-sudo umount /mnt/ubuntu/boot/efi
-sudo umount /mnt/ubuntu
-sudo cryptsetup close ubunturoot
-sudo reboot
+for d in run sys proc dev/pts dev; do umount -R /mnt/$d 2>/dev/null; done
+umount /mnt/home /mnt/boot/efi /mnt
+cryptsetup close crypt_ubuntu
+reboot
 ```
 
 ## Chapter 13: Add Ubuntu's hibernation swap file
@@ -667,7 +692,7 @@ sudo reboot
 Boot **Ubuntu** from the GRUB menu, log in, and mirror Arch's per-OS hibernation (Ubuntu's installer doesn't make one):
 
 ```bash
-findmnt /                                                    # /dev/mapper/nvme0n1p7_crypt
+findmnt /                                                    # /dev/mapper/crypt_ubuntu
 sudo btrfs subvolume create /swap
 sudo btrfs filesystem mkswapfile --size 36g --uuid clear /swap/swapfile
 echo '/swap/swapfile none swap defaults,pri=-2 0 0' | sudo tee -a /etc/fstab
@@ -679,9 +704,9 @@ Point Ubuntu's cmdline and initramfs at its *own* swap file (never Arch's):
 ```bash
 sudo blkid -s UUID -o value /dev/nvme0n1p7    # <UBUNTU_LUKS_UUID>
 sudoedit /etc/default/grub
-# GRUB_CMDLINE_LINUX_DEFAULT="quiet splash resume=/dev/mapper/nvme0n1p7_crypt resume_offset=<UBUNTU_RESUME_OFFSET>"
+# GRUB_CMDLINE_LINUX_DEFAULT="quiet splash resume=/dev/mapper/crypt_ubuntu resume_offset=<UBUNTU_RESUME_OFFSET>"
 
-echo "RESUME=/dev/mapper/nvme0n1p7_crypt" | sudo tee /etc/initramfs-tools/conf.d/resume
+echo "RESUME=/dev/mapper/crypt_ubuntu" | sudo tee /etc/initramfs-tools/conf.d/resume
 sudo update-initramfs -u -k all
 sudo update-grub
 ```

@@ -14,7 +14,7 @@ draft: false
 
 A **reference** post, not a tutorial. The goal is that the next time you paste `==> Packages to cleanBuild?` or `:: There are 2 providers available for jack` into a search box, this article is the first thing that comes up and tells you exactly what to type and why.
 
-I'm writing this because midway through my [LUKS + Btrfs + Caelestia install](../2026-05-17-arch-luks-btrfs-caelestia/) I hit a dozen prompts in a row from pacman and yay, and realized that the answer to "what does this mean" is buried in eight different wiki pages, each of which assumes you already know the others. This post puts them all in one place, in the order you encounter them, with the answers I actually use.
+I'm writing this because midway through my [LUKS + Btrfs + Caelestia install](../2026-05-17-arch-luks-btrfs/) I hit a dozen prompts in a row from pacman and yay, and realized that the answer to "what does this mean" is buried in eight different wiki pages, each of which assumes you already know the others. This post puts them all in one place, in the order you encounter them, with the answers I actually use.
 :::
 
 # Part 1 — The mental model
@@ -581,7 +581,7 @@ The flag that I find genuinely useful and yay doesn't have a clean equivalent of
 - **Pick `yay`** if you want the most-installed-by-default option (Caelestia and most install guides reach for yay first), you're already used to its flag set, you don't care about reviewing PKGBUILDs, or you simply want zero opinions about which to use and the most established option.
 - **Pick both** if you can't decide — they coexist fine, share zero state, and you can experiment with each on the same machine.
 
-For the install in [Article 03](../2026-05-17-arch-luks-btrfs-caelestia/), either works. The Caelestia install script accepts `--aur-helper=paru` and behaves identically.
+For the install in [Article 03](../2026-05-17-arch-luks-btrfs/), either works. The Caelestia install script accepts `--aur-helper=paru` and behaves identically.
 :::
 
 ---
@@ -670,7 +670,7 @@ A specific pattern worth naming: how to layer **your personal customizations** o
 
 ## The problem
 
-A bundle like [Caelestia](../2026-05-17-arch-luks-btrfs-caelestia/) ships its own `install.fish` (or `install.sh`, or makefile) that **symlinks configs from the bundle's repo into `~/.config/`**. The instructions usually include some version of:
+A bundle like [Caelestia](../2026-05-17-arch-luks-btrfs/) ships its own `install.fish` (or `install.sh`, or makefile) that **symlinks configs from the bundle's repo into `~/.config/`**. The instructions usually include some version of:
 
 > *Do not move the cloned repo after running install.fish. The symlinks in `~/.config/` point back into it; moving or deleting the source orphans every symlink.*
 
