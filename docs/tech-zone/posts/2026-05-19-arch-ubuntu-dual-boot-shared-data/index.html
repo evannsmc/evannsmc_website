@@ -474,7 +474,7 @@ Honesty disclaimer: I haven’t yet run this end-to-end
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Unlike <a href="../2026-05-17-arch-luks-btrfs-caelestia/">Article 03 (LUKS+Btrfs single-boot)</a> — which is a first-hand install log I executed and can vouch for command-by-command — <strong>this article is the reasoned dual-boot extension of that procedure, not a live-tested install log (yet)</strong>. It’s built from Article 03’s working stack plus the <a href="https://wiki.archlinux.org/title/Dual_boot_with_Windows" target="_blank" rel="noopener">Arch wiki</a>, the <a href="https://help.ubuntu.com/community/Installation/FromUSBStick" target="_blank" rel="noopener">Ubuntu Server / Desktop manual-partitioning docs</a>, and <code>cryptsetup</code> / <code>systemd-cryptsetup-generator</code> man pages.</p>
+<p>Unlike <a href="../2026-05-17-arch-luks-btrfs/">Article 03 (LUKS+Btrfs single-boot)</a> — which is a first-hand install log I executed and can vouch for command-by-command — <strong>this article is the reasoned dual-boot extension of that procedure, not a live-tested install log (yet)</strong>. It’s built from Article 03’s working stack plus the <a href="https://wiki.archlinux.org/title/Dual_boot_with_Windows" target="_blank" rel="noopener">Arch wiki</a>, the <a href="https://help.ubuntu.com/community/Installation/FromUSBStick" target="_blank" rel="noopener">Ubuntu Server / Desktop manual-partitioning docs</a>, and <code>cryptsetup</code> / <code>systemd-cryptsetup-generator</code> man pages.</p>
 <p>I’ll be running it for real on the next workstation install and updating in place if anything in the procedure changes. If you spot something wrong, the canonical sources are:</p>
 <ul>
 <li><a href="https://man.archlinux.org/man/cryptsetup.8" target="_blank" rel="noopener"><code>cryptsetup</code></a> — LUKS container management and keyfile add/remove</li>
@@ -496,7 +496,7 @@ What this is
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A continuation of <a href="../2026-05-17-arch-luks-btrfs-caelestia/">Article 03</a>, turning that single-boot Arch install into a dual-boot with Ubuntu 24 LTS sharing the same NVMe drive. Concretely:</p>
+<p>An evolution based on <a href="../2026-05-17-arch-luks-btrfs/">Article 03</a>, turning that single-boot Arch install into a dual-boot with Ubuntu 24 LTS sharing the same NVMe drive. Concretely:</p>
 <ul>
 <li><strong>Two independently encrypted root partitions</strong> — Arch in its own LUKS2 container, Ubuntu in its own LUKS2 container, each carrying Btrfs subvolumes (<code>@</code>, <code>@home</code>, …).</li>
 <li><strong>One shared 150 GiB Btrfs data partition</strong> — also LUKS-encrypted, auto-unlocked at boot from both distros via a keyfile. Mounted at <code>/data</code> on Arch and <code>/data</code> on Ubuntu, owned by your user on both sides.</li>
@@ -508,12 +508,12 @@ What this is
 </div>
 <section id="why-this-is-its-own-article-and-not-just-article-03-with-ubuntu-glued-on" class="level2">
 <h2 class="anchored" data-anchor-id="why-this-is-its-own-article-and-not-just-article-03-with-ubuntu-glued-on">Why this is its own article (and not just “Article 03 with Ubuntu glued on”)</h2>
-<p>My <a href="../2026-05-05-arch-luks-btrfs-lessons/">first attempt at a dual-boot with LUKS, Btrfs, zram, and a shared partition</a> (Article 01) tried to land everything in one swing and didn’t boot. The post-mortem isolated two <code>cryptdevice=</code> typos in the kernel command line and one missing <code>rootflags=subvol=@</code> parameter. After I fixed those in <a href="../2026-05-17-arch-luks-btrfs-caelestia/">Article 03</a>, the single-boot version worked end-to-end.</p>
+<p>My <a href="../2026-05-05-arch-luks-btrfs-lessons/">first attempt at a dual-boot with LUKS, Btrfs, zram, and a shared partition</a> (Article 01) tried to land everything in one swing and didn’t boot. The post-mortem isolated two <code>cryptdevice=</code> typos in the kernel command line and one missing <code>rootflags=subvol=@</code> parameter. After I fixed those in <a href="../2026-05-17-arch-luks-btrfs/">Article 03</a>, the single-boot version worked end-to-end.</p>
 <p>Adding Ubuntu introduces five concerns that single-boot didn’t have:</p>
 <ol type="1">
 <li><strong>Who owns GRUB?</strong> Both distros want to install their own bootloader to the same ESP. We pick one as the menu driver (Ubuntu, because its installer wires up <code>os-prober</code> for you out of the box) and let it discover Arch automatically.</li>
 <li><strong>How does the shared encrypted data partition get unlocked from both sides without prompting twice?</strong> A LUKS container can hold up to 8 keyslots. We add the user’s passphrase as slot 0 (for recovery from a live USB), then add a 4096-byte keyfile as slot 1 — and store a copy of that keyfile inside each (already-unlocked) root, referenced from each distro’s <code>/etc/crypttab</code>. Boot order: root unlock by passphrase → root mounts → crypttab reads keyfile → shared partition unlocks silently.</li>
-<li><strong>Resume-image collisions.</strong> Two OSes hibernating to the same swap target would overwrite each other’s resume image. We sidestep this entirely by giving each OS its own NoCOW Btrfs swap file inside its own LUKS root, plus zram for everyday compressed swap — exactly the <a href="../2026-05-17-arch-luks-btrfs-caelestia/#chapter-7-the-hibernation-swap-file">Article 03 pattern</a>, applied twice. There’s no shared swap partition at all: zram handles ~all everyday memory pressure on either OS, and hibernation never has to share state across the boundary.</li>
+<li><strong>Resume-image collisions.</strong> Two OSes hibernating to the same swap target would overwrite each other’s resume image. We sidestep this entirely by giving each OS its own NoCOW Btrfs swap file inside its own LUKS root, plus zram for everyday compressed swap — exactly the <a href="../2026-05-17-arch-luks-btrfs/#chapter-7-the-hibernation-swap-file">Article 03 pattern</a>, applied twice. There’s no shared swap partition at all: zram handles ~all everyday memory pressure on either OS, and hibernation never has to share state across the boundary.</li>
 <li><strong>UID/GID coordination for the shared partition.</strong> If <code>youruser</code> is UID 1000 on Arch and UID 1001 on Ubuntu, every file on <code>/data</code> looks like it belongs to a different user depending on which OS you booted into. We pin UID 1000 on both sides during user creation.</li>
 <li><strong><code>os-prober</code> is off by default on Arch.</strong> Modern Arch GRUB ships with <code>GRUB_DISABLE_OS_PROBER=true</code>. We flip it for both distros so a re-run of <code>grub-mkconfig</code> from either side regenerates a complete menu.</li>
 </ol>
@@ -522,7 +522,7 @@ What this is
 </section>
 <section id="part-1-bootstrap-the-arch-live-environment" class="level1">
 <h1>Part 1 — Bootstrap the Arch live environment</h1>
-<p>The Arch side of this install begins exactly like the <a href="../2026-05-01-first-arch-install/">basic install</a> and <a href="../2026-05-17-arch-luks-btrfs-caelestia/">Article 03</a>: verify the ISO, boot the live USB, get online, set the clock. Earlier drafts of this article just said <em>“do the first three steps like Article 03”</em> and moved on — but a dual-boot is exactly the kind of multi-hour job where you don’t want to be flipping between three browser tabs to remember how <code>gpg --verify</code> goes. So this part is spelled out in full. <strong>If you’ve done a from-scratch Arch install before, skim to <a href="#chapter-1-the-four-partition-layout">Chapter 1</a>.</strong></p>
+<p>The Arch side of this install begins exactly like the <a href="../2026-05-01-first-arch-install/">basic install</a> and <a href="../2026-05-17-arch-luks-btrfs/">Article 03</a>: verify the ISO, boot the live USB, get online, set the clock. Earlier drafts of this article just said <em>“do the first three steps like Article 03”</em> and moved on — but a dual-boot is exactly the kind of multi-hour job where you don’t want to be flipping between three browser tabs to remember how <code>gpg --verify</code> goes. So this part is spelled out in full. <strong>If you’ve done a from-scratch Arch install before, skim to <a href="#chapter-1-the-four-partition-layout">Chapter 1</a>.</strong></p>
 <section id="chapter-0-verify-the-iso-boot-the-live-usb-get-online" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-0-verify-the-iso-boot-the-live-usb-get-online">Chapter 0: Verify the ISO, boot the live USB, get online</h2>
 <section id="download-and-verify-the-iso" class="level3">
@@ -905,7 +905,7 @@ Why subvolumes give you “separate root and home” without separate partitions
 </section>
 <section id="chapter-4-mount-everything-for-pacstrap" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-4-mount-everything-for-pacstrap">Chapter 4: Mount everything for pacstrap</h2>
-<p>Mount the Arch root subvolumes with the right options — identical to <a href="../2026-05-17-arch-luks-btrfs-caelestia/#chapter-4-mount-the-subvolumes-with-the-right-options">Article 03 Chapter 4</a>:</p>
+<p>Mount the Arch root subvolumes with the right options — identical to <a href="../2026-05-17-arch-luks-btrfs/#chapter-4-mount-the-subvolumes-with-the-right-options">Article 03 Chapter 4</a>:</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@ /dev/mapper/cryptroot /mnt</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/<span class="dt">{boot</span><span class="op">,</span><span class="dt">home</span><span class="op">,</span><span class="dt">.snapshots</span><span class="op">,</span><span class="dt">var/log</span><span class="op">,</span><span class="dt">swap</span><span class="op">,</span><span class="dt">data}</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -968,7 +968,7 @@ Sanity-check the generated fstab
 <h1>Part 2 — Inside the chroot</h1>
 <section id="chapter-6-locale-time-hostname-user-with-a-pinned-uid" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-6-locale-time-hostname-user-with-a-pinned-uid">Chapter 6: Locale, time, hostname, user — with a pinned UID</h2>
-<p>Identical to <a href="../2026-05-17-arch-luks-btrfs-caelestia/#chapter-6-locale-time-hostname-user">Article 03’s Chapter 6</a> except for <strong>one</strong> dual-boot-specific change: we pin the user’s UID and GID to <code>1000</code> explicitly. Ubuntu’s installer assigns the first regular user UID 1000 by default, so if we also pin to 1000 here, files on <code>/data</code> will be owned by the same user-as-the-kernel-sees-it on both sides.</p>
+<p>Identical to <a href="../2026-05-17-arch-luks-btrfs/#chapter-6-locale-time-hostname-user">Article 03’s Chapter 6</a> except for <strong>one</strong> dual-boot-specific change: we pin the user’s UID and GID to <code>1000</code> explicitly. Ubuntu’s installer assigns the first regular user UID 1000 by default, so if we also pin to 1000 here, files on <code>/data</code> will be owned by the same user-as-the-kernel-sees-it on both sides.</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Editor + EDITOR var</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/bin/nvim /usr/local/bin/vi</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'export EDITOR=nvim'</span> <span class="op">&gt;&gt;</span> /etc/profile</span>
@@ -1180,7 +1180,7 @@ Mount-order dependency, for free — and how to debug it when it isn’t
 </section>
 <section id="chapter-9-hibernation-swap-file-for-arch-per-article-03" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-9-hibernation-swap-file-for-arch-per-article-03">Chapter 9: Hibernation swap file for Arch (per Article 03)</h2>
-<p>Identical to <a href="../2026-05-17-arch-luks-btrfs-caelestia/#chapter-7-the-hibernation-swap-file">Article 03 Chapter 7</a>. zram (Chapter 10) handles everyday compressed swap; hibernation goes to a NoCOW swap file <em>inside</em> the Arch root, so the resume target is unambiguous and there’s no collision with Ubuntu’s own hibernation swap file.</p>
+<p>Identical to <a href="../2026-05-17-arch-luks-btrfs/#chapter-7-the-hibernation-swap-file">Article 03 Chapter 7</a>. zram (Chapter 10) handles everyday compressed swap; hibernation goes to a NoCOW swap file <em>inside</em> the Arch root, so the resume target is unambiguous and there’s no collision with Ubuntu’s own hibernation swap file.</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> filesystem mkswapfile <span class="at">--size</span> 36g <span class="at">--uuid</span> clear /swap/swapfile</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><code>--size 36g</code> matches the 36 GiB RAM I’m sizing this install for. <strong>Substitute your RAM size with a small margin</strong> (or skip this whole chapter if you don’t want hibernation — then <code>resume=</code> and <code>resume_offset=</code> drop out of the GRUB cmdline in Chapter 12).</p>
 <div class="callout callout-style-default callout-important callout-titled">
@@ -1206,7 +1206,7 @@ Don’t <code>swapon</code> from inside the chroot
 </section>
 <section id="chapter-10-zram-for-everyday-compressed-swap" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-10-zram-for-everyday-compressed-swap">Chapter 10: zram for everyday compressed swap</h2>
-<p>Same as <a href="../2026-05-17-arch-luks-btrfs-caelestia/#chapter-8-zram-for-everyday-swap">Article 03 Chapter 8</a>:</p>
+<p>Same as <a href="../2026-05-17-arch-luks-btrfs/#chapter-8-zram-for-everyday-swap">Article 03 Chapter 8</a>:</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> /etc/systemd/zram-generator.conf <span class="op">&lt;&lt;'EOF'</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="st">[zram0]</span></span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="st">zram-size = ram / 2</span></span>
@@ -1253,7 +1253,7 @@ Don’t <code>swapon</code> from inside the chroot
 <p>Open <code>/etc/mkinitcpio.conf</code> and set:</p>
 <pre class="text"><code>MODULES=(btrfs)
 HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)</code></pre>
-<p>The reasoning is identical to <a href="../2026-05-17-arch-luks-btrfs-caelestia/#chapter-9-mkinitcpio--the-systemd-way">Article 03 Chapter 9</a> — only the Arch root container needs to be unlockable from the initramfs, and <code>sd-encrypt</code> + <code>rd.luks.name=…</code> is the path that does it.</p>
+<p>The reasoning is identical to <a href="../2026-05-17-arch-luks-btrfs/#chapter-9-mkinitcpio--the-systemd-way">Article 03 Chapter 9</a> — only the Arch root container needs to be unlockable from the initramfs, and <code>sd-encrypt</code> + <code>rd.luks.name=…</code> is the path that does it.</p>
 <p>Add the root entry to <code>/etc/crypttab.initramfs</code> (it gets copied into the initramfs at build time and makes the configuration discoverable post-install):</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"cryptroot UUID=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p3<span class="va">)</span><span class="st"> none luks"</span> <span class="dt">\</span></span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">&gt;</span> /etc/crypttab.initramfs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1746,7 +1746,7 @@ Why the explicit <code>/etc/initramfs-tools/conf.d/resume</code> file
 </section>
 <section id="boot-drops-into-emergency-mode-after-arch-luks-passphrase" class="level3">
 <h3 class="anchored" data-anchor-id="boot-drops-into-emergency-mode-after-arch-luks-passphrase">2. Boot drops into emergency mode after Arch LUKS passphrase</h3>
-<p>Same four failure modes as Article 03’s <a href="../2026-05-17-arch-luks-btrfs-caelestia/#emergency-timed-out-waiting-for-device">emergency section</a>:</p>
+<p>Same four failure modes as Article 03’s <a href="../2026-05-17-arch-luks-btrfs/#emergency-timed-out-waiting-for-device">emergency section</a>:</p>
 <ol type="1">
 <li><code>&lt;UUID&gt;</code> or <code>&lt;RESUME_OFFSET&gt;</code> left as literal text in <code>/etc/default/grub</code>.</li>
 <li>Mapper name mismatch between <code>rd.luks.name=…=cryptroot</code> and <code>root=/dev/mapper/cryptroot</code>.</li>

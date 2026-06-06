@@ -6,7 +6,7 @@
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/posts/2026-05-19-arch-ubuntu-dual-boot-shared-data/index.html</loc>
-    <lastmod>2026-06-06T02:04:08.391Z</lastmod>
+    <lastmod>2026-06-06T03:33:17.629Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/posts/2026-05-17-pacman-yay-aur-prompts/index.html</loc>
@@ -155,5 +155,9 @@
   <url>
     <loc>https://evannsmc.com/tech-zone/posts/2026-06-02-beginner-homelab-raspberry-pi/index.html</loc>
     <lastmod>2026-06-04T02:21:55.806Z</lastmod>
+  </url>
+  <url>
+    <loc>https://evannsmc.com/tech-zone/posts/2026-05-17-arch-luks-btrfs/index.html</loc>
+    <lastmod>2026-06-06T01:40:52.504Z</lastmod>
   </url>
 </urlset>

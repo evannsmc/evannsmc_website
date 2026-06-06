@@ -12,7 +12,7 @@ draft: false
 ::: {.callout-warning}
 ## Honesty disclaimer: I haven't yet run this end-to-end
 
-Unlike [Article 03 (LUKS+Btrfs single-boot)](../2026-05-17-arch-luks-btrfs-caelestia/) — which is a first-hand install log I executed and can vouch for command-by-command — **this article is the reasoned dual-boot extension of that procedure, not a live-tested install log (yet)**. It's built from Article 03's working stack plus the [Arch wiki](https://wiki.archlinux.org/title/Dual_boot_with_Windows){target="_blank" rel="noopener"}, the [Ubuntu Server / Desktop manual-partitioning docs](https://help.ubuntu.com/community/Installation/FromUSBStick){target="_blank" rel="noopener"}, and `cryptsetup` / `systemd-cryptsetup-generator` man pages.
+Unlike [Article 03 (LUKS+Btrfs single-boot)](../2026-05-17-arch-luks-btrfs/) — which is a first-hand install log I executed and can vouch for command-by-command — **this article is the reasoned dual-boot extension of that procedure, not a live-tested install log (yet)**. It's built from Article 03's working stack plus the [Arch wiki](https://wiki.archlinux.org/title/Dual_boot_with_Windows){target="_blank" rel="noopener"}, the [Ubuntu Server / Desktop manual-partitioning docs](https://help.ubuntu.com/community/Installation/FromUSBStick){target="_blank" rel="noopener"}, and `cryptsetup` / `systemd-cryptsetup-generator` man pages.
 
 I'll be running it for real on the next workstation install and updating in place if anything in the procedure changes. If you spot something wrong, the canonical sources are:
 
@@ -28,7 +28,7 @@ Treat this as a careful blueprint for the dual-boot pattern, **not** as a substi
 ::: {.callout-note}
 ## What this is
 
-A continuation of [Article 03](../2026-05-17-arch-luks-btrfs-caelestia/), turning that single-boot Arch install into a dual-boot with Ubuntu 24 LTS sharing the same NVMe drive. Concretely:
+An evolution based on [Article 03](../2026-05-17-arch-luks-btrfs/), turning that single-boot Arch install into a dual-boot with Ubuntu 24 LTS sharing the same NVMe drive. Concretely:
 
 - **Two independently encrypted root partitions** — Arch in its own LUKS2 container, Ubuntu in its own LUKS2 container, each carrying Btrfs subvolumes (`@`, `@home`, …).
 - **One shared 150 GiB Btrfs data partition** — also LUKS-encrypted, auto-unlocked at boot from both distros via a keyfile. Mounted at `/data` on Arch and `/data` on Ubuntu, owned by your user on both sides.
@@ -40,13 +40,13 @@ It stops on the console for the Arch side — desktop layer is your choice, exac
 
 ## Why this is its own article (and not just "Article 03 with Ubuntu glued on")
 
-My [first attempt at a dual-boot with LUKS, Btrfs, zram, and a shared partition](../2026-05-05-arch-luks-btrfs-lessons/) (Article 01) tried to land everything in one swing and didn't boot. The post-mortem isolated two `cryptdevice=` typos in the kernel command line and one missing `rootflags=subvol=@` parameter. After I fixed those in [Article 03](../2026-05-17-arch-luks-btrfs-caelestia/), the single-boot version worked end-to-end.
+My [first attempt at a dual-boot with LUKS, Btrfs, zram, and a shared partition](../2026-05-05-arch-luks-btrfs-lessons/) (Article 01) tried to land everything in one swing and didn't boot. The post-mortem isolated two `cryptdevice=` typos in the kernel command line and one missing `rootflags=subvol=@` parameter. After I fixed those in [Article 03](../2026-05-17-arch-luks-btrfs/), the single-boot version worked end-to-end.
 
 Adding Ubuntu introduces five concerns that single-boot didn't have:
 
 1. **Who owns GRUB?** Both distros want to install their own bootloader to the same ESP. We pick one as the menu driver (Ubuntu, because its installer wires up `os-prober` for you out of the box) and let it discover Arch automatically.
 2. **How does the shared encrypted data partition get unlocked from both sides without prompting twice?** A LUKS container can hold up to 8 keyslots. We add the user's passphrase as slot 0 (for recovery from a live USB), then add a 4096-byte keyfile as slot 1 — and store a copy of that keyfile inside each (already-unlocked) root, referenced from each distro's `/etc/crypttab`. Boot order: root unlock by passphrase → root mounts → crypttab reads keyfile → shared partition unlocks silently.
-3. **Resume-image collisions.** Two OSes hibernating to the same swap target would overwrite each other's resume image. We sidestep this entirely by giving each OS its own NoCOW Btrfs swap file inside its own LUKS root, plus zram for everyday compressed swap — exactly the [Article 03 pattern](../2026-05-17-arch-luks-btrfs-caelestia/#chapter-7-the-hibernation-swap-file), applied twice. There's no shared swap partition at all: zram handles ~all everyday memory pressure on either OS, and hibernation never has to share state across the boundary.
+3. **Resume-image collisions.** Two OSes hibernating to the same swap target would overwrite each other's resume image. We sidestep this entirely by giving each OS its own NoCOW Btrfs swap file inside its own LUKS root, plus zram for everyday compressed swap — exactly the [Article 03 pattern](../2026-05-17-arch-luks-btrfs/#chapter-7-the-hibernation-swap-file), applied twice. There's no shared swap partition at all: zram handles ~all everyday memory pressure on either OS, and hibernation never has to share state across the boundary.
 4. **UID/GID coordination for the shared partition.** If `youruser` is UID 1000 on Arch and UID 1001 on Ubuntu, every file on `/data` looks like it belongs to a different user depending on which OS you booted into. We pin UID 1000 on both sides during user creation.
 5. **`os-prober` is off by default on Arch.** Modern Arch GRUB ships with `GRUB_DISABLE_OS_PROBER=true`. We flip it for both distros so a re-run of `grub-mkconfig` from either side regenerates a complete menu.
 
@@ -56,7 +56,7 @@ The result is the install I plan to put on my next workstation when I retire the
 
 # Part 1 — Bootstrap the Arch live environment
 
-The Arch side of this install begins exactly like the [basic install](../2026-05-01-first-arch-install/) and [Article 03](../2026-05-17-arch-luks-btrfs-caelestia/): verify the ISO, boot the live USB, get online, set the clock. Earlier drafts of this article just said *"do the first three steps like Article 03"* and moved on — but a dual-boot is exactly the kind of multi-hour job where you don't want to be flipping between three browser tabs to remember how `gpg --verify` goes. So this part is spelled out in full. **If you've done a from-scratch Arch install before, skim to [Chapter 1](#chapter-1-the-four-partition-layout).**
+The Arch side of this install begins exactly like the [basic install](../2026-05-01-first-arch-install/) and [Article 03](../2026-05-17-arch-luks-btrfs/): verify the ISO, boot the live USB, get online, set the clock. Earlier drafts of this article just said *"do the first three steps like Article 03"* and moved on — but a dual-boot is exactly the kind of multi-hour job where you don't want to be flipping between three browser tabs to remember how `gpg --verify` goes. So this part is spelled out in full. **If you've done a from-scratch Arch install before, skim to [Chapter 1](#chapter-1-the-four-partition-layout).**
 
 ## Chapter 0: Verify the ISO, boot the live USB, get online
 
@@ -355,7 +355,7 @@ The old-school separate-`/home`-partition pattern was an ext4-era workaround for
 
 ## Chapter 4: Mount everything for pacstrap
 
-Mount the Arch root subvolumes with the right options — identical to [Article 03 Chapter 4](../2026-05-17-arch-luks-btrfs-caelestia/#chapter-4-mount-the-subvolumes-with-the-right-options):
+Mount the Arch root subvolumes with the right options — identical to [Article 03 Chapter 4](../2026-05-17-arch-luks-btrfs/#chapter-4-mount-the-subvolumes-with-the-right-options):
 
 ```bash
 mount -o noatime,compress=zstd:3,subvol=@ /dev/mapper/cryptroot /mnt
@@ -428,7 +428,7 @@ The two distinct Btrfs UUIDs (Arch root vs. shared data) confirm `genfstab` saw 
 
 ## Chapter 6: Locale, time, hostname, user — with a pinned UID
 
-Identical to [Article 03's Chapter 6](../2026-05-17-arch-luks-btrfs-caelestia/#chapter-6-locale-time-hostname-user) except for **one** dual-boot-specific change: we pin the user's UID and GID to `1000` explicitly. Ubuntu's installer assigns the first regular user UID 1000 by default, so if we also pin to 1000 here, files on `/data` will be owned by the same user-as-the-kernel-sees-it on both sides.
+Identical to [Article 03's Chapter 6](../2026-05-17-arch-luks-btrfs/#chapter-6-locale-time-hostname-user) except for **one** dual-boot-specific change: we pin the user's UID and GID to `1000` explicitly. Ubuntu's installer assigns the first regular user UID 1000 by default, so if we also pin to 1000 here, files on `/data` will be owned by the same user-as-the-kernel-sees-it on both sides.
 
 ```bash
 # Editor + EDITOR var
@@ -611,7 +611,7 @@ A `Failed to activate with key file` line almost always means the keyfile path/p
 
 ## Chapter 9: Hibernation swap file for Arch (per Article 03)
 
-Identical to [Article 03 Chapter 7](../2026-05-17-arch-luks-btrfs-caelestia/#chapter-7-the-hibernation-swap-file). zram (Chapter 10) handles everyday compressed swap; hibernation goes to a NoCOW swap file *inside* the Arch root, so the resume target is unambiguous and there's no collision with Ubuntu's own hibernation swap file.
+Identical to [Article 03 Chapter 7](../2026-05-17-arch-luks-btrfs/#chapter-7-the-hibernation-swap-file). zram (Chapter 10) handles everyday compressed swap; hibernation goes to a NoCOW swap file *inside* the Arch root, so the resume target is unambiguous and there's no collision with Ubuntu's own hibernation swap file.
 
 ```bash
 btrfs filesystem mkswapfile --size 36g --uuid clear /swap/swapfile
@@ -645,7 +645,7 @@ Save the integer printed — `<RESUME_OFFSET>` in Chapter 12.
 
 ## Chapter 10: zram for everyday compressed swap
 
-Same as [Article 03 Chapter 8](../2026-05-17-arch-luks-btrfs-caelestia/#chapter-8-zram-for-everyday-swap):
+Same as [Article 03 Chapter 8](../2026-05-17-arch-luks-btrfs/#chapter-8-zram-for-everyday-swap):
 
 ```bash
 cat > /etc/systemd/zram-generator.conf <<'EOF'
@@ -677,7 +677,7 @@ MODULES=(btrfs)
 HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)
 ```
 
-The reasoning is identical to [Article 03 Chapter 9](../2026-05-17-arch-luks-btrfs-caelestia/#chapter-9-mkinitcpio--the-systemd-way) — only the Arch root container needs to be unlockable from the initramfs, and `sd-encrypt` + `rd.luks.name=…` is the path that does it.
+The reasoning is identical to [Article 03 Chapter 9](../2026-05-17-arch-luks-btrfs/#chapter-9-mkinitcpio--the-systemd-way) — only the Arch root container needs to be unlockable from the initramfs, and `sd-encrypt` + `rd.luks.name=…` is the path that does it.
 
 Add the root entry to `/etc/crypttab.initramfs` (it gets copied into the initramfs at build time and makes the configuration discoverable post-install):
 
@@ -1252,7 +1252,7 @@ findmnt /data                                                 # should now show 
 
 ### 2. Boot drops into emergency mode after Arch LUKS passphrase
 
-Same four failure modes as Article 03's [emergency section](../2026-05-17-arch-luks-btrfs-caelestia/#emergency-timed-out-waiting-for-device):
+Same four failure modes as Article 03's [emergency section](../2026-05-17-arch-luks-btrfs/#emergency-timed-out-waiting-for-device):
 
 1. `<UUID>` or `<RESUME_OFFSET>` left as literal text in `/etc/default/grub`.
 2. Mapper name mismatch between `rd.luks.name=…=cryptroot` and `root=/dev/mapper/cryptroot`.
