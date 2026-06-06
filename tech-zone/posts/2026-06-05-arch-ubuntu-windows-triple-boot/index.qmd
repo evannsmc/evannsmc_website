@@ -265,11 +265,11 @@ Re-run the Chapter 0 bootstrap if you rebooted out of the live USB (verify ISO, 
 cryptsetup luksFormat --type luks2 /dev/nvme0n1p5    # shared data — passphrase "LUKS — shared"
 cryptsetup luksFormat --type luks2 /dev/nvme0n1p6    # Arch root   — passphrase "LUKS — arch root"
 
-cryptsetup open /dev/nvme0n1p5 cryptshared
-cryptsetup open /dev/nvme0n1p6 cryptroot
+cryptsetup open /dev/nvme0n1p5 crypt_shared
+cryptsetup open /dev/nvme0n1p6 crypt_arch
 
-mkfs.btrfs -L shared /dev/mapper/cryptshared
-mkfs.btrfs -L arch   /dev/mapper/cryptroot
+mkfs.btrfs -L shared /dev/mapper/crypt_shared
+mkfs.btrfs -L arch   /dev/mapper/crypt_arch
 ```
 
 Use two distinct passphrases and store both in your password manager. `mkfs.btrfs` runs against the **mapper**, never the raw partition (that would corrupt the LUKS header). [Why two separate containers instead of one LUKS+LVM →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-2-format-the-two-arch-side-luks-containers)
@@ -277,7 +277,7 @@ Use two distinct passphrases and store both in your password manager. `mkfs.btrf
 ## Chapter 6: Create the Btrfs subvolumes
 
 ```bash
-mount /dev/mapper/cryptroot /mnt
+mount /dev/mapper/crypt_arch /mnt
 btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
 btrfs subvolume create /mnt/@snapshots
@@ -285,7 +285,7 @@ btrfs subvolume create /mnt/@var_log
 btrfs subvolume create /mnt/@swap
 umount /mnt
 
-mount /dev/mapper/cryptshared /mnt
+mount /dev/mapper/crypt_shared /mnt
 btrfs subvolume create /mnt/@data
 umount /mnt
 ```
@@ -295,16 +295,16 @@ The five-subvolume layout (`@`, `@home`, `@snapshots`, `@var_log`, `@swap`) is w
 ## Chapter 7: Mount everything (including the exchange partition)
 
 ```bash
-mount -o noatime,compress=zstd:3,subvol=@ /dev/mapper/cryptroot /mnt
+mount -o noatime,compress=zstd:3,subvol=@ /dev/mapper/crypt_arch /mnt
 mkdir -p /mnt/{boot,home,.snapshots,var/log,swap,data,exchange}
 
-mount -o noatime,compress=zstd:3,subvol=@home      /dev/mapper/cryptroot /mnt/home
-mount -o noatime,compress=zstd:3,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots
-mount -o noatime,compress=zstd:3,subvol=@var_log   /dev/mapper/cryptroot /mnt/var/log
-mount -o noatime,subvol=@swap                      /dev/mapper/cryptroot /mnt/swap
+mount -o noatime,compress=zstd:3,subvol=@home      /dev/mapper/crypt_arch /mnt/home
+mount -o noatime,compress=zstd:3,subvol=@snapshots /dev/mapper/crypt_arch /mnt/.snapshots
+mount -o noatime,compress=zstd:3,subvol=@var_log   /dev/mapper/crypt_arch /mnt/var/log
+mount -o noatime,subvol=@swap                      /dev/mapper/crypt_arch /mnt/swap
 
 mount /dev/nvme0n1p1 /mnt/boot
-mount -o noatime,compress=zstd:3,subvol=@data /dev/mapper/cryptshared /mnt/data
+mount -o noatime,compress=zstd:3,subvol=@data /dev/mapper/crypt_shared /mnt/data
 ```
 
 `@swap` mounts **without** compression (a swap file must not be compressed). Note we mount the shared `/data` now so `genfstab` captures it — but we deliberately **do not** add the exFAT exchange partition to `genfstab`'s view yet; we'll add a hand-tuned `fstab` line for it in Chapter 9 (exFAT needs ownership options Btrfs doesn't). [Mount-option rationale →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-4-mount-everything-for-pacstrap)
@@ -379,7 +379,7 @@ chmod 0400 /etc/cryptsetup-keys.d/shared.key
 cryptsetup luksAddKey /dev/nvme0n1p5 /etc/cryptsetup-keys.d/shared.key   # prompts for the shared passphrase
 cryptsetup luksDump   /dev/nvme0n1p5 | grep -A30 '^Keyslots:'            # expect keyslots 0 (passphrase) and 1 (keyfile)
 
-echo "cryptshared UUID=$(blkid -s UUID -o value /dev/nvme0n1p5) /etc/cryptsetup-keys.d/shared.key luks,nofail" \
+echo "crypt_shared UUID=$(blkid -s UUID -o value /dev/nvme0n1p5) /etc/cryptsetup-keys.d/shared.key luks,nofail" \
     >> /etc/crypttab
 
 # Harden the genfstab-written /data line the same way (soft-fail the mount, short device timeout)
@@ -437,7 +437,7 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 Then declare the root container for the initramfs and rebuild:
 
 ```bash
-echo "cryptroot UUID=$(blkid -s UUID -o value /dev/nvme0n1p6) none luks" > /etc/crypttab.initramfs
+echo "crypt_arch UUID=$(blkid -s UUID -o value /dev/nvme0n1p6) none luks" > /etc/crypttab.initramfs
 mkinitcpio -P
 ```
 
@@ -454,7 +454,7 @@ blkid -s UUID -o value /dev/nvme0n1p6
 Edit `/etc/default/grub`, replacing the `GRUB_CMDLINE_LINUX_DEFAULT` line (substitute real values — **no angle brackets in the file**):
 
 ```bash
-GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet zswap.enabled=0 rd.luks.name=<UUID>=cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ resume=/dev/mapper/cryptroot resume_offset=<RESUME_OFFSET>"
+GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet zswap.enabled=0 rd.luks.name=<UUID>=crypt_arch root=/dev/mapper/crypt_arch rootflags=subvol=@ resume=/dev/mapper/crypt_arch resume_offset=<RESUME_OFFSET>"
 ```
 
 Then enable `os-prober` — the key triple-boot setting, because this is what makes GRUB discover **both** Windows and Ubuntu:
@@ -490,7 +490,7 @@ grep '^MODULES='                    /etc/mkinitcpio.conf
 grep '^HOOKS='                      /etc/mkinitcpio.conf
 grep '^GRUB_CMDLINE_LINUX_DEFAULT=' /etc/default/grub
 grep '^GRUB_DISABLE_OS_PROBER='     /etc/default/grub
-cat /etc/fstab    | grep -E 'subvol=|swap|cryptshared|exchange'
+cat /etc/fstab    | grep -E 'subvol=|swap|crypt_shared|exchange'
 cat /etc/crypttab | grep -v '^#'
 ls -l /etc/cryptsetup-keys.d/
 ```
@@ -500,8 +500,8 @@ Then leave the chroot and reboot in this order:
 ```bash
 exit
 umount -R /mnt
-cryptsetup close cryptroot
-cryptsetup close cryptshared
+cryptsetup close crypt_arch
+cryptsetup close crypt_shared
 reboot
 ```
 
@@ -514,13 +514,13 @@ Pull the USB. Expected first boot: firmware → **GRUB menu** (now listing *Arch
 Log in as your user and confirm the full stack:
 
 ```bash
-findmnt /            # subvol=/@, on cryptroot
+findmnt /            # subvol=/@, on crypt_arch
 findmnt /home        # subvol=/@home
-findmnt /data        # subvol=/@data, on cryptshared
+findmnt /data        # subvol=/@data, on crypt_shared
 findmnt /exchange    # exfat, on /dev/nvme0n1p4
 swapon --show        # zram0 (pri 100) + /swap/swapfile (pri -2)
-cryptsetup status cryptroot      # active LUKS2 (Arch root)
-cryptsetup status cryptshared    # active LUKS2 (shared data)
+cryptsetup status crypt_arch      # active LUKS2 (Arch root)
+cryptsetup status crypt_shared    # active LUKS2 (shared data)
 ```
 
 Reconnect Wi-Fi, re-enable NTP, and verify the timezone — the live ISO's settings don't carry into the installed system:
@@ -637,8 +637,8 @@ Add Ubuntu's `crypttab` (shared data), `fstab` (shared data + exchange), and ins
 SHARED_UUID=$(blkid -s UUID -o value /dev/nvme0n1p5)
 EXCH_UUID=$(blkid -s UUID -o value /dev/nvme0n1p4)
 
-echo "cryptshared UUID=${SHARED_UUID} /etc/cryptsetup-keys.d/shared.key luks,nofail" >> /etc/crypttab
-echo "/dev/mapper/cryptshared /data btrfs rw,noatime,compress=zstd:3,subvol=@data,nofail,x-systemd.device-timeout=10s 0 0" >> /etc/fstab
+echo "crypt_shared UUID=${SHARED_UUID} /etc/cryptsetup-keys.d/shared.key luks,nofail" >> /etc/crypttab
+echo "/dev/mapper/crypt_shared /data btrfs rw,noatime,compress=zstd:3,subvol=@data,nofail,x-systemd.device-timeout=10s 0 0" >> /etc/fstab
 echo "UUID=${EXCH_UUID} /exchange exfat defaults,uid=1000,gid=1000,umask=022,nofail 0 0" >> /etc/fstab
 mkdir -p /data /exchange
 apt-get update && apt-get install -y exfatprogs
@@ -730,7 +730,7 @@ All three boot from one GRUB menu; Arch and Ubuntu each hibernate into themselve
 ```bash
 findmnt / /home /data /exchange
 swapon --show                       # zram + that OS's own /swap/swapfile
-cryptsetup status cryptshared       # active LUKS2 (same shared UUID from both)
+cryptsetup status crypt_shared       # active LUKS2 (same shared UUID from both)
 sudo systemctl hibernate            # resumes into the same OS
 stat -c '%u %g %n' /data/*          # all 1000 — pinned-UID parity
 ls -l /exchange                     # files from all three OSes
