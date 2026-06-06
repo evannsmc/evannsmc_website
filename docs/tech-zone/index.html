@@ -1013,7 +1013,7 @@ main.content.column-page {
   <div class="tz-filter-strip">
     <input class="tz-filter-input" type="search" placeholder="filter by title, topic, or #tag…" aria-label="Filter articles" autocomplete="off">
     <span class="tz-filter-count" aria-live="polite">
-      showing <strong id="tz-count-shown">11</strong> of <strong>11</strong>
+      showing <strong id="tz-count-shown">10</strong> of <strong>10</strong>
     </span>
   </div>
 
@@ -1022,15 +1022,75 @@ main.content.column-page {
 
   <!-- ─────── Card grid ─────── -->
   <!-- Display order: most-recent / highest-numbered at top.
-       Article number assignment is narrative-order: the ambitious failure that
-       motivated everything else is #01, basic install #02, working full install
-       with Caelestia #03, pacman/AUR reference #04, Caelestia desktop split-out
-       from #03 is #05, three-variant install compilation is #06,
-       dual-boot Arch + Ubuntu with shared data partition is #07 (promoted from
-       planned now that the draft is complete; not yet executed end-to-end),
-       and the beginner Raspberry Pi homelab (Tailscale/Pi-hole/Caddy/VPN,
-       tested on my own Pi) is #08. -->
+       Article number assignment is narrative-order, not a contiguous sequence:
+       ambitious failure #01, basic install #02, working LUKS+Btrfs install #03,
+       pacman/AUR reference #04, three-variant install compilation #06,
+       dual-boot Arch + Ubuntu with shared data partition #07 (reasoned, not yet
+       executed), beginner Raspberry Pi homelab (tested on my own Pi) #08, and
+       triple-boot Arch + Ubuntu + Windows #10 (reasoned, not yet executed —
+       promoted from planned 2026-06-05; sits at the top as the most recent).
+       #05 (Caelestia desktop) was retired 2026-06-05; #09 (Mac mini) is still
+       planned, so both numbers are intentionally absent from the published grid. -->
   <div class="tz-card-grid" id="tz-card-grid">
+
+    <!-- CARD 10 — Triple-boot Arch + Ubuntu + Windows (promoted from planned 2026-06-05) -->
+    <a class="tz-card success" href="./posts/2026-06-05-arch-ubuntu-windows-triple-boot/" data-tags="arch linux ubuntu windows triple-boot luks btrfs snapper hibernation grub os-prober exfat esp bitlocker secure boot shared partition exchange culmination" aria-label="Read: Triple-Boot Arch + Ubuntu + Windows — Closing the Loop on Article 01">
+      <div class="tz-card-summary">
+        <div class="tz-card-tags">
+          <span class="tz-tag">arch linux</span>
+          <span class="tz-tag">ubuntu</span>
+          <span class="tz-tag">windows</span>
+          <span class="tz-tag">triple-boot</span>
+          <span class="tz-tag">luks</span>
+          <span class="tz-tag">exfat</span>
+          <span class="tz-tag">os-prober</span>
+        </div>
+
+        <div class="tz-card-name-row">
+          <span class="tz-card-number">10</span>
+          <h3 class="tz-card-name anchored">Triple-Boot Arch + Ubuntu + Windows — Closing the Loop on Article 01</h3>
+        </div>
+
+        <div class="tz-card-meta">
+          <span class="tz-card-date">2026-06-05</span>
+          <span class="tz-status-pill warn">reasoned, not yet executed</span>
+        </div>
+
+        <p class="tz-card-preview-copy">
+          The full-circle finale: one NVMe drive booting <code>Windows 11</code>, <code>Arch</code>, and
+          <code>Ubuntu 24 LTS</code>. Windows goes on <strong>first</strong> (so it can't stomp the bootloader)
+          into its own NTFS partition, reusing a <code>1 GiB</code> ESP we pre-create; Arch and Ubuntu layer on
+          exactly as in the dual-boot — two LUKS2+Btrfs roots, one shared encrypted <code>/data</code> the two
+          Linux distros mount, per-OS zram + NoCOW hibernation. Windows stays out of the encrypted pool
+          entirely; cross-OS exchange runs through a plain <code>exFAT</code> partition all three read. One GRUB
+          with <code>os-prober</code> chainloads the Windows boot manager. Secure Boot off, BitLocker off, with
+          every lesson from Articles 01–07 underneath. The full reasoned procedure — updated in place once I run
+          it end-to-end.
+        </p>
+
+        <div class="tz-screen" aria-hidden="true">
+          <div class="tz-screen-bar">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            <span class="label">one GRUB menu — three operating systems</span>
+            <span class="badge ok">triple-boot</span>
+          </div>
+          <div class="tz-screen-body"><span class="p">[evanns@arch-triple ~]$</span> <span class="c">sudo grub-mkconfig -o /boot/grub/grub.cfg 2&gt;&amp;1 | grep Found</span>
+<span class="ok">Found Windows Boot Manager on /dev/nvme0n1p1@/EFI/Microsoft/Boot/bootmgfw.efi</span>
+<span class="ok">Found Ubuntu 24.04 LTS (24.04) on /dev/nvme0n1p7</span>
+
+<span class="p">[evanns@arch-triple ~]$</span> <span class="c">findmnt /data /exchange -o TARGET,SOURCE,FSTYPE</span>
+/data      /dev/mapper/<span class="ok">cryptshared</span>  btrfs   <span class="mute"># Arch + Ubuntu only, encrypted</span>
+/exchange  /dev/nvme0n1p4         exfat   <span class="mute"># all three OSes, plain</span>
+
+<span class="p">[evanns@arch-triple ~]$</span> <span class="c">swapon --show</span>
+NAME           TYPE       SIZE PRIO
+/dev/zram0     partition  18G  <span class="ok">100</span>
+/swap/swapfile file       36G  <span class="mute">-2</span><span class="u">_</span></div>
+        </div>
+
+        <span class="tz-card-cta">read the triple-boot finale <span class="arrow">→</span></span>
+      </div>
+    </a>
 
     <!-- CARD 08 — Beginner homelab on a Raspberry Pi (Tailscale, Pi-hole, Caddy, VPN) -->
     <a class="tz-card success" href="./posts/2026-06-02-beginner-homelab-raspberry-pi/" data-tags="raspberry pi homelab tailscale docker pi-hole caddy audiobookshelf vpn mullvad wireguard dns self-hosting networking reverse proxy exit node" aria-label="Read: A Beginner Homelab on a Raspberry Pi — One Pi, One Tailnet, Nothing Exposed">
@@ -1199,57 +1259,9 @@ NAME           TYPE       SIZE PRIO
       </div>
     </a>
 
-    <!-- CARD 05 — Caelestia (Hyprland Desktop) standalone -->
-    <a class="tz-card success" href="./posts/2026-05-18-caelestia-desktop/" data-tags="arch linux caelestia hyprland sddm pipewire wayland nvidia lua dotfiles wallpaper quickshell desktop" aria-label="Read: Caelestia (Hyprland Desktop) — From Bare Arch to a Working Bar">
-      <div class="tz-card-summary">
-        <div class="tz-card-tags">
-          <span class="tz-tag">caelestia</span>
-          <span class="tz-tag">hyprland</span>
-          <span class="tz-tag">sddm</span>
-          <span class="tz-tag">pipewire</span>
-          <span class="tz-tag">lua</span>
-        </div>
-
-        <div class="tz-card-name-row">
-          <span class="tz-card-number">05</span>
-          <h3 class="tz-card-name anchored">Caelestia (Hyprland Desktop) — From Bare Arch to a Working Bar</h3>
-        </div>
-
-        <div class="tz-card-meta">
-          <span class="tz-card-date">2026-05-18</span>
-          <span class="tz-status-pill ok">desktop</span>
-        </div>
-
-        <p class="tz-card-preview-copy">
-          The desktop half of Article 03, split into its own piece. PipeWire audio, GPU drivers for
-          Intel / AMD / NVIDIA / hybrid laptops, an AUR helper, the Caelestia bundle install
-          (including the <code>SRCINFO</code> failure-and-recovery), KDE-Frameworks apps under
-          Hyprland, SDDM as the login manager, the wallpaper-chain recipe, and the new
-          Hyprland 0.55 <code>hyprland.lua</code> override path.
-        </p>
-
-        <div class="tz-screen" aria-hidden="true">
-          <div class="tz-screen-bar">
-            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-            <span class="label">first login — Caelestia + Hyprland</span>
-            <span class="badge ok">desktop</span>
-          </div>
-          <div class="tz-screen-body"><span class="p">[evanns@arch ~]$</span> <span class="c">hyprctl version | head -1</span>
-Hyprland, built from branch main
-
-<span class="p">[evanns@arch ~]$</span> <span class="c">pactl info | grep 'Server Name'</span>
-Server Name: <span class="ok">PulseAudio (on PipeWire 1.6.x)</span>
-
-<span class="p">[evanns@arch ~]$</span> <span class="c">caelestia --version</span>
-caelestia 0.6.x
-
-<span class="p">[evanns@arch ~]$</span> <span class="c">systemctl --user is-active wireplumber</span>
-<span class="ok">active</span><span class="u">_</span></div>
-        </div>
-
-        <span class="tz-card-cta">read the desktop log <span class="arrow">→</span></span>
-      </div>
-    </a>
+    <!-- CARD 05 (Caelestia Hyprland Desktop) retired 2026-06-05 — the standalone Caelestia
+         desktop write-up was removed. The desktop layer is now covered only by the upcoming
+         Custom Hyprland article (planned card below); Article 03's Part 4 points there. -->
 
     <!-- CARD 04 — Pacman / Yay / Paru / AUR reference -->
     <a class="tz-card success" href="./posts/2026-05-17-pacman-yay-aur-prompts/" data-tags="arch linux pacman aur yay paru package management reference prompts hooks snap-pac mkinitcpio stow" aria-label="Read: Pacman, Yay, Paru, and the AUR — What Every Prompt Actually Means">
@@ -1489,7 +1501,7 @@ control  arch  <span class="mute">…</span><span class="u">_</span></div>
 
   <div class="tz-card-grid" id="tz-planned-grid">
 
-    <!-- CARD 08 — Custom Hyprland (alternative to Caelestia for Article 03 Path B; was planned 07) -->
+    <!-- CARD 08 — Custom Hyprland (the desktop layer for Article 03's Part 4; was planned 07) -->
     <div class="tz-card planned" role="article" data-tags="arch linux hyprland custom waybar ironbar eww wayland desktop dotfiles minimal opinion-free piece-by-piece" aria-labelledby="tz-planned-08">
       <div class="tz-card-summary">
         <div class="tz-card-tags">
@@ -1511,11 +1523,11 @@ control  arch  <span class="mute">…</span><span class="u">_</span></div>
         </div>
 
         <p class="tz-card-preview-copy">
-          The desktop layer I'm actually moving toward after living in <a href="./posts/2026-05-18-caelestia-desktop/">Caelestia</a> for a while:
-          Hyprland with my own bar (<code>waybar</code> or <code>ironbar</code>), my own terminal, my own
-          keybinds, my own theme — no project-bundle layer baked in. Slower to "first screenshot"
-          than Caelestia, but every component is one I picked and there's no surprise opinion to
-          discover later. This is Path B for Article 03's Part 4 fork.
+          The desktop layer I'm actually moving toward — Hyprland built piece by piece: my own bar
+          (<code>waybar</code> or <code>ironbar</code>), my own terminal, my own keybinds, my own theme,
+          with no project-bundle layer baked in. Slower to "first screenshot" than a pre-made bundle, but
+          every component is one I picked and there's no surprise opinion to discover later. This is the
+          desktop layer Article 03's Part 4 points to.
         </p>
 
         <div class="tz-planned-scope">
@@ -1523,9 +1535,9 @@ control  arch  <span class="mute">…</span><span class="u">_</span></div>
           <ul>
             <li>Hyprland 0.55+ with <code>hyprland.lua</code> as the primary config language</li>
             <li>Bar: comparison of <code>waybar</code>, <code>ironbar</code>, <code>eww</code> — pick one and wire it up</li>
-            <li>Audio (PipeWire), GPU drivers, login manager (greetd + tuigreet, not SDDM) — the same prerequisites Caelestia needs, installed à la carte</li>
-            <li>Minimal app set; honest opinions on what I'd actually keep vs. drop from Caelestia's curated list</li>
-            <li>Honest comparison against Article 05 on first-screenshot time, idle CPU/RAM, and how it feels on older hardware</li>
+            <li>Audio (PipeWire), GPU drivers, login manager (greetd + tuigreet) — every prerequisite installed à la carte</li>
+            <li>Minimal app set; honest opinions on what's worth keeping vs. dropping</li>
+            <li>How it feels on older hardware: first-screenshot time, idle CPU/RAM, no bundle overhead</li>
           </ul>
         </div>
       </div>
@@ -1573,49 +1585,11 @@ control  arch  <span class="mute">…</span><span class="u">_</span></div>
          their content is now compiled into the published "Three Single-Boot
          Arch Variants" article (CARD 06 in the published grid above).
          CARD 09 (old planned: Dual-Boot Arch + Ubuntu — Shared Data Partition)
-         was promoted to published CARD 07 on 2026-05-19 and now lives at the
-         top of the published grid above. The remaining planned cards have
-         shifted up one (Custom Hyprland 07→08, Mac mini 08→09, Triple-Boot
-         stays at 10). -->
-
-    <!-- CARD 10 — Triple-boot Arch + Ubuntu + Windows -->
-    <div class="tz-card planned" role="article" data-tags="arch linux ubuntu windows triple boot luks btrfs shared partition efi bitlocker culmination" aria-labelledby="tz-planned-10">
-      <div class="tz-card-summary">
-        <div class="tz-card-tags">
-          <span class="tz-tag">arch linux</span>
-          <span class="tz-tag">ubuntu</span>
-          <span class="tz-tag">windows</span>
-          <span class="tz-tag">triple boot</span>
-          <span class="tz-tag">culmination</span>
-        </div>
-
-        <div class="tz-card-name-row">
-          <span class="tz-card-number">10</span>
-          <h3 class="tz-card-name anchored" id="tz-planned-10">Triple-Boot Arch + Ubuntu + Windows — Closing the Loop on Article 01</h3>
-        </div>
-
-        <div class="tz-card-meta">
-          <span class="tz-card-date">tba</span>
-          <span class="tz-status-pill warn">planned</span>
-        </div>
-
-        <p class="tz-card-preview-copy">
-          The full-circle finale: every prior install article stacked, plus a minimal Windows partition for
-          collaborators who live in Office-suite land. The same target that broke the ambitious install —
-          but reached on purpose this time, with every lesson from Articles 01–07 underneath.
-        </p>
-
-        <div class="tz-planned-scope">
-          <span class="label">scope</span>
-          <ul>
-            <li>Windows installed first (it owns the EFI; everyone else adapts)</li>
-            <li>Arch + Ubuntu with shared LUKS/Btrfs layout from Articles 06 &amp; 07</li>
-            <li>Shared data partition readable from Windows, Arch, and Ubuntu</li>
-            <li>Retrospective: which choices from Article 01 finally paid off</li>
-          </ul>
-        </div>
-      </div>
-    </div>
+         was promoted to published CARD 07 on 2026-05-19.
+         CARD 10 (Triple-Boot Arch + Ubuntu + Windows) was promoted to the
+         published grid on 2026-06-05 and now sits at the top of it.
+         CARD 05 (Caelestia Hyprland Desktop) was retired on 2026-06-05; the
+         desktop layer is now covered only by the Custom Hyprland card above. -->
 
   </div>
 

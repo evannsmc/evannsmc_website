@@ -1,0 +1,795 @@
+---
+title: "Triple-Boot Arch + Ubuntu + Windows — Closing the Loop on Article 01"
+description: "The full-circle finale of the install series: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS. Windows goes on first so it can't stomp the bootloader; Arch and Ubuntu layer on exactly as in the dual-boot article — two independently LUKS2+Btrfs-encrypted roots, one shared 150 GiB LUKS+Btrfs `/data` partition the two Linux distros mount read-write, per-OS zram + NoCOW Btrfs hibernation. Windows stays out of the encrypted pool entirely (it can't read LUKS or Btrfs); cross-OS exchange with Windows happens through a separate plain exFAT partition every OS can read. One GRUB on the shared 1 GiB ESP with os-prober enabled, chainloading the Windows boot manager. Secure Boot off, BitLocker off — the simplest reliable triple-boot, with every lesson from Articles 01–07 underneath."
+author: "Evanns Morales-Cuadrado"
+date: "2026-06-05"
+categories: [arch linux, ubuntu, windows, linux, installation, triple-boot, luks, btrfs, snapper, hibernation, grub, os-prober, mkinitcpio, sd-encrypt, zram, exfat, esp, bitlocker, secure boot, shared partition]
+image: ../../../files/tech-zone/arch-logo-dark.svg
+image-alt: "The Arch Linux logo — official wordmark from archlinux.org."
+draft: false
+---
+
+::: {.callout-warning}
+## Honesty disclaimer: this is the reasoned culmination, not yet a live-tested run
+
+Like the [dual-boot article (Article 07)](../2026-05-19-arch-ubuntu-dual-boot-shared-data/), this is a **carefully reasoned blueprint**, not a command-by-command install log I've already executed. It stacks the parts I *have* run first-hand — the [LUKS+Btrfs single-boot (Article 03)](../2026-05-17-arch-luks-btrfs-caelestia/) and the dual-boot extension — and adds a Windows partition plus the three-way integration on top, built from the [Arch wiki on dual-booting Windows](https://wiki.archlinux.org/title/Dual_boot_with_Windows){target="_blank" rel="noopener"}, Microsoft's [UEFI/GPT install docs](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/configure-uefigpt-based-hard-drive-partitions){target="_blank" rel="noopener"}, and the `os-prober` / `efibootmgr` man pages.
+
+I'll run it for real on the next workstation build and update in place if anything changes. Canonical sources to re-read as you go:
+
+- [Arch wiki: Dual boot with Windows](https://wiki.archlinux.org/title/Dual_boot_with_Windows){target="_blank" rel="noopener"} — ESP sharing, `os-prober`, the localtime/UTC clock fix
+- [Arch wiki: GRUB#Detecting other operating systems](https://wiki.archlinux.org/title/GRUB#Detecting_other_operating_systems){target="_blank" rel="noopener"}
+- [`cryptsetup`](https://man.archlinux.org/man/cryptsetup.8){target="_blank" rel="noopener"}, [`crypttab`](https://man.archlinux.org/man/crypttab.5){target="_blank" rel="noopener"}, [`btrfs`](https://man.archlinux.org/man/btrfs.8){target="_blank" rel="noopener"}
+
+Treat it as a blueprint for the *pattern*, not a substitute for the tool docs.
+:::
+
+::: {.callout-note}
+## What this is
+
+The last article in the install arc: **one NVMe drive, three operating systems.**
+
+- **Windows 11**, installed **first**, on its own NTFS partition. It owns nothing but its own files — but it boots first during setup so it can't clobber a bootloader that isn't there yet.
+- **Arch Linux** and **Ubuntu 24 LTS**, each in its **own LUKS2 container** carrying the same Btrfs subvolume layout (`@`, `@home`, `@snapshots`, `@var_log`, `@swap`) — exactly the [dual-boot setup](../2026-05-19-arch-ubuntu-dual-boot-shared-data/), unchanged.
+- **One shared 150 GiB LUKS+Btrfs `/data` partition** the two **Linux** distros mount read-write, keyfile-unlocked at boot. **Windows is deliberately left out of it** — it can't read LUKS or Btrfs, and bolting a third-party driver onto an encrypted volume is exactly the kind of fragility this series avoids.
+- **One plain exFAT exchange partition** that *all three* OSes read and write, for the files you genuinely need to hand to Windows (or that Windows needs to hand to Linux).
+- **Per-OS zram** for everyday swap and **per-OS NoCOW Btrfs hibernation** inside each Linux root — no cross-OS resume collisions.
+- **One GRUB** on the shared 1 GiB ESP, `os-prober` enabled, chainloading both Ubuntu and the **Windows boot manager**.
+- **Secure Boot off, BitLocker off** — the simplest configuration that boots all three reliably (the tradeoffs are spelled out below).
+
+It stops on the console for the Arch side, exactly like every prior article — the desktop layer is a separate choice. Windows and Ubuntu come up graphical out of the box.
+:::
+
+## Why this closes the loop on Article 01
+
+[Article 01](../2026-05-05-arch-luks-btrfs-lessons/) — my very first ambitious attempt — tried to land LUKS, Btrfs, zram, a shared data partition, *and* a dual-boot in one swing, and dropped me into emergency mode. The whole series since has been a march back toward that target, one variable at a time:
+
+- **Article 02** — the boring, dependable basic install (ext4, no encryption) to build the mental model.
+- **Article 03** — that mental model done right: LUKS2 + Btrfs + snapper + hibernation, single-boot, *booting*.
+- **Articles 04–06** — the AUR/pacman reference, and the three single-boot variants compiled side by side.
+- **Article 07** — the dual-boot: Arch + Ubuntu, shared encrypted `/data`, per-OS hibernation.
+
+This article is the original Article 01 ambition **plus Windows** — reached on purpose, with every fix from the post-mortem already baked in. Why add Windows at all? Because some collaborators live in the Microsoft Office / Adobe / vendor-CAD world that still doesn't have a credible Linux story, and a VM isn't always enough. So: a real Windows partition that boots natively, sitting beside the daily-driver Arch and the research-package Ubuntu.
+
+Adding Windows introduces five concerns the dual-boot didn't have:
+
+1. **Windows is a bad bootloader citizen.** It writes its boot manager to the ESP and reorders NVRAM to put itself first — and a major Windows update will happily do it again. So Windows goes **first**, and GRUB (installed after) becomes the menu that chainloads it. We also note how to put GRUB back on top after a Windows update steals the boot order.
+2. **Windows can't read LUKS or Btrfs.** The encrypted shared `/data` is Linux-only by design. Windows↔Linux file exchange uses a **separate plain exFAT partition** every OS reads natively.
+3. **The RTC clock war.** Windows assumes the hardware clock is local time; Linux assumes UTC. Left alone, every OS switch shifts your clock by your UTC offset. We fix it by telling Windows to use UTC.
+4. **Fast Startup and "device encryption."** Windows 11's Fast Startup leaves the NTFS volume in a hibernated/dirty state, and some hardware silently auto-enables BitLocker device encryption. Both interfere with a clean triple-boot; we turn them off.
+5. **Secure Boot.** Our GRUB isn't signed with a key the firmware trusts, so Secure Boot would block it. We disable it (and note what keeping it on would cost).
+
+---
+
+# Part 1 — The disk layout
+
+Everything downstream follows from this table. Seven partitions on one drive:
+
+| Partition | Size            | Filesystem            | Encryption | Mounted on (Linux)   | Purpose                                              |
+|-----------|----------------:|-----------------------|------------|----------------------|-----------------------------------------------------|
+| `p1`      | 1 GiB           | FAT32                 | none       | `/boot`              | Shared UEFI ESP (GRUB + Linux kernels + Windows boot manager) |
+| `p2`      | 16 MiB          | —                     | none       | —                    | Microsoft Reserved (MSR) — Windows bookkeeping       |
+| `p3`      | ~250 GiB        | NTFS                  | none       | (not mounted)        | **Windows** C:                                       |
+| `p4`      | 64 GiB          | exFAT                 | none       | `/exchange`          | Plain exchange — **all three** OSes read/write       |
+| `p5`      | 150 GiB         | Btrfs (inside LUKS2)  | LUKS2      | `/data`              | Shared data — **Arch + Ubuntu only**, keyfile-unlocked |
+| `p6`      | (rest ÷ 2)      | Btrfs (inside LUKS2)  | LUKS2      | `/`                  | **Arch** root, passphrase-unlocked                   |
+| `p7`      | (rest ÷ 2)      | Btrfs (inside LUKS2)  | LUKS2      | `/`                  | **Ubuntu** root, passphrase-unlocked (installer)     |
+
+::: {.callout-note}
+## Doing the math for your disk
+
+For a 2 TiB SSD, holding back 1 GiB ESP + 16 MiB MSR + 250 GiB Windows + 64 GiB exchange + 150 GiB shared data leaves ≈ 1535 GiB to split between the two Linux roots — roughly **767 GiB each**. Adjust every number to taste; nothing downstream depends on the exact gigabyte counts, only on the *order* and the partition *types*. If you rarely touch Windows, shrink p3 to 120 GiB and hand the rest to Linux.
+:::
+
+::: {.callout-important}
+## Why a 1 GiB ESP we create ourselves — not the 100 MiB one Windows makes
+
+If you let the Windows installer own a blank disk, it creates a **100 MiB** ESP. That's fine for Windows alone, but far too small to also hold two Linux distros' kernels + initramfs images in `/boot`. The whole series puts `/boot` *on the ESP* (unencrypted, so GRUB can read it without `GRUB_ENABLE_CRYPTODISK`), and that needs room.
+
+So we **pre-create the partition table from the Arch live USB first**, including a generous 1 GiB ESP, and then point the Windows installer at the partition we made for it. Windows is happy to *reuse* an existing ESP of adequate size — it only insists on creating its own when it doesn't find one. This is the single most important ordering trick in the article.
+:::
+
+::: {.callout-tip}
+## Why Windows is left out of the shared `/data`
+
+The dual-boot's shared `/data` is a LUKS2 container with Btrfs inside. Windows can read **neither** layer natively, and the third-party options (WinBtrfs for the filesystem; nothing trustworthy for LUKS) mean running an *unencrypted* Btrfs volume and bolting an experimental driver onto it — throwing away the encryption that's the whole point. Not worth it.
+
+Instead, Windows gets a clean separation: it never touches `/data`. The handful of files you actually need to move between Windows and Linux go through the **plain exFAT exchange partition** (`p4`), which all three OSes read and write with first-class, built-in drivers. The tradeoff is honest and explicit: **anything on the exchange partition is unencrypted.** Treat it as a transfer airlock, not a home for secrets — keep those on the encrypted `/data` (Linux) or inside Windows' own profile.
+:::
+
+---
+
+# Part 2 — Pre-partition the disk from the Arch live USB
+
+We boot the Arch installer **first**, only to lay down the partition table (and format the ESP so Windows recognizes it). The Arch *install* itself happens later, in Part 4 — after Windows is on disk.
+
+## Chapter 0: Verify the ISO, boot the live USB, confirm UEFI
+
+This is the same first-time-install bootstrap as every article in the series — spelled out in full so you don't need another tab open. **Done it before? Skim to [Chapter 1](#chapter-1-lay-down-the-partition-table).**
+
+### Download and verify the ISO
+
+On a machine you trust, grab the ISO, its `.sig`, and `sha256sums.txt` from the [Arch download page](https://archlinux.org/download/){target="_blank" rel="noopener"} into one directory (I use `~/Downloads/Arch`):
+
+```bash
+cd ~/Downloads/Arch
+sha256sum -c sha256sums.txt
+# archlinux-2026.05.01-x86_64.iso: OK          # bytes match the published checksum
+
+gpg --auto-key-locate clear,wkd -v --locate-external-key pierre@archlinux.org
+gpg --verify archlinux-2026.05.01-x86_64.iso.sig archlinux-2026.05.01-x86_64.iso
+# gpg: Good signature from "Pierre Schmitz <pierre@archlinux.org>" [unknown]   # published by Arch's release engineer
+```
+
+The `WARNING: The key's User ID is not certified` line is expected (you haven't signed Pierre's key into your web of trust) — the signature is still valid. Flash the verified ISO to a USB stick with [balenaEtcher](https://etcher.balena.io/){target="_blank" rel="noopener"} or `dd` (mind `of=`).
+
+### Boot the install media and confirm UEFI
+
+Plug the USB in, interrupt boot (`F2`/`F10`/`F12`/`Esc`), pick the USB, choose *"Arch Linux install medium."* At the root shell, confirm UEFI mode — the entire triple-boot design assumes it:
+
+```bash
+cat /sys/firmware/efi/fw_platform_size
+# 64   (32 on very old hardware; if the file is absent you booted BIOS — fix in firmware)
+```
+
+::: {.callout-important}
+## Turn off Secure Boot now, while you're in firmware
+
+Before leaving the firmware setup screen, **disable Secure Boot**. Our GRUB isn't signed with a key your firmware trusts, so Secure Boot would refuse to load it. (Keeping Secure Boot on is possible with `shim` + MOK enrollment + a signed GRUB, but that's a substantially longer and more fragile path — out of scope for this "simplest reliable" build.) While you're there, set the firmware to **UEFI-only** (disable CSM/legacy boot) so Windows installs in UEFI/GPT mode, matching Linux.
+:::
+
+If the console font is too small, `setfont ter-132b`. (You don't strictly need the network for partitioning, but if you want to SSH in from another machine for comfort, it's the same `iwctl` → `systemctl enable --now sshd` → `passwd` dance as the [dual-boot Chapter 0](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-0-verify-the-iso-boot-the-live-usb-get-online).)
+
+## Chapter 1: Lay down the partition table
+
+Confirm the disk first — wiping the wrong one is unrecoverable:
+
+```bash
+lsblk -d -o NAME,SIZE,MODEL,TRAN      # NVMe shows TRAN=nvme
+```
+
+Every command below uses `/dev/nvme0n1` as a placeholder — **substitute your actual device.** Partition with `cfdisk` (GPT label):
+
+```bash
+cfdisk /dev/nvme0n1
+```
+
+Inside `cfdisk`:
+
+1. `d` on every existing partition until the table is empty. (If prompted for a label type on a blank disk, choose **gpt**.)
+2. `n` → `1G`   → type **EFI System**           → `p1` (shared ESP).
+3. `n` → `16M`  → type **Microsoft reserved**   → `p2` (MSR; if your `cfdisk` doesn't list MSR, see the note below).
+4. `n` → `250G` → type **Microsoft basic data** → `p3` (Windows C:).
+5. `n` → `64G`  → type **Microsoft basic data** → `p4` (exFAT exchange).
+6. `n` → `150G` → type **Linux filesystem**     → `p5` (shared LUKS data).
+7. `n` → `767G` → type **Linux filesystem**     → `p6` (Arch root; your half-of-remaining).
+8. `n` → rest   → type **Linux filesystem**     → `p7` (Ubuntu root).
+9. `w`, then type `yes`.
+
+::: {.callout-note}
+## If `cfdisk` has no "Microsoft reserved" / "Microsoft basic data" types
+
+`cfdisk` exposes a curated type list; older builds may not. Two options: (a) just make `p2`/`p3`/`p4` **Linux filesystem** for now — the Windows installer will re-stamp `p3`'s type to *Microsoft basic data* and create the MSR itself when it installs; or (b) use `gdisk` instead, where you can set exact GPT type GUIDs (`0700` Microsoft basic data, `0c01` Microsoft reserved, `ef00` EFI system, `8300` Linux filesystem). The MSR is technically optional on UEFI/GPT — Windows will create one if it's missing and there's room — but reserving 16 MiB now keeps the layout tidy and predictable.
+:::
+
+## Chapter 2: Format the ESP and the exchange partition
+
+Format **only** the two partitions Windows needs to recognize now. The ESP must be FAT32 (UEFI spec), and a pre-formatted FAT32 ESP is exactly what makes Windows reuse ours instead of making its own. The exFAT exchange partition we format now too, so it's ready for all three OSes:
+
+```bash
+mkfs.fat -F32 -n ESP      /dev/nvme0n1p1      # shared ESP — Windows + GRUB both live here
+mkfs.exfat   -n EXCHANGE  /dev/nvme0n1p4      # plain exchange (needs exfatprogs, present on the live ISO)
+```
+
+Leave `p2`, `p3`, `p5`, `p6`, `p7` unformatted:
+
+- `p3` — the Windows installer formats it NTFS.
+- `p5`/`p6` — we LUKS-format them during the Arch install in Part 4.
+- `p7` — Ubuntu's installer formats it.
+
+```bash
+lsblk -o NAME,SIZE,FSTYPE,PARTTYPENAME /dev/nvme0n1   # sanity-check the table before rebooting
+```
+
+Power off and unplug the Arch USB:
+
+```bash
+poweroff
+```
+
+---
+
+# Part 3 — Install Windows 11 first
+
+Windows goes on now, into the partition (`p3`) we reserved, reusing our ESP.
+
+## Chapter 3: Run the Windows installer
+
+1. Flash a Windows 11 install USB (Microsoft's **Media Creation Tool**, or the ISO via Rufus in **GPT/UEFI** mode). Boot it.
+2. Proceed to **"Where do you want to install Windows?"** You'll see the partitions you made. **Select `p3` (the ~250 GiB Microsoft basic data partition)**, and click **Format** (NTFS). **Do not delete partitions, and do not let the installer reformat the whole disk** — that would destroy the ESP and the space reserved for Linux.
+3. Windows installs into `p3`, reuses the existing 1 GiB ESP for its boot manager (`\EFI\Microsoft\Boot\bootmgfw.efi`), and uses the MSR. Let it reboot into Windows and finish OOBE (out-of-box experience).
+
+::: {.callout-warning}
+## If the installer refuses `p3` ("can't install to this disk")
+
+The usual cause is a firmware still in CSM/legacy mode, or a stray active/boot flag. Re-check that the firmware is **UEFI-only** (Part 2). If the installer insists on its own partitioning, the fallback is to let it install to `p3` and create whatever MSR/recovery partitions it wants *inside the space we gave it* — but never let it touch `p1` (ESP) or the Linux partitions. Worst case, it shrinks the usable Linux space slightly; the rest of the article is unaffected.
+:::
+
+## Chapter 4: Tame Windows so it triple-boots cleanly
+
+Three settings, all from inside the freshly installed Windows. Skipping these is the #1 source of "my clock is wrong" and "Linux won't boot after a Windows update" complaints.
+
+### Disable BitLocker / device encryption
+
+Windows 11 silently turns on *device encryption* on a lot of modern hardware. An encrypted C: you can't read from Linux is fine in principle (we never mount C: from Linux) — but BitLocker **prompts for a recovery key whenever the boot path changes**, and installing GRUB *is* a boot-path change. So turn it off:
+
+- **Settings → Privacy & security → Device encryption → Off** (wait for decryption to finish), or
+- on Pro editions, **Control Panel → BitLocker Drive Encryption → Turn off** for C:.
+
+### Disable Fast Startup
+
+Fast Startup leaves Windows in a hybrid-hibernated state on shutdown, which marks the NTFS volume "dirty" and can leave the firmware in a state that confuses the next OS to boot. Turn it off:
+
+- **Control Panel → Power Options → Choose what the power buttons do → Change settings that are currently unavailable → untick "Turn on fast startup" → Save.**
+
+### Make Windows use UTC for the hardware clock
+
+Linux keeps the RTC in UTC; Windows defaults to local time. Without this fix, your clock jumps by your UTC offset every time you switch OS. Tell Windows to use UTC instead (open an **Administrator** Command Prompt or PowerShell):
+
+```powershell
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" /v RealTimeIsUniversal /t REG_DWORD /d 1 /f
+```
+
+Reboot Windows once so it re-reads the clock. From here on, all three OSes agree the hardware clock is UTC.
+
+::: {.callout-note}
+## Why we fix the clock on the Windows side, not the Linux side
+
+You *could* instead set Linux to localtime (`timedatectl set-local-rtc 1`), but the Arch wiki explicitly discourages it — localtime RTC breaks around DST transitions and is a documented source of subtle bugs. One registry value on Windows is the clean fix; do it there.
+:::
+
+With Windows installed, tamed, and shut down, you're back to where the dual-boot article started — except now there's a Windows partition and a Windows boot manager sitting in the ESP, waiting to be discovered.
+
+---
+
+# Part 4 — Install Arch into p6 (LUKS + Btrfs)
+
+Boot the Arch live USB again. From here, the Arch install is **identical to the [dual-boot Article 07](../2026-05-19-arch-ubuntu-dual-boot-shared-data/)** — same LUKS2 containers, same Btrfs subvolumes, same keyfile-unlocked shared `/data`, same per-OS hibernation — with one difference: the partitions already exist (we made them in Part 2) and Windows is already present, so we **don't** repartition. Every command is inline below; for the deep *why* behind each step, the dual-boot article's matching chapter is linked.
+
+Re-run the Chapter 0 bootstrap if you rebooted out of the live USB (verify ISO, boot, confirm UEFI, get online). Then:
+
+## Chapter 5: Format the two Arch-side LUKS containers
+
+`p5` is the shared data partition; `p6` is the Arch root. Leave `p7` for Ubuntu's installer.
+
+```bash
+cryptsetup luksFormat --type luks2 /dev/nvme0n1p5    # shared data — passphrase "LUKS — shared"
+cryptsetup luksFormat --type luks2 /dev/nvme0n1p6    # Arch root   — passphrase "LUKS — arch root"
+
+cryptsetup open /dev/nvme0n1p5 cryptshared
+cryptsetup open /dev/nvme0n1p6 cryptroot
+
+mkfs.btrfs -L shared /dev/mapper/cryptshared
+mkfs.btrfs -L arch   /dev/mapper/cryptroot
+```
+
+Use two distinct passphrases and store both in your password manager. `mkfs.btrfs` runs against the **mapper**, never the raw partition (that would corrupt the LUKS header). [Why two separate containers instead of one LUKS+LVM →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-2-format-the-two-arch-side-luks-containers)
+
+## Chapter 6: Create the Btrfs subvolumes
+
+```bash
+mount /dev/mapper/cryptroot /mnt
+btrfs subvolume create /mnt/@
+btrfs subvolume create /mnt/@home
+btrfs subvolume create /mnt/@snapshots
+btrfs subvolume create /mnt/@var_log
+btrfs subvolume create /mnt/@swap
+umount /mnt
+
+mount /dev/mapper/cryptshared /mnt
+btrfs subvolume create /mnt/@data
+umount /mnt
+```
+
+The five-subvolume layout (`@`, `@home`, `@snapshots`, `@var_log`, `@swap`) is what snapper expects; `@data` is a single subvolume on the shared partition. [Subvolume rationale →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-3-create-the-btrfs-subvolumes-on-the-arch-root)
+
+## Chapter 7: Mount everything (including the exchange partition)
+
+```bash
+mount -o noatime,compress=zstd:3,subvol=@ /dev/mapper/cryptroot /mnt
+mkdir -p /mnt/{boot,home,.snapshots,var/log,swap,data,exchange}
+
+mount -o noatime,compress=zstd:3,subvol=@home      /dev/mapper/cryptroot /mnt/home
+mount -o noatime,compress=zstd:3,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots
+mount -o noatime,compress=zstd:3,subvol=@var_log   /dev/mapper/cryptroot /mnt/var/log
+mount -o noatime,subvol=@swap                      /dev/mapper/cryptroot /mnt/swap
+
+mount /dev/nvme0n1p1 /mnt/boot
+mount -o noatime,compress=zstd:3,subvol=@data /dev/mapper/cryptshared /mnt/data
+```
+
+`@swap` mounts **without** compression (a swap file must not be compressed). Note we mount the shared `/data` now so `genfstab` captures it — but we deliberately **do not** add the exFAT exchange partition to `genfstab`'s view yet; we'll add a hand-tuned `fstab` line for it in Chapter 9 (exFAT needs ownership options Btrfs doesn't). [Mount-option rationale →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-4-mount-everything-for-pacstrap)
+
+## Chapter 8: Pacstrap, fstab, chroot
+
+Same package set as the dual-boot, plus **`exfatprogs`** for the exchange partition:
+
+```bash
+reflector --country 'United States' --protocol https --latest 20 --age 12 \
+          --sort rate --save /etc/pacman.d/mirrorlist
+
+pacstrap -K /mnt \
+    base linux linux-firmware linux-headers intel-ucode \
+    cryptsetup btrfs-progs exfatprogs \
+    grub efibootmgr grub-btrfs os-prober \
+    snapper snap-pac \
+    networkmanager openssh sudo \
+    neovim git base-devel \
+    zram-generator inotify-tools reflector
+
+genfstab -U /mnt >> /mnt/etc/fstab
+arch-chroot /mnt
+```
+
+Use `amd-ucode` on AMD hardware. The two additions vs. Article 03 are **`os-prober`** (so GRUB discovers Windows *and* Ubuntu) and **`exfatprogs`** (so Arch can mount the exchange partition). [fstab sanity check →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-5-pacstrap-fstab-chroot)
+
+## Chapter 9: Configure the system inside the chroot
+
+This folds together the dual-boot's Chapters 6–11 — locale/user (with pinned UID), the shared-partition keyfile, `crypttab`, hibernation, zram, the exchange-partition `fstab` line, and `mkinitcpio`. Each block is the same as the dual-boot; run them in order.
+
+### Locale, time, hostname, user — with a pinned UID 1000
+
+```bash
+ln -sf /usr/bin/nvim /usr/local/bin/vi
+echo 'export EDITOR=nvim' >> /etc/profile
+
+ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime    # substitute your zone
+hwclock --systohc
+
+sed -i 's/^#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen
+locale-gen
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+echo "KEYMAP=us"        > /etc/vconsole.conf
+
+echo "arch-triple" > /etc/hostname
+cat > /etc/hosts <<'EOF'
+127.0.0.1   localhost
+::1         localhost
+127.0.1.1   arch-triple.localdomain arch-triple
+EOF
+
+passwd
+
+groupadd -g 1000 youruser
+useradd -m -u 1000 -g 1000 -G wheel,video,audio,input youruser
+passwd youruser
+
+sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+```
+
+Replace `youruser` with whatever username you actually want — it's a placeholder, not a name to copy verbatim. The **pinned UID/GID 1000** is what makes file ownership on the shared `/data` match between Arch and Ubuntu — Ubuntu's installer also assigns its first user UID 1000. Use the **same username and UID** when you create the Ubuntu user later. [Why the pinned UID is load-bearing →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-6-locale-time-hostname-user-with-a-pinned-uid)
+
+### Keyfile + crypttab for the shared `/data`
+
+```bash
+mkdir -p /etc/cryptsetup-keys.d
+chmod 700 /etc/cryptsetup-keys.d
+dd if=/dev/random of=/etc/cryptsetup-keys.d/shared.key bs=4096 count=1 iflag=fullblock
+chmod 0400 /etc/cryptsetup-keys.d/shared.key
+
+cryptsetup luksAddKey /dev/nvme0n1p5 /etc/cryptsetup-keys.d/shared.key   # prompts for the shared passphrase
+cryptsetup luksDump   /dev/nvme0n1p5 | grep -A30 '^Keyslots:'            # expect keyslots 0 (passphrase) and 1 (keyfile)
+
+echo "cryptshared UUID=$(blkid -s UUID -o value /dev/nvme0n1p5) /etc/cryptsetup-keys.d/shared.key luks" \
+    >> /etc/crypttab
+```
+
+The keyfile lives inside the encrypted Arch root, so it's only readable once that root is unlocked — the shared partition unlocks silently *after* the root mounts, no second passphrase prompt. We copy the same keyfile onto the Ubuntu root later. [Keyfile boot-sequence walkthrough →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-7-generate-the-shared-keyfile-and-add-it-to-the-shared-luks-container)
+
+### The exchange partition's fstab line
+
+exFAT has no Unix ownership, so we assign it at mount time. Add the line by hand (it isn't in `genfstab` because we didn't mount it):
+
+```bash
+echo "UUID=$(blkid -s UUID -o value /dev/nvme0n1p4) /exchange exfat defaults,uid=1000,gid=1000,umask=022,nofail 0 0" \
+    >> /etc/fstab
+```
+
+`uid=1000,gid=1000` makes every file on the exchange show up as owned by your user; `umask=022` gives sane permissions; **`nofail`** means a missing/!unformatted exchange partition won't block boot. [exFAT is the only partition Windows shares — see Part 1's tradeoff note.]
+
+### Hibernation swap file + zram
+
+```bash
+btrfs filesystem mkswapfile --size 36g --uuid clear /swap/swapfile     # size ≥ your RAM
+echo '/swap/swapfile none swap defaults 0 0' >> /etc/fstab
+btrfs inspect-internal map-swapfile -r /swap/swapfile                   # save the integer → <RESUME_OFFSET>
+
+cat > /etc/systemd/zram-generator.conf <<'EOF'
+[zram0]
+zram-size = ram / 2
+compression-algorithm = zstd
+swap-priority = 100
+fs-type = swap
+EOF
+```
+
+Don't `swapon` from inside the chroot (it blocks clean unmounting). zram (priority 100) carries everyday swap; the swap file (priority -2) is for hibernation and last-resort overflow. [Two-tier swap rationale →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-10-zram-for-everyday-compressed-swap)
+
+### mkinitcpio
+
+Edit `/etc/mkinitcpio.conf`:
+
+```text
+MODULES=(btrfs)
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)
+```
+
+Then declare the root container for the initramfs and rebuild:
+
+```bash
+echo "cryptroot UUID=$(blkid -s UUID -o value /dev/nvme0n1p6) none luks" > /etc/crypttab.initramfs
+mkinitcpio -P
+```
+
+Only the **root** container is unlocked from the initramfs (via `sd-encrypt` + the kernel cmdline); the shared `/data` is unlocked later by the running system's `systemd-cryptsetup`, so it stays out of `crypttab.initramfs`. [mkinitcpio reasoning →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-11-mkinitcpio-same-as-article-03)
+
+## Chapter 10: GRUB — cmdline, os-prober, install
+
+Get the **Arch root LUKS partition's UUID** (`p6`, not the mapper):
+
+```bash
+blkid -s UUID -o value /dev/nvme0n1p6
+```
+
+Edit `/etc/default/grub`, replacing the `GRUB_CMDLINE_LINUX_DEFAULT` line (substitute real values — **no angle brackets in the file**):
+
+```bash
+GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet zswap.enabled=0 rd.luks.name=<UUID>=cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ resume=/dev/mapper/cryptroot resume_offset=<RESUME_OFFSET>"
+```
+
+Then enable `os-prober` — the key triple-boot setting, because this is what makes GRUB discover **both** Windows and Ubuntu:
+
+```bash
+sed -i 's/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' /etc/default/grub
+grep '^GRUB_DISABLE_OS_PROBER=' /etc/default/grub      # GRUB_DISABLE_OS_PROBER=false
+```
+
+Install GRUB to the shared ESP and generate the config:
+
+```bash
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+This time — unlike the dual-boot's first pass — `os-prober` already has something to find: **Windows**. You should see it in the output:
+
+```text
+Found Windows Boot Manager on /dev/nvme0n1p1@/EFI/Microsoft/Boot/bootmgfw.efi
+```
+
+…and `grub.cfg` will contain an Arch entry plus a **Windows Boot Manager** entry that chainloads `bootmgfw.efi`. Ubuntu doesn't exist yet, so it won't appear until Part 6. We leave `GRUB_ENABLE_CRYPTODISK` unset — `/boot` is the unencrypted ESP, so GRUB never reads encrypted blocks. [Why no cryptodisk →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-12-grub-cmdline)
+
+## Chapter 11: Enable services, sanity-check, reboot
+
+```bash
+systemctl enable NetworkManager sshd fstrim.timer reflector.timer \
+                 snapper-timeline.timer snapper-cleanup.timer grub-btrfsd.service
+
+# quick sanity pass
+grep '^MODULES='                    /etc/mkinitcpio.conf
+grep '^HOOKS='                      /etc/mkinitcpio.conf
+grep '^GRUB_CMDLINE_LINUX_DEFAULT=' /etc/default/grub
+grep '^GRUB_DISABLE_OS_PROBER='     /etc/default/grub
+cat /etc/fstab    | grep -E 'subvol=|swap|cryptshared|exchange'
+cat /etc/crypttab | grep -v '^#'
+ls -l /etc/cryptsetup-keys.d/
+```
+
+Then leave the chroot and reboot in this order:
+
+```bash
+exit
+umount -R /mnt
+cryptsetup close cryptroot
+cryptsetup close cryptshared
+reboot
+```
+
+Pull the USB. Expected first boot: firmware → **GRUB menu** (now listing *Arch Linux* and *Windows Boot Manager*) → pick Arch → kernel/initramfs → `sd-encrypt` prompts for the Arch root passphrase → `@` mounts as `/` → systemd unlocks the shared container via keyfile → `/data` and `/exchange` mount, zram comes up → login. If you drop into emergency mode, jump to the [🚨 emergency section](#emergency-failure-modes).
+
+---
+
+# Part 5 — Arch first boot: verify all three partitions, snapper, hibernation
+
+Log in as your user and confirm the full stack:
+
+```bash
+findmnt /            # subvol=/@, on cryptroot
+findmnt /home        # subvol=/@home
+findmnt /data        # subvol=/@data, on cryptshared
+findmnt /exchange    # exfat, on /dev/nvme0n1p4
+swapon --show        # zram0 (pri 100) + /swap/swapfile (pri -2)
+cryptsetup status cryptroot      # active LUKS2 (Arch root)
+cryptsetup status cryptshared    # active LUKS2 (shared data)
+```
+
+Reconnect Wi-Fi, re-enable NTP, and verify the timezone — the live ISO's settings don't carry into the installed system:
+
+```bash
+nmcli radio wifi on
+nmcli device wifi connect "Your SSID Here" password "your-passphrase"
+ping -c 3 ping.archlinux.org
+sudo timedatectl set-ntp true
+timedatectl status      # correct Time zone, "System clock synchronized: yes", "RTC in local TZ: no"
+```
+
+### Verify the exchange partition is shared, and the data partition is private
+
+```bash
+echo "hello from arch" > /exchange/from-arch.txt      # Windows will be able to read this
+ls -l /exchange/from-arch.txt                          # owned by youruser (uid=1000 from the mount options)
+
+echo "secret from arch" > /data/probe-arch.txt         # Linux-only, encrypted
+stat -c '%u %g' /data/probe-arch.txt                   # 1000 1000 — confirms the pinned UID
+```
+
+### Configure snapper for `/`
+
+A plain `create-config` collides with the `@snapshots` we already mounted; the Arch-recommended dance avoids it:
+
+```bash
+sudo umount /.snapshots
+sudo rm -rf /.snapshots
+sudo snapper -c root create-config /
+sudo btrfs subvolume delete /.snapshots
+sudo mkdir /.snapshots
+sudo chmod 750 /.snapshots
+sudo mount -a
+
+sudo snapper -c root set-config \
+    TIMELINE_LIMIT_HOURLY=5 TIMELINE_LIMIT_DAILY=7 \
+    TIMELINE_LIMIT_WEEKLY=2 TIMELINE_LIMIT_MONTHLY=1 TIMELINE_LIMIT_YEARLY=0
+sudo snapper -c root list      # at least one row
+```
+
+### Test hibernation before installing Ubuntu
+
+```bash
+sudo systemctl hibernate
+```
+
+Screen goes dark; press power to resume; expect the `sd-encrypt` passphrase prompt, then your exact session restored. If it boots fresh instead, re-check `resume=`/`resume_offset=` and re-run `mkinitcpio -P && grub-mkconfig -o /boot/grub/grub.cfg`.
+
+::: {.callout-important}
+## Verify hibernation **now**, while only Arch + Windows exist
+
+Fixing hibernation after Ubuntu has rewritten parts of the boot path is meaningfully harder. Confirm it works here.
+:::
+
+---
+
+# Part 6 — Install Ubuntu 24 LTS into p7
+
+Identical to the [dual-boot Part 4](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#part-4-install-ubuntu-24-lts-alongside), with Windows already present (which changes nothing about the Ubuntu steps — Ubuntu's `os-prober` will simply find both Arch *and* Windows).
+
+From the Arch side, snapshot the current NVRAM so you can compare after Ubuntu reorders it:
+
+```bash
+efibootmgr -v > ~/efi-before-ubuntu.txt
+```
+
+Boot a verified Ubuntu 24.04 LTS Desktop USB. In the installer:
+
+1. **"Install Ubuntu"** → **"Something else"** (manual partitioning).
+2. In the partition editor:
+   - **`p1`** — *Use as: EFI System Partition*, **do not format** (shares our ESP).
+   - **`p3` (Windows), `p4` (exchange), `p5` (shared LUKS), `p6` (Arch root)** — **leave all alone.** Ubuntu must not touch Windows, the exchange, or either encrypted volume it doesn't own.
+   - **`p7`** — *Use as: physical volume for encryption*, **format checked**. Set a LUKS passphrase distinct from Arch's (`LUKS — ubuntu root`). On the resulting mapper, *Use as: btrfs, Mount point: /*, **format checked**.
+3. **"Device for boot loader installation"** → `/dev/nvme0n1` (the disk).
+4. **User account**: username `youruser` (match Arch exactly). The installer hard-codes the first user to UID 1000 — exactly what we want for `/data` ownership parity.
+5. Install, but at the end pick **"Continue Testing"** (don't reboot yet).
+
+::: {.callout-warning}
+## Ubuntu reorders NVRAM to boot its own GRUB first
+
+That's fine — Ubuntu's GRUB has `os-prober` on by default and will list Windows and Arch. If you'd rather Arch's GRUB own the menu, restore the order with `efibootmgr` in Part 7.
+:::
+
+## Chapter 12: From the Ubuntu live ISO, wire up the shared partition and exchange
+
+Mount the installed Ubuntu and chroot in (the installer's mapper is typically `nvme0n1p7_crypt`; we use a temporary name from the live ISO):
+
+```bash
+sudo cryptsetup open /dev/nvme0n1p7 ubunturoot
+sudo mkdir -p /mnt/ubuntu
+sudo mount -o subvol=@ /dev/mapper/ubunturoot /mnt/ubuntu
+sudo mount /dev/nvme0n1p1 /mnt/ubuntu/boot/efi
+for d in dev dev/pts proc sys run; do sudo mount --bind /$d /mnt/ubuntu/$d; done
+sudo chroot /mnt/ubuntu
+```
+
+Copy the shared keyfile off the (still-unlocked) Arch root:
+
+```bash
+cryptsetup open /dev/nvme0n1p6 archroot_tmp
+mount -o subvol=@ /dev/mapper/archroot_tmp /mnt
+mkdir -p /etc/cryptsetup-keys.d
+cp /mnt/etc/cryptsetup-keys.d/shared.key /etc/cryptsetup-keys.d/
+chmod 700 /etc/cryptsetup-keys.d
+chmod 0400 /etc/cryptsetup-keys.d/shared.key
+umount /mnt
+cryptsetup close archroot_tmp
+```
+
+Add Ubuntu's `crypttab` (shared data), `fstab` (shared data + exchange), and install `exfatprogs`:
+
+```bash
+SHARED_UUID=$(blkid -s UUID -o value /dev/nvme0n1p5)
+EXCH_UUID=$(blkid -s UUID -o value /dev/nvme0n1p4)
+
+echo "cryptshared UUID=${SHARED_UUID} /etc/cryptsetup-keys.d/shared.key luks" >> /etc/crypttab
+echo "/dev/mapper/cryptshared /data btrfs rw,noatime,compress=zstd:3,subvol=@data 0 0" >> /etc/fstab
+echo "UUID=${EXCH_UUID} /exchange exfat defaults,uid=1000,gid=1000,umask=022,nofail 0 0" >> /etc/fstab
+mkdir -p /data /exchange
+apt-get update && apt-get install -y exfatprogs
+
+update-initramfs -u -k all
+update-grub                       # runs os-prober → finds Arch AND Windows
+```
+
+`update-grub`'s output should include `Found Windows Boot Manager …` and `Found Arch Linux …`. Exit and unmount:
+
+```bash
+exit
+for d in run sys proc dev/pts dev; do sudo umount /mnt/ubuntu/$d; done
+sudo umount /mnt/ubuntu/boot/efi
+sudo umount /mnt/ubuntu
+sudo cryptsetup close ubunturoot
+sudo reboot
+```
+
+## Chapter 13: Add Ubuntu's hibernation swap file
+
+Boot **Ubuntu** from the GRUB menu, log in, and mirror Arch's per-OS hibernation (Ubuntu's installer doesn't make one):
+
+```bash
+findmnt /                                                    # /dev/mapper/nvme0n1p7_crypt
+sudo btrfs subvolume create /swap
+sudo btrfs filesystem mkswapfile --size 36g --uuid clear /swap/swapfile
+echo '/swap/swapfile none swap defaults,pri=-2 0 0' | sudo tee -a /etc/fstab
+sudo btrfs inspect-internal map-swapfile -r /swap/swapfile   # save → <UBUNTU_RESUME_OFFSET>
+```
+
+Point Ubuntu's cmdline and initramfs at its *own* swap file (never Arch's):
+
+```bash
+sudo blkid -s UUID -o value /dev/nvme0n1p7    # <UBUNTU_LUKS_UUID>
+sudoedit /etc/default/grub
+# GRUB_CMDLINE_LINUX_DEFAULT="quiet splash resume=/dev/mapper/nvme0n1p7_crypt resume_offset=<UBUNTU_RESUME_OFFSET>"
+
+echo "RESUME=/dev/mapper/nvme0n1p7_crypt" | sudo tee /etc/initramfs-tools/conf.d/resume
+sudo update-initramfs -u -k all
+sudo update-grub
+```
+
+Confirm Ubuntu sees the shared and exchange partitions, then test hibernation:
+
+```bash
+findmnt /data /exchange
+swapon --show                    # zram + /swap/swapfile
+ls -l /data /exchange            # files written from Arch appear, owned by youruser
+sudo systemctl hibernate         # resumes into Ubuntu, separate from Arch's image
+```
+
+---
+
+# Part 7 — Finalize the GRUB menu from Arch
+
+Reboot, pick **Arch Linux**, and re-run `grub-mkconfig` now that all three OSes exist:
+
+```bash
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+Expected `os-prober` output:
+
+```text
+Found Windows Boot Manager on /dev/nvme0n1p1@/EFI/Microsoft/Boot/bootmgfw.efi
+Found Ubuntu 24.04 LTS (24.04) on /dev/nvme0n1p7
+```
+
+`grub.cfg` now lists **Arch, Ubuntu, and Windows.** Optionally make Arch's GRUB the primary menu via NVRAM order:
+
+```bash
+efibootmgr                                  # find the BootNNNN for "GRUB", "Ubuntu", "Windows Boot Manager"
+sudo efibootmgr -o GRUB_NUM,UBUNTU_NUM      # Arch's GRUB first; Windows reachable via the GRUB menu either way
+```
+
+---
+
+# Part 8 — Final sanity checks across three OSes
+
+::: {.callout-tip}
+## The pass condition
+
+All three boot from one GRUB menu; Arch and Ubuntu each hibernate into themselves and mount the encrypted `/data` with identical ownership; every OS reads/writes `/exchange`; Windows boots, keeps correct time, and never prompts for a BitLocker key on a normal boot.
+:::
+
+**From Arch / Ubuntu** (run on each):
+
+```bash
+findmnt / /home /data /exchange
+swapon --show                       # zram + that OS's own /swap/swapfile
+cryptsetup status cryptshared       # active LUKS2 (same shared UUID from both)
+sudo systemctl hibernate            # resumes into the same OS
+stat -c '%u %g %n' /data/*          # all 1000 — pinned-UID parity
+ls -l /exchange                     # files from all three OSes
+```
+
+**From Windows**: confirm the clock is correct after switching from Linux (proves the `RealTimeIsUniversal` fix), and that the exchange partition's drive letter shows the files Linux wrote. Open **File Explorer** → the **EXCHANGE** volume → you should see `from-arch.txt`. Drop a file there and confirm Linux sees it on the next boot.
+
+If anything's off, the emergency section below covers the triple-boot-specific failure modes.
+
+---
+
+[]{#emergency-failure-modes}
+
+::: {.callout-important}
+## 🚨 Emergency: triple-boot-specific failure modes
+
+If Part 8 passed, skip this. The dual-boot's [emergency section](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#emergency-failure-modes) covers the LUKS/Btrfs/`/data` failures; the ones below are the Windows-specific additions.
+:::
+
+### 1. GRUB menu has no Windows entry
+
+`grub-mkconfig`/`update-grub` didn't list Windows. Checklist:
+
+- **`os-prober` installed and enabled?** `grep ^GRUB_DISABLE_OS_PROBER= /etc/default/grub` → `false`; `pacman -S os-prober` (Arch) / `apt install os-prober` (Ubuntu).
+- **ESP actually mounted at `/boot` when you ran `grub-mkconfig`?** `os-prober` finds `bootmgfw.efi` on the ESP — if `/boot` wasn't mounted, it can't see it. `findmnt /boot`, then re-run.
+- **Windows installed in UEFI mode?** A Windows installed in legacy/BIOS mode has no `bootmgfw.efi` for `os-prober` to find. Confirm `\EFI\Microsoft\Boot\bootmgfw.efi` exists: `ls /boot/EFI/Microsoft/Boot/`.
+
+### 2. A Windows update stole the boot order (boots straight to Windows)
+
+Windows feature updates re-assert themselves first in NVRAM. From a Linux live USB or by forcing the firmware boot menu once, boot Linux, then:
+
+```bash
+sudo efibootmgr                                  # note the GRUB and Windows BootNNNN numbers
+sudo efibootmgr -o <GRUB_NUM>,<WINDOWS_NUM>,...  # put GRUB first again
+```
+
+Nothing was lost — only the *order* changed. GRUB still chainloads Windows fine.
+
+### 3. Clock is wrong after switching OS
+
+The `RealTimeIsUniversal` registry value (Part 3, Chapter 4) wasn't set or didn't take. Re-apply it from an Administrator prompt in Windows and reboot Windows once. Do **not** "fix" it by setting Linux to localtime — that just moves the bug.
+
+### 4. Windows demands a BitLocker recovery key after you installed GRUB
+
+Device encryption was still on when the boot path changed. Enter the recovery key (from your Microsoft account at [aka.ms/myrecoverykey](https://aka.ms/myrecoverykey){target="_blank" rel="noopener"}) to get in, then **turn device encryption off** (Part 3, Chapter 4) so it stops re-prompting.
+
+### 5. The exchange partition won't mount / shows no files
+
+- `nofail` should keep a bad exchange partition from blocking boot — but if `/exchange` is empty, check `findmnt /exchange` and `blkid /dev/nvme0n1p4` (is the UUID in `fstab` correct?).
+- Windows' **Fast Startup** leaves filesystems dirty. If Linux mounts `/exchange` read-only or refuses, you almost certainly skipped disabling Fast Startup — do it (Part 3, Chapter 4), fully shut Windows down (not restart), and remount.
+
+---
+
+# Part 9 — Closing the loop
+
+You now have what [Article 01](../2026-05-05-arch-luks-btrfs-lessons/) set out to build and then some: a single drive that boots **Windows, Arch, and Ubuntu**, with two independently encrypted Linux roots, an encrypted shared `/data` the two Linux distros mount as one home for documents, a plain exchange partition for the Windows handoff, per-OS hibernation that never collides, and one GRUB menu that ties it together.
+
+The things that finally paid off, traced back to where they first bit me:
+
+- **The `cryptdevice=`/`rd.luks.name=` cmdline discipline** from Article 01's failed boot — every encrypted root here unlocks on the first try because the cmdline is right.
+- **Btrfs subvolumes over separate partitions** (Article 03) — what let two distros share free space and snapshot independently without re-partitioning.
+- **The keyfile-in-the-encrypted-root pattern** (Article 07) — one passphrase per OS at boot, everything else silent.
+- **Installing Windows first** — the one ordering decision that turns "Windows clobbered my bootloader" into a non-event.
+
+The desktop layer for the Arch side is still a separate choice — a custom Hyprland is the direction I'm taking (upcoming) — and it doesn't touch any of the multi-boot machinery below it. That's the whole point of stopping each install at the console: the hard, irreversible decisions (partitions, encryption, bootloader) are done and verified before a single pixel of desktop is drawn.
+
+---
+
+::: {.callout-note}
+## Attribution
+
+The Arch Linux logo is a trademark of the Arch Linux project and is used here under [Arch Linux's branding terms](https://archlinux.org/art/){target="_blank" rel="noopener"} for editorial purposes only. The Ubuntu wordmark and Circle of Friends are trademarks of Canonical Ltd.; the Windows name and logo are trademarks of Microsoft Corporation — references here are editorial and follow each owner's trademark policy.
+:::

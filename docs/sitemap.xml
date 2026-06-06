@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://evannsmc.com/tech-zone/posts/2026-06-02-beginner-homelab-raspberry-pi/index.html</loc>
-    <lastmod>2026-06-04T02:21:55.806Z</lastmod>
+    <loc>https://evannsmc.com/tech-zone/posts/2026-06-05-arch-ubuntu-windows-triple-boot/index.html</loc>
+    <lastmod>2026-06-06T01:55:40.418Z</lastmod>
   </url>
   <url>
-    <loc>https://evannsmc.com/tech-zone/posts/2026-05-18-caelestia-desktop/index.html</loc>
-    <lastmod>2026-06-02T07:48:12.172Z</lastmod>
+    <loc>https://evannsmc.com/tech-zone/posts/2026-05-19-arch-ubuntu-dual-boot-shared-data/index.html</loc>
+    <lastmod>2026-06-06T01:55:36.136Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/posts/2026-05-17-pacman-yay-aur-prompts/index.html</loc>
-    <lastmod>2026-06-02T07:48:12.172Z</lastmod>
+    <lastmod>2026-06-06T01:39:58.989Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/posts/2026-05-05-arch-luks-btrfs-lessons/index.html</loc>
@@ -18,7 +18,7 @@
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/index.html</loc>
-    <lastmod>2026-06-02T07:56:37.869Z</lastmod>
+    <lastmod>2026-06-06T01:49:11.775Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/projects/rtd-rax/index.html</loc>
@@ -146,14 +146,14 @@
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/posts/2026-05-17-arch-luks-btrfs-caelestia/index.html</loc>
-    <lastmod>2026-06-02T07:48:12.172Z</lastmod>
+    <lastmod>2026-06-06T01:40:52.504Z</lastmod>
   </url>
   <url>
     <loc>https://evannsmc.com/tech-zone/posts/2026-05-18-arch-install-variants/index.html</loc>
-    <lastmod>2026-06-02T07:48:12.172Z</lastmod>
+    <lastmod>2026-06-06T01:40:09.671Z</lastmod>
   </url>
   <url>
-    <loc>https://evannsmc.com/tech-zone/posts/2026-05-19-arch-ubuntu-dual-boot-shared-data/index.html</loc>
-    <lastmod>2026-06-02T07:48:12.172Z</lastmod>
+    <loc>https://evannsmc.com/tech-zone/posts/2026-06-02-beginner-homelab-raspberry-pi/index.html</loc>
+    <lastmod>2026-06-04T02:21:55.806Z</lastmod>
   </url>
 </urlset>
