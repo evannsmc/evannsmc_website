@@ -1081,6 +1081,7 @@ With `/boot` inside the LUKS container, you'll be asked for the Ubuntu passphras
 To collapse it to a single prompt, embed a keyfile in the initramfs — the same trick Chapter 14 uses for `/data`, except this keyfile lives on the now-GRUB-unlocked `/boot`, so it isn't exposed:
 
 ```bash
+mkdir -p /etc/cryptsetup-keys.d && chmod 700 /etc/cryptsetup-keys.d
 dd if=/dev/urandom of=/etc/cryptsetup-keys.d/root.key bs=512 count=4
 chmod 0400 /etc/cryptsetup-keys.d/root.key
 cryptsetup luksAddKey /dev/nvme0n1p4 /etc/cryptsetup-keys.d/root.key   # type the passphrase once
