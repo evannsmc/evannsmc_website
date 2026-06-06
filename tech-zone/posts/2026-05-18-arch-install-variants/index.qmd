@@ -477,21 +477,15 @@ sudo systemctl hibernate                                        # hibernation wo
 This tab stops where Article 03 stops in its install layer — you have an encrypted, snapshot-able, hibernation-ready single-boot Arch system, on the console. The desktop is its own piece of work, and which one you reach for depends on how much opinionation you want pre-baked:
 
 ::: {.callout-tip}
-## Path A → Caelestia: a turnkey Hyprland bundle (Article 05)
-
-[**Caelestia (Hyprland Desktop) — From Bare Arch to a Working Bar**](../2026-05-18-caelestia-desktop/) — PipeWire audio, GPU drivers (Intel / AMD / NVIDIA / hybrid), AUR helper, a single coherent dotfile bundle (Quickshell bar, `foot`, `fish`, themed widgets), KDE apps under Hyprland, SDDM, the wallpaper chain. Fast to "looks like a screenshot." Read the [honest retrospective at the top](../2026-05-18-caelestia-desktop/#caveats-from-actually-using-it) first — it's opinionated and on older hardware noticeably slower than a bespoke setup.
-:::
-
-::: {.callout-tip}
-## Path B → Custom Hyprland (upcoming)
+## Path A → Custom Hyprland (upcoming)
 
 A Hyprland setup picked piece by piece — your bar, your terminal, your keybinds, your theme — with no project-bundle layer on top. Slower to "first screenshot" but every component is one you chose. Article dashed in the upcoming section on the [Tech Zone landing](../../).
 :::
 
 ::: {.callout-tip}
-## Path C → Something else entirely (no article)
+## Path B → Something else entirely (no article)
 
-If you want GNOME, Plasma, sway, dwm, or anything else, skip both desktop articles above and install the relevant `gnome` / `plasma` / `sway` / `dwm` group with `pacman`. The install layer this tab leaves you with is desktop-agnostic — nothing about the LUKS+Btrfs+snapper stack assumes a particular compositor.
+If you want GNOME, Plasma, sway, dwm, or anything else, install the relevant `gnome` / `plasma` / `sway` / `dwm` group with `pacman`. The install layer this tab leaves you with is desktop-agnostic — nothing about the LUKS+Btrfs+snapper stack assumes a particular compositor.
 :::
 
 :::

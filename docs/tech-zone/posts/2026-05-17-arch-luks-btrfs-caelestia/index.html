@@ -477,7 +477,7 @@ What this is
 <li>a <strong>NoCOW Btrfs swap file</strong> big enough for hibernation (suspend-to-disk),</li>
 <li><strong>snapper</strong> + <strong>grub-btrfs</strong> for bootable, per-<code>pacman</code>-transaction snapshots.</li>
 </ul>
-<p>It is <strong>single-boot</strong> and stops on the console — the desktop layer is deliberately a separate choice. <strong>Part 4 (at the end)</strong> is a fork: pick a pre-bundled desktop (<a href="../2026-05-18-caelestia-desktop/">Caelestia, Article 05</a>) or a piece-by-piece custom Hyprland (upcoming) — neither is required for the install itself. Dual-boot and triple-boot setups get their own articles too — those add complexity I want to introduce one variable at a time after this one is rock-solid.</p>
+<p>It is <strong>single-boot</strong> and stops on the console — the desktop layer is deliberately a separate choice. <strong>Part 4 (at the end)</strong> points at that next step: a piece-by-piece custom Hyprland (upcoming), or any environment you prefer (GNOME, Plasma, sway, dwm) — none of which is required for the install itself. Dual-boot and triple-boot setups get their own articles too — those add complexity I want to introduce one variable at a time after this one is rock-solid.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -496,7 +496,7 @@ How to read the hardware-specific examples in this guide
 <li><strong>Dell Precision (Intel Iris Xe + RTX A2000)</strong> — the actual <code>lspci</code> output, exact commands, and post-install env vars from my Dell Precision mobile workstation. This is the machine I’ve fully installed and tested this guide on.</li>
 <li><strong>Dell Pro 16 Plus</strong> — placeholder for a second machine I’ll install this stack on later. Content lands when I actually run through it.</li>
 </ul>
-<p>GPU drivers themselves are part of the <em>desktop</em> layer, not the install — they live in the desktop articles (Article 05 for Caelestia, upcoming for Custom Hyprland), not here.</p>
+<p>GPU drivers themselves are part of the <em>desktop</em> layer, not the install — they live in the desktop article (upcoming, for Custom Hyprland), not here.</p>
 </div>
 </div>
 <section id="why-this-is-its-own-article-and-not-just-article-01-fixed" class="level2">
@@ -1837,39 +1837,22 @@ Hibernation + LUKS: what this gives you, security-wise
 <section id="part-4-pick-your-desktop-layer" class="level1">
 <h1>Part 4 — Pick your desktop layer</h1>
 <p>You now have a verified, encrypted, snapshot-able single-boot Arch system on the console. <strong>The next step — putting a graphical session in front of it — is its own choice</strong>, and I deliberately keep it out of this article so the install layer above stays desktop-agnostic. PipeWire audio, GPU drivers, the AUR helper, the login manager, the bar, the wallpaper layer, every keybind — none of that is required for the install to be considered “done.” It’s a separate body of work.</p>
-<p>Two paths, neither obviously faster than the other in practice — pick by <strong>taste</strong>, not by “how quick is it”:</p>
+<p>The direction I’m taking — and the one I’ll document next — is a <strong>custom Hyprland</strong>, built piece by piece:</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Path A → Caelestia: a Hyprland bundle (Article 05)
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><a href="../2026-05-18-caelestia-desktop/"><strong>Caelestia (Hyprland Desktop) — From Bare Arch to a Working Bar</strong></a> walks through a single coherent dotfile bundle: a Quickshell-based status bar, themed terminal (<code>foot</code>), <code>fish</code> + <code>starship</code>, a curated tool set, the Material-You-style wallpaper-driven retheming, GPU drivers (Intel / AMD / NVIDIA / hybrid), the AUR helper, KDE-Frameworks apps under Hyprland, and SDDM. <strong>When it works on the first try, you have a polished Hyprland desktop in a couple hours.</strong> When it doesn’t, you have a <code>caelestia-meta</code> <code>.SRCINFO</code> parse failure, a missing wallpaper daemon, a <code>hyprland.conf</code> <code>source =</code> line pointing at a file the bundle doesn’t ship, and the SSH-vs-local-seat trap with <code>hyprctl</code> — every one of which I hit and document in Article 05’s recovery callouts. You also inherit the Caelestia project’s design opinions wholesale, and on older hardware the Quickshell bar adds measurable latency. Read <a href="../2026-05-18-caelestia-desktop/#caveats-from-actually-using-it">my honest retrospective at the top of Article 05</a> <strong>before</strong> committing.</p>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Path B → Custom Hyprland (upcoming)
+Custom Hyprland (upcoming)
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <p>A from-scratch Hyprland setup built piece by piece — your own status bar choice (<code>waybar</code>, <code>ironbar</code>, <code>eww</code>, …), your own terminal, your own keybinds, your own theme — with no project-bundle layer on top. Every component is one you picked, and there’s no surprise opinion baked in. <strong>More upfront decisions, but no “now what?” moments when a bundle script fails halfway through and leaves you in a half-themed Hyprland.</strong> This is the path I’m taking on my next laptop. Article dashed in the upcoming section on the <a href="../../">Tech Zone landing</a>.</p>
 </div>
 </div>
-<p>If you don’t know which to pick:</p>
-<ul>
-<li><strong>Pick Caelestia</strong> if you want to see what a polished Hyprland desktop <em>can</em> look like as a reference point — even with a rough install, the finished product is a useful target — and you don’t mind inheriting opinions you’ll likely strip later.</li>
-<li><strong>Pick Custom Hyprland</strong> if you’d rather own every line of <code>hyprland.conf</code> / <code>hyprland.lua</code> from day one, you have a clear idea of what you want, and you’d rather front-load the decision-making than discover a baked-in choice halfway through living in it.</li>
-</ul>
-<p>Either way: take Article 05’s caveats as a warning, not a deterrent. The bundle is fine when it works. It’s just not a <em>guaranteed</em> fast path.</p>
+<p>I spent a while living inside the <strong>Caelestia</strong> Hyprland bundle as a fast way to “looks like a screenshot,” and it’s a reasonable on-ramp — but I’m not shipping a dedicated guide for it, because the parts worth keeping (PipeWire, GPU drivers, an AUR helper, a login manager) are exactly the à-la-carte pieces the custom-Hyprland article will cover, minus the baked-in opinions you’d likely strip later anyway.</p>
+<p>If you’d rather not touch Hyprland at all: this install layer is desktop-agnostic. Install the <code>gnome</code>, <code>plasma</code>, <code>sway</code>, or <code>dwm</code> group with <code>pacman</code> and nothing about the LUKS+Btrfs+snapper stack underneath cares which compositor you land on.</p>
 <hr>
 <p><span id="emergency-timed-out-waiting-for-device"></span></p>
 <div class="callout callout-style-default callout-important callout-titled">

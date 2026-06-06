@@ -581,7 +581,7 @@ The flag that I find genuinely useful and yay doesn't have a clean equivalent of
 - **Pick `yay`** if you want the most-installed-by-default option (Caelestia and most install guides reach for yay first), you're already used to its flag set, you don't care about reviewing PKGBUILDs, or you simply want zero opinions about which to use and the most established option.
 - **Pick both** if you can't decide — they coexist fine, share zero state, and you can experiment with each on the same machine.
 
-For the install in [Article 03](../2026-05-17-arch-luks-btrfs-caelestia/) and [Article 05 (Caelestia)](../2026-05-18-caelestia-desktop/), either works. The Caelestia install script accepts `--aur-helper=paru` and behaves identically.
+For the install in [Article 03](../2026-05-17-arch-luks-btrfs-caelestia/), either works. The Caelestia install script accepts `--aur-helper=paru` and behaves identically.
 :::
 
 ---
