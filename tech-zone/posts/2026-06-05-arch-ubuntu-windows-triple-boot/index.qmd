@@ -384,6 +384,10 @@ echo "crypt_shared UUID=$(blkid -s UUID -o value /dev/nvme0n1p5) /etc/cryptsetup
 
 # Harden the genfstab-written /data line the same way (soft-fail the mount, short device timeout)
 sed -i 's#subvol=/@data#subvol=/@data,nofail,x-systemd.device-timeout=10s#' /etc/fstab
+
+# Hand the shared @data subvolume to your UID-1000 user — a fresh Btrfs subvolume is root-owned,
+# so without this the first-boot probe (echo … > /data/probe-arch.txt as your user) is Permission denied.
+chown 1000:1000 /data
 ```
 
 The keyfile lives inside the encrypted Arch root, so it's only readable once that root is unlocked — the shared partition unlocks silently *after* the root mounts, no second passphrase prompt. We copy the same keyfile onto the Ubuntu root later.
@@ -519,8 +523,8 @@ findmnt /home        # subvol=/@home
 findmnt /data        # subvol=/@data, on crypt_shared
 findmnt /exchange    # exfat, on /dev/nvme0n1p4
 swapon --show        # zram0 (pri 100) + /swap/swapfile (pri -2)
-cryptsetup status crypt_arch      # active LUKS2 (Arch root)
-cryptsetup status crypt_shared    # active LUKS2 (shared data)
+sudo cryptsetup status crypt_arch      # active LUKS2 (Arch root)
+sudo cryptsetup status crypt_shared    # active LUKS2 (shared data)
 ```
 
 Reconnect Wi-Fi, re-enable NTP, and verify the timezone — the live ISO's settings don't carry into the installed system:
@@ -730,7 +734,7 @@ All three boot from one GRUB menu; Arch and Ubuntu each hibernate into themselve
 ```bash
 findmnt / /home /data /exchange
 swapon --show                       # zram + that OS's own /swap/swapfile
-cryptsetup status crypt_shared       # active LUKS2 (same shared UUID from both)
+sudo cryptsetup status crypt_shared       # active LUKS2 (same shared UUID from both)
 sudo systemctl hibernate            # resumes into the same OS
 stat -c '%u %g %n' /data/*          # all 1000 — pinned-UID parity
 ls -l /exchange                     # files from all three OSes

@@ -699,7 +699,7 @@ main.content.column-page {
 <span class="ok">Found Ubuntu 24.04 LTS (24.04) on /dev/nvme0n1p7</span>
 
 <span class="p">[user@arch-triple ~]$</span> <span class="c">findmnt /data /exchange -o TARGET,SOURCE,FSTYPE</span>
-/data      /dev/mapper/<span class="ok">cryptshared</span>  btrfs   <span class="mute"># Arch + Ubuntu only, encrypted</span>
+/data      /dev/mapper/<span class="ok">crypt_shared</span>  btrfs   <span class="mute"># Arch + Ubuntu only, encrypted</span>
 /exchange  /dev/nvme0n1p4         exfat   <span class="mute"># all three OSes, plain</span>
 
 <span class="p">[user@arch-triple ~]$</span> <span class="c">swapon --show</span>
@@ -813,9 +813,9 @@ HTTP/2 <span class="ok">200</span>   <span class="mute"># Caddy + local DNS, rea
           </div>
           <div class="tz-screen-body"><span class="p">[user@arch-dual ~]$</span> <span class="c">findmnt /data</span>
 TARGET SOURCE                     FSTYPE OPTIONS
-/data  /dev/mapper/<span class="ok">cryptshared</span>[/@data] btrfs  rw,noatime,compress=zstd:3
+/data  /dev/mapper/<span class="ok">crypt_shared</span>[/@data] btrfs  rw,noatime,compress=zstd:3
 
-<span class="p">[user@arch-dual ~]$</span> <span class="c">cryptsetup status cryptshared</span>
+<span class="p">[user@arch-dual ~]$</span> <span class="c">sudo cryptsetup status crypt_shared</span>
   type:    LUKS2
   cipher:  aes-xts-plain64
   keyfile: <span class="ok">/etc/cryptsetup-keys.d/shared.key</span>
@@ -985,7 +985,7 @@ NAME           TYPE       SIZE PRIO
             <span class="label">first boot — sanity checks</span>
             <span class="badge ok">booting version</span>
           </div>
-          <div class="tz-screen-body"><span class="p">[user@arch ~]$</span> <span class="c">cryptsetup status cryptroot</span>
+          <div class="tz-screen-body"><span class="p">[user@arch ~]$</span> <span class="c">sudo cryptsetup status cryptroot</span>
 <span class="mute">  type:    LUKS2</span>
 <span class="mute">  cipher:  aes-xts-plain64</span>
 <span class="mute">  device:  /dev/nvme0n1p2</span>

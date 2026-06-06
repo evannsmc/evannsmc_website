@@ -1811,7 +1811,7 @@ Hibernation + LUKS: what this gives you, security-wise
 <p>Before you touch a desktop layer or anything else, <strong>prove the install you just did is real</strong>. Boot the laptop, log in at the TTY as your regular user, and run this block:</p>
 <div class="sourceCode" id="cb57"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filesystem &amp; encryption</span></span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,MOUNTPOINTS</span>
-<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> status cryptroot      <span class="co"># active LUKS mapping</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status cryptroot      <span class="co"># active LUKS mapping</span></span>
 <span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> <span class="at">-t</span> btrfs                 <span class="co"># all five Btrfs mountpoints (@, @home, @snapshots, @var_log, @swap)</span></span>
 <span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs subvolume list /      <span class="co"># same five subvolumes, listed by ID</span></span>
 <span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a></span>
@@ -1825,7 +1825,7 @@ Hibernation + LUKS: what this gives you, security-wise
 <p><strong>What pass looks like:</strong></p>
 <ul>
 <li><code>lsblk</code> shows <code>nvme0n1p2</code> typed <code>crypto_LUKS</code> with a mapper <code>cryptroot</code> (or whatever name you picked) sitting on top of it, typed <code>btrfs</code>.</li>
-<li><code>cryptsetup status cryptroot</code> prints <code>is active and is in use</code> with <code>type: LUKS2</code>.</li>
+<li><code>sudo cryptsetup status cryptroot</code> prints <code>is active and is in use</code> with <code>type: LUKS2</code>.</li>
 <li><code>findmnt -t btrfs</code> lists <code>/</code>, <code>/home</code>, <code>/.snapshots</code>, <code>/var/log</code>, <code>/swap</code>, all with <code>subvol=…</code> and <code>compress=zstd:3</code>.</li>
 <li><code>swapon --show</code> shows zram at priority 100 plus your swap file at a lower priority.</li>
 <li><code>snapper -c root list</code> has at least one row.</li>

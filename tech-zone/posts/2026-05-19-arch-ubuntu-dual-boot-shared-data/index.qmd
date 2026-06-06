@@ -607,6 +607,16 @@ sudo cryptsetup luksDump /dev/nvme0n1p2 | grep -A30 '^Keyslots:'   # keyslot 1 (
 A `Failed to activate with key file` line almost always means the keyfile path/permissions or the keyslot is the problem — cross-check `ls -l /etc/cryptsetup-keys.d/shared.key` (must be `0400`, root-owned) and the UUID in `crypttab` against `blkid /dev/nvme0n1p2`.
 :::
 
+### Hand `/data` to your user
+
+A freshly-`mkfs`'d Btrfs subvolume is owned by `root:root` — so as things stand, only root can write to `/data`. Hand the `@data` subvolume to the user you pinned to **UID 1000** in Chapter 6. Do it now, inside the chroot, while `/data` is mounted:
+
+```bash
+chown 1000:1000 /data
+```
+
+Using the numeric `1000:1000` (not a username) is deliberate: it's the *integer* ownership that has to match across both OSes, and it works even though Ubuntu's user doesn't exist yet. After first boot, `ls -l /data` shows *your* Arch username; from Ubuntu (also UID 1000) it shows *its* username — same integer underneath, same files, and neither side needs `sudo` to read or write. Skip this and the first-boot probe test (`echo … > /data/probe-arch.txt` as your user) fails with `Permission denied`, because the directory still belongs to `root`.
+
 ---
 
 ## Chapter 9: Hibernation swap file for Arch (per Article 03)
@@ -840,8 +850,8 @@ findmnt /                        # subvol=/@
 findmnt /home                    # subvol=/@home
 findmnt /data                    # subvol=/@data, on /dev/mapper/crypt_shared
 swapon --show                    # zram0 (pri 100) and /swap/swapfile
-cryptsetup status crypt_arch      # active LUKS2 mapping (Arch root)
-cryptsetup status crypt_shared    # active LUKS2 mapping (shared data)
+sudo cryptsetup status crypt_arch      # active LUKS2 mapping (Arch root)
+sudo cryptsetup status crypt_shared    # active LUKS2 mapping (shared data)
 ```
 
 **What pass looks like:** both `cryptsetup status` outputs print `is active and is in use`, `findmnt /data` shows the shared Btrfs filesystem, and `swapon --show` lists exactly two devices (`zram0` and `/swap/swapfile`).
@@ -1133,7 +1143,7 @@ Confirm Ubuntu sees the shared partition and its own swap correctly:
 ```bash
 findmnt /data                 # /dev/mapper/crypt_shared, subvol=@data
 swapon --show                 # zram (recent Ubuntu sets it up automatically) + /swap/swapfile
-cryptsetup status crypt_shared
+sudo cryptsetup status crypt_shared
 ls -l /data                   # files written from Arch should appear, owned by user
 ```
 
@@ -1194,8 +1204,8 @@ findmnt /                       # subvol=/@, on crypt_arch
 findmnt /home                   # subvol=/@home
 findmnt /data                   # subvol=/@data, on crypt_shared
 swapon --show                   # zram0 (pri 100) + /swap/swapfile (pri -2)
-cryptsetup status crypt_arch     # active LUKS2
-cryptsetup status crypt_shared   # active LUKS2
+sudo cryptsetup status crypt_arch     # active LUKS2
+sudo cryptsetup status crypt_shared   # active LUKS2
 sudo snapper -c root list       # at least one snapshot
 sudo systemctl hibernate        # works, resumes into Arch
 ls -l /data                     # files from Arch + files written from Ubuntu
@@ -1209,8 +1219,8 @@ findmnt /                       # subvol=/@, on nvme0n1p4_crypt
 findmnt /home                   # subvol=/@home
 findmnt /data                   # subvol=/@data, on crypt_shared (same UUID as Arch sees)
 swapon --show                   # zram + /swap/swapfile (Ubuntu's own, distinct from Arch's)
-cryptsetup status nvme0n1p4_crypt
-cryptsetup status crypt_shared
+sudo cryptsetup status nvme0n1p4_crypt
+sudo cryptsetup status crypt_shared
 sudo systemctl hibernate        # works, resumes into Ubuntu (separate from Arch's hibernation)
 ls -l /data                     # same files as Arch sees, owned by user
 stat -c '%u %g %n' /data/*      # all UIDs/GIDs == 1000

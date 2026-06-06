@@ -1095,7 +1095,7 @@ Before you touch a desktop layer or anything else, **prove the install you just 
 ```bash
 # Filesystem & encryption
 lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINTS
-cryptsetup status cryptroot      # active LUKS mapping
+sudo cryptsetup status cryptroot      # active LUKS mapping
 findmnt -t btrfs                 # all five Btrfs mountpoints (@, @home, @snapshots, @var_log, @swap)
 sudo btrfs subvolume list /      # same five subvolumes, listed by ID
 
@@ -1111,7 +1111,7 @@ ls /.snapshots/                  # numbered snapshot directories matching the li
 **What pass looks like:**
 
 - `lsblk` shows `nvme0n1p2` typed `crypto_LUKS` with a mapper `cryptroot` (or whatever name you picked) sitting on top of it, typed `btrfs`.
-- `cryptsetup status cryptroot` prints `is active and is in use` with `type: LUKS2`.
+- `sudo cryptsetup status cryptroot` prints `is active and is in use` with `type: LUKS2`.
 - `findmnt -t btrfs` lists `/`, `/home`, `/.snapshots`, `/var/log`, `/swap`, all with `subvol=…` and `compress=zstd:3`.
 - `swapon --show` shows zram at priority 100 plus your swap file at a lower priority.
 - `snapper -c root list` has at least one row.

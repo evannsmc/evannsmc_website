@@ -314,7 +314,7 @@ reboot
 Expected boot sequence: GRUB menu → kernel loads → "Please enter passphrase for disk … (cryptroot):" → ext4 root mounts → SDDM/TTY login.
 
 ```bash
-cryptsetup status cryptroot
+sudo cryptsetup status cryptroot
 # expect: active LUKS2 mapping pointing at /dev/nvme0n1p3
 lsblk -f
 # expect: nvme0n1p3 = crypto_LUKS, mapper cryptroot = ext4 mounted at /
@@ -465,7 +465,7 @@ reboot
 After first boot:
 
 ```bash
-cryptsetup status cryptroot                                    # LUKS2 mapping active
+sudo cryptsetup status cryptroot                                    # LUKS2 mapping active
 findmnt -t btrfs -o TARGET,SOURCE,OPTIONS                       # five subvolumes mounted
 swapon --show                                                   # zram0 priority 100, swap file priority -2
 sudo snapper -c root list                                       # at least the post-install snapshot
