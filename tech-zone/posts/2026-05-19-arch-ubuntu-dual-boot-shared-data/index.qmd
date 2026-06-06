@@ -540,10 +540,10 @@ If you'd rather give each OS its own distinct keyfile, generate two keyfiles (Ar
 
 ## Chapter 8: `/etc/crypttab` entry for the shared data partition
 
-`/etc/crypttab` on the running (post-root-mount) system tells systemd what additional LUKS containers to unlock and how:
+`/etc/crypttab` on the running (post-root-mount) system tells systemd what additional LUKS containers to unlock and how. **The single most important word in this whole chapter is `nofail`.** Add the entry with it:
 
 ```bash
-echo "cryptshared UUID=$(blkid -s UUID -o value /dev/nvme0n1p2) /etc/cryptsetup-keys.d/shared.key luks" \
+echo "cryptshared UUID=$(blkid -s UUID -o value /dev/nvme0n1p2) /etc/cryptsetup-keys.d/shared.key luks,nofail" \
     >> /etc/crypttab
 ```
 
@@ -554,12 +554,35 @@ One entry, four columns:
 | `cryptshared`                  | Mapper name to create. Must match what's referenced in `/etc/fstab` (e.g. `/dev/mapper/cryptshared`). |
 | `UUID=…`                       | The LUKS partition's UUID — the same string you'd find in `blkid /dev/nvme0n1p2`. Pinning by UUID survives device-renaming and partition reordering. |
 | `/etc/cryptsetup-keys.d/shared.key` | Path to the keyfile **on the unlocked root** (so it's only readable after the root mounts). |
-| `luks`                         | Tell `systemd-cryptsetup` to expect LUKS metadata on the partition (vs. plain `cryptsetup`). |
+| `luks,nofail`                  | `luks` = expect LUKS metadata (vs. plain `cryptsetup`). **`nofail`** = if this container can't be unlocked, log it and **keep booting** instead of dropping the whole machine to emergency mode. |
 
-Verify what you just wrote:
+::: {.callout-important}
+## Why `nofail` is the fix for "my install boots to emergency mode"
+
+This is the #1 thing that goes wrong with a keyfile-unlocked second LUKS volume. Without `nofail`, *any* hiccup unlocking `cryptshared` — a one-character-off UUID, keyfile permissions, the keyfile not actually added to a keyslot, the device taking a moment to appear — fails `cryptsetup.target`, which fails the boot, which dumps you at `emergency.target` with a half-booted system. Your **root** is fine; the *shared* partition is what tripped, but the failure cascades and takes everything down.
+
+`nofail` turns that cascade into a non-event: if `/data` can't come up, you still reach a login prompt, and you fix the keyfile/UUID from a comfortable shell with `journalctl` instead of from emergency mode. Add it now; you can always tighten to a hard dependency later if you truly want the machine to refuse to boot without `/data`.
+:::
+
+::: {.callout-important}
+## Harden the generated `/data` line in `/etc/fstab` too
+
+`genfstab` already wrote the `/data` Btrfs line in Chapter 5 — but as a **hard mount**. A hard mount of a device that didn't unlock fails `local-fs.target` → emergency mode, the same brick from the *mount* side. Add `nofail` (and a short device timeout so a missing device doesn't hang boot for 90 s before giving up) to that line:
+
+```bash
+sed -i 's#subvol=/@data#subvol=/@data,nofail,x-systemd.device-timeout=10s#' /etc/fstab
+grep ' /data ' /etc/fstab
+# UUID=<shared-btrfs> /data btrfs rw,noatime,compress=zstd:3,subvol=/@data,nofail,x-systemd.device-timeout=10s 0 0
+```
+
+Now both halves — the unlock (`crypttab`) and the mount (`fstab`) — fail soft. `/data` either comes up cleanly or is quietly absent and trivially recoverable.
+:::
+
+Verify what you just wrote (inside the chroot it's `/etc/crypttab`; if you're fixing this **from the live USB** after a failed boot, the installed file is at `/mnt/etc/crypttab`):
 
 ```bash
 cat /etc/crypttab
+# cryptshared UUID=…  /etc/cryptsetup-keys.d/shared.key  luks,nofail
 ```
 
 ::: {.callout-important}
@@ -568,17 +591,20 @@ cat /etc/crypttab
 `cryptroot` (the Arch root LUKS container) is unlocked by **the kernel cmdline + sd-encrypt in the initramfs**, *before* `/etc/crypttab` is ever read. Listing it in `/etc/crypttab` is harmless on most setups but redundant; adding it to `/etc/crypttab.initramfs` is the *systemd-cryptsetup-generator*-friendly way to document the root unlock — see Chapter 11.
 :::
 
-`genfstab` already wrote the `/data` Btrfs line in Chapter 5 (mount of `/dev/mapper/cryptshared`). Verify it's there and we're done — no manual `fstab` append needed for the shared partition:
+::: {.callout-tip}
+## Mount-order dependency, for free — and how to debug it when it isn't
+
+systemd parses both `/etc/crypttab` and `/etc/fstab` and emits unit files with the right `Requires=`/`After=` ordering: `data.mount` pulls in `systemd-cryptsetup@cryptshared.service`, which `RequiresMountsFor=` the keyfile's directory (so it waits until `/` is mounted and the keyfile is readable). You don't write that ordering by hand — declaring the keyfile in `/etc/crypttab` *is* the declaration.
+
+When it doesn't work, these three commands tell you exactly why (run them after the first real boot, or after `sudo systemctl daemon-reload` if you edited `crypttab` on the running system):
 
 ```bash
-grep cryptshared /etc/fstab
-# Expect exactly one line — a Btrfs /data mount with subvol=@data
+systemctl status 'systemd-cryptsetup@cryptshared.service'    # active, or the exact failure
+journalctl -b -u 'systemd-cryptsetup@cryptshared.service'    # "Set cipher…", or "Failed to activate with key file …"
+sudo cryptsetup luksDump /dev/nvme0n1p2 | grep -A30 '^Keyslots:'   # keyslot 1 (the keyfile) must exist
 ```
 
-::: {.callout-tip}
-## Mount-order dependency, for free
-
-systemd parses both `/etc/crypttab` and `/etc/fstab` and emits unit files with the right `Requires=`/`After=` ordering: `data.mount` requires `systemd-cryptsetup@cryptshared.service`, which requires the keyfile path to be readable (which means the root must be mounted). You don't have to write the ordering by hand — declaring the keyfile in `/etc/crypttab` is the declaration.
+A `Failed to activate with key file` line almost always means the keyfile path/permissions or the keyslot is the problem — cross-check `ls -l /etc/cryptsetup-keys.d/shared.key` (must be `0400`, root-owned) and the UUID in `crypttab` against `blkid /dev/nvme0n1p2`.
 :::
 
 ---
@@ -774,9 +800,9 @@ UUID=<arch-btrfs>    /home        btrfs    rw,noatime,compress=zstd:3,subvol=/@h
 UUID=<arch-btrfs>    /.snapshots  btrfs    rw,noatime,compress=zstd:3,subvol=/@snapshots  0 0
 UUID=<arch-btrfs>    /var/log     btrfs    rw,noatime,compress=zstd:3,subvol=/@var_log    0 0
 UUID=<arch-btrfs>    /swap        btrfs    rw,noatime,subvol=/@swap                       0 0
-UUID=<shared-btrfs>  /data        btrfs    rw,noatime,compress=zstd:3,subvol=/@data       0 0
+UUID=<shared-btrfs>  /data        btrfs    rw,noatime,compress=zstd:3,subvol=/@data,nofail,x-systemd.device-timeout=10s 0 0
 /swap/swapfile         none swap defaults 0 0
-cryptshared UUID=<shared-luks-uuid> /etc/cryptsetup-keys.d/shared.key luks
+cryptshared UUID=<shared-luks-uuid> /etc/cryptsetup-keys.d/shared.key luks,nofail
 -r-------- 1 root root 4096 May 19 14:23 shared.key
 ```
 
@@ -1011,15 +1037,15 @@ Now write Ubuntu's `/etc/crypttab` entry (Ubuntu uses the same format as Arch, p
 ```bash
 SHARED_UUID=$(blkid -s UUID -o value /dev/nvme0n1p2)
 
-echo "cryptshared UUID=${SHARED_UUID} /etc/cryptsetup-keys.d/shared.key luks" >> /etc/crypttab
+echo "cryptshared UUID=${SHARED_UUID} /etc/cryptsetup-keys.d/shared.key luks,nofail" >> /etc/crypttab
 ```
 
-(The Ubuntu installer already wrote a root-LUKS line at the top of `/etc/crypttab` — leave that line alone, just append this one below it.)
+(The Ubuntu installer already wrote a root-LUKS line at the top of `/etc/crypttab` — leave that line alone, just append this one below it.) The `nofail` here matters for exactly the same reason as on the Arch side: a shared-partition unlock failure should never keep *Ubuntu* from booting.
 
-Add the corresponding `/etc/fstab` line:
+Add the corresponding `/etc/fstab` line — also `nofail`, also with a short device timeout:
 
 ```bash
-echo "/dev/mapper/cryptshared /data btrfs rw,noatime,compress=zstd:3,subvol=@data 0 0" >> /etc/fstab
+echo "/dev/mapper/cryptshared /data btrfs rw,noatime,compress=zstd:3,subvol=@data,nofail,x-systemd.device-timeout=10s 0 0" >> /etc/fstab
 mkdir -p /data
 ```
 
@@ -1204,9 +1230,9 @@ If any of these fail, the [emergency section](#emergency-failure-modes) below co
 This section is for when something has gone visibly wrong. If the Part 6 sanity check passed, you can skip the rest of this article.
 :::
 
-### 1. Arch boots, but `/data` doesn't mount on first boot
+### 1. Arch boots to a login, but `/data` doesn't mount
 
-Symptom: `findmnt /data` prints nothing. `journalctl -b -u systemd-cryptsetup@cryptshared.service` shows `Failed to activate with key file …`.
+Thanks to `nofail` (Chapter 8) this is the *good* version of the failure: you reach a normal login instead of emergency mode, and you debug from a comfortable shell. Symptom: `findmnt /data` prints nothing, and `journalctl -b -u systemd-cryptsetup@cryptshared.service` shows `Failed to activate with key file …`.
 
 Most-likely causes:
 
@@ -1214,6 +1240,15 @@ Most-likely causes:
 - The keyfile's permissions are wrong (must be `0400`, root-owned). `chmod 0400 /etc/cryptsetup-keys.d/shared.key`.
 - The keyfile was never added to the LUKS container's keyslot. `cryptsetup luksDump /dev/nvme0n1p2 | grep -A30 '^Keyslots:'` should show **two** active keyslots (`0:` and `1:`); if only one, re-run `cryptsetup luksAddKey /dev/nvme0n1p2 /etc/cryptsetup-keys.d/shared.key`.
 - The UUID in `/etc/crypttab` doesn't match the partition's actual LUKS UUID. `blkid /dev/nvme0n1p2` — compare.
+
+After fixing the cause, retry without rebooting:
+
+```bash
+sudo systemctl daemon-reload                                  # re-read /etc/crypttab and /etc/fstab
+sudo systemctl restart 'systemd-cryptsetup@cryptshared.service'
+sudo mount /data                                              # or: sudo systemctl restart data.mount
+findmnt /data                                                 # should now show the shared Btrfs filesystem
+```
 
 ### 2. Boot drops into emergency mode after Arch LUKS passphrase
 

@@ -379,11 +379,22 @@ chmod 0400 /etc/cryptsetup-keys.d/shared.key
 cryptsetup luksAddKey /dev/nvme0n1p5 /etc/cryptsetup-keys.d/shared.key   # prompts for the shared passphrase
 cryptsetup luksDump   /dev/nvme0n1p5 | grep -A30 '^Keyslots:'            # expect keyslots 0 (passphrase) and 1 (keyfile)
 
-echo "cryptshared UUID=$(blkid -s UUID -o value /dev/nvme0n1p5) /etc/cryptsetup-keys.d/shared.key luks" \
+echo "cryptshared UUID=$(blkid -s UUID -o value /dev/nvme0n1p5) /etc/cryptsetup-keys.d/shared.key luks,nofail" \
     >> /etc/crypttab
+
+# Harden the genfstab-written /data line the same way (soft-fail the mount, short device timeout)
+sed -i 's#subvol=/@data#subvol=/@data,nofail,x-systemd.device-timeout=10s#' /etc/fstab
 ```
 
-The keyfile lives inside the encrypted Arch root, so it's only readable once that root is unlocked — the shared partition unlocks silently *after* the root mounts, no second passphrase prompt. We copy the same keyfile onto the Ubuntu root later. [Keyfile boot-sequence walkthrough →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-7-generate-the-shared-keyfile-and-add-it-to-the-shared-luks-container)
+The keyfile lives inside the encrypted Arch root, so it's only readable once that root is unlocked — the shared partition unlocks silently *after* the root mounts, no second passphrase prompt. We copy the same keyfile onto the Ubuntu root later.
+
+::: {.callout-important}
+## `nofail` on both the crypttab entry and the `/data` mount
+
+This is the single most important robustness fix for a keyfile-unlocked second LUKS volume: without `nofail`, *any* hiccup unlocking or mounting the shared partition (wrong UUID, keyfile permissions, the keyslot missing) cascades into a failed boot and drops the whole machine to emergency mode — even though your **root** is fine. `nofail` (on the `crypttab` line) plus `nofail,x-systemd.device-timeout=10s` (on the `/data` `fstab` line) turns "couldn't bring up `/data`" into a log line you fix after login instead of a boot-stopper. [Full reasoning + the `journalctl`/`daemon-reload` debug recipe →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-8-etccrypttab-entry-for-the-shared-data-partition)
+:::
+
+[Keyfile boot-sequence walkthrough →](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-7-generate-the-shared-keyfile-and-add-it-to-the-shared-luks-container)
 
 ### The exchange partition's fstab line
 
@@ -626,8 +637,8 @@ Add Ubuntu's `crypttab` (shared data), `fstab` (shared data + exchange), and ins
 SHARED_UUID=$(blkid -s UUID -o value /dev/nvme0n1p5)
 EXCH_UUID=$(blkid -s UUID -o value /dev/nvme0n1p4)
 
-echo "cryptshared UUID=${SHARED_UUID} /etc/cryptsetup-keys.d/shared.key luks" >> /etc/crypttab
-echo "/dev/mapper/cryptshared /data btrfs rw,noatime,compress=zstd:3,subvol=@data 0 0" >> /etc/fstab
+echo "cryptshared UUID=${SHARED_UUID} /etc/cryptsetup-keys.d/shared.key luks,nofail" >> /etc/crypttab
+echo "/dev/mapper/cryptshared /data btrfs rw,noatime,compress=zstd:3,subvol=@data,nofail,x-systemd.device-timeout=10s 0 0" >> /etc/fstab
 echo "UUID=${EXCH_UUID} /exchange exfat defaults,uid=1000,gid=1000,umask=022,nofail 0 0" >> /etc/fstab
 mkdir -p /data /exchange
 apt-get update && apt-get install -y exfatprogs
