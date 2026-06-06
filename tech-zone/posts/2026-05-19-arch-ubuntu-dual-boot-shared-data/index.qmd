@@ -35,7 +35,7 @@ A continuation of [Article 03](../2026-05-17-arch-luks-btrfs-caelestia/), turnin
 - **Per-OS everyday swap via zram** (compressed RAM, no SSD writes) and **per-OS hibernation** to a NoCOW Btrfs swap file inside each distro's own encrypted root — no shared swap partition, no cross-OS resume-image collisions, no extra LUKS container to maintain.
 - **One GRUB** on the shared ESP, with `os-prober` enabled so either distro's `grub-mkconfig` regenerates a working menu listing both.
 
-It stops on the console for the Arch side — desktop layer is your choice, exactly like Article 03 ([Caelestia, Article 05](../2026-05-18-caelestia-desktop/) or a custom Hyprland). Ubuntu's GNOME (or whichever flavor you install) comes up out-of-the-box.
+It stops on the console for the Arch side — desktop layer is your choice, exactly like Article 03 (a custom Hyprland, GNOME, Plasma, or whatever you prefer). Ubuntu's GNOME (or whichever flavor you install) comes up out-of-the-box.
 :::
 
 ## Why this is its own article (and not just "Article 03 with Ubuntu glued on")
@@ -47,21 +47,125 @@ Adding Ubuntu introduces five concerns that single-boot didn't have:
 1. **Who owns GRUB?** Both distros want to install their own bootloader to the same ESP. We pick one as the menu driver (Ubuntu, because its installer wires up `os-prober` for you out of the box) and let it discover Arch automatically.
 2. **How does the shared encrypted data partition get unlocked from both sides without prompting twice?** A LUKS container can hold up to 8 keyslots. We add the user's passphrase as slot 0 (for recovery from a live USB), then add a 4096-byte keyfile as slot 1 — and store a copy of that keyfile inside each (already-unlocked) root, referenced from each distro's `/etc/crypttab`. Boot order: root unlock by passphrase → root mounts → crypttab reads keyfile → shared partition unlocks silently.
 3. **Resume-image collisions.** Two OSes hibernating to the same swap target would overwrite each other's resume image. We sidestep this entirely by giving each OS its own NoCOW Btrfs swap file inside its own LUKS root, plus zram for everyday compressed swap — exactly the [Article 03 pattern](../2026-05-17-arch-luks-btrfs-caelestia/#chapter-7-the-hibernation-swap-file), applied twice. There's no shared swap partition at all: zram handles ~all everyday memory pressure on either OS, and hibernation never has to share state across the boundary.
-4. **UID/GID coordination for the shared partition.** If `evanns` is UID 1000 on Arch and UID 1001 on Ubuntu, every file on `/data` looks like it belongs to a different user depending on which OS you booted into. We pin UID 1000 on both sides during user creation.
+4. **UID/GID coordination for the shared partition.** If `youruser` is UID 1000 on Arch and UID 1001 on Ubuntu, every file on `/data` looks like it belongs to a different user depending on which OS you booted into. We pin UID 1000 on both sides during user creation.
 5. **`os-prober` is off by default on Arch.** Modern Arch GRUB ships with `GRUB_DISABLE_OS_PROBER=true`. We flip it for both distros so a re-run of `grub-mkconfig` from either side regenerates a complete menu.
 
 The result is the install I plan to put on my next workstation when I retire the Dell Precision: Arch for daily-driver work, Ubuntu for the (research-y) packages that don't have decent Arch coverage, and a single home directory's worth of documents living in one place — mounted, not synced, not copied.
 
 ---
 
-# Part 1 — Bootstrap (same as Article 03)
+# Part 1 — Bootstrap the Arch live environment
 
-The first three steps are identical to the [basic install](../2026-05-01-first-arch-install/) and [Article 03's Part 1](../2026-05-17-arch-luks-btrfs-caelestia/#part-1--bootstrap-same-as-the-basic-install). In short, from an Arch live USB:
+The Arch side of this install begins exactly like the [basic install](../2026-05-01-first-arch-install/) and [Article 03](../2026-05-17-arch-luks-btrfs-caelestia/): verify the ISO, boot the live USB, get online, set the clock. Earlier drafts of this article just said *"do the first three steps like Article 03"* and moved on — but a dual-boot is exactly the kind of multi-hour job where you don't want to be flipping between three browser tabs to remember how `gpg --verify` goes. So this part is spelled out in full. **If you've done a from-scratch Arch install before, skim to [Chapter 1](#chapter-1-the-four-partition-layout).**
 
-1. **Verify the ISO** with `sha256sum -c sha256sums.txt` and `gpg --verify`.
-2. **Boot the USB** and confirm UEFI mode with `cat /sys/firmware/efi/fw_platform_size` (should print `64`).
-3. **Connect to Wi-Fi** via `iwctl`, then `systemctl enable --now sshd` and `passwd` so you can SSH in from a real keyboard.
-4. **Keymap, timezone, NTP**: `loadkeys us`, `timedatectl set-timezone America/New_York`, `timedatectl set-ntp true`.
+## Chapter 0: Verify the ISO, boot the live USB, get online
+
+### Download and verify the ISO
+
+On a machine you trust, grab three files from the [Arch download page](https://archlinux.org/download/){target="_blank" rel="noopener"} — I keep them together in `~/Downloads/Arch`:
+
+- the ISO (`archlinux-2026.05.01-x86_64.iso`, ~1.4 GiB),
+- its signature (`…​.iso.sig`),
+- the `sha256sums.txt` checksum file.
+
+**Checksum** — confirms the bytes on your disk match what the mirror published:
+
+```bash
+cd ~/Downloads/Arch
+sha256sum -c sha256sums.txt
+# archlinux-2026.05.01-x86_64.iso: OK
+```
+
+**Signature** — confirms the ISO was actually published by the Arch release engineer, not a tampered mirror:
+
+```bash
+gpg --auto-key-locate clear,wkd -v --locate-external-key pierre@archlinux.org
+gpg --verify archlinux-2026.05.01-x86_64.iso.sig archlinux-2026.05.01-x86_64.iso
+# gpg: Good signature from "Pierre Schmitz <pierre@archlinux.org>" [unknown]
+```
+
+::: {.callout-tip}
+## About the "key is not certified" warning
+
+```text
+gpg: WARNING: The key's User ID is not certified with a trusted signature!
+```
+
+Expected. It means you haven't personally signed Pierre's key into your local web of trust — the signature itself is still valid, `gpg` just can't *prove* the key's ownership. Fine for a one-off install.
+:::
+
+Flash the verified ISO to a USB stick with [balenaEtcher](https://etcher.balena.io/){target="_blank" rel="noopener"} (pick image → pick drive → flash) or `dd` if you're comfortable (be very careful with `of=`).
+
+### Boot the install media (and confirm UEFI)
+
+Plug the USB into the target machine, interrupt boot (`F2`/`F10`/`F12`/`Esc` depending on vendor), pick the USB, and choose the default *"Arch Linux install medium"* entry. At the root shell, confirm you booted **UEFI**, not legacy BIOS — everything below (the ESP, GRUB, `sd-encrypt`) assumes UEFI:
+
+```bash
+cat /sys/firmware/efi/fw_platform_size
+# 64  (or 32 on very old hardware)
+```
+
+If that file doesn't exist, you're in BIOS mode — fix it in firmware settings before continuing. If the console font is too small on a high-DPI panel, `setfont ter-132b`.
+
+### (Optional but recommended) SSH in from another computer
+
+A dual-boot install is long and reference-heavy; doing it over SSH lets you keep this guide open on one screen and paste commands on the other. First get the live USB online with `iwctl`:
+
+```bash
+iwctl
+```
+
+```text
+device list
+station wlan0 scan
+station wlan0 get-networks
+station wlan0 connect "Your SSID Here"
+```
+
+Quote any SSID with spaces; substitute `wlan0` with your actual device from `device list`; `exit` when connected. Confirm connectivity:
+
+```bash
+ping -c 3 ping.archlinux.org
+```
+
+Find the address to SSH into:
+
+```bash
+ip -brief address          # look at the wlan0 line for inet x.x.x.x/yy
+```
+
+Make sure the SSH daemon is up, set a *temporary* live-environment root password, then connect from your other machine:
+
+```bash
+systemctl enable --now sshd
+passwd                     # live-USB-only password; the installed system gets its own later
+# from the other computer:
+ssh root@<ip-from-above>
+```
+
+::: {.callout-note}
+## openssh vs. ssh vs. sshd
+
+- **`openssh`** — the *package* shipping both client and server (already installed on the live ISO).
+- **`ssh`** — the *client* you run to connect *out*.
+- **`sshd`** — the *server daemon* that must be enabled before you can connect *in*.
+
+You're enabling `sshd` here so the live USB accepts an incoming connection from your other machine.
+:::
+
+### Keymap, timezone, time sync
+
+```bash
+loadkeys us                                   # your console keymap
+timedatectl set-timezone America/New_York     # substitute your zone
+timedatectl set-ntp true                      # sync the clock over the network
+```
+
+::: {.callout-note}
+## Why `set-ntp true` matters even for a 30-minute install
+
+`timedatectl set-ntp true` points `systemd-timesyncd` at network time servers. If the live environment's clock drifts far enough from real time, TLS handshakes and `pacman` operations fail with confusing certificate errors. It's free insurance — always turn it on. (You'll turn it on *again* inside the installed system at first boot; the two clocks are independent.)
+:::
 
 ::: {.callout-tip}
 ## Confirm what disk you're about to wipe
@@ -355,22 +459,22 @@ EOF
 passwd
 
 # User account — UID and GID pinned to 1000 (matches Ubuntu's default first-user UID)
-groupadd -g 1000 evanns
-useradd -m -u 1000 -g 1000 -G wheel,video,audio,input evanns
-passwd evanns
+groupadd -g 1000 youruser
+useradd -m -u 1000 -g 1000 -G wheel,video,audio,input youruser
+passwd youruser
 
 # sudo for wheel
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 ```
 
-Replace `evanns` with whatever username you want; the only thing that matters is that you use the **same username and the same `-u 1000 -g 1000`** when you create the user during Ubuntu install later.
+Replace `youruser` with whatever username you want; the only thing that matters is that you use the **same username and the same `-u 1000 -g 1000`** when you create the user during Ubuntu install later.
 
 ::: {.callout-important}
 ## The pinned UID is the load-bearing part of "shared data partition"
 
-Linux filesystems store file ownership as integers, not names. If `evanns` is UID 1000 on Arch and `evanns` is UID 1001 on Ubuntu, the file ownership on `/data` literally cannot match in both directions — *somebody's* `ls -l /data` will show `1001` instead of `evanns`. Pin the UID at user-create time on both sides and the problem disappears before it starts.
+Linux filesystems store file ownership as integers, not names. If `youruser` is UID 1000 on Arch and `youruser` is UID 1001 on Ubuntu, the file ownership on `/data` literally cannot match in both directions — *somebody's* `ls -l /data` will show `1001` instead of `youruser`. Pin the UID at user-create time on both sides and the problem disappears before it starts.
 
-If you forget to pin during Ubuntu install and the user ends up as UID 1001, the recovery is `usermod -u 1000 evanns && groupmod -g 1000 evanns && find / -uid 1001 -exec chown 1000 {} +` — workable but tedious. Pin in advance.
+If you forget to pin during Ubuntu install and the user ends up as UID 1001, the recovery is `usermod -u 1000 youruser && groupmod -g 1000 youruser && find / -uid 1001 -exec chown 1000 {} +` — workable but tedious. Pin in advance.
 :::
 
 ---
@@ -408,13 +512,13 @@ cryptsetup luksAddKey /dev/nvme0n1p2 /etc/cryptsetup-keys.d/shared.key
 # Prompts for the existing passphrase. Type the passphrase you used for the shared container in Chapter 2.
 ```
 
-Verify the keyslots:
+Verify the keyslots — print the whole `Keyslots:` block, not just the first couple of lines (a `grep -A2` would cut off before the second keyslot):
 
 ```bash
-cryptsetup luksDump /dev/nvme0n1p2 | grep -A2 Keyslot
+cryptsetup luksDump /dev/nvme0n1p2 | grep -A30 '^Keyslots:'
 ```
 
-You should see two **Keyslots** listed (0 and 1) — keyslot 0 is your passphrase, keyslot 1 is the keyfile. Either will unlock the container.
+You should see two keyslots listed (`0:` and `1:`) — keyslot 0 is your passphrase, keyslot 1 is the keyfile. Either will unlock the container.
 
 ::: {.callout-tip}
 ## Why we keep the passphrase slot too
@@ -716,7 +820,28 @@ cryptsetup status cryptshared    # active LUKS2 mapping (shared data)
 
 **What pass looks like:** both `cryptsetup status` outputs print `is active and is in use`, `findmnt /data` shows the shared Btrfs filesystem, and `swapon --show` lists exactly two devices (`zram0` and `/swap/swapfile`).
 
-Reconnect to Wi-Fi, re-enable NTP, verify timezone — same as [Article 03 Part 3](../2026-05-17-arch-luks-btrfs-caelestia/#part-3--first-boot-snapper-snapshots-sanity-checks).
+### Reconnect to Wi-Fi, re-enable NTP, verify timezone
+
+NetworkManager is enabled and running, but it has **no saved networks** — your Wi-Fi credentials lived in the live USB's `iwd` session, not in the installed system. If you have Ethernet, plug it in (DHCP just works). For Wi-Fi:
+
+```bash
+nmcli radio wifi on
+nmcli device wifi list
+nmcli device wifi connect "Your SSID Here" password "your-passphrase"
+ip -brief address                 # wlan0 should now have an inet address
+ping -c 3 ping.archlinux.org      # should be <1% loss
+```
+
+The live ISO's `set-ntp true` only affected the live environment; the installed system's `systemd-timesyncd` is idle until you turn it on. Do that, and confirm the timezone took (it's easy to ship the chroot's default `America/New_York` by copy-paste):
+
+```bash
+sudo timedatectl set-ntp true
+timedatectl status
+# Want: correct "Time zone:", "System clock synchronized: yes", "RTC in local TZ: no".
+# Fix the zone if needed:  sudo timedatectl set-timezone America/Chicago
+```
+
+Without NTP the clock drifts until `pacman` starts failing with GPG/TLS errors; without the right zone every timestamp is off by hours. Both fixes are cheap and permanent.
 
 ### Test that the shared partition is actually shareable
 
@@ -725,20 +850,55 @@ Write a probe file as your user, then check it from a root shell:
 ```bash
 echo "written from arch" > /data/probe-arch.txt
 ls -l /data/probe-arch.txt
-# Should print: -rw-r--r-- 1 evanns evanns ... /data/probe-arch.txt
+# Should print: -rw-r--r-- 1 youruser youruser ... /data/probe-arch.txt
 #                            ^^^^^^^^^^^^^ — user/group name, not raw UID
 stat -c '%u %g' /data/probe-arch.txt
 # Should print: 1000 1000
 ```
 
-The point of the second `stat` line is to confirm the *integer* UID is 1000 — that's what Ubuntu's `evanns` will see when it mounts `/data` later. If the integer is anything other than 1000, your `useradd` in Chapter 6 didn't pin correctly; fix it now with `usermod -u 1000 evanns && chown -R 1000:1000 /home/evanns /data/*-by-evanns`.
+The point of the second `stat` line is to confirm the *integer* UID is 1000 — that's what Ubuntu's `youruser` will see when it mounts `/data` later. If the integer is anything other than 1000, your `useradd` in Chapter 6 didn't pin correctly; fix it now with `usermod -u 1000 youruser && chown -R 1000:1000 /home/youruser /data/*-by-youruser`.
 
-### Configure snapper for `/` and test hibernation
+### Configure snapper for `/`
 
-Identical to [Article 03 Part 3](../2026-05-17-arch-luks-btrfs-caelestia/#configure-snapper-for--properly) — won't repeat here. Once those are green:
+A plain `snapper -c root create-config /` would create its *own* `.snapshots` subvolume, which collides with the `@snapshots` we already mounted in Chapter 4. The Arch-recommended dance sidesteps that:
 
-- `sudo snapper -c root list` shows at least one row.
-- `sudo systemctl hibernate` works (screen goes dark, fans stop; press power button to resume; LUKS passphrase prompt; system comes back where you left it).
+```bash
+sudo umount /.snapshots
+sudo rm -rf /.snapshots
+sudo snapper -c root create-config /
+sudo btrfs subvolume delete /.snapshots   # remove the one snapper just made
+sudo mkdir /.snapshots
+sudo chmod 750 /.snapshots
+sudo mount -a                              # remount @snapshots from fstab
+```
+
+Then tighten retention to something humane — the defaults keep far too many:
+
+```bash
+sudo snapper -c root set-config \
+    TIMELINE_LIMIT_HOURLY=5 TIMELINE_LIMIT_DAILY=7 \
+    TIMELINE_LIMIT_WEEKLY=2 TIMELINE_LIMIT_MONTHLY=1 TIMELINE_LIMIT_YEARLY=0
+```
+
+`snapper-timeline.timer` and `snapper-cleanup.timer` are already enabled (Chapter 13), so they pick this config up automatically. Confirm at least one snapshot exists:
+
+```bash
+sudo snapper -c root list      # expect at least the initial row
+```
+
+::: {.callout-note}
+## Snapshotting `/home` is a separate decision — and usually "skip it"
+
+Snapshots are copy-on-write, so they cost nothing until files diverge — but `/home` on a working machine is full of write-once-delete-soon data (`cargo target/`, `node_modules/`, `~/.cache/`, ROS `build/`, model checkpoints) that snapshots will pin until they age out, ballooning snapper's footprint. If your `/home` is mostly git-tracked code and documents, **skip** `/home` snapshots (git already rolls those back). If you want them anyway, create `snapper -c home create-config /home` with *tight* retention and `chattr +C` your build/cache dirs first. Either way, snapshots are not a backup — pair `/home` with `restic`/`borg` to off-machine storage for the data you truly can't lose.
+:::
+
+### Test hibernation (before you install Ubuntu)
+
+```bash
+sudo systemctl hibernate
+```
+
+Screen goes dark, fans stop, power LED dims. Press the power button to resume; the expected sequence is firmware → GRUB → kernel/initramfs → **`sd-encrypt` LUKS passphrase prompt** → `systemd-hibernate-resume` reads the image from `/swap/swapfile` (decrypted on the fly) → your session restores exactly where you left it. If it instead boots fresh (clean login, no windows), your `resume=`/`resume_offset=` didn't take — re-check the GRUB cmdline from Chapter 12 and re-run `mkinitcpio -P && grub-mkconfig -o /boot/grub/grub.cfg`. A clean cycle leaves an `efivarfs: removing variable HibernateLocation-…` line in `sudo dmesg | grep -i hibernate` and **no** lines containing `failed`/`error`.
 
 ::: {.callout-important}
 ## Verify hibernation **before** you install Ubuntu
@@ -786,7 +946,7 @@ Run that from the *Arch* side, before booting the Ubuntu installer.
     - **`/dev/nvme0n1p4`** — select it, **"Change"**, **set "Use as: physical volume for encryption"**, **format checked**. The installer will prompt for a LUKS passphrase. Use a distinct passphrase from Arch's root — save it in your password manager as `LUKS — ubuntu root`.
     - After confirming the encryption setup, the partition will show as a mapper (e.g., `/dev/mapper/nvme0n1p4_crypt`). Select that mapper, **"Change"**, set "Use as: btrfs journaling file system", "Mount point: /", **format checked**.
 5. **"Device for boot loader installation"** — set this to `/dev/nvme0n1` (the *disk*, not a partition). Ubuntu's `grub-install` will write to the ESP we created.
-6. **User account creation**: username `evanns` (match exactly what you used on Arch), tick **"Log in automatically"** off, password whatever. The installer does not expose the UID for the first user — it's hard-coded to 1000, which is exactly what we want.
+6. **User account creation**: username `youruser` (match exactly what you used on Arch), tick **"Log in automatically"** off, password whatever. The installer does not expose the UID for the first user — it's hard-coded to 1000, which is exactly what we want.
 7. Confirm, install.
 
 ::: {.callout-note}
@@ -895,7 +1055,7 @@ Ubuntu's installer doesn't create a hibernation swap file by default. We mirror 
 
 After the reboot, pick **Ubuntu** from the GRUB menu (or `Arch Linux` to flip back if you want to compare; we'll boot Ubuntu first to finish its config).
 
-Log in as `evanns`. Open a terminal:
+Log in as `youruser`. Open a terminal:
 
 ```bash
 # Find the Btrfs filesystem mounted at / — should be /dev/mapper/nvme0n1p4_crypt
@@ -948,7 +1108,7 @@ Confirm Ubuntu sees the shared partition and its own swap correctly:
 findmnt /data                 # /dev/mapper/cryptshared, subvol=@data
 swapon --show                 # zram (recent Ubuntu sets it up automatically) + /swap/swapfile
 cryptsetup status cryptshared
-ls -l /data                   # files written from Arch should appear, owned by evanns
+ls -l /data                   # files written from Arch should appear, owned by youruser
 ```
 
 Test hibernation:
@@ -1026,7 +1186,7 @@ swapon --show                   # zram + /swap/swapfile (Ubuntu's own, distinct 
 cryptsetup status nvme0n1p4_crypt
 cryptsetup status cryptshared
 sudo systemctl hibernate        # works, resumes into Ubuntu (separate from Arch's hibernation)
-ls -l /data                     # same files as Arch sees, owned by evanns
+ls -l /data                     # same files as Arch sees, owned by youruser
 stat -c '%u %g %n' /data/*      # all UIDs/GIDs == 1000
 ```
 
@@ -1052,7 +1212,7 @@ Most-likely causes:
 
 - The keyfile path in `/etc/crypttab` doesn't match where the keyfile actually lives. `cat /etc/crypttab` and `ls -l /etc/cryptsetup-keys.d/` — they have to match.
 - The keyfile's permissions are wrong (must be `0400`, root-owned). `chmod 0400 /etc/cryptsetup-keys.d/shared.key`.
-- The keyfile was never added to the LUKS container's keyslot. `cryptsetup luksDump /dev/nvme0n1p2 | grep -i keyslot` should show **two** active keyslots; if only one, re-run `cryptsetup luksAddKey /dev/nvme0n1p2 /etc/cryptsetup-keys.d/shared.key`.
+- The keyfile was never added to the LUKS container's keyslot. `cryptsetup luksDump /dev/nvme0n1p2 | grep -A30 '^Keyslots:'` should show **two** active keyslots (`0:` and `1:`); if only one, re-run `cryptsetup luksAddKey /dev/nvme0n1p2 /etc/cryptsetup-keys.d/shared.key`.
 - The UUID in `/etc/crypttab` doesn't match the partition's actual LUKS UUID. `blkid /dev/nvme0n1p2` — compare.
 
 ### 2. Boot drops into emergency mode after Arch LUKS passphrase
@@ -1086,13 +1246,13 @@ Fix the cmdline (Arch: `/etc/default/grub` → `grub-mkconfig`; Ubuntu: `/etc/de
 The Ubuntu installer assigned the user UID 1001 because there was already a UID 1000 in some inherited config (rare, but possible). Fix from Ubuntu:
 
 ```bash
-sudo usermod -u 1000 evanns
-sudo groupmod -g 1000 evanns
+sudo usermod -u 1000 youruser
+sudo groupmod -g 1000 youruser
 sudo find / -uid 1001 -not -path '/proc/*' -not -path '/sys/*' -exec chown 1000 {} +
 sudo find / -gid 1001 -not -path '/proc/*' -not -path '/sys/*' -exec chgrp 1000 {} +
 ```
 
-Reboot Ubuntu. Now `id evanns` prints `uid=1000(evanns) gid=1000(evanns)`.
+Reboot Ubuntu. Now `id youruser` prints `uid=1000(youruser) gid=1000(youruser)`.
 
 ### 6. Ubuntu installer can't see the Arch ESP
 
@@ -1115,9 +1275,9 @@ Then re-launch the installer — the partition type recognition usually settles 
 You now have two encrypted, snapshot-able OSes sharing one ESP, one swap partition, and one data partition, with hibernation isolated per-OS. The next decisions are personal:
 
 ::: {.callout-tip}
-## Arch desktop layer — same fork as Article 03's Part 4
+## Arch desktop layer — same choice as Article 03's Part 4
 
-[**Caelestia (Article 05)**](../2026-05-18-caelestia-desktop/) for a turnkey Hyprland bundle, or a custom Hyprland (upcoming). Neither affects Ubuntu — desktop choice lives entirely on the Arch side.
+The desktop layer is a separate, deliberate choice that lives entirely on the Arch side and doesn't affect Ubuntu: a custom Hyprland built piece by piece (upcoming), or any environment you like (GNOME, Plasma, sway, dwm). Stock Arch stops at the console on purpose.
 :::
 
 ::: {.callout-tip}
@@ -1129,7 +1289,7 @@ Comes up out-of-the-box with whichever Ubuntu flavor you installed (GNOME for st
 ::: {.callout-tip}
 ## Eventually: triple-boot with Windows
 
-If you ever want to bolt Windows onto this layout, that's [Article 10](../../#tz-planned-10) territory — the dual-boot above doesn't preclude it, but Windows adds BitLocker, signed-bootloader, and ESP-conflict considerations that deserve their own article.
+If you ever want to bolt Windows onto this layout, that's [Article 10 — Triple-Boot Arch + Ubuntu + Windows](../2026-06-05-arch-ubuntu-windows-triple-boot/) territory — it builds directly on this dual-boot, installing Windows *first* (so it can't stomp the ESP), then layering Arch and Ubuntu exactly as above. The one design change: Windows stays out of the encrypted shared `/data` entirely (it can't read LUKS+Btrfs), so cross-OS exchange with Windows uses a separate plain partition.
 :::
 
 ---
