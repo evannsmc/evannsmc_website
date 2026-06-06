@@ -976,6 +976,23 @@ Run that from the *Arch* side, before booting the Ubuntu installer.
 
 Boot the Ubuntu Desktop USB, choose **"Try Ubuntu"**, connect to Wi-Fi (`debootstrap` needs the network), open a terminal, and become root:
 
+::: {.callout-tip}
+## (Optional but recommended) SSH into the live session first
+
+Like the Arch install, you can drive this from another computer over SSH — handy for pasting these long blocks while keeping the guide open on the other screen. Two differences from the Arch ISO: the Ubuntu **Desktop** live image doesn't ship the SSH *server*, and you log in as the passwordless `ubuntu` user. Get the live session online (Wi-Fi from the top-right menu, or Ethernet), then:
+
+```bash
+sudo apt update && sudo apt install -y openssh-server   # the server isn't on the Desktop live image
+sudo passwd ubuntu                                       # the live user has a blank password; SSH rejects that
+sudo systemctl enable --now ssh                          # NB: the unit is 'ssh', not 'sshd'
+ip -brief address                                        # note the inet addr on your wlan0 / enpXsY line
+```
+
+Then from your other machine: `ssh ubuntu@<ip>`, and `sudo -i` to become root. Two Ubuntu quirks worth knowing: **root SSH is disabled by default** (connect as `ubuntu`, then `sudo`), and the live session regenerates a fresh **host key every boot**, so a "REMOTE HOST IDENTIFICATION HAS CHANGED" warning on reconnect is expected — clear it with `ssh-keygen -R <ip>`.
+
+If `apt` asks what to do about a modified `/etc/ssh/sshd_config`, **keep the locally installed version** (the default) — the live image's config already permits password login. If a login is still refused, confirm it with `sudo sshd -T | grep -i passwordauthentication` (want `yes`; if not, `echo 'PasswordAuthentication yes' | sudo tee /etc/ssh/sshd_config.d/99-install.conf && sudo systemctl restart ssh`).
+:::
+
 ```bash
 sudo -i
 apt update && apt install -y debootstrap cryptsetup-bin

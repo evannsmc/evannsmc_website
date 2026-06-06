@@ -592,7 +592,15 @@ From the Arch side, snapshot the current NVRAM so you can compare after Ubuntu r
 efibootmgr -v > ~/efi-before-ubuntu.txt
 ```
 
-Boot a verified Ubuntu 24.04 LTS Desktop USB and pick **"Try Ubuntu"** — **not** the installer. As covered in the [dual-boot Part 4](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session), Ubuntu 24.04's new installer can no longer encrypt a manually-chosen partition, so we build Ubuntu's encrypted root by hand from the live session. The procedure is identical to the dual-boot's, with **p7** as Ubuntu's root (and Windows already present, which changes nothing — `os-prober` will simply find Windows *and* Arch). Open a terminal, `sudo -i`, `apt update && apt install -y debootstrap cryptsetup-bin`, then:
+Boot a verified Ubuntu 24.04 LTS Desktop USB and pick **"Try Ubuntu"** — **not** the installer. As covered in the [dual-boot Part 4](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session), Ubuntu 24.04's new installer can no longer encrypt a manually-chosen partition, so we build Ubuntu's encrypted root by hand from the live session. The procedure is identical to the dual-boot's, with **p7** as Ubuntu's root (and Windows already present, which changes nothing — `os-prober` will simply find Windows *and* Arch).
+
+::: {.callout-tip}
+## Driving it remotely over SSH?
+
+The Ubuntu Desktop live image has no SSH server and logs you in as a passwordless `ubuntu` user, so it needs a few setup commands first — do it exactly as in the [dual-boot SSH-in callout](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session) (`apt install openssh-server`, `passwd ubuntu`, `systemctl enable --now ssh`, then `ssh ubuntu@<ip>` + `sudo -i`).
+:::
+
+Open a terminal, `sudo -i`, `apt update && apt install -y debootstrap cryptsetup-bin`, then:
 
 ```bash
 # 1 — encrypt p7 (pbkdf2 so GRUB can unlock the in-root /boot), Btrfs + subvolumes

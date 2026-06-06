@@ -1077,7 +1077,21 @@ Verify hibernation <strong>now</strong>, while only Arch + Windows exist
 <p>Identical to the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#part-4-install-ubuntu-24-lts-alongside">dual-boot Part 4</a>, with Windows already present (which changes nothing about the Ubuntu steps — Ubuntu’s <code>os-prober</code> will simply find both Arch <em>and</em> Windows).</p>
 <p>From the Arch side, snapshot the current NVRAM so you can compare after Ubuntu reorders it:</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span> <span class="at">-v</span> <span class="op">&gt;</span> ~/efi-before-ubuntu.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Boot a verified Ubuntu 24.04 LTS Desktop USB and pick <strong>“Try Ubuntu”</strong> — <strong>not</strong> the installer. As covered in the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session">dual-boot Part 4</a>, Ubuntu 24.04’s new installer can no longer encrypt a manually-chosen partition, so we build Ubuntu’s encrypted root by hand from the live session. The procedure is identical to the dual-boot’s, with <strong>p7</strong> as Ubuntu’s root (and Windows already present, which changes nothing — <code>os-prober</code> will simply find Windows <em>and</em> Arch). Open a terminal, <code>sudo -i</code>, <code>apt update &amp;&amp; apt install -y debootstrap cryptsetup-bin</code>, then:</p>
+<p>Boot a verified Ubuntu 24.04 LTS Desktop USB and pick <strong>“Try Ubuntu”</strong> — <strong>not</strong> the installer. As covered in the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session">dual-boot Part 4</a>, Ubuntu 24.04’s new installer can no longer encrypt a manually-chosen partition, so we build Ubuntu’s encrypted root by hand from the live session. The procedure is identical to the dual-boot’s, with <strong>p7</strong> as Ubuntu’s root (and Windows already present, which changes nothing — <code>os-prober</code> will simply find Windows <em>and</em> Arch).</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Driving it remotely over SSH?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The Ubuntu Desktop live image has no SSH server and logs you in as a passwordless <code>ubuntu</code> user, so it needs a few setup commands first — do it exactly as in the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session">dual-boot SSH-in callout</a> (<code>apt install openssh-server</code>, <code>passwd ubuntu</code>, <code>systemctl enable --now ssh</code>, then <code>ssh ubuntu@&lt;ip&gt;</code> + <code>sudo -i</code>).</p>
+</div>
+</div>
+<p>Open a terminal, <code>sudo -i</code>, <code>apt update &amp;&amp; apt install -y debootstrap cryptsetup-bin</code>, then:</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 — encrypt p7 (pbkdf2 so GRUB can unlock the in-root /boot), Btrfs + subvolumes</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> luksFormat <span class="at">--type</span> luks2 <span class="at">--pbkdf</span> pbkdf2 /dev/nvme0n1p7</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> open /dev/nvme0n1p7 crypt_ubuntu</span>
