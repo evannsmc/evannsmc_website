@@ -716,13 +716,13 @@ Turn off Secure Boot now, while you’re in firmware
 <p>Inside <code>cfdisk</code>, move the highlight with <code>↑</code>/<code>↓</code> (or vim’s <code>j</code> and <code>k</code>) and press <code>Enter</code> to choose. Every new partition starts as <strong>Linux filesystem</strong>; to set a different type, highlight it, press <code>t</code>, and pick from the list the same way:</p>
 <ol type="1">
 <li><code>d</code> on every existing partition until the table is empty. (If prompted for a label type on a blank disk, choose <strong>gpt</strong>.)</li>
-<li><code>n</code> → <code>1G</code> → type <strong>EFI System</strong> → <code>p1</code> (shared ESP).</li>
-<li><code>n</code> → <code>16M</code> → type <strong>Microsoft reserved</strong> → <code>p2</code> (MSR; if your <code>cfdisk</code> doesn’t list MSR, see the note below).</li>
-<li><code>n</code> → <code>250G</code> → type <strong>Microsoft basic data</strong> → <code>p3</code> (Windows C:).</li>
-<li><code>n</code> → <code>64G</code> → type <strong>Microsoft basic data</strong> → <code>p4</code> (exFAT exchange).</li>
-<li><code>n</code> → <code>150G</code> → type <strong>Linux filesystem</strong> → <code>p5</code> (shared LUKS data).</li>
-<li><code>n</code> → <code>767G</code> → type <strong>Linux filesystem</strong> → <code>p6</code> (Arch root; your half-of-remaining).</li>
-<li><code>n</code> → rest → type <strong>Linux filesystem</strong> → <code>p7</code> (Ubuntu root).</li>
+<li><code>n</code> → <code>1G</code> → <code>t</code> → <strong>EFI System</strong> → <code>p1</code> (shared ESP).</li>
+<li><code>n</code> → <code>16M</code> → <code>t</code> → <strong>Microsoft reserved</strong> → <code>p2</code> (MSR; if your <code>cfdisk</code> doesn’t list MSR, see the note below).</li>
+<li><code>n</code> → <code>250G</code> → <code>t</code> → <strong>Microsoft basic data</strong> → <code>p3</code> (Windows C:).</li>
+<li><code>n</code> → <code>64G</code> → <code>t</code> → <strong>Microsoft basic data</strong> → <code>p4</code> (exFAT exchange).</li>
+<li><code>n</code> → <code>150G</code> → leave as <strong>Linux filesystem</strong> → <code>p5</code> (shared LUKS data).</li>
+<li><code>n</code> → <code>767G</code> → leave as <strong>Linux filesystem</strong> → <code>p6</code> (Arch root; your half-of-remaining).</li>
+<li><code>n</code> → rest → leave as <strong>Linux filesystem</strong> → <code>p7</code> (Ubuntu root).</li>
 <li><code>w</code>, then type <code>yes</code>.</li>
 </ol>
 <div class="callout callout-style-default callout-note callout-titled">

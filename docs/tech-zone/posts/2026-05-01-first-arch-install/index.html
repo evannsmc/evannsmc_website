@@ -689,10 +689,10 @@ What <code>set-ntp true</code> actually does
 <li>Press <code>d</code> on every existing partition to delete it. Nothing is committed until you press <code>w</code>, so this is your scratch space.</li>
 <li>Press <code>n</code> to create new partitions. Set each one’s size and partition type:
 <ul>
-<li>1 GiB <strong>EFI System</strong></li>
-<li>35 GiB <strong>Linux swap</strong></li>
-<li>200 GiB <strong>Linux filesystem</strong></li>
-<li>remainder <strong>Linux filesystem</strong></li>
+<li>1 GiB, then <code>t</code> → <strong>EFI System</strong></li>
+<li>35 GiB, then <code>t</code> → <strong>Linux swap</strong></li>
+<li>200 GiB, leave as <strong>Linux filesystem</strong> (the default)</li>
+<li>remainder, leave as <strong>Linux filesystem</strong></li>
 </ul></li>
 <li>Press <code>w</code> to write, type <code>yes</code> to confirm.</li>
 </ol>

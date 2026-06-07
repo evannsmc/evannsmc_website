@@ -578,8 +578,8 @@ Confirm what disk you’re about to wipe
 <p>Inside <code>cfdisk</code>, move the highlight with <code>↑</code>/<code>↓</code> (or vim’s <code>j</code> and <code>k</code>) and press <code>Enter</code> to choose. Every new partition starts as <strong>Linux filesystem</strong>; to set a different type, highlight it, press <code>t</code>, and pick from the list the same way:</p>
 <ol type="1">
 <li><code>d</code> on every existing partition until the table is empty.</li>
-<li><code>n</code> → 1 GiB → type <strong>EFI System</strong> → that’s <code>/dev/nvme0n1p1</code>.</li>
-<li><code>n</code> → accept the remaining space → type <strong>Linux filesystem</strong> → that’s <code>/dev/nvme0n1p2</code>.</li>
+<li><code>n</code> → 1 GiB → <code>t</code> → <strong>EFI System</strong> → that’s <code>/dev/nvme0n1p1</code>.</li>
+<li><code>n</code> → accept the remaining space → leave as <strong>Linux filesystem</strong> → that’s <code>/dev/nvme0n1p2</code>.</li>
 <li><code>w</code>, then type <code>yes</code>.</li>
 </ol>
 <p>Verify:</p>

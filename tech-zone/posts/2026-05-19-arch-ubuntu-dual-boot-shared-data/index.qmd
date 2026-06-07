@@ -247,10 +247,10 @@ cfdisk /dev/nvme0n1
 Inside `cfdisk`, move the highlight with `↑`/`↓` (or vim's `j` and `k`) and press `Enter` to choose. Every new partition starts as **Linux filesystem**; to set a different type, highlight it, press `t`, and pick from the list the same way:
 
 1. `d` on every existing partition until the table is empty.
-2. `n` → `1G`   → type **EFI System**      → `/dev/nvme0n1p1`.
-3. `n` → `150G` → type **Linux filesystem** → `/dev/nvme0n1p2` (shared data).
-4. `n` → `924G` → type **Linux filesystem** → `/dev/nvme0n1p3` (Arch root; substitute your half-of-remaining number).
-5. `n` → rest   → type **Linux filesystem** → `/dev/nvme0n1p4` (Ubuntu root).
+2. `n` → `1G`   → `t` → **EFI System**      → `/dev/nvme0n1p1`.
+3. `n` → `150G` → leave as **Linux filesystem** → `/dev/nvme0n1p2` (shared data).
+4. `n` → `924G` → leave as **Linux filesystem** → `/dev/nvme0n1p3` (Arch root; substitute your half-of-remaining number).
+5. `n` → rest   → leave as **Linux filesystem** → `/dev/nvme0n1p4` (Ubuntu root).
 6. `w`, then type `yes`.
 
 Verify:

@@ -789,10 +789,10 @@ Why two separate LUKS containers instead of one shared LUKS with LVM inside
 <p>Inside <code>cfdisk</code>, move the highlight with <code>↑</code>/<code>↓</code> (or vim’s <code>j</code> and <code>k</code>) and press <code>Enter</code> to choose. Every new partition starts as <strong>Linux filesystem</strong>; to set a different type, highlight it, press <code>t</code>, and pick from the list the same way:</p>
 <ol type="1">
 <li><code>d</code> on every existing partition until the table is empty.</li>
-<li><code>n</code> → <code>1G</code> → type <strong>EFI System</strong> → <code>/dev/nvme0n1p1</code>.</li>
-<li><code>n</code> → <code>150G</code> → type <strong>Linux filesystem</strong> → <code>/dev/nvme0n1p2</code> (shared data).</li>
-<li><code>n</code> → <code>924G</code> → type <strong>Linux filesystem</strong> → <code>/dev/nvme0n1p3</code> (Arch root; substitute your half-of-remaining number).</li>
-<li><code>n</code> → rest → type <strong>Linux filesystem</strong> → <code>/dev/nvme0n1p4</code> (Ubuntu root).</li>
+<li><code>n</code> → <code>1G</code> → <code>t</code> → <strong>EFI System</strong> → <code>/dev/nvme0n1p1</code>.</li>
+<li><code>n</code> → <code>150G</code> → leave as <strong>Linux filesystem</strong> → <code>/dev/nvme0n1p2</code> (shared data).</li>
+<li><code>n</code> → <code>924G</code> → leave as <strong>Linux filesystem</strong> → <code>/dev/nvme0n1p3</code> (Arch root; substitute your half-of-remaining number).</li>
+<li><code>n</code> → rest → leave as <strong>Linux filesystem</strong> → <code>/dev/nvme0n1p4</code> (Ubuntu root).</li>
 <li><code>w</code>, then type <code>yes</code>.</li>
 </ol>
 <p>Verify:</p>

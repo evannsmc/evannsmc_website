@@ -251,10 +251,10 @@ Inside `cfdisk`, move the highlight with `↑`/`↓` (or vim's `j` and `k`) and 
 
 1. Press `d` on every existing partition to delete it. Nothing is committed until you press `w`, so this is your scratch space.
 2. Press `n` to create new partitions. Set each one's size and partition type:
-   - 1 GiB **EFI System**
-   - 35 GiB **Linux swap**
-   - 200 GiB **Linux filesystem**
-   - remainder **Linux filesystem**
+   - 1 GiB, then `t` → **EFI System**
+   - 35 GiB, then `t` → **Linux swap**
+   - 200 GiB, leave as **Linux filesystem** (the default)
+   - remainder, leave as **Linux filesystem**
 3. Press `w` to write, type `yes` to confirm.
 
 Verify the new layout:

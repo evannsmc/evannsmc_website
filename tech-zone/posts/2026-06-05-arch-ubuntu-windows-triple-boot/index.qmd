@@ -162,13 +162,13 @@ cfdisk /dev/nvme0n1
 Inside `cfdisk`, move the highlight with `↑`/`↓` (or vim's `j` and `k`) and press `Enter` to choose. Every new partition starts as **Linux filesystem**; to set a different type, highlight it, press `t`, and pick from the list the same way:
 
 1. `d` on every existing partition until the table is empty. (If prompted for a label type on a blank disk, choose **gpt**.)
-2. `n` → `1G`   → type **EFI System**           → `p1` (shared ESP).
-3. `n` → `16M`  → type **Microsoft reserved**   → `p2` (MSR; if your `cfdisk` doesn't list MSR, see the note below).
-4. `n` → `250G` → type **Microsoft basic data** → `p3` (Windows C:).
-5. `n` → `64G`  → type **Microsoft basic data** → `p4` (exFAT exchange).
-6. `n` → `150G` → type **Linux filesystem**     → `p5` (shared LUKS data).
-7. `n` → `767G` → type **Linux filesystem**     → `p6` (Arch root; your half-of-remaining).
-8. `n` → rest   → type **Linux filesystem**     → `p7` (Ubuntu root).
+2. `n` → `1G`   → `t` → **EFI System**           → `p1` (shared ESP).
+3. `n` → `16M`  → `t` → **Microsoft reserved**   → `p2` (MSR; if your `cfdisk` doesn't list MSR, see the note below).
+4. `n` → `250G` → `t` → **Microsoft basic data** → `p3` (Windows C:).
+5. `n` → `64G`  → `t` → **Microsoft basic data** → `p4` (exFAT exchange).
+6. `n` → `150G` → leave as **Linux filesystem**     → `p5` (shared LUKS data).
+7. `n` → `767G` → leave as **Linux filesystem**     → `p6` (Arch root; your half-of-remaining).
+8. `n` → rest   → leave as **Linux filesystem**     → `p7` (Ubuntu root).
 9. `w`, then type `yes`.
 
 ::: {.callout-note}
