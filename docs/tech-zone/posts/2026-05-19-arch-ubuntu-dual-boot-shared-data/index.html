@@ -511,7 +511,7 @@ What this is
 <p>My <a href="../2026-05-05-arch-luks-btrfs-lessons/">first attempt at a dual-boot with LUKS, Btrfs, zram, and a shared partition</a> (Article 01) tried to land everything in one swing and didn’t boot. The post-mortem isolated two <code>cryptdevice=</code> typos in the kernel command line and one missing <code>rootflags=subvol=@</code> parameter. After I fixed those in <a href="../2026-05-17-arch-luks-btrfs/">Article 03</a>, the single-boot version worked end-to-end.</p>
 <p>Adding Ubuntu introduces five concerns that single-boot didn’t have:</p>
 <ol type="1">
-<li><strong>Who owns GRUB?</strong> Both distros want to install their own bootloader to the same ESP. We pick one as the menu driver (Ubuntu, because its installer wires up <code>os-prober</code> for you out of the box) and let it discover Arch automatically.</li>
+<li><strong>Who owns GRUB?</strong> Both distros want to install their own bootloader to the same ESP. We pick one as the menu driver (Ubuntu) and let its <code>os-prober</code> discover Arch automatically.</li>
 <li><strong>How does the shared encrypted data partition get unlocked from both sides without prompting twice?</strong> A LUKS container can hold up to 8 keyslots. We add the user’s passphrase as slot 0 (for recovery from a live USB), then add a 4096-byte keyfile as slot 1, and store a copy of that keyfile inside each (already-unlocked) root, referenced from each distro’s <code>/etc/crypttab</code>. Boot order: root unlock by passphrase → root mounts → crypttab reads keyfile → shared partition unlocks silently.</li>
 <li><strong>Resume-image collisions.</strong> Two OSes hibernating to the same swap target would overwrite each other’s resume image. We sidestep this entirely by giving each OS its own NoCOW Btrfs swap file inside its own LUKS root, plus zram for everyday compressed swap, exactly the <a href="../2026-05-17-arch-luks-btrfs/#chapter-7-the-hibernation-swap-file">Article 03 pattern</a>, applied twice. There’s no shared swap partition at all: zram handles ~all everyday memory pressure on either OS, and hibernation never has to share state across the boundary.</li>
 <li><strong>UID/GID coordination for the shared partition.</strong> If <code>user</code> is UID 1000 on Arch and UID 1001 on Ubuntu, every file on <code>/data</code> looks like it belongs to a different user depending on which OS you booted into. We pin UID 1000 on both sides during user creation.</li>
@@ -700,7 +700,7 @@ Confirm what disk you’re about to wipe
 <td>Btrfs (inside LUKS2)</td>
 <td>LUKS2</td>
 <td><code>/</code></td>
-<td><strong>Ubuntu</strong> root, passphrase-unlocked (installer)</td>
+<td><strong>Ubuntu</strong> root, passphrase-unlocked</td>
 </tr>
 </tbody>
 </table>
@@ -802,7 +802,7 @@ Why two separate LUKS containers instead of one shared LUKS with LVM inside
 </section>
 <section id="chapter-2-format-the-two-arch-side-luks-containers" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-2-format-the-two-arch-side-luks-containers">Chapter 2: Format the two Arch-side LUKS containers</h2>
-<p>We format two LUKS containers now (p2 = shared data, p3 = Arch root) and leave p4 for Ubuntu’s installer to format later. The reason: Ubuntu’s “Custom layout” installer can unlock an existing LUKS2 container, but it’s far more reliable to let it format the target partition itself, that way Ubuntu owns the container’s metadata, keyslot policy, and <code>crypttab</code> UUID, with no inherited state from us.</p>
+<p>We format two LUKS containers now (p2 = shared data, p3 = Arch root) and leave p4 untouched for Ubuntu. We LUKS-format p4 by hand during the manual Ubuntu install in Part 4: 24.04’s installer can’t encrypt a partition you hand it, so we drive <code>cryptsetup</code> ourselves there, giving Ubuntu’s root its own container, keyslots, and <code>crypttab</code> UUID, fully separate from Arch’s.</p>
 <p>LUKS2 is the modern default in <code>cryptsetup</code>; there is no good reason to force LUKS1 in 2026.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> luksFormat <span class="at">--type</span> luks2 /dev/nvme0n1p2   <span class="co"># shared data</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> luksFormat <span class="at">--type</span> luks2 /dev/nvme0n1p3   <span class="co"># Arch root</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -829,7 +829,7 @@ Use different passphrases, or use the same one carefully
 <p>Now unlock both to their canonical mapper names:</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> open /dev/nvme0n1p2 crypt_shared</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> open /dev/nvme0n1p3 crypt_arch</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The mapper names matter, they’re the contract between this step, the kernel cmdline, <code>/etc/crypttab</code>, and <code>/etc/fstab</code>. Pick a naming convention and stick with it. I’m using <code>crypt_arch</code> for the Arch root and <code>crypt_shared</code> for the data partition (Article 03 calls the Arch root <code>cryptroot</code>; here it becomes <code>crypt_arch</code> so the name itself says <em>which</em> OS’s root it is, now that more than one is in play). Ubuntu’s root is the third piece of the scheme, conceptually <code>crypt_ubuntu</code>, but you don’t get to pick it the same way: Ubuntu’s guided installer auto-names the mapper after its partition, typically <code>crypt_ubuntu</code>, and that’s the name that ends up in Ubuntu’s own <code>/etc/crypttab</code> and <code>resume=</code> line. We use that installer name verbatim later in the article rather than fight it.</p>
+<p>The mapper names matter, they’re the contract between this step, the kernel cmdline, <code>/etc/crypttab</code>, and <code>/etc/fstab</code>. Pick a naming convention and stick with it. I’m using <code>crypt_arch</code> for the Arch root and <code>crypt_shared</code> for the data partition (Article 03 calls the Arch root <code>cryptroot</code>; here it becomes <code>crypt_arch</code> so the name itself says <em>which</em> OS’s root it is, now that more than one is in play). Ubuntu’s root is the third piece of the scheme: <code>crypt_ubuntu</code>. Because we install Ubuntu by hand later in this article (24.04’s installer can’t encrypt a partition you hand it), its mapper name is ours to choose too, so we <code>cryptsetup open</code> it as <code>crypt_ubuntu</code>, exactly parallel to Arch’s <code>crypt_arch</code>. That’s the name that goes into Ubuntu’s own <code>/etc/crypttab</code> and <code>resume=</code> line.</p>
 <p>Format the inside of each container:</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.fat</span> <span class="at">-F32</span> /dev/nvme0n1p1                  <span class="co"># ESP — outside LUKS, must stay unencrypted so GRUB can read it</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> shared /dev/mapper/crypt_shared</span>
@@ -980,7 +980,7 @@ Sanity-check the generated fstab
 <h1>Part 2 — Inside the chroot</h1>
 <section id="chapter-6-locale-time-hostname-user-with-a-pinned-uid" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-6-locale-time-hostname-user-with-a-pinned-uid">Chapter 6: Locale, time, hostname, user, with a pinned UID</h2>
-<p>Identical to <a href="../2026-05-17-arch-luks-btrfs/#chapter-6-locale-time-hostname-user">Article 03’s Chapter 6</a> except for <strong>one</strong> dual-boot-specific change: we pin the user’s UID and GID to <code>1000</code> explicitly. Ubuntu’s installer assigns the first regular user UID 1000 by default, so if we also pin to 1000 here, files on <code>/data</code> will be owned by the same user-as-the-kernel-sees-it on both sides.</p>
+<p>Identical to <a href="../2026-05-17-arch-luks-btrfs/#chapter-6-locale-time-hostname-user">Article 03’s Chapter 6</a> except for <strong>one</strong> dual-boot-specific change: we pin the user’s UID and GID to <code>1000</code> explicitly. We pin the Ubuntu user to 1000 the same way later (<code>useradd -u 1000 -g 1000</code>), so files on <code>/data</code> are owned by the same user-as-the-kernel-sees-it on both OSes. 1000 is the conventional first-user ID on both distros, but we set it by hand rather than assume it.</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Editor + EDITOR var</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/bin/nvim /usr/local/bin/vi</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'export EDITOR=nvim'</span> <span class="op">&gt;&gt;</span> /etc/profile</span>
@@ -1361,7 +1361,7 @@ Click to expand: every parameter
 <p>Install the bootloader and generate the GRUB config:</p>
 <div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The <code>grub-install --bootloader-id=GRUB</code> writes a <code>GRUB</code> entry to the EFI NVRAM and copies the GRUB binaries to <code>/boot/EFI/GRUB/</code>. When Ubuntu’s installer runs <code>grub-install</code> later, it writes a separate <code>Ubuntu</code> NVRAM entry and copies its own binaries to <code>/boot/EFI/Ubuntu/</code>. The ESP holds <strong>both</strong> sets simultaneously, firmware decides which to chainload based on NVRAM boot-order.</p>
+<p>The <code>grub-install --bootloader-id=GRUB</code> writes a <code>GRUB</code> entry to the EFI NVRAM and copies the GRUB binaries to <code>/boot/EFI/GRUB/</code>. When you run Ubuntu’s <code>grub-install</code> later (inside the manual install’s chroot), it writes a separate <code>Ubuntu</code> NVRAM entry and copies its own binaries to <code>/boot/EFI/Ubuntu/</code>. The ESP holds <strong>both</strong> sets simultaneously, firmware decides which to chainload based on NVRAM boot-order.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1530,10 +1530,10 @@ Ubuntu will overwrite the EFI NVRAM <code>BootOrder</code>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>When Ubuntu’s installer runs <code>grub-install</code>, it writes an <code>Ubuntu</code> entry to NVRAM and <strong>adjusts the boot order so Ubuntu’s GRUB is tried first</strong>. That’s fine — Ubuntu’s GRUB, with <code>os-prober</code> enabled, picks up Arch automatically and shows both in its menu. But if you’d rather Arch’s GRUB own the menu, you’ll restore the order with <code>efibootmgr</code> in Part 6.</p>
+<p>When you run Ubuntu’s <code>grub-install</code>, it writes an <code>Ubuntu</code> entry to NVRAM and <strong>adjusts the boot order so Ubuntu’s GRUB is tried first</strong>. That’s fine — Ubuntu’s GRUB, with <code>os-prober</code> enabled, picks up Arch automatically and shows both in its menu. But if you’d rather Arch’s GRUB own the menu, you’ll restore the order with <code>efibootmgr</code> in Part 6.</p>
 <p>If you want to be safe before continuing, dump the current NVRAM state so you can compare later:</p>
 <div class="sourceCode" id="cb57"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span> <span class="at">-v</span> <span class="op">&gt;</span> ~/efi-before-ubuntu.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Run that from the <em>Arch</em> side, before booting the Ubuntu installer.</p>
+<p>Run that from the <em>Arch</em> side, before booting the Ubuntu live USB.</p>
 </div>
 </div>
 <section id="install-ubuntu-by-hand-from-the-live-session" class="level3">
@@ -1605,18 +1605,46 @@ Ubuntu will overwrite the EFI NVRAM <code>BootOrder</code>
 <span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"GRUB_DISABLE_OS_PROBER=false"</span> <span class="op">&gt;&gt;</span> /etc/default/grub   <span class="co"># 24.04 disables os-prober by default</span></span>
 <span id="cb64-14"><a href="#cb64-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-15"><a href="#cb64-15" aria-hidden="true" tabindex="-1"></a><span class="ex">update-initramfs</span> <span class="at">-u</span> <span class="at">-k</span> all</span>
-<span id="cb64-16"><a href="#cb64-16" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot/efi <span class="at">--bootloader-id</span><span class="op">=</span>Ubuntu <span class="at">--recheck</span></span>
-<span id="cb64-17"><a href="#cb64-17" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span>                                          <span class="co"># os-prober finds Arch on p3</span></span>
-<span id="cb64-18"><a href="#cb64-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-19"><a href="#cb64-19" aria-hidden="true" tabindex="-1"></a><span class="co"># locale, timezone, a hostname distinct from Arch's</span></span>
-<span id="cb64-20"><a href="#cb64-20" aria-hidden="true" tabindex="-1"></a><span class="ex">locale-gen</span> en_US.UTF-8 <span class="kw">&amp;&amp;</span> <span class="ex">update-locale</span> LANG=en_US.UTF-8</span>
-<span id="cb64-21"><a href="#cb64-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/<span class="op">&lt;</span>TIMEZONE<span class="op">&gt;</span> /etc/localtime <span class="kw">&amp;&amp;</span> <span class="bu">echo</span> <span class="st">"&lt;HOSTNAME&gt;"</span> <span class="op">&gt;</span> /etc/hostname    <span class="co"># e.g. ubuntu</span></span>
-<span id="cb64-22"><a href="#cb64-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-23"><a href="#cb64-23" aria-hidden="true" tabindex="-1"></a><span class="co"># the UID-1000 user — same NAME and UID as Arch, for /data ownership parity</span></span>
-<span id="cb64-24"><a href="#cb64-24" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span><span class="kw">;</span> <span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-s</span> /bin/bash <span class="at">-G</span> sudo,adm,cdrom,dip,plugdev <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
-<span id="cb64-25"><a href="#cb64-25" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
-<span id="cb64-26"><a href="#cb64-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-27"><a href="#cb64-27" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-desktop-minimal               <span class="co"># the graphical layer (skip for a server box)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb64-16"><a href="#cb64-16" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot/efi <span class="at">--bootloader-id</span><span class="op">=</span>Ubuntu <span class="at">--recheck</span> <span class="dt">\</span></span>
+<span id="cb64-17"><a href="#cb64-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">--modules</span><span class="op">=</span><span class="st">"part_gpt cryptodisk luks2 btrfs gcry_rijndael gcry_sha256 pbkdf2"</span></span>
+<span id="cb64-18"><a href="#cb64-18" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span>                                          <span class="co"># os-prober finds Arch on p3</span></span>
+<span id="cb64-19"><a href="#cb64-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-20"><a href="#cb64-20" aria-hidden="true" tabindex="-1"></a><span class="co"># locale, timezone, a hostname distinct from Arch's</span></span>
+<span id="cb64-21"><a href="#cb64-21" aria-hidden="true" tabindex="-1"></a><span class="ex">locale-gen</span> en_US.UTF-8 <span class="kw">&amp;&amp;</span> <span class="ex">update-locale</span> LANG=en_US.UTF-8</span>
+<span id="cb64-22"><a href="#cb64-22" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/<span class="op">&lt;</span>TIMEZONE<span class="op">&gt;</span> /etc/localtime <span class="kw">&amp;&amp;</span> <span class="bu">echo</span> <span class="st">"&lt;HOSTNAME&gt;"</span> <span class="op">&gt;</span> /etc/hostname    <span class="co"># e.g. ubuntu</span></span>
+<span id="cb64-23"><a href="#cb64-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-24"><a href="#cb64-24" aria-hidden="true" tabindex="-1"></a><span class="co"># the UID-1000 user — same NAME and UID as Arch, for /data ownership parity</span></span>
+<span id="cb64-25"><a href="#cb64-25" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span><span class="kw">;</span> <span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-s</span> /bin/bash <span class="at">-G</span> sudo,adm,cdrom,dip,plugdev <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb64-26"><a href="#cb64-26" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb64-27"><a href="#cb64-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-28"><a href="#cb64-28" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-desktop-minimal               <span class="co"># the graphical layer (skip for a server box)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+The <code>--modules=</code> list is the load-bearing part of this whole step
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is the single line that, if you get it wrong, lands you at a bare <code>grub&gt;</code> prompt on the <em>next</em> boot with no menu and no obvious cause. Here’s the mechanism: a plain <code>grub-install</code> writes an EFI core image (<code>/boot/efi/EFI/Ubuntu/grubx64.efi</code>) containing only the modules GRUB <em>thinks</em> it needs based on where its own <code>grub.cfg</code> lives. But our <code>grub.cfg</code> is on the <strong>encrypted</strong> <code>/boot</code>, which GRUB can’t read until it has already loaded <code>cryptodisk</code> + <code>luks2</code> + the cipher modules (<code>gcry_rijndael</code>, <code>gcry_sha256</code>) + <code>pbkdf2</code> + the <code>btrfs</code> driver. That’s a chicken-and-egg: the modules needed to <em>find</em> the config can’t be loaded <em>from</em> the config. <code>--modules="…"</code> breaks the cycle by <strong>baking those modules directly into the core image</strong>, so they’re present before GRUB looks for anything on disk.</p>
+<p>Skip <code>--modules</code> (or let a paste split the line so it runs without the flag) and <code>grub-install</code> still prints <code>Installation finished. No error reported.</code> — it’s the textbook false-success. The damage only shows at the next boot. If you land there, the <a href="#emergency-failure-modes">🚨 emergency section</a> walks you back out from the <code>grub&gt;</code> prompt and makes the fix permanent.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Watch the paste: keep <code>grub-install</code> on one logical line
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <code>grub-install … --modules="…"</code> command is long enough that a terminal will visually wrap it, and if you paste into a console that submits on every newline, the <code>--modules="…"</code> half can run as a <em>separate</em> command — leaving the actual <code>grub-install</code> to run <strong>without</strong> the flag (the exact false-success above). The <code>\</code> line-continuation in the snippet keeps it one command; if you’re hand-typing, type it as a single unbroken line, or set <code>M="part_gpt cryptodisk luks2 btrfs gcry_rijndael gcry_sha256 pbkdf2"</code> first and pass <code>--modules="$M"</code> so the long part is a short variable.</p>
+</div>
+</div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1632,12 +1660,28 @@ Why two passphrase prompts, and how to get back to one
 <div class="sourceCode" id="cb65"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /etc/cryptsetup-keys.d <span class="kw">&amp;&amp;</span> <span class="fu">chmod</span> 700 /etc/cryptsetup-keys.d</span>
 <span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dd</span> if=/dev/urandom of=/etc/cryptsetup-keys.d/root.key bs=512 count=4</span>
 <span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> 0400 /etc/cryptsetup-keys.d/root.key</span>
-<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> luksAddKey /dev/nvme0n1p4 /etc/cryptsetup-keys.d/root.key   <span class="co"># type the passphrase once</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> luksAddKey <span class="at">--pbkdf</span> pbkdf2 /dev/nvme0n1p4 /etc/cryptsetup-keys.d/root.key   <span class="co"># type the passphrase once</span></span>
 <span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s# none luks,discard# /etc/cryptsetup-keys.d/root.key luks,discard#'</span> /etc/crypttab</span>
 <span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'KEYFILE_PATTERN="/etc/cryptsetup-keys.d/*.key"'</span> <span class="op">&gt;&gt;</span> /etc/cryptsetup-initramfs/conf-hook</span>
 <span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'UMASK=0077'</span> <span class="op">&gt;&gt;</span> /etc/initramfs-tools/initramfs.conf</span>
 <span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a><span class="ex">update-initramfs</span> <span class="at">-u</span> <span class="at">-k</span> all</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Now GRUB still prompts once to reach the kernel, and the initramfs unlocks silently with the embedded key. (Argon2-capable GRUB 2.14+ can eventually retire the PBKDF2 dance, but it isn’t in 24.04 yet.)</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+The <code>--pbkdf pbkdf2</code> on <code>luksAddKey</code> is not optional here
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is subtle and it <em>will</em> break your boot if you drop it. You formatted <code>p4</code> with <code>--pbkdf pbkdf2</code> back in step 1, so keyslot 0 (your passphrase) is GRUB-readable. But <code>luksAddKey</code> <strong>ignores that</strong> and derives each <em>new</em> keyslot with cryptsetup’s own default, <strong>Argon2id</strong> — a memory-hard KDF GRUB 2.12 cannot process. The poison is worse than “GRUB can’t use that slot”: a single Argon2id keyslot anywhere on the device makes GRUB reject the <strong>entire</strong> container with <code>error: no cryptodisk module can handle this device</code>, so even your good PBKDF2 passphrase slot becomes unreachable and you’re back at <code>grub&gt;</code>. Forcing <code>--pbkdf pbkdf2</code> keeps keyslot 1 PBKDF2 too, so the whole header stays GRUB-friendly.</p>
+<p>Verify <em>before you reboot</em> that no slot is Argon2id:</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> luksDump /dev/nvme0n1p4 <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">'Keyslot|PBKDF:'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Every <code>PBKDF:</code> line must read <code>pbkdf2</code>. If you see <code>argon2id</code> on any keyslot, find its number in the dump and remove it — <code>cryptsetup luksKillSlot /dev/nvme0n1p4 &lt;N&gt;</code> — then re-add it with <code>--pbkdf pbkdf2</code>. Never kill the slot that holds your only passphrase.</p>
+</div>
+</div>
 </div>
 </div>
 <p><strong>Don’t exit the chroot yet</strong> — Chapter 14 copies the shared <code>/data</code> keyfile and writes its <code>crypttab</code>/<code>fstab</code> while you’re still inside it.</p>
@@ -1657,73 +1701,83 @@ First: prove you’re actually <em>in</em> the chroot
 </div>
 <div class="callout-body-container callout-body">
 <p>The live session and the chroot <strong>both</strong> show a <code>root@…:~#</code> prompt, indistinguishable by eye, and running this chapter in the live session by mistake writes to throwaway RAM (you’ll see <code>update-initramfs … read-only media</code> and <code>grub-probe: … '/cow'</code> later as the tell). Confirm before touching anything:</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> <span class="at">-n</span> <span class="at">-o</span> SOURCE /          <span class="co"># MUST print /dev/mapper/crypt_ubuntu</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> <span class="at">-n</span> <span class="at">-o</span> SOURCE /          <span class="co"># MUST print /dev/mapper/crypt_ubuntu</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>If it prints <code>overlay</code>, <code>/cow</code>, or a <code>/dev/loop…</code>, you’re in the live session, re-enter the chroot first:</p>
-<div class="sourceCode" id="cb67"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> dev dev/pts proc sys run<span class="kw">;</span> <span class="cf">do</span> <span class="ex">mountpoint</span> <span class="at">-q</span> /mnt/<span class="va">$d</span> <span class="kw">||</span> <span class="fu">mount</span> <span class="at">--rbind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span><span class="kw">;</span> <span class="cf">done</span></span>
-<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> /etc/resolv.conf /mnt/etc/resolv.conf</span>
-<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a><span class="fu">chroot</span> /mnt /bin/bash</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> dev dev/pts proc sys run<span class="kw">;</span> <span class="cf">do</span> <span class="ex">mountpoint</span> <span class="at">-q</span> /mnt/<span class="va">$d</span> <span class="kw">||</span> <span class="fu">mount</span> <span class="at">--rbind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span><span class="kw">;</span> <span class="cf">done</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> /etc/resolv.conf /mnt/etc/resolv.conf</span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a><span class="fu">chroot</span> /mnt /bin/bash</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>If the <code>cryptsetup open</code> below ever errors with <em>“Error reading passphrase from terminal”</em> (a chroot-over-SSH TTY quirk), run just that unlock + <code>cp</code> from the <strong>live session</strong>, copying into <code>/mnt/etc/cryptsetup-keys.d/</code>, then return to the chroot for the rest.</p>
 </div>
 </div>
 <p>Inside that chroot, mount the still-unlocked Arch root just long enough to copy the keyfile:</p>
-<div class="sourceCode" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> open /dev/nvme0n1p3 archroot_tmp</span>
-<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt2 <span class="kw">&amp;&amp;</span> <span class="fu">mount</span> <span class="at">-o</span> subvol=@ /dev/mapper/archroot_tmp /mnt2</span>
-<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /etc/cryptsetup-keys.d <span class="kw">&amp;&amp;</span> <span class="fu">chmod</span> 700 /etc/cryptsetup-keys.d</span>
-<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> /mnt2/etc/cryptsetup-keys.d/shared.key /etc/cryptsetup-keys.d/</span>
-<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> 0400 /etc/cryptsetup-keys.d/shared.key</span>
-<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> /mnt2</span>
-<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> close archroot_tmp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> open /dev/nvme0n1p3 archroot_tmp</span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt2 <span class="kw">&amp;&amp;</span> <span class="fu">mount</span> <span class="at">-o</span> subvol=@ /dev/mapper/archroot_tmp /mnt2</span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /etc/cryptsetup-keys.d <span class="kw">&amp;&amp;</span> <span class="fu">chmod</span> 700 /etc/cryptsetup-keys.d</span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> /mnt2/etc/cryptsetup-keys.d/shared.key /etc/cryptsetup-keys.d/</span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> 0400 /etc/cryptsetup-keys.d/shared.key</span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> /mnt2</span>
+<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> close archroot_tmp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The keyfile is now on the <em>Ubuntu</em> encrypted root with the same bytes as the <em>Arch</em> copy. Either OS’s copy unlocks the same shared LUKS container.</p>
 <p>Now append Ubuntu’s <code>/etc/crypttab</code> entry for the shared partition (Ubuntu uses the same format as Arch, parsed by the same <code>systemd-cryptsetup-generator</code>):</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="va">SHARED_UUID</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p2<span class="va">)</span></span>
-<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"crypt_shared UUID=</span><span class="va">${SHARED_UUID}</span><span class="st"> /etc/cryptsetup-keys.d/shared.key luks,nofail"</span> <span class="op">&gt;&gt;</span> /etc/crypttab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb70"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="va">SHARED_UUID</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p2<span class="va">)</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"crypt_shared UUID=</span><span class="va">${SHARED_UUID}</span><span class="st"> /etc/cryptsetup-keys.d/shared.key luks,nofail"</span> <span class="op">&gt;&gt;</span> /etc/crypttab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>You already added the <strong>root</strong> unlock line (<code>crypt_ubuntu …</code>) to <code>/etc/crypttab</code> in Part 4, just append this <strong>shared-partition</strong> line below it. The <code>nofail</code> here matters for exactly the same reason as on the Arch side: a shared-partition unlock failure should never keep <em>Ubuntu</em> from booting.</p>
 <p>Add the corresponding <code>/etc/fstab</code> line, also <code>nofail</code>, also with a short device timeout:</p>
-<div class="sourceCode" id="cb70"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"/dev/mapper/crypt_shared /data btrfs rw,noatime,compress=zstd:3,subvol=@data,nofail,x-systemd.device-timeout=10s 0 0"</span> <span class="op">&gt;&gt;</span> /etc/fstab</span>
-<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb71"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"/dev/mapper/crypt_shared /data btrfs rw,noatime,compress=zstd:3,subvol=@data,nofail,x-systemd.device-timeout=10s 0 0"</span> <span class="op">&gt;&gt;</span> /etc/fstab</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Rebuild Ubuntu’s initramfs and GRUB so the new <code>/etc/crypttab</code> is picked up:</p>
-<div class="sourceCode" id="cb71"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="ex">update-initramfs</span> <span class="at">-u</span> <span class="at">-k</span> all</span>
-<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb72"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="ex">update-initramfs</span> <span class="at">-u</span> <span class="at">-k</span> all</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><code>update-initramfs -u</code> regenerates the initramfs for every installed kernel; <code>update-grub</code> regenerates <code>grub.cfg</code> (and runs <code>os-prober</code>, picking up Arch).</p>
-<p>Exit the chroot and unmount cleanly:</p>
-<div class="sourceCode" id="cb72"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
-<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> run sys proc dev/pts dev<span class="kw">;</span> <span class="cf">do</span> <span class="fu">umount</span> <span class="at">-R</span> /mnt/<span class="va">$d</span> <span class="dv">2</span><span class="op">&gt;</span>/dev/null<span class="kw">;</span> <span class="cf">done</span></span>
-<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> /mnt/home /mnt/boot/efi /mnt</span>
-<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> close crypt_ubuntu</span>
-<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Pull the Ubuntu USB as the laptop restarts.</p>
+<p>Exit the chroot, then just reboot. Everything you needed is already written to disk; <code>reboot</code> flushes buffers and force-unmounts on its way down, which sidesteps a trap that bites here:</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sync</span></span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why we <code>reboot</code> instead of unmounting by hand
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The tidy-looking <code>umount -R /mnt/run …; cryptsetup close crypt_ubuntu</code> sequence tends to fail with <code>target is busy</code>. The cause is the <code>mount --rbind /run /mnt/run</code> we did entering the chroot: <code>--rbind</code> is <em>recursive</em>, so it pulled <code>/run/user/0</code> and the live session’s snap mount namespaces in under <code>/mnt/run</code>, and those keep the mount busy no matter how many times you retry <code>umount</code>. Chasing them down is pure ceremony, the config files are already on disk. <code>sync</code> flushes the write cache, <code>reboot</code> tears down every mount the hard way (including the busy ones) and closes the LUKS mappings as the kernel shuts down. Pull the Ubuntu USB as the laptop restarts.</p>
+</div>
+</div>
 <hr>
 </section>
 <section id="chapter-15-add-the-hibernation-swap-file-on-ubuntu" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-15-add-the-hibernation-swap-file-on-ubuntu">Chapter 15: Add the hibernation swap file on Ubuntu</h2>
-<p>Ubuntu’s installer doesn’t create a hibernation swap file by default. We mirror Arch’s Chapter 9 from inside the running Ubuntu system.</p>
+<p>A from-scratch Ubuntu install has no hibernation swap file. We mirror Arch’s Chapter 9 from inside the running Ubuntu system.</p>
 <p>After the reboot, pick <strong>Ubuntu</strong> from the GRUB menu (or <code>Arch Linux</code> to flip back if you want to compare; we’ll boot Ubuntu first to finish its config).</p>
 <p>Log in as <code>user</code>. Open a terminal:</p>
-<div class="sourceCode" id="cb73"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the Btrfs filesystem mounted at / — should be /dev/mapper/crypt_ubuntu</span></span>
-<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /</span>
-<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the swap subvolume (Ubuntu's installer doesn't ship one)</span></span>
-<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs subvolume create /swap</span>
-<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Make a NoCOW swap file — same size logic as Arch (≥ RAM)</span></span>
-<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs filesystem mkswapfile <span class="at">--size</span> 36g <span class="at">--uuid</span> clear /swap/swapfile</span>
-<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb73-10"><a href="#cb73-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Persist in fstab</span></span>
-<span id="cb73-11"><a href="#cb73-11" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'/swap/swapfile none swap defaults,pri=-2 0 0'</span> <span class="kw">|</span> <span class="fu">sudo</span> tee <span class="at">-a</span> /etc/fstab</span>
-<span id="cb73-12"><a href="#cb73-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb73-13"><a href="#cb73-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the resume offset for the cmdline</span></span>
-<span id="cb73-14"><a href="#cb73-14" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile</span>
-<span id="cb73-15"><a href="#cb73-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the integer — Ubuntu calls it RESUME_OFFSET too.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb74"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the Btrfs filesystem mounted at / — should be /dev/mapper/crypt_ubuntu</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the swap subvolume (a manual install doesn't ship one)</span></span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs subvolume create /swap</span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Make a NoCOW swap file — same size logic as Arch (≥ RAM)</span></span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs filesystem mkswapfile <span class="at">--size</span> 36g <span class="at">--uuid</span> clear /swap/swapfile</span>
+<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Persist in fstab</span></span>
+<span id="cb74-11"><a href="#cb74-11" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'/swap/swapfile none swap defaults,pri=-2 0 0'</span> <span class="kw">|</span> <span class="fu">sudo</span> tee <span class="at">-a</span> /etc/fstab</span>
+<span id="cb74-12"><a href="#cb74-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-13"><a href="#cb74-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the resume offset for the cmdline</span></span>
+<span id="cb74-14"><a href="#cb74-14" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile</span>
+<span id="cb74-15"><a href="#cb74-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the integer — Ubuntu calls it RESUME_OFFSET too.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Edit <code>/etc/default/grub</code>. Ubuntu’s <code>GRUB_CMDLINE_LINUX_DEFAULT</code> typically reads <code>quiet splash</code>. Add the <code>resume=</code> and <code>resume_offset=</code> parameters, using the <em>Ubuntu root LUKS partition’s</em> UUID (not Arch’s), the mapper name Ubuntu uses (<code>crypt_ubuntu</code>), and the offset from the previous step:</p>
-<div class="sourceCode" id="cb74"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> blkid <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p4     <span class="co"># save this as &lt;UBUNTU_LUKS_UUID&gt;</span></span>
-<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="ex">sudoedit</span> /etc/default/grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb75"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> blkid <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p4     <span class="co"># save this as &lt;UBUNTU_LUKS_UUID&gt;</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a><span class="ex">sudoedit</span> /etc/default/grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Set:</p>
 <pre class="text"><code>GRUB_CMDLINE_LINUX_DEFAULT="quiet splash resume=/dev/mapper/crypt_ubuntu resume_offset=&lt;UBUNTU_RESUME_OFFSET&gt;"</code></pre>
 <p>Tell Ubuntu’s initramfs builder about the hibernation device:</p>
-<div class="sourceCode" id="cb76"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"RESUME=/dev/mapper/crypt_ubuntu"</span> <span class="kw">|</span> <span class="fu">sudo</span> tee /etc/initramfs-tools/conf.d/resume</span>
-<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-initramfs <span class="at">-u</span> <span class="at">-k</span> all</span>
-<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb77"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"RESUME=/dev/mapper/crypt_ubuntu"</span> <span class="kw">|</span> <span class="fu">sudo</span> tee /etc/initramfs-tools/conf.d/resume</span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-initramfs <span class="at">-u</span> <span class="at">-k</span> all</span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1738,12 +1792,12 @@ Why the explicit <code>/etc/initramfs-tools/conf.d/resume</code> file
 </div>
 </div>
 <p>Confirm Ubuntu sees the shared partition and its own swap correctly:</p>
-<div class="sourceCode" id="cb77"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data                 <span class="co"># /dev/mapper/crypt_shared, subvol=@data</span></span>
-<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                 <span class="co"># zram (recent Ubuntu sets it up automatically) + /swap/swapfile</span></span>
-<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status crypt_shared</span>
-<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                   <span class="co"># files written from Arch should appear, owned by user</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb78"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data                 <span class="co"># /dev/mapper/crypt_shared, subvol=@data</span></span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                 <span class="co"># zram (recent Ubuntu sets it up automatically) + /swap/swapfile</span></span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status crypt_shared</span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                   <span class="co"># files written from Arch should appear, owned by user</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Test hibernation:</p>
-<div class="sourceCode" id="cb78"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb79"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Screen goes dark, fans stop. Press the power button to resume. You should see: GRUB menu → kernel/initramfs → Ubuntu LUKS passphrase prompt → resume completes, exact same desktop state as before.</p>
 <p>If hibernation resumes into a fresh boot instead, re-check <code>RESUME=</code> in <code>/etc/initramfs-tools/conf.d/resume</code> and re-run <code>sudo update-initramfs -u -k all &amp;&amp; sudo update-grub</code>.</p>
 <hr>
@@ -1753,16 +1807,16 @@ Why the explicit <code>/etc/initramfs-tools/conf.d/resume</code> file
 <h1>Part 5 — Finalize the GRUB menu from Arch</h1>
 <p>Reboot, pick <strong>Arch Linux</strong> in the GRUB menu (Ubuntu’s GRUB, with <code>os-prober</code>, knows about Arch, that entry chainloads Arch’s GRUB, which boots Arch).</p>
 <p>Once logged in to Arch, re-run <code>grub-mkconfig</code> from the Arch side now that Ubuntu exists:</p>
-<div class="sourceCode" id="cb79"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> grub-mkconfig <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb80"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> grub-mkconfig <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>You should see <code>os-prober</code> output like:</p>
 <pre class="text"><code>Found Ubuntu 24.04 LTS (24.04) on /dev/nvme0n1p4</code></pre>
 <p>…and <code>grub.cfg</code> will now contain entries for Arch <em>and</em> Ubuntu. Either GRUB (Arch’s or Ubuntu’s) can boot either OS, you have two parallel menus, both functional.</p>
 <section id="optional-choose-which-grub-owns-the-menu-via-nvram-order" class="level3">
 <h3 class="anchored" data-anchor-id="optional-choose-which-grub-owns-the-menu-via-nvram-order">Optional: choose which GRUB owns the menu via NVRAM order</h3>
 <p>If you’d rather Arch’s GRUB be the primary (so the menu’s color scheme, default selection, and timeout match what we configured in Chapter 12 rather than Ubuntu’s defaults):</p>
-<div class="sourceCode" id="cb81"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span>                                 <span class="co"># list current EFI entries</span></span>
-<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the BootNNNN number for "GRUB" (Arch) and for "Ubuntu", and the BootOrder line.</span></span>
-<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> GRUB_NUM,UBUNTU_NUM     <span class="co"># substitute the BootNNNN numbers, comma-separated</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb82"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span>                                 <span class="co"># list current EFI entries</span></span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the BootNNNN number for "GRUB" (Arch) and for "Ubuntu", and the BootOrder line.</span></span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> GRUB_NUM,UBUNTU_NUM     <span class="co"># substitute the BootNNNN numbers, comma-separated</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This reorders NVRAM so Arch’s GRUB is tried first. Ubuntu’s GRUB remains installed and reachable (as a backup, or to be made primary again by re-flipping the order).</p>
 <p>If you’d rather Ubuntu’s GRUB stay primary (it’s perfectly capable, and <code>update-grub</code> runs on Ubuntu kernel updates automatically, slightly less manual): leave NVRAM alone. The choice is cosmetic + ergonomic, not functional.</p>
 <hr>
@@ -1773,28 +1827,28 @@ Why the explicit <code>/etc/initramfs-tools/conf.d/resume</code> file
 <p>Before treating the dual-boot as “done”:</p>
 <section id="from-arch" class="level3">
 <h3 class="anchored" data-anchor-id="from-arch">From Arch</h3>
-<div class="sourceCode" id="cb82"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /                       <span class="co"># subvol=/@, on crypt_arch</span></span>
-<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /home                   <span class="co"># subvol=/@home</span></span>
-<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data                   <span class="co"># subvol=/@data, on crypt_shared</span></span>
-<span id="cb82-4"><a href="#cb82-4" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                   <span class="co"># zram0 (pri 100) + /swap/swapfile (pri -2)</span></span>
-<span id="cb82-5"><a href="#cb82-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status crypt_arch     <span class="co"># active LUKS2</span></span>
-<span id="cb82-6"><a href="#cb82-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status crypt_shared   <span class="co"># active LUKS2</span></span>
-<span id="cb82-7"><a href="#cb82-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root list       <span class="co"># at least one snapshot</span></span>
-<span id="cb82-8"><a href="#cb82-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate        <span class="co"># works, resumes into Arch</span></span>
-<span id="cb82-9"><a href="#cb82-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                     <span class="co"># files from Arch + files written from Ubuntu</span></span>
-<span id="cb82-10"><a href="#cb82-10" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>      <span class="co"># all UIDs/GIDs == 1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb83"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /                       <span class="co"># subvol=/@, on crypt_arch</span></span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /home                   <span class="co"># subvol=/@home</span></span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data                   <span class="co"># subvol=/@data, on crypt_shared</span></span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                   <span class="co"># zram0 (pri 100) + /swap/swapfile (pri -2)</span></span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status crypt_arch     <span class="co"># active LUKS2</span></span>
+<span id="cb83-6"><a href="#cb83-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status crypt_shared   <span class="co"># active LUKS2</span></span>
+<span id="cb83-7"><a href="#cb83-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root list       <span class="co"># at least one snapshot</span></span>
+<span id="cb83-8"><a href="#cb83-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate        <span class="co"># works, resumes into Arch</span></span>
+<span id="cb83-9"><a href="#cb83-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                     <span class="co"># files from Arch + files written from Ubuntu</span></span>
+<span id="cb83-10"><a href="#cb83-10" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>      <span class="co"># all UIDs/GIDs == 1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="from-ubuntu-reboot-pick-ubuntu" class="level3">
 <h3 class="anchored" data-anchor-id="from-ubuntu-reboot-pick-ubuntu">From Ubuntu (reboot, pick Ubuntu)</h3>
-<div class="sourceCode" id="cb83"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /                       <span class="co"># subvol=/@, on crypt_ubuntu</span></span>
-<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /home                   <span class="co"># subvol=/@home</span></span>
-<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data                   <span class="co"># subvol=/@data, on crypt_shared (same UUID as Arch sees)</span></span>
-<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                   <span class="co"># zram + /swap/swapfile (Ubuntu's own, distinct from Arch's)</span></span>
-<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status crypt_ubuntu</span>
-<span id="cb83-6"><a href="#cb83-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status crypt_shared</span>
-<span id="cb83-7"><a href="#cb83-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate        <span class="co"># works, resumes into Ubuntu (separate from Arch's hibernation)</span></span>
-<span id="cb83-8"><a href="#cb83-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                     <span class="co"># same files as Arch sees, owned by user</span></span>
-<span id="cb83-9"><a href="#cb83-9" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>      <span class="co"># all UIDs/GIDs == 1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb84"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /                       <span class="co"># subvol=/@, on crypt_ubuntu</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /home                   <span class="co"># subvol=/@home</span></span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data                   <span class="co"># subvol=/@data, on crypt_shared (same UUID as Arch sees)</span></span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                   <span class="co"># zram + /swap/swapfile (Ubuntu's own, distinct from Arch's)</span></span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status crypt_ubuntu</span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status crypt_shared</span>
+<span id="cb84-7"><a href="#cb84-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate        <span class="co"># works, resumes into Ubuntu (separate from Arch's hibernation)</span></span>
+<span id="cb84-8"><a href="#cb84-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                     <span class="co"># same files as Arch sees, owned by user</span></span>
+<span id="cb84-9"><a href="#cb84-9" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>      <span class="co"># all UIDs/GIDs == 1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>What pass looks like at the system level:</strong> each OS hibernates and resumes into itself without touching the other, both mount <code>/data</code> with identical file ownership, both see exactly two swap devices (zram + their own per-OS swap file), and the GRUB menu lists both OSes regardless of which <code>grub-mkconfig</code>/<code>update-grub</code> regenerated it last.</p>
 <p>If any of these fail, the <a href="#emergency-failure-modes">emergency section</a> below covers the common dual-boot-specific failure modes.</p>
 <hr>
@@ -1813,6 +1867,30 @@ Why the explicit <code>/etc/initramfs-tools/conf.d/resume</code> file
 </div>
 </div>
 </section>
+<section id="you-boot-ubuntu-and-land-at-a-bare-grub-prompt-no-menu" class="level3">
+<h3 class="anchored" data-anchor-id="you-boot-ubuntu-and-land-at-a-bare-grub-prompt-no-menu">0. You boot Ubuntu and land at a bare <code>grub&gt;</code> prompt (no menu)</h3>
+<p>This is the failure the <code>--modules=</code> and <code>--pbkdf pbkdf2</code> fixes in Part 4 exist to prevent, and the one most likely to bite if you installed before those fixes (or a paste split the <code>grub-install</code> line). The symptom is a minimal <code>grub&gt;</code> shell instead of the boot menu: GRUB’s EFI core loaded, but it can’t read its own <code>grub.cfg</code> off the encrypted <code>/boot</code>. There are two root causes, and you can recover from the prompt and then make the fix permanent.</p>
+<p><strong>First, get booted from the <code>grub&gt;</code> prompt by unlocking the disk by hand.</strong> Type these one at a time (GRUB has no copy-paste; if a line wraps, keep typing, don’t press Enter mid-command):</p>
+<pre class="text"><code>grub&gt; cryptomount (hd0,gpt4)
+Enter passphrase for hd0,gpt4 (...): ********
+grub&gt; ls
+grub&gt; configfile (crypto0)/@/boot/grub/grub.cfg</code></pre>
+<ul>
+<li><code>cryptomount (hd0,gpt4)</code> unlocks the Ubuntu root LUKS partition (<code>p4</code> → <code>gpt4</code>); enter the Ubuntu passphrase.</li>
+<li><code>ls</code> confirms the unlocked device appeared as <code>(crypto0)</code>. Use whatever name <code>ls</code> shows if it isn’t <code>crypto0</code>.</li>
+<li><code>configfile (crypto0)/@/boot/grub/grub.cfg</code> loads the real menu (<code>/@</code> is the Btrfs root subvolume). Pick <strong>Ubuntu</strong>, it boots.</li>
+</ul>
+<p>If <code>cryptomount</code> itself errors with <strong><code>no cryptodisk module can handle this device</code></strong>, you have an <strong>Argon2id keyslot</strong> poisoning the header (the <code>--pbkdf pbkdf2</code> bug). You can’t fix that from <code>grub&gt;</code>, boot the <strong>Ubuntu live USB</strong> instead and inspect the slots:</p>
+<div class="sourceCode" id="cb86"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup luksDump /dev/nvme0n1p4 <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">'Keyslot|PBKDF:'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Any <code>PBKDF: argon2id</code> line is the culprit. Note its keyslot number, then remove <strong>only that slot</strong> (never the slot holding your only passphrase) and re-add it with <code>--pbkdf pbkdf2</code>:</p>
+<div class="sourceCode" id="cb87"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup luksKillSlot /dev/nvme0n1p4 <span class="op">&lt;</span>ARGON2_SLOT_NUMBER<span class="op">&gt;</span></span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a><span class="co"># if it was the keyfile slot, re-add PBKDF2-style after booting (see Part 4's single-prompt callout)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Then make the boot permanent from the now-running Ubuntu</strong> (this is where <code>grub-install</code> detects the cryptodisk correctly, far better than it did in the chroot):</p>
+<div class="sourceCode" id="cb88"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> grub-install <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot/efi <span class="at">--bootloader-id</span><span class="op">=</span>Ubuntu <span class="at">--recheck</span> <span class="dt">\</span></span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">--modules</span><span class="op">=</span><span class="st">"part_gpt cryptodisk luks2 btrfs gcry_rijndael gcry_sha256 pbkdf2"</span></span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>That rewrites the EFI core image <em>with</em> the crypto modules embedded. Reboot; you should get the menu (after GRUB’s one passphrase prompt) with no <code>grub&gt;</code> detour. If you’d rather not unlock-by-hand every boot until then, the auto-unlock instruction is what <code>grub-install</code> bakes in here, this single re-run is the fix.</p>
+</section>
 <section id="arch-boots-to-a-login-but-data-doesnt-mount" class="level3">
 <h3 class="anchored" data-anchor-id="arch-boots-to-a-login-but-data-doesnt-mount">1. Arch boots to a login, but <code>/data</code> doesn’t mount</h3>
 <p>Thanks to <code>nofail</code> (Chapter 8) this is the <em>good</em> version of the failure: you reach a normal login instead of emergency mode, and you debug from a comfortable shell. Symptom: <code>findmnt /data</code> prints nothing, and <code>journalctl -b -u systemd-cryptsetup@crypt_shared.service</code> shows <code>Failed to activate with key file …</code>.</p>
@@ -1824,10 +1902,10 @@ Why the explicit <code>/etc/initramfs-tools/conf.d/resume</code> file
 <li>The UUID in <code>/etc/crypttab</code> doesn’t match the partition’s actual LUKS UUID. <code>blkid /dev/nvme0n1p2</code>, compare.</li>
 </ul>
 <p>After fixing the cause, retry without rebooting:</p>
-<div class="sourceCode" id="cb84"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl daemon-reload                                  <span class="co"># re-read /etc/crypttab and /etc/fstab</span></span>
-<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl restart <span class="st">'systemd-cryptsetup@crypt_shared.service'</span></span>
-<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> mount /data                                              <span class="co"># or: sudo systemctl restart data.mount</span></span>
-<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data                                                 <span class="co"># should now show the shared Btrfs filesystem</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb89"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl daemon-reload                                  <span class="co"># re-read /etc/crypttab and /etc/fstab</span></span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl restart <span class="st">'systemd-cryptsetup@crypt_shared.service'</span></span>
+<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> mount /data                                              <span class="co"># or: sudo systemctl restart data.mount</span></span>
+<span id="cb89-4"><a href="#cb89-4" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data                                                 <span class="co"># should now show the shared Btrfs filesystem</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="boot-drops-into-emergency-mode-after-arch-luks-passphrase" class="level3">
 <h3 class="anchored" data-anchor-id="boot-drops-into-emergency-mode-after-arch-luks-passphrase">2. Boot drops into emergency mode after Arch LUKS passphrase</h3>
@@ -1856,21 +1934,12 @@ Why the explicit <code>/etc/initramfs-tools/conf.d/resume</code> file
 </section>
 <section id="file-ownership-on-data-looks-like-1001-from-ubuntu-1000-from-arch" class="level3">
 <h3 class="anchored" data-anchor-id="file-ownership-on-data-looks-like-1001-from-ubuntu-1000-from-arch">5. File ownership on <code>/data</code> looks like <code>1001</code> from Ubuntu, <code>1000</code> from Arch</h3>
-<p>The Ubuntu installer assigned the user UID 1001 because there was already a UID 1000 in some inherited config (rare, but possible). Fix from Ubuntu:</p>
-<div class="sourceCode" id="cb85"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> usermod <span class="at">-u</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
-<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> groupmod <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
-<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find / <span class="at">-uid</span> 1001 <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/proc/*'</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/sys/*'</span> <span class="at">-exec</span> chown 1000 {} +</span>
-<span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find / <span class="at">-gid</span> 1001 <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/proc/*'</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/sys/*'</span> <span class="at">-exec</span> chgrp 1000 {} +</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If the Ubuntu user came out as UID 1001 (you skipped <code>-u 1000</code> on the <code>useradd</code>, or a UID 1000 already existed), fix it from Ubuntu:</p>
+<div class="sourceCode" id="cb90"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> usermod <span class="at">-u</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> groupmod <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb90-3"><a href="#cb90-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find / <span class="at">-uid</span> 1001 <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/proc/*'</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/sys/*'</span> <span class="at">-exec</span> chown 1000 {} +</span>
+<span id="cb90-4"><a href="#cb90-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find / <span class="at">-gid</span> 1001 <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/proc/*'</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/sys/*'</span> <span class="at">-exec</span> chgrp 1000 {} +</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Reboot Ubuntu. Now <code>id user</code> prints <code>uid=1000(user) gid=1000(user)</code>.</p>
-</section>
-<section id="ubuntu-installer-cant-see-the-arch-esp" class="level3">
-<h3 class="anchored" data-anchor-id="ubuntu-installer-cant-see-the-arch-esp">6. Ubuntu installer can’t see the Arch ESP</h3>
-<p>Symptom: when you select <code>/dev/nvme0n1p1</code> in the installer, “Use as: EFI System Partition” is greyed out, or the installer wants to format it.</p>
-<p>Workaround: pre-mount it from the live ISO’s terminal before re-launching the installer:</p>
-<div class="sourceCode" id="cb86"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> mount /dev/nvme0n1p1 /mnt</span>
-<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> /mnt/EFI                 <span class="co"># should see GRUB/ from Arch's grub-install</span></span>
-<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> umount /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Then re-launch the installer, the partition type recognition usually settles after a clean mount-cycle.</p>
 <hr>
 </section>
 </section>

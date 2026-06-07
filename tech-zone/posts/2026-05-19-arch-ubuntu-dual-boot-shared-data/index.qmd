@@ -1064,7 +1064,8 @@ echo "GRUB_ENABLE_CRYPTODISK=y" >> /etc/default/grub
 echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub   # 24.04 disables os-prober by default
 
 update-initramfs -u -k all
-grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Ubuntu --recheck
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Ubuntu --recheck \
+    --modules="part_gpt cryptodisk luks2 btrfs gcry_rijndael gcry_sha256 pbkdf2"
 update-grub                                          # os-prober finds Arch on p3
 
 # locale, timezone, a hostname distinct from Arch's
@@ -1079,6 +1080,20 @@ apt install -y ubuntu-desktop-minimal               # the graphical layer (skip 
 ```
 
 ::: {.callout-important}
+## The `--modules=` list is the load-bearing part of this whole step
+
+This is the single line that, if you get it wrong, lands you at a bare `grub>` prompt on the *next* boot with no menu and no obvious cause. Here's the mechanism: a plain `grub-install` writes an EFI core image (`/boot/efi/EFI/Ubuntu/grubx64.efi`) containing only the modules GRUB *thinks* it needs based on where its own `grub.cfg` lives. But our `grub.cfg` is on the **encrypted** `/boot`, which GRUB can't read until it has already loaded `cryptodisk` + `luks2` + the cipher modules (`gcry_rijndael`, `gcry_sha256`) + `pbkdf2` + the `btrfs` driver. That's a chicken-and-egg: the modules needed to *find* the config can't be loaded *from* the config. `--modules="…"` breaks the cycle by **baking those modules directly into the core image**, so they're present before GRUB looks for anything on disk.
+
+Skip `--modules` (or let a paste split the line so it runs without the flag) and `grub-install` still prints `Installation finished. No error reported.` — it's the textbook false-success. The damage only shows at the next boot. If you land there, the [🚨 emergency section](#emergency-failure-modes) walks you back out from the `grub>` prompt and makes the fix permanent.
+:::
+
+::: {.callout-warning}
+## Watch the paste: keep `grub-install` on one logical line
+
+The `grub-install … --modules="…"` command is long enough that a terminal will visually wrap it, and if you paste into a console that submits on every newline, the `--modules="…"` half can run as a *separate* command — leaving the actual `grub-install` to run **without** the flag (the exact false-success above). The `\` line-continuation in the snippet keeps it one command; if you're hand-typing, type it as a single unbroken line, or set `M="part_gpt cryptodisk luks2 btrfs gcry_rijndael gcry_sha256 pbkdf2"` first and pass `--modules="$M"` so the long part is a short variable.
+:::
+
+::: {.callout-important}
 ## Why two passphrase prompts, and how to get back to one
 
 With `/boot` inside the LUKS container, you'll be asked for the Ubuntu passphrase **twice** at boot: once by **GRUB** (to read the kernel and initramfs), then again by the **initramfs** (to unlock the root for real — GRUB's unlock doesn't carry into the booted kernel). That's correct, just mildly annoying. GRUB's unlock is also *slow* (it runs PBKDF2 under tight memory limits), so expect a few seconds.
@@ -1089,7 +1104,7 @@ To collapse it to a single prompt, embed a keyfile in the initramfs, the same tr
 mkdir -p /etc/cryptsetup-keys.d && chmod 700 /etc/cryptsetup-keys.d
 dd if=/dev/urandom of=/etc/cryptsetup-keys.d/root.key bs=512 count=4
 chmod 0400 /etc/cryptsetup-keys.d/root.key
-cryptsetup luksAddKey /dev/nvme0n1p4 /etc/cryptsetup-keys.d/root.key   # type the passphrase once
+cryptsetup luksAddKey --pbkdf pbkdf2 /dev/nvme0n1p4 /etc/cryptsetup-keys.d/root.key   # type the passphrase once
 sed -i 's# none luks,discard# /etc/cryptsetup-keys.d/root.key luks,discard#' /etc/crypttab
 echo 'KEYFILE_PATTERN="/etc/cryptsetup-keys.d/*.key"' >> /etc/cryptsetup-initramfs/conf-hook
 echo 'UMASK=0077' >> /etc/initramfs-tools/initramfs.conf
@@ -1097,6 +1112,20 @@ update-initramfs -u -k all
 ```
 
 Now GRUB still prompts once to reach the kernel, and the initramfs unlocks silently with the embedded key. (Argon2-capable GRUB 2.14+ can eventually retire the PBKDF2 dance, but it isn't in 24.04 yet.)
+
+::: {.callout-warning}
+## The `--pbkdf pbkdf2` on `luksAddKey` is not optional here
+
+This is subtle and it *will* break your boot if you drop it. You formatted `p4` with `--pbkdf pbkdf2` back in step 1, so keyslot 0 (your passphrase) is GRUB-readable. But `luksAddKey` **ignores that** and derives each *new* keyslot with cryptsetup's own default, **Argon2id** — a memory-hard KDF GRUB 2.12 cannot process. The poison is worse than "GRUB can't use that slot": a single Argon2id keyslot anywhere on the device makes GRUB reject the **entire** container with `error: no cryptodisk module can handle this device`, so even your good PBKDF2 passphrase slot becomes unreachable and you're back at `grub>`. Forcing `--pbkdf pbkdf2` keeps keyslot 1 PBKDF2 too, so the whole header stays GRUB-friendly.
+
+Verify *before you reboot* that no slot is Argon2id:
+
+```bash
+cryptsetup luksDump /dev/nvme0n1p4 | grep -E 'Keyslot|PBKDF:'
+```
+
+Every `PBKDF:` line must read `pbkdf2`. If you see `argon2id` on any keyslot, find its number in the dump and remove it — `cryptsetup luksKillSlot /dev/nvme0n1p4 <N>` — then re-add it with `--pbkdf pbkdf2`. Never kill the slot that holds your only passphrase.
+:::
 :::
 
 **Don't exit the chroot yet** — Chapter 14 copies the shared `/data` keyfile and writes its `crypttab`/`fstab` while you're still inside it.
@@ -1167,17 +1196,19 @@ update-grub
 
 `update-initramfs -u` regenerates the initramfs for every installed kernel; `update-grub` regenerates `grub.cfg` (and runs `os-prober`, picking up Arch).
 
-Exit the chroot and unmount cleanly:
+Exit the chroot, then just reboot. Everything you needed is already written to disk; `reboot` flushes buffers and force-unmounts on its way down, which sidesteps a trap that bites here:
 
 ```bash
 exit
-for d in run sys proc dev/pts dev; do umount -R /mnt/$d 2>/dev/null; done
-umount /mnt/home /mnt/boot/efi /mnt
-cryptsetup close crypt_ubuntu
+sync
 reboot
 ```
 
-Pull the Ubuntu USB as the laptop restarts.
+::: {.callout-note}
+## Why we `reboot` instead of unmounting by hand
+
+The tidy-looking `umount -R /mnt/run …; cryptsetup close crypt_ubuntu` sequence tends to fail with `target is busy`. The cause is the `mount --rbind /run /mnt/run` we did entering the chroot: `--rbind` is *recursive*, so it pulled `/run/user/0` and the live session's snap mount namespaces in under `/mnt/run`, and those keep the mount busy no matter how many times you retry `umount`. Chasing them down is pure ceremony, the config files are already on disk. `sync` flushes the write cache, `reboot` tears down every mount the hard way (including the busy ones) and closes the LUKS mappings as the kernel shuts down. Pull the Ubuntu USB as the laptop restarts.
+:::
 
 ---
 
@@ -1335,6 +1366,46 @@ If any of these fail, the [emergency section](#emergency-failure-modes) below co
 
 This section is for when something has gone visibly wrong. If the Part 6 sanity check passed, you can skip the rest of this article.
 :::
+
+### 0. You boot Ubuntu and land at a bare `grub>` prompt (no menu)
+
+This is the failure the `--modules=` and `--pbkdf pbkdf2` fixes in Part 4 exist to prevent, and the one most likely to bite if you installed before those fixes (or a paste split the `grub-install` line). The symptom is a minimal `grub>` shell instead of the boot menu: GRUB's EFI core loaded, but it can't read its own `grub.cfg` off the encrypted `/boot`. There are two root causes, and you can recover from the prompt and then make the fix permanent.
+
+**First, get booted from the `grub>` prompt by unlocking the disk by hand.** Type these one at a time (GRUB has no copy-paste; if a line wraps, keep typing, don't press Enter mid-command):
+
+```text
+grub> cryptomount (hd0,gpt4)
+Enter passphrase for hd0,gpt4 (...): ********
+grub> ls
+grub> configfile (crypto0)/@/boot/grub/grub.cfg
+```
+
+- `cryptomount (hd0,gpt4)` unlocks the Ubuntu root LUKS partition (`p4` → `gpt4`); enter the Ubuntu passphrase.
+- `ls` confirms the unlocked device appeared as `(crypto0)`. Use whatever name `ls` shows if it isn't `crypto0`.
+- `configfile (crypto0)/@/boot/grub/grub.cfg` loads the real menu (`/@` is the Btrfs root subvolume). Pick **Ubuntu**, it boots.
+
+If `cryptomount` itself errors with **`no cryptodisk module can handle this device`**, you have an **Argon2id keyslot** poisoning the header (the `--pbkdf pbkdf2` bug). You can't fix that from `grub>`, boot the **Ubuntu live USB** instead and inspect the slots:
+
+```bash
+sudo cryptsetup luksDump /dev/nvme0n1p4 | grep -E 'Keyslot|PBKDF:'
+```
+
+Any `PBKDF: argon2id` line is the culprit. Note its keyslot number, then remove **only that slot** (never the slot holding your only passphrase) and re-add it with `--pbkdf pbkdf2`:
+
+```bash
+sudo cryptsetup luksKillSlot /dev/nvme0n1p4 <ARGON2_SLOT_NUMBER>
+# if it was the keyfile slot, re-add PBKDF2-style after booting (see Part 4's single-prompt callout)
+```
+
+**Then make the boot permanent from the now-running Ubuntu** (this is where `grub-install` detects the cryptodisk correctly, far better than it did in the chroot):
+
+```bash
+sudo grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Ubuntu --recheck \
+    --modules="part_gpt cryptodisk luks2 btrfs gcry_rijndael gcry_sha256 pbkdf2"
+sudo update-grub
+```
+
+That rewrites the EFI core image *with* the crypto modules embedded. Reboot; you should get the menu (after GRUB's one passphrase prompt) with no `grub>` detour. If you'd rather not unlock-by-hand every boot until then, the auto-unlock instruction is what `grub-install` bakes in here, this single re-run is the fix.
 
 ### 1. Arch boots to a login, but `/data` doesn't mount
 

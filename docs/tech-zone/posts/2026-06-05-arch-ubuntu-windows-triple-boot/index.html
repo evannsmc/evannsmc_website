@@ -1139,11 +1139,25 @@ Driving it remotely over SSH?
 <span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"GRUB_ENABLE_CRYPTODISK=y"</span> <span class="op">&gt;&gt;</span> /etc/default/grub</span>
 <span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"GRUB_DISABLE_OS_PROBER=false"</span> <span class="op">&gt;&gt;</span> /etc/default/grub   <span class="co"># 24.04 disables os-prober by default</span></span>
 <span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="ex">update-initramfs</span> <span class="at">-u</span> <span class="at">-k</span> all</span>
-<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot/efi <span class="at">--bootloader-id</span><span class="op">=</span>Ubuntu <span class="at">--recheck</span></span>
-<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span>                                          <span class="co"># os-prober finds Windows AND Arch</span></span>
-<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span><span class="kw">;</span> <span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-s</span> /bin/bash <span class="at">-G</span> sudo,adm,cdrom,dip,plugdev <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span> <span class="kw">&amp;&amp;</span> <span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
-<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-desktop-minimal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The same two-prompt / single-prompt-keyfile note from the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session">dual-boot installer callout</a> applies verbatim (swap <code>p4</code>→<code>p7</code>). <strong>Stay in the chroot</strong> — Chapter 12 wires up the shared <code>/data</code> and the exchange partition before you reboot.</p>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot/efi <span class="at">--bootloader-id</span><span class="op">=</span>Ubuntu <span class="at">--recheck</span> <span class="dt">\</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">--modules</span><span class="op">=</span><span class="st">"part_gpt cryptodisk luks2 btrfs gcry_rijndael gcry_sha256 pbkdf2"</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span>                                          <span class="co"># os-prober finds Windows AND Arch</span></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span><span class="kw">;</span> <span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-s</span> /bin/bash <span class="at">-G</span> sudo,adm,cdrom,dip,plugdev <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span> <span class="kw">&amp;&amp;</span> <span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-desktop-minimal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+That <code>--modules=</code> on <code>grub-install</code> is mandatory, not decorative
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Because Ubuntu’s <code>/boot</code> lives <strong>inside</strong> the encrypted <code>p7</code>, GRUB has to load <code>cryptodisk</code> + <code>luks2</code> + the cipher modules (<code>gcry_rijndael</code>, <code>gcry_sha256</code>) + <code>pbkdf2</code> + <code>btrfs</code> <em>before</em> it can read its own <code>grub.cfg</code>, a chicken-and-egg a plain <code>grub-install</code> doesn’t resolve. <code>--modules="…"</code> bakes them into the EFI core image so they’re present at the very first instruction. Omit it (or let a paste split the long line so the flag runs separately) and <code>grub-install</code> still reports success, but the <strong>next boot lands at a bare <code>grub&gt;</code> prompt</strong>. The <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#emergency-failure-modes">dual-boot’s grub&gt; recovery walkthrough</a> gets you back out (substitute <code>gpt7</code> for <code>gpt4</code>). Keep the command on one logical line, the trailing <code>\</code> does that for paste; hand-typing, type it unbroken or stash the module list in a shell variable first.</p>
+</div>
+</div>
+<p>The same two-prompt / single-prompt-keyfile note from the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session">dual-boot installer callout</a> applies verbatim (swap <code>p4</code>→<code>p7</code>) — <strong>including the <code>--pbkdf pbkdf2</code> on that <code>luksAddKey</code></strong>: a single Argon2id keyslot makes GRUB 2.12 reject the whole <code>p7</code> header (<code>no cryptodisk module can handle this device</code>). After adding the keyfile, sanity-check with <code>cryptsetup luksDump /dev/nvme0n1p7 | grep -E 'Keyslot|PBKDF:'</code> — every <code>PBKDF:</code> line must read <code>pbkdf2</code>. <strong>Stay in the chroot</strong> — Chapter 12 wires up the shared <code>/data</code> and the exchange partition before you reboot.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1198,12 +1212,23 @@ First: prove you’re actually <em>in</em> the chroot
 <span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a><span class="ex">update-initramfs</span> <span class="at">-u</span> <span class="at">-k</span> all</span>
 <span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span>                       <span class="co"># runs os-prober → finds Arch AND Windows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><code>update-grub</code>’s output should include <code>Found Windows Boot Manager …</code> and <code>Found Arch Linux …</code>. Exit and unmount:</p>
+<p><code>update-grub</code>’s output should include <code>Found Windows Boot Manager …</code> and <code>Found Arch Linux …</code>. Everything’s written, so just reboot, <code>reboot</code> flushes and force-unmounts on the way down:</p>
 <div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> run sys proc dev/pts dev<span class="kw">;</span> <span class="cf">do</span> <span class="fu">umount</span> <span class="at">-R</span> /mnt/<span class="va">$d</span> <span class="dv">2</span><span class="op">&gt;</span>/dev/null<span class="kw">;</span> <span class="cf">done</span></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> /mnt/home /mnt/boot/efi /mnt</span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> close crypt_ubuntu</span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sync</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why <code>reboot</code> beats unmounting by hand
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <code>mount --rbind /run /mnt/run</code> from entering the chroot is <em>recursive</em>: it pulls <code>/run/user/0</code> and the live session’s snap mount namespaces in under <code>/mnt/run</code>, so a tidy <code>umount -R … ; cryptsetup close crypt_ubuntu</code> sequence fails with <code>target is busy</code> no matter how often you retry. The files are already on disk; <code>sync</code> flushes the write cache and <code>reboot</code> tears down every mount the hard way and closes the LUKS mappings as the kernel shuts down. Don’t fight the busy mounts.</p>
+</div>
+</div>
 </section>
 <section id="chapter-13-add-ubuntus-hibernation-swap-file" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-13-add-ubuntus-hibernation-swap-file">Chapter 13: Add Ubuntu’s hibernation swap file</h2>
@@ -1280,6 +1305,10 @@ The pass condition
 <p>If Part 8 passed, skip this. The dual-boot’s <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#emergency-failure-modes">emergency section</a> covers the LUKS/Btrfs/<code>/data</code> failures; the ones below are the Windows-specific additions.</p>
 </div>
 </div>
+<section id="you-boot-ubuntu-and-land-at-a-bare-grub-prompt" class="level3">
+<h3 class="anchored" data-anchor-id="you-boot-ubuntu-and-land-at-a-bare-grub-prompt">0. You boot Ubuntu and land at a bare <code>grub&gt;</code> prompt</h3>
+<p>Same failure (and same two root causes, missing <code>--modules</code> in the EFI core, or an Argon2id keyslot) as the dual-boot, since Ubuntu’s <code>/boot</code> is inside the encrypted root here too. The full walkthrough lives in the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#emergency-failure-modes">dual-boot grub&gt; recovery section</a>; the <strong>only</strong> substitution for triple-boot is the partition number, Ubuntu’s root is <code>p7</code>, so unlock with <code>cryptomount (hd0,gpt7)</code> (not <code>gpt4</code>), and the <code>luksDump</code>/<code>luksKillSlot</code>/re-<code>grub-install</code> commands all target <code>/dev/nvme0n1p7</code>. Windows and Arch are unaffected by this, you can still pick them from a working menu if GRUB’s core loaded for those; it’s specifically Ubuntu’s encrypted <code>/boot</code> that GRUB can’t reach until the modules are embedded.</p>
+</section>
 <section id="grub-menu-has-no-windows-entry" class="level3">
 <h3 class="anchored" data-anchor-id="grub-menu-has-no-windows-entry">1. GRUB menu has no Windows entry</h3>
 <p><code>grub-mkconfig</code>/<code>update-grub</code> didn’t list Windows. Checklist:</p>

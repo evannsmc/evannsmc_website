@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.34">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Evanns Morales">
+<meta name="dcterms.date" content="2026-06-07">
+<meta name="description" content="The no-encryption sibling of the triple-boot finale: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔Linux exchange uses a plain exFAT partition all three OSes read. Same Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub> / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.">
+
+<title>Triple-Boot Arch + Ubuntu + Windows (Plain Btrfs, No Encryption) – evannsmc</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../files/site_icon/favicon.png" rel="icon" type="image/png">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-befe23ebd2f54d8af2c8a89d1a1611f1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-71d377fd5de2ab829bf86f8ce9e65e3a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link rel="apple-touch-icon" sizes="180x180" href="files/site_icon/apple-touch-icon.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://evannsmc.com/#person",
+      "name": "Evanns Morales-Cuadrado",
+      "alternateName": "evannsmc",
+      "url": "https://evannsmc.com",
+      "jobTitle": "Ph.D Student in Robotics and ECE",
+      "affiliation": {
+        "@type": "CollegeOrUniversity",
+        "name": "Georgia Institute of Technology",
+        "url": "https://www.gatech.edu"
+      },
+      "description": "Robotics and ECE Ph.D student at Georgia Tech researching safe autonomy, nonlinear control, and quadrotor UAVs.",
+      "sameAs": [
+        "https://github.com/evannsmc",
+        "https://www.linkedin.com/in/evanns-morales/",
+        "https://scholar.google.com/citations?user=FY9tS9oAAAAJ",
+        "https://orcid.org/0009-0000-3928-6243"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://evannsmc.com/#website",
+      "name": "evannsmc",
+      "url": "https://evannsmc.com",
+      "description": "The personal research website of Evanns Morales-Cuadrado",
+      "author": {
+        "@id": "https://evannsmc.com/#person"
+      }
+    }
+  ]
+}
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var path = window.location.pathname.replace(/\/index\.html$/, '/');
+  document.querySelectorAll('.navbar .nav-link').forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href) return;
+    var linkPath = new URL(href, window.location.origin).pathname.replace(/\/index\.html$/, '/');
+    if (path === linkPath || (linkPath !== '/' && path.startsWith(linkPath))) {
+      link.classList.add('active');
+      link.setAttribute('aria-current', 'page');
+    }
+  });
+});
+</script>
+<script data-goatcounter="https://evannsmc.goatcounter.com/count" async="" src="//gc.zgo.at/count.js"></script>
+
+
+<link rel="stylesheet" href="../../../styles.css">
+<meta property="og:title" content="Triple-Boot Arch + Ubuntu + Windows (Plain Btrfs, No Encryption) – evannsmc">
+<meta property="og:description" content="The no-encryption sibling of the triple-boot finale: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Same Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub> / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.">
+<meta property="og:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
+<meta property="og:site_name" content="evannsmc">
+<meta property="og:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
+<meta name="twitter:title" content="Triple-Boot Arch + Ubuntu + Windows (Plain Btrfs, No Encryption) – evannsmc">
+<meta name="twitter:description" content="The no-encryption sibling of the triple-boot finale: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Same Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub> / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.">
+<meta name="twitter:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
+<meta name="twitter:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed fullcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo">
+    </a>
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">evannsmc</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../cv"> 
+<span class="menu-text">CV &amp; Résumé</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../publications"> 
+<span class="menu-text">Publications</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../projects"> 
+<span class="menu-text">Projects</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../blog"> 
+<span class="menu-text">Research Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../tech-zone"> 
+<span class="menu-text">The Tech Zone</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../about"> 
+<span class="menu-text">About Me</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../journey"> 
+<span class="menu-text">Journey</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<a class="skip-to-content" href="#quarto-content">Skip to main content</a>
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Triple-Boot Arch + Ubuntu + Windows (Plain Btrfs, No Encryption)</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">arch linux</div>
+    <div class="quarto-category">ubuntu</div>
+    <div class="quarto-category">windows</div>
+    <div class="quarto-category">linux</div>
+    <div class="quarto-category">installation</div>
+    <div class="quarto-category">triple-boot</div>
+    <div class="quarto-category">btrfs</div>
+    <div class="quarto-category">snapper</div>
+    <div class="quarto-category">hibernation</div>
+    <div class="quarto-category">grub</div>
+    <div class="quarto-category">os-prober</div>
+    <div class="quarto-category">mkinitcpio</div>
+    <div class="quarto-category">zram</div>
+    <div class="quarto-category">exfat</div>
+    <div class="quarto-category">esp</div>
+    <div class="quarto-category">bitlocker</div>
+    <div class="quarto-category">secure boot</div>
+    <div class="quarto-category">shared partition</div>
+    <div class="quarto-category">no encryption</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    The no-encryption sibling of the triple-boot finale: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Same Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub&gt; / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Evanns Morales </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 7, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Disclaimer: this is the reasoned no-encryption variant, not yet a live-tested run
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The plain-Btrfs twin of the <a href="../2026-06-05-arch-ubuntu-windows-triple-boot/">LUKS+Btrfs triple-boot (Article 10)</a>, built by removing every encryption layer from that design. It’s a reasoned blueprint, not a command-by-command log I’ve executed end-to-end (yet). Dropping LUKS also drops the parts of the encrypted article that bit hardest in practice, the encrypted-<code>/boot</code> GRUB setup that can land you at a bare <code>grub&gt;</code> prompt, the Argon2id-keyslot trap, the keyfile/<code>crypttab</code> dance, and the double passphrase prompt. The Windows-integration parts (install order, ESP sharing, the exFAT exchange, the RTC clock fix, Secure Boot / BitLocker) are unchanged, none of those depend on Linux encryption.</p>
+<p>Canonical sources to re-read as you go:</p>
+<ul>
+<li><a href="https://wiki.archlinux.org/title/Dual_boot_with_Windows" target="_blank" rel="noopener">Arch wiki: Dual boot with Windows</a> — ESP sharing, <code>os-prober</code>, the localtime/UTC clock fix</li>
+<li><a href="https://wiki.archlinux.org/title/GRUB#Detecting_other_operating_systems" target="_blank" rel="noopener">Arch wiki: GRUB#Detecting other operating systems</a></li>
+<li>Microsoft’s <a href="https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/configure-uefigpt-based-hard-drive-partitions" target="_blank" rel="noopener">UEFI/GPT install docs</a>, and the <code>os-prober</code> / <code>efibootmgr</code> man pages</li>
+</ul>
+<p>Treat it as a blueprint for the <em>pattern</em>, not a substitute for the tool docs.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What this is
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The same triple-boot as <a href="../2026-06-05-arch-ubuntu-windows-triple-boot/">Article 10</a>, minus encryption:</p>
+<ul>
+<li><strong>Windows 11</strong>, installed <strong>first</strong>, on its own NTFS partition, so it can’t clobber a bootloader that isn’t there yet.</li>
+<li><strong>Arch Linux</strong> and <strong>Ubuntu 24 LTS</strong>, each on its <strong>own plain Btrfs root</strong> (no LUKS) with the usual subvolumes (<code>@</code>, <code>@home</code>, <code>@snapshots</code>, <code>@var_log</code>, <code>@swap</code>), exactly the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/">plain-Btrfs dual-boot</a>, unchanged.</li>
+<li><strong>One shared 150 GiB plain Btrfs <code>/data</code> partition</strong> the two <strong>Linux</strong> distros mount read-write. Windows stays out of it (it can’t read Btrfs natively).</li>
+<li><strong>One plain exFAT exchange partition</strong> that <em>all three</em> OSes read and write, for the Windows handoff.</li>
+<li><strong>Per-OS zram</strong> for everyday swap and <strong>per-OS NoCOW Btrfs hibernation</strong> inside each Linux root, no cross-OS resume collisions.</li>
+<li><strong>One GRUB</strong> on the shared 1 GiB ESP, <code>os-prober</code> enabled, chainloading the <strong>Windows boot manager</strong>.</li>
+<li><strong>Secure Boot off, BitLocker off</strong>, the simplest configuration that boots all three reliably.</li>
+</ul>
+<p>It stops on the console for the Arch side; Windows and Ubuntu come up graphical out of the box.</p>
+</div>
+</div>
+<section id="why-a-no-encryption-triple-boot" class="level2">
+<h2 class="anchored" data-anchor-id="why-a-no-encryption-triple-boot">Why a no-encryption triple-boot</h2>
+<p>Same reasoning as the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#why-a-no-encryption-version-at-all">plain-Btrfs dual-boot</a>: for a desktop that never leaves the house, an auto-rebooting box, or a first attempt where you want the multi-boot working before adding crypto, full-disk encryption is friction without much payoff. If you want encryption, use <a href="../2026-06-05-arch-ubuntu-windows-triple-boot/">Article 10</a> instead. This article is for when you’ve decided you don’t.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you give up by dropping encryption
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>With no LUKS on the Linux roots or the shared <code>/data</code>, anyone who can boot a USB stick (or pull the SSD) reads everything on the Linux side, home directories, the shared <code>/data</code>, saved credentials. (Windows’ own files may still be protected if you <em>keep</em> its device encryption, but this article turns BitLocker <strong>off</strong> to keep the boot path simple, so treat the whole disk as readable-at-rest.) A lost or stolen machine is a data breach, not just a hardware loss. If that’s unacceptable for what lives here, use the encrypted article.</p>
+</div>
+</div>
+<p>Adding Windows introduces five concerns the dual-boot didn’t have, all unchanged from the encrypted version (they’re about Windows, not LUKS):</p>
+<ol type="1">
+<li><strong>Windows is a bad bootloader citizen.</strong> It writes its boot manager to the ESP and reorders NVRAM to put itself first. So Windows goes <strong>first</strong>, and GRUB (installed after) becomes the menu that chainloads it.</li>
+<li><strong>Windows can’t read Btrfs.</strong> The shared <code>/data</code> is Linux-only; Windows↔︎Linux exchange uses a <strong>separate plain exFAT partition</strong>.</li>
+<li><strong>The RTC clock war.</strong> Windows assumes the hardware clock is local time; Linux assumes UTC. We fix it by telling Windows to use UTC.</li>
+<li><strong>Fast Startup and “device encryption.”</strong> Both interfere with a clean triple-boot; we turn them off.</li>
+<li><strong>Secure Boot.</strong> Our GRUB isn’t signed with a key the firmware trusts, so we disable it.</li>
+</ol>
+<hr>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+How to read the commands in this guide
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Every command sits in its own copy box, hit the copy icon, paste, run. <strong>But watch for angle-bracket placeholders</strong> like <code>&lt;USERNAME&gt;</code>, <code>&lt;HOSTNAME&gt;</code>, <code>&lt;TIMEZONE&gt;</code>, <code>&lt;SSID&gt;</code>, or <code>&lt;WIFI_PASSWORD&gt;</code>. Those are values only <em>you</em> know, and they’re written that way on purpose: <code>&lt;…&gt;</code> is invalid shell syntax, so if you blind-paste a line that still has one, it <strong>fails loudly</strong> instead of silently running with my example values. See a <code>&lt;…&gt;</code>, replace the whole token (brackets and all) before you run the line. Device paths like <code>/dev/nvme0n1p6</code> are left literal, they match the disk-layout table, so double-check <em>those</em> against your own <code>lsblk</code> once, then they paste cleanly.</p>
+</div>
+</div>
+</section>
+<section id="part-1-the-disk-layout" class="level1">
+<h1>Part 1 — The disk layout</h1>
+<p>Seven partitions on one drive, the same shape as the encrypted triple-boot minus the LUKS column:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 14%">
+<col style="width: 10%">
+<col style="width: 19%">
+<col style="width: 46%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Partition</th>
+<th style="text-align: right;">Size</th>
+<th>Filesystem</th>
+<th>Mounted on (Linux)</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>p1</code></td>
+<td style="text-align: right;">1 GiB</td>
+<td>FAT32</td>
+<td><code>/boot</code></td>
+<td>Shared UEFI ESP (GRUB + Linux kernels + Windows boot manager)</td>
+</tr>
+<tr class="even">
+<td><code>p2</code></td>
+<td style="text-align: right;">16 MiB</td>
+<td>—</td>
+<td>—</td>
+<td>Microsoft Reserved (MSR) — Windows bookkeeping</td>
+</tr>
+<tr class="odd">
+<td><code>p3</code></td>
+<td style="text-align: right;">~250 GiB</td>
+<td>NTFS</td>
+<td>(not mounted)</td>
+<td><strong>Windows</strong> C:</td>
+</tr>
+<tr class="even">
+<td><code>p4</code></td>
+<td style="text-align: right;">64 GiB</td>
+<td>exFAT</td>
+<td><code>/exchange</code></td>
+<td>Plain exchange — <strong>all three</strong> OSes read/write</td>
+</tr>
+<tr class="odd">
+<td><code>p5</code></td>
+<td style="text-align: right;">150 GiB</td>
+<td>Btrfs</td>
+<td><code>/data</code></td>
+<td>Shared data — <strong>Arch + Ubuntu only</strong></td>
+</tr>
+<tr class="even">
+<td><code>p6</code></td>
+<td style="text-align: right;">(rest ÷ 2)</td>
+<td>Btrfs</td>
+<td><code>/</code></td>
+<td><strong>Arch</strong> root</td>
+</tr>
+<tr class="odd">
+<td><code>p7</code></td>
+<td style="text-align: right;">(rest ÷ 2)</td>
+<td>Btrfs</td>
+<td><code>/</code></td>
+<td><strong>Ubuntu</strong> root</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Doing the math for your disk
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For a 2 TiB SSD, holding back 1 GiB ESP + 16 MiB MSR + 250 GiB Windows + 64 GiB exchange + 150 GiB shared data leaves ≈ 1535 GiB to split between the two Linux roots, roughly <strong>767 GiB each</strong>. Adjust every number to taste; nothing downstream depends on the exact counts, only on the <em>order</em> and the partition <em>types</em>.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why a 1 GiB ESP we create ourselves, not the 100 MiB one Windows makes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Let the Windows installer own a blank disk and it creates a <strong>100 MiB</strong> ESP, fine for Windows alone, far too small to also hold two Linux distros’ kernels + initramfs in <code>/boot</code>. The whole series puts <code>/boot</code> <em>on the ESP</em> (and here, with no encryption, that’s the natural and <em>only</em> place it needs to be). So we <strong>pre-create the partition table from the Arch live USB first</strong>, including a generous 1 GiB ESP, then point the Windows installer at the partition we made. Windows happily <em>reuses</em> an existing ESP of adequate size. This is the single most important ordering trick in the article.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why Windows is left out of the shared <code>/data</code>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Windows can’t read Btrfs natively, and the third-party drivers (WinBtrfs) are experimental. Instead, Windows gets a clean separation: it never touches <code>/data</code>. The handful of files you move between Windows and Linux go through the <strong>plain exFAT exchange partition</strong> (<code>p4</code>), which all three OSes read and write with built-in drivers. The tradeoff is explicit: <strong>anything on the exchange partition is unencrypted</strong> (as is everything else on this disk, in this no-encryption build), treat it as a transfer airlock.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="part-2-pre-partition-the-disk-from-the-arch-live-usb" class="level1">
+<h1>Part 2 — Pre-partition the disk from the Arch live USB</h1>
+<p>Boot the Arch installer <strong>first</strong>, only to lay down the partition table (and format the ESP so Windows recognizes it). The Arch <em>install</em> itself happens later, in Part 4, after Windows is on disk.</p>
+<section id="chapter-0-verify-the-iso-boot-the-live-usb-confirm-uefi" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-0-verify-the-iso-boot-the-live-usb-confirm-uefi">Chapter 0: Verify the ISO, boot the live USB, confirm UEFI</h2>
+<p>Same bootstrap as every article in the series. <strong>Done it before? Skim to <a href="#chapter-1-lay-down-the-partition-table">Chapter 1</a>.</strong></p>
+<p>On a machine you trust, grab the ISO, its <code>.sig</code>, and <code>sha256sums.txt</code> from the <a href="https://archlinux.org/download/" target="_blank" rel="noopener">Arch download page</a> into one directory:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Downloads/Arch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> <span class="at">-c</span> sha256sums.txt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># archlinux-2026.05.01-x86_64.iso: OK          # bytes match the published checksum</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--auto-key-locate</span> clear,wkd <span class="at">-v</span> <span class="at">--locate-external-key</span> pierre@archlinux.org</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--verify</span> archlinux-2026.05.01-x86_64.iso.sig archlinux-2026.05.01-x86_64.iso</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># gpg: Good signature from "Pierre Schmitz &lt;pierre@archlinux.org&gt;" [unknown]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The <code>WARNING: The key's User ID is not certified</code> line is expected. Flash the verified ISO with <a href="https://etcher.balena.io/" target="_blank" rel="noopener">balenaEtcher</a> or <code>dd</code> (mind <code>of=</code>). Boot it, interrupt boot (<code>F2</code>/<code>F10</code>/<code>F12</code>/<code>Esc</code>), pick the USB, choose <em>“Arch Linux install medium.”</em> Confirm UEFI:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /sys/firmware/efi/fw_platform_size</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 64   (32 on very old hardware; if the file is absent you booted BIOS — fix in firmware)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Turn off Secure Boot now, while you’re in firmware
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Before leaving firmware setup, <strong>disable Secure Boot</strong> — our GRUB isn’t signed with a key your firmware trusts. While you’re there, set the firmware to <strong>UEFI-only</strong> (disable CSM/legacy boot) so Windows installs in UEFI/GPT mode, matching Linux.</p>
+</div>
+</div>
+<p>If you want to SSH in from another machine for comfort, it’s the same <code>iwctl</code> → <code>systemctl enable --now sshd</code> → <code>passwd</code> dance as the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-0-verify-the-iso-boot-the-live-usb-get-online">dual-boot Chapter 0</a>.</p>
+</section>
+<section id="chapter-1-lay-down-the-partition-table" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-1-lay-down-the-partition-table">Chapter 1: Lay down the partition table</h2>
+<p>Confirm the disk first, wiping the wrong one is unrecoverable:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-d</span> <span class="at">-o</span> NAME,SIZE,MODEL,TRAN      <span class="co"># NVMe shows TRAN=nvme</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Every command below uses <code>/dev/nvme0n1</code> as a placeholder — <strong>substitute your actual device.</strong> Partition with <code>cfdisk</code> (GPT label):</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Inside <code>cfdisk</code>, move the highlight with <code>↑</code>/<code>↓</code> (or vim’s <code>j</code> and <code>k</code>) and press <code>Enter</code> to choose. Every new partition starts as <strong>Linux filesystem</strong>; to set a different type, highlight it, press <code>t</code>, and pick from the list the same way:</p>
+<ol type="1">
+<li><code>d</code> on every existing partition until the table is empty. (If prompted for a label type on a blank disk, choose <strong>gpt</strong>.)</li>
+<li><code>n</code> → <code>1G</code> → <code>t</code> → <strong>EFI System</strong> → <code>p1</code> (shared ESP).</li>
+<li><code>n</code> → <code>16M</code> → <code>t</code> → <strong>Microsoft reserved</strong> → <code>p2</code> (MSR; if your <code>cfdisk</code> doesn’t list MSR, see the note below).</li>
+<li><code>n</code> → <code>250G</code> → <code>t</code> → <strong>Microsoft basic data</strong> → <code>p3</code> (Windows C:).</li>
+<li><code>n</code> → <code>64G</code> → <code>t</code> → <strong>Microsoft basic data</strong> → <code>p4</code> (exFAT exchange).</li>
+<li><code>n</code> → <code>150G</code> → leave as <strong>Linux filesystem</strong> → <code>p5</code> (shared Btrfs data).</li>
+<li><code>n</code> → <code>767G</code> → leave as <strong>Linux filesystem</strong> → <code>p6</code> (Arch root; your half-of-remaining).</li>
+<li><code>n</code> → rest → leave as <strong>Linux filesystem</strong> → <code>p7</code> (Ubuntu root).</li>
+<li><code>w</code>, then type <code>yes</code>.</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+If <code>cfdisk</code> has no “Microsoft reserved” / “Microsoft basic data” types
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>cfdisk</code> exposes a curated type list; older builds may not. Two options: (a) just make <code>p2</code>/<code>p3</code>/<code>p4</code> <strong>Linux filesystem</strong> for now, the Windows installer will re-stamp <code>p3</code>’s type and create the MSR itself; or (b) use <code>gdisk</code>, where you can set exact GPT type GUIDs (<code>0700</code> Microsoft basic data, <code>0c01</code> Microsoft reserved, <code>ef00</code> EFI system, <code>8300</code> Linux filesystem). The MSR is technically optional on UEFI/GPT, reserving 16 MiB now keeps the layout tidy.</p>
+</div>
+</div>
+</section>
+<section id="chapter-2-format-the-esp-and-the-exchange-partition" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-2-format-the-esp-and-the-exchange-partition">Chapter 2: Format the ESP and the exchange partition</h2>
+<p>Format <strong>only</strong> the two partitions Windows needs to recognize now. A pre-formatted FAT32 ESP is exactly what makes Windows reuse ours. The exFAT exchange partition we format now too:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.fat</span> <span class="at">-F32</span> <span class="at">-n</span> ESP      /dev/nvme0n1p1      <span class="co"># shared ESP — Windows + GRUB both live here</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.exfat</span>   <span class="at">-n</span> EXCHANGE  /dev/nvme0n1p4      <span class="co"># plain exchange (needs exfatprogs, present on the live ISO)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Leave <code>p2</code>, <code>p3</code>, <code>p5</code>, <code>p6</code>, <code>p7</code> unformatted:</p>
+<ul>
+<li><code>p3</code>, the Windows installer formats it NTFS.</li>
+<li><code>p5</code>/<code>p6</code>, we format them Btrfs during the Arch install in Part 4.</li>
+<li><code>p7</code>, formatted during the Ubuntu install in Part 6.</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,PARTTYPENAME /dev/nvme0n1   <span class="co"># sanity-check the table before rebooting</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">poweroff</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+</section>
+<section id="part-3-install-windows-11-first" class="level1">
+<h1>Part 3 — Install Windows 11 first</h1>
+<p>Windows goes on now, into the partition (<code>p3</code>) we reserved, reusing our ESP.</p>
+<section id="chapter-3-run-the-windows-installer" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-3-run-the-windows-installer">Chapter 3: Run the Windows installer</h2>
+<ol type="1">
+<li>Flash a Windows 11 install USB (Microsoft’s <strong>Media Creation Tool</strong>, or the ISO via Rufus in <strong>GPT/UEFI</strong> mode). Boot it.</li>
+<li>Proceed to <strong>“Where do you want to install Windows?”</strong> <strong>Select <code>p3</code> (the ~250 GiB Microsoft basic data partition)</strong> and click <strong>Format</strong> (NTFS). <strong>Do not delete partitions, and do not let the installer reformat the whole disk</strong>, that would destroy the ESP and the space reserved for Linux.</li>
+<li>Windows installs into <code>p3</code>, reuses the existing 1 GiB ESP for <code>\EFI\Microsoft\Boot\bootmgfw.efi</code>, and uses the MSR. Let it reboot and finish OOBE.</li>
+</ol>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+If the installer refuses <code>p3</code> (“can’t install to this disk”)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Usually a firmware still in CSM/legacy mode, or a stray boot flag. Re-check that firmware is <strong>UEFI-only</strong> (Part 2). If the installer insists on its own partitioning, let it install to <code>p3</code> and create whatever MSR/recovery partitions it wants <em>inside the space we gave it</em>, but never let it touch <code>p1</code> (ESP) or the Linux partitions.</p>
+</div>
+</div>
+</section>
+<section id="chapter-4-tame-windows-so-it-triple-boots-cleanly" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-4-tame-windows-so-it-triple-boots-cleanly">Chapter 4: Tame Windows so it triple-boots cleanly</h2>
+<p>Three settings, all from inside the freshly installed Windows. Skipping these is the #1 source of “my clock is wrong” and “Linux won’t boot after a Windows update.”</p>
+<section id="disable-bitlocker-device-encryption" class="level3">
+<h3 class="anchored" data-anchor-id="disable-bitlocker-device-encryption">Disable BitLocker / device encryption</h3>
+<p>Windows 11 silently turns on <em>device encryption</em> on a lot of modern hardware, and BitLocker <strong>prompts for a recovery key whenever the boot path changes</strong>, and installing GRUB <em>is</em> a boot-path change. Turn it off:</p>
+<ul>
+<li><strong>Settings → Privacy &amp; security → Device encryption → Off</strong> (wait for decryption to finish), or</li>
+<li>on Pro editions, <strong>Control Panel → BitLocker Drive Encryption → Turn off</strong> for C:.</li>
+</ul>
+</section>
+<section id="disable-fast-startup" class="level3">
+<h3 class="anchored" data-anchor-id="disable-fast-startup">Disable Fast Startup</h3>
+<p>Fast Startup leaves Windows in a hybrid-hibernated state on shutdown, marking the NTFS volume “dirty” and confusing the next OS to boot. Turn it off:</p>
+<ul>
+<li><strong>Control Panel → Power Options → Choose what the power buttons do → Change settings that are currently unavailable → untick “Turn on fast startup” → Save.</strong></li>
+</ul>
+</section>
+<section id="make-windows-use-utc-for-the-hardware-clock" class="level3">
+<h3 class="anchored" data-anchor-id="make-windows-use-utc-for-the-hardware-clock">Make Windows use UTC for the hardware clock</h3>
+<p>Without this, your clock jumps by your UTC offset every time you switch OS. From an <strong>Administrator</strong> Command Prompt or PowerShell:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>reg add <span class="st">"HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation"</span> <span class="op">/</span>v RealTimeIsUniversal <span class="op">/</span>t REG_DWORD <span class="op">/</span>d <span class="dv">1</span> <span class="op">/</span>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Reboot Windows once so it re-reads the clock. From here on, all three OSes agree the hardware clock is UTC.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why we fix the clock on the Windows side
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You <em>could</em> set Linux to localtime (<code>timedatectl set-local-rtc 1</code>), but the Arch wiki discourages it, localtime RTC breaks around DST transitions. One registry value on Windows is the clean fix.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+</section>
+<section id="part-4-install-arch-into-p6-plain-btrfs" class="level1">
+<h1>Part 4 — Install Arch into p6 (plain Btrfs)</h1>
+<p>Boot the Arch live USB again. From here, the Arch install is <strong>identical to the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/">plain-Btrfs dual-boot</a></strong>, same Btrfs subvolumes, same shared <code>/data</code>, same per-OS hibernation, with one difference: the partitions already exist and Windows is present, so we <strong>don’t</strong> repartition. Every command is inline; for the deep <em>why</em>, the dual-boot article’s matching chapter is linked.</p>
+<section id="chapter-5-format-the-two-arch-side-btrfs-filesystems" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-5-format-the-two-arch-side-btrfs-filesystems">Chapter 5: Format the two Arch-side Btrfs filesystems</h2>
+<p><code>p5</code> is the shared data partition; <code>p6</code> is the Arch root. Leave <code>p7</code> for Ubuntu. No <code>cryptsetup</code>, we <code>mkfs.btrfs</code> straight onto the partitions:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> shared /dev/nvme0n1p5     <span class="co"># shared data</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> arch   /dev/nvme0n1p6     <span class="co"># Arch root</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="chapter-6-create-the-btrfs-subvolumes" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-6-create-the-btrfs-subvolumes">Chapter 6: Create the Btrfs subvolumes</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p6 /mnt</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@home</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@snapshots</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@var_log</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@swap</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> /mnt</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p5 /mnt</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@data</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-3-create-the-btrfs-subvolumes-on-the-arch-root">Subvolume rationale →</a></p>
+</section>
+<section id="chapter-7-mount-everything-including-the-exchange-partition" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-7-mount-everything-including-the-exchange-partition">Chapter 7: Mount everything (including the exchange partition)</h2>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@ /dev/nvme0n1p6 /mnt</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/<span class="dt">{boot</span><span class="op">,</span><span class="dt">home</span><span class="op">,</span><span class="dt">.snapshots</span><span class="op">,</span><span class="dt">var/log</span><span class="op">,</span><span class="dt">swap</span><span class="op">,</span><span class="dt">data</span><span class="op">,</span><span class="dt">exchange}</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@home      /dev/nvme0n1p6 /mnt/home</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@snapshots /dev/nvme0n1p6 /mnt/.snapshots</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@var_log   /dev/nvme0n1p6 /mnt/var/log</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,subvol=@swap                      /dev/nvme0n1p6 /mnt/swap</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@data /dev/nvme0n1p5 /mnt/data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>@swap</code> mounts <strong>without</strong> compression. We mount <code>/data</code> now so <code>genfstab</code> captures it, but <strong>don’t</strong> add the exFAT exchange to <code>genfstab</code>’s view, we’ll hand-write its <code>fstab</code> line in Chapter 9 (exFAT needs ownership options Btrfs doesn’t). <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-4-mount-everything-for-pacstrap">Mount-option rationale →</a></p>
+</section>
+<section id="chapter-8-pacstrap-fstab-chroot" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-8-pacstrap-fstab-chroot">Chapter 8: Pacstrap, fstab, chroot</h2>
+<p>Same package set as the dual-boot (note: <strong>no <code>cryptsetup</code></strong>), plus <strong><code>exfatprogs</code></strong> for the exchange partition:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">reflector</span> <span class="at">--country</span> <span class="st">'United States'</span> <span class="at">--protocol</span> https <span class="at">--latest</span> 20 <span class="at">--age</span> 12 <span class="dt">\</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">--sort</span> rate <span class="at">--save</span> /etc/pacman.d/mirrorlist</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="ex">pacstrap</span> <span class="at">-K</span> /mnt <span class="dt">\</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    base linux linux-firmware linux-headers intel-ucode <span class="dt">\</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    btrfs-progs exfatprogs <span class="dt">\</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    grub efibootmgr grub-btrfs os-prober <span class="dt">\</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    snapper snap-pac <span class="dt">\</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    networkmanager openssh sudo <span class="dt">\</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    neovim git base-devel <span class="dt">\</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    zram-generator inotify-tools reflector</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Use <code>amd-ucode</code> on AMD hardware. The two additions vs.&nbsp;a single-boot install are <strong><code>os-prober</code></strong> (so GRUB discovers Windows <em>and</em> Ubuntu) and <strong><code>exfatprogs</code></strong> (so Arch can mount the exchange). <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-5-pacstrap-fstab-chroot">fstab sanity check →</a></p>
+</section>
+<section id="chapter-9-configure-the-system-inside-the-chroot" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-9-configure-the-system-inside-the-chroot">Chapter 9: Configure the system inside the chroot</h2>
+<p>This folds together the dual-boot’s Chapters 6–10, locale/user (pinned UID), the <code>/data</code> hardening, hibernation, zram, the exchange-partition <code>fstab</code> line, and <code>mkinitcpio</code>. Each block is the same as the dual-boot; run them in order.</p>
+<section id="locale-time-hostname-user-with-a-pinned-uid-1000" class="level3">
+<h3 class="anchored" data-anchor-id="locale-time-hostname-user-with-a-pinned-uid-1000">Locale, time, hostname, user, with a pinned UID 1000</h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/bin/nvim /usr/local/bin/vi</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'export EDITOR=nvim'</span> <span class="op">&gt;&gt;</span> /etc/profile</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/<span class="op">&lt;</span>TIMEZONE<span class="op">&gt;</span> /etc/localtime    <span class="co"># e.g. America/Chicago</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">hwclock</span> <span class="at">--systohc</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^#en_US.UTF-8/en_US.UTF-8/'</span> /etc/locale.gen</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="ex">locale-gen</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"LANG=en_US.UTF-8"</span> <span class="op">&gt;</span> /etc/locale.conf</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"KEYMAP=us"</span>        <span class="op">&gt;</span> /etc/vconsole.conf</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"&lt;HOSTNAME&gt;"</span> <span class="op">&gt;</span> /etc/hostname    <span class="co"># e.g. arch-triple</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> /etc/hosts <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="st">127.0.0.1   localhost</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="st">::1         localhost</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="st">127.0.1.1   arch-triple.localdomain arch-triple</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-G</span> wheel,video,audio,input <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/'</span> /etc/sudoers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The <strong>pinned UID/GID 1000</strong> is what makes file ownership on the shared <code>/data</code> match between Arch and Ubuntu. Use the <strong>same username and UID</strong> when you create the Ubuntu user later. <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-6-locale-time-hostname-user-with-a-pinned-uid">Why the pinned UID is load-bearing →</a></p>
+</section>
+<section id="harden-the-shared-data-and-hand-it-to-your-user" class="level3">
+<h3 class="anchored" data-anchor-id="harden-the-shared-data-and-hand-it-to-your-user">Harden the shared <code>/data</code> and hand it to your user</h3>
+<p>No keyfile, no <code>crypttab</code>, the shared partition is plain Btrfs <code>genfstab</code> already recorded. Just soft-fail the mount and fix ownership:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Soft-fail the /data mount (boot continues even if it's briefly missing)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s#subvol=/@data#subvol=/@data,nofail,x-systemd.device-timeout=10s#'</span> /etc/fstab</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Hand the shared @data subvolume to your UID-1000 user — a fresh Btrfs subvolume is root-owned,</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># so without this the first-boot probe (echo … &gt; /data/probe-arch.txt as your user) is Permission denied.</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">chown</span> 1000:1000 /data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Ownership is stored in the filesystem, so Ubuntu (also UID 1000) will see these files as its own user automatically, no second <code>chown</code> from Ubuntu. <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-7-harden-the-data-fstab-line-and-hand-it-to-your-user">Full <code>/data</code> reasoning →</a></p>
+</section>
+<section id="the-exchange-partitions-fstab-line" class="level3">
+<h3 class="anchored" data-anchor-id="the-exchange-partitions-fstab-line">The exchange partition’s fstab line</h3>
+<p>exFAT has no Unix ownership, so we assign it at mount time. Add the line by hand (it isn’t in <code>genfstab</code> because we didn’t mount it):</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"UUID=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p4<span class="va">)</span><span class="st"> /exchange exfat defaults,uid=1000,gid=1000,umask=022,nofail 0 0"</span> <span class="dt">\</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">&gt;&gt;</span> /etc/fstab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>uid=1000,gid=1000</code> makes every file on the exchange show up as owned by your user; <code>umask=022</code> gives sane permissions; <strong><code>nofail</code></strong> means a missing/unformatted exchange partition won’t block boot.</p>
+</section>
+<section id="hibernation-swap-file-zram" class="level3">
+<h3 class="anchored" data-anchor-id="hibernation-swap-file-zram">Hibernation swap file + zram</h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> filesystem mkswapfile <span class="at">--size</span> 36g <span class="at">--uuid</span> clear /swap/swapfile     <span class="co"># size ≥ your RAM</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'/swap/swapfile none swap defaults 0 0'</span> <span class="op">&gt;&gt;</span> /etc/fstab</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile                   <span class="co"># save the integer → &lt;RESUME_OFFSET&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> /etc/systemd/zram-generator.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="st">[zram0]</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="st">zram-size = ram / 2</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="st">compression-algorithm = zstd</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="st">swap-priority = 100</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="st">fs-type = swap</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Don’t <code>swapon</code> from inside the chroot (it blocks clean unmounting). zram (priority 100) carries everyday swap; the swap file (priority -2) is for hibernation. <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-9-zram-for-everyday-compressed-swap">Two-tier swap rationale →</a></p>
+</section>
+<section id="mkinitcpio" class="level3">
+<h3 class="anchored" data-anchor-id="mkinitcpio">mkinitcpio</h3>
+<p>Edit <code>/etc/mkinitcpio.conf</code>, note the <code>HOOKS</code> line has <strong>no <code>sd-encrypt</code></strong> (there’s no LUKS root to unlock):</p>
+<pre class="text"><code>MODULES=(btrfs)
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)</code></pre>
+<p>Rebuild:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkinitcpio</span> <span class="at">-P</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>No <code>/etc/crypttab.initramfs</code> to write, the root mounts directly from <code>p6</code>. <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-10-mkinitcpio-and-the-grub-cmdline">mkinitcpio reasoning →</a></p>
+</section>
+</section>
+<section id="chapter-10-grub-cmdline-os-prober-install" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-10-grub-cmdline-os-prober-install">Chapter 10: GRUB, cmdline, os-prober, install</h2>
+<p>Get the <strong>Arch root Btrfs filesystem’s UUID</strong> (<code>p6</code>):</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p6</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Edit <code>/etc/default/grub</code>. Without LUKS there’s no <code>rd.luks.name=</code> and no <code>/dev/mapper/…</code> root, <code>grub-mkconfig</code> auto-detects the root and <code>subvol=@</code>, so we only add the hibernation resume target (substitute real values, <strong>no angle brackets in the file</strong>):</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="va">GRUB_CMDLINE_LINUX_DEFAULT</span><span class="op">=</span><span class="st">"loglevel=3 quiet zswap.enabled=0 resume=UUID=&lt;ARCH_BTRFS_UUID&gt; resume_offset=&lt;RESUME_OFFSET&gt;"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Enable <code>os-prober</code>, the key triple-boot setting, because this is what makes GRUB discover <strong>both</strong> Windows and Ubuntu:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/'</span> /etc/default/grub</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_DISABLE_OS_PROBER='</span> /etc/default/grub      <span class="co"># GRUB_DISABLE_OS_PROBER=false</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Install GRUB to the shared ESP and generate the config:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>os-prober</code> already has something to find, <strong>Windows</strong>:</p>
+<pre class="text"><code>Found Windows Boot Manager on /dev/nvme0n1p1@/EFI/Microsoft/Boot/bootmgfw.efi</code></pre>
+<p>…and <code>grub.cfg</code> will contain an Arch entry plus a <strong>Windows Boot Manager</strong> entry that chainloads <code>bootmgfw.efi</code>. Ubuntu doesn’t exist yet.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+No <code>GRUB_ENABLE_CRYPTODISK</code>, no <code>--modules</code>, no <code>grub&gt;</code> trap
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This <code>grub-install</code> is a plain one, no crypto modules to embed, no <code>GRUB_ENABLE_CRYPTODISK=y</code>. <code>/boot</code> is the unencrypted FAT32 ESP, so GRUB reads kernels and <code>grub.cfg</code> directly. The entire “GRUB drops to <code>grub&gt;</code> because it can’t unlock encrypted <code>/boot</code>” failure class from the encrypted article cannot occur here. <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-10-mkinitcpio-and-the-grub-cmdline">Why no cryptodisk →</a></p>
+</div>
+</div>
+</section>
+<section id="chapter-11-enable-services-sanity-check-reboot" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-11-enable-services-sanity-check-reboot">Chapter 11: Enable services, sanity-check, reboot</h2>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager sshd fstrim.timer reflector.timer <span class="dt">\</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>                 snapper-timeline.timer snapper-cleanup.timer grub-btrfsd.service</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># quick sanity pass</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^MODULES='</span>                    /etc/mkinitcpio.conf</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^HOOKS='</span>                      /etc/mkinitcpio.conf</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_CMDLINE_LINUX_DEFAULT='</span> /etc/default/grub</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_DISABLE_OS_PROBER='</span>     /etc/default/grub</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /etc/fstab <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">'subvol=|swap|/data|exchange'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>There’s no <code>/etc/crypttab</code> to check and no keyfile to list. Leave the chroot and reboot:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> <span class="at">-R</span> /mnt</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>No <code>cryptsetup close</code>, nothing’s open. Pull the USB. Expected first boot: firmware → <strong>GRUB menu</strong> (listing <em>Arch Linux</em> and <em>Windows Boot Manager</em>) → pick Arch → kernel/initramfs → <strong>no passphrase prompt</strong> → <code>@</code> mounts as <code>/</code> → <code>/data</code> and <code>/exchange</code> mount, zram comes up → login. If you drop into emergency mode, jump to the <a href="#emergency-failure-modes">🚨 emergency section</a>.</p>
+<hr>
+</section>
+</section>
+<section id="part-5-arch-first-boot-verify-all-three-partitions-snapper-hibernation" class="level1">
+<h1>Part 5 — Arch first boot: verify all three partitions, snapper, hibernation</h1>
+<p>Log in as your user:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /            <span class="co"># subvol=/@, on /dev/nvme0n1p6</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /home        <span class="co"># subvol=/@home</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data        <span class="co"># subvol=/@data, on /dev/nvme0n1p5</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /exchange    <span class="co"># exfat, on /dev/nvme0n1p4</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>        <span class="co"># zram0 (pri 100) + /swap/swapfile (pri -2)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Reconnect Wi-Fi, re-enable NTP, verify the timezone:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> radio wifi on</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> device wifi connect <span class="st">"&lt;SSID&gt;"</span> password <span class="st">"&lt;WIFI_PASSWORD&gt;"</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 3 ping.archlinux.org</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> timedatectl set-ntp true</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> status      <span class="co"># correct Time zone, "System clock synchronized: yes", "RTC in local TZ: no"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="verify-the-exchange-is-shared-and-the-data-partition-is-owned-by-you" class="level3">
+<h3 class="anchored" data-anchor-id="verify-the-exchange-is-shared-and-the-data-partition-is-owned-by-you">Verify the exchange is shared and the data partition is owned by you</h3>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"hello from arch"</span> <span class="op">&gt;</span> /exchange/from-arch.txt      <span class="co"># Windows will be able to read this</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /exchange/from-arch.txt                          <span class="co"># owned by user (uid=1000 from the mount options)</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"from arch"</span> <span class="op">&gt;</span> /data/probe-arch.txt                <span class="co"># Linux-only (Windows can't read Btrfs)</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g'</span> /data/probe-arch.txt                   <span class="co"># 1000 1000 — confirms the pinned UID</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="configure-snapper-for" class="level3">
+<h3 class="anchored" data-anchor-id="configure-snapper-for">Configure snapper for <code>/</code></h3>
+<p>A plain <code>create-config</code> collides with the <code>@snapshots</code> we already mounted; the Arch-recommended dance avoids it:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> umount /.snapshots</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> rm <span class="at">-rf</span> /.snapshots</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root create-config /</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs subvolume delete /.snapshots</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> mkdir /.snapshots</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod 750 /.snapshots</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> mount <span class="at">-a</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root set-config <span class="dt">\</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    TIMELINE_LIMIT_HOURLY=5 TIMELINE_LIMIT_DAILY=7 <span class="dt">\</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    TIMELINE_LIMIT_WEEKLY=2 TIMELINE_LIMIT_MONTHLY=1 TIMELINE_LIMIT_YEARLY=0</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root list      <span class="co"># at least one row</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="test-hibernation-before-installing-ubuntu" class="level3">
+<h3 class="anchored" data-anchor-id="test-hibernation-before-installing-ubuntu">Test hibernation before installing Ubuntu</h3>
+<div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Press power to resume; expect your exact session restored (no passphrase prompt). If it boots fresh, re-check <code>resume=</code>/<code>resume_offset=</code> and re-run <code>mkinitcpio -P &amp;&amp; grub-mkconfig -o /boot/grub/grub.cfg</code>.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Verify hibernation <strong>now</strong>, while only Arch + Windows exist
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Fixing hibernation after Ubuntu has rewritten parts of the boot path is meaningfully harder. Confirm it works here.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="part-6-install-ubuntu-24-lts-into-p7" class="level1">
+<h1>Part 6 — Install Ubuntu 24 LTS into p7</h1>
+<p>Identical to the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#part-4-install-ubuntu-24-lts-alongside">plain-Btrfs dual-boot Part 4</a>, with Windows already present (which changes nothing about the Ubuntu steps, Ubuntu’s <code>os-prober</code> will simply find both Arch <em>and</em> Windows).</p>
+<p>From the Arch side, snapshot the current NVRAM so you can compare after Ubuntu reorders it:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span> <span class="at">-v</span> <span class="op">&gt;</span> ~/efi-before-ubuntu.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Boot a verified Ubuntu 24.04 LTS Desktop USB and pick <strong>“Try Ubuntu”</strong>. We build Ubuntu’s root by hand from the live session with <code>debootstrap</code>, exactly as in the dual-boot, with <strong>p7</strong> as Ubuntu’s root.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Driving it remotely over SSH?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The Ubuntu Desktop live image has no SSH server and logs you in as a passwordless <code>ubuntu</code> user, so it needs a few setup commands first, do it exactly as in the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#install-ubuntu-by-hand-from-the-live-session">dual-boot SSH-in callout</a> (<code>apt install openssh-server</code>, <code>passwd ubuntu</code>, <code>systemctl enable --now ssh</code>, then <code>ssh ubuntu@&lt;ip&gt;</code> + <code>sudo -i</code>).</p>
+</div>
+</div>
+<p>Open a terminal, <code>sudo -i</code>, <code>apt update &amp;&amp; apt install -y debootstrap</code> (no <code>cryptsetup-bin</code> needed), then:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 — format p7 as Btrfs + subvolumes (no LUKS)</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> ubuntu /dev/nvme0n1p7</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p7 /mnt</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@ <span class="kw">&amp;&amp;</span> <span class="ex">btrfs</span> subvolume create /mnt/@home <span class="kw">&amp;&amp;</span> <span class="fu">umount</span> /mnt</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2 — mount target + shared ESP</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@ /dev/nvme0n1p7 /mnt</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/home /mnt/boot/efi</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@home /dev/nvme0n1p7 /mnt/home</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot/efi                   <span class="co"># shared ESP — do not reformat</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 3 — bootstrap + fstab (root, home, ESP, shared /data — all plain, no crypttab)</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="ex">debootstrap</span> <span class="at">--arch</span> amd64 noble /mnt http://archive.ubuntu.com/ubuntu</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="va">UB</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p7<span class="va">)</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="va">ESP</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p1<span class="va">)</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a><span class="va">SHARED</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p5<span class="va">)</span></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'UUID=%s / btrfs noatime,compress=zstd:3,subvol=@ 0 0\nUUID=%s /home btrfs noatime,compress=zstd:3,subvol=@home 0 0\nUUID=%s /boot/efi vfat umask=0077 0 1\nUUID=%s /data btrfs rw,noatime,compress=zstd:3,subvol=@data,nofail,x-systemd.device-timeout=10s 0 0\n'</span> <span class="st">"</span><span class="va">$UB</span><span class="st">"</span> <span class="st">"</span><span class="va">$UB</span><span class="st">"</span> <span class="st">"</span><span class="va">$ESP</span><span class="st">"</span> <span class="st">"</span><span class="va">$SHARED</span><span class="st">"</span> <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/data</span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 4 — chroot</span></span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> /etc/resolv.conf /mnt/etc/resolv.conf</span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> dev dev/pts proc sys run<span class="kw">;</span> <span class="cf">do</span> <span class="fu">mount</span> <span class="at">--rbind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span> <span class="dv">2</span><span class="op">&gt;</span>/dev/null <span class="kw">||</span> <span class="fu">mount</span> <span class="at">--bind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span><span class="kw">;</span> <span class="cf">done</span></span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a><span class="fu">chroot</span> /mnt /bin/bash</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Inside the chroot, widen the sources list, install the system (note: <strong>no <code>cryptsetup</code>/<code>cryptsetup-initramfs</code></strong>, and a plain <code>grub-install</code>), and create the UID-1000 user, <strong>identical to <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#install-ubuntu-by-hand-from-the-live-session">dual-boot Part 4 step 5</a></strong> (root device here is <code>/dev/nvme0n1p7</code>):</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> /etc/apt/sources.list <span class="op">&lt;&lt;EOF</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://archive.ubuntu.com/ubuntu  noble           main restricted universe multiverse</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://archive.ubuntu.com/ubuntu  noble-updates   main restricted universe multiverse</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://security.ubuntu.com/ubuntu noble-security  main restricted universe multiverse</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> update</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-standard linux-image-generic grub-efi-amd64 os-prober btrfs-progs network-manager sudo locales tzdata exfatprogs</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"GRUB_DISABLE_OS_PROBER=false"</span> <span class="op">&gt;&gt;</span> /etc/default/grub   <span class="co"># 24.04 disables os-prober by default</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="ex">update-initramfs</span> <span class="at">-u</span> <span class="at">-k</span> all</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot/efi <span class="at">--bootloader-id</span><span class="op">=</span>Ubuntu <span class="at">--recheck</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span>                                          <span class="co"># os-prober finds Windows AND Arch</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span><span class="kw">;</span> <span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-s</span> /bin/bash <span class="at">-G</span> sudo,adm,cdrom,dip,plugdev <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span> <span class="kw">&amp;&amp;</span> <span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-desktop-minimal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Notice the plain <code>grub-install</code>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>No <code>GRUB_ENABLE_CRYPTODISK=y</code>, no <code>--modules="part_gpt cryptodisk luks2 …"</code>, no root <code>crypttab</code> entry. Ubuntu’s <code>/boot/efi</code> is the shared unencrypted ESP and its kernel lives on a plain Btrfs root GRUB reaches normally. The <code>grub&gt;</code> prompt the encrypted article’s <code>--modules</code> step exists to prevent simply can’t happen here.</p>
+</div>
+</div>
+<p>Add the exchange-partition <code>fstab</code> line (the shared <code>/data</code> line is already in <code>fstab</code> from step 3), then exit and reboot:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"UUID=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p4<span class="va">)</span><span class="st"> /exchange exfat defaults,uid=1000,gid=1000,umask=022,nofail 0 0"</span> <span class="op">&gt;&gt;</span> /etc/fstab</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /exchange</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sync</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why <code>reboot</code> instead of unmounting by hand
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <code>mount --rbind /run /mnt/run</code> from entering the chroot is <em>recursive</em>, it pulls <code>/run/user/0</code> and the live session’s snap mount namespaces in under <code>/mnt/run</code>, so <code>umount -R …</code> tends to fail with <code>target is busy</code>. Everything’s on disk; <code>sync</code> flushes and <code>reboot</code> tears down every mount the hard way.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Ubuntu reorders NVRAM to boot its own GRUB first
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>That’s fine, Ubuntu’s GRUB has <code>os-prober</code> on and will list Windows and Arch. If you’d rather Arch’s GRUB own the menu, restore the order with <code>efibootmgr</code> in Part 7.</p>
+</div>
+</div>
+<section id="chapter-12-add-ubuntus-hibernation-swap-file" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-12-add-ubuntus-hibernation-swap-file">Chapter 12: Add Ubuntu’s hibernation swap file</h2>
+<p>Boot <strong>Ubuntu</strong> from the GRUB menu, log in, and mirror Arch’s per-OS hibernation:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /                                                    <span class="co"># /dev/nvme0n1p7</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs subvolume create /swap</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs filesystem mkswapfile <span class="at">--size</span> 36g <span class="at">--uuid</span> clear /swap/swapfile</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'/swap/swapfile none swap defaults,pri=-2 0 0'</span> <span class="kw">|</span> <span class="fu">sudo</span> tee <span class="at">-a</span> /etc/fstab</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile   <span class="co"># save → &lt;UBUNTU_RESUME_OFFSET&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Point Ubuntu’s cmdline and initramfs at its <em>own</em> Btrfs filesystem (never Arch’s):</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> blkid <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p7    <span class="co"># &lt;UBUNTU_BTRFS_UUID&gt;</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="ex">sudoedit</span> /etc/default/grub</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="co"># GRUB_CMDLINE_LINUX_DEFAULT="quiet splash resume=UUID=&lt;UBUNTU_BTRFS_UUID&gt; resume_offset=&lt;UBUNTU_RESUME_OFFSET&gt;"</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"RESUME=UUID=&lt;UBUNTU_BTRFS_UUID&gt;"</span> <span class="kw">|</span> <span class="fu">sudo</span> tee /etc/initramfs-tools/conf.d/resume</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-initramfs <span class="at">-u</span> <span class="at">-k</span> all</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Confirm Ubuntu sees the shared and exchange partitions, then test hibernation:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data /exchange</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                    <span class="co"># zram + /swap/swapfile</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data /exchange            <span class="co"># files written from Arch appear, owned by user</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate         <span class="co"># resumes into Ubuntu, separate from Arch's image</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+</section>
+<section id="part-7-finalize-the-grub-menu-from-arch" class="level1">
+<h1>Part 7 — Finalize the GRUB menu from Arch</h1>
+<p>Reboot, pick <strong>Arch Linux</strong>, and re-run <code>grub-mkconfig</code> now that all three OSes exist:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> grub-mkconfig <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Expected <code>os-prober</code> output:</p>
+<pre class="text"><code>Found Windows Boot Manager on /dev/nvme0n1p1@/EFI/Microsoft/Boot/bootmgfw.efi
+Found Ubuntu 24.04 LTS (24.04) on /dev/nvme0n1p7</code></pre>
+<p><code>grub.cfg</code> now lists <strong>Arch, Ubuntu, and Windows.</strong> Optionally make Arch’s GRUB primary via NVRAM order:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span>                                  <span class="co"># find the BootNNNN for "GRUB", "Ubuntu", "Windows Boot Manager"</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> GRUB_NUM,UBUNTU_NUM      <span class="co"># Arch's GRUB first; Windows reachable via the GRUB menu either way</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+<section id="part-8-final-sanity-checks-across-three-oses" class="level1">
+<h1>Part 8 — Final sanity checks across three OSes</h1>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+The pass condition
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>All three boot from one GRUB menu; Arch and Ubuntu each hibernate into themselves and mount the shared <code>/data</code> with identical ownership; every OS reads/writes <code>/exchange</code>; Windows boots, keeps correct time, and never prompts for a BitLocker key on a normal boot.</p>
+</div>
+</div>
+<p><strong>From Arch / Ubuntu</strong> (run on each):</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> / /home /data /exchange</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                       <span class="co"># zram + that OS's own /swap/swapfile</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate            <span class="co"># resumes into the same OS</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>          <span class="co"># all 1000 — pinned-UID parity</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /exchange                     <span class="co"># files from all three OSes</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>From Windows</strong>: confirm the clock is correct after switching from Linux (proves the <code>RealTimeIsUniversal</code> fix), and that File Explorer → the <strong>EXCHANGE</strong> volume shows the files Linux wrote. Drop a file there and confirm Linux sees it on the next boot.</p>
+<hr>
+<p><span id="emergency-failure-modes"></span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+🚨 Emergency: triple-boot-specific failure modes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If Part 8 passed, skip this. The plain-Btrfs dual-boot’s <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#emergency-failure-modes">emergency section</a> covers the Btrfs/<code>/data</code>/hibernation failures; the ones below are the Windows-specific additions.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+No <code>grub&gt;</code> prompt to recover from
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Because both Linux distros keep <code>/boot</code> on the plain FAT32 ESP, the bare-<code>grub&gt;</code> failure that the <em>encrypted</em> triple-boot could hit (GRUB unable to unlock the encrypted <code>/boot</code>) <strong>cannot happen here.</strong> GRUB always reads its config and kernels normally.</p>
+</div>
+</div>
+<section id="grub-menu-has-no-windows-entry" class="level3">
+<h3 class="anchored" data-anchor-id="grub-menu-has-no-windows-entry">1. GRUB menu has no Windows entry</h3>
+<ul>
+<li><strong><code>os-prober</code> installed and enabled?</strong> <code>grep ^GRUB_DISABLE_OS_PROBER= /etc/default/grub</code> → <code>false</code>; <code>pacman -S os-prober</code> (Arch) / <code>apt install os-prober</code> (Ubuntu).</li>
+<li><strong>ESP mounted at <code>/boot</code> when you ran <code>grub-mkconfig</code>?</strong> <code>os-prober</code> finds <code>bootmgfw.efi</code> on the ESP. <code>findmnt /boot</code>, then re-run.</li>
+<li><strong>Windows installed in UEFI mode?</strong> Confirm <code>\EFI\Microsoft\Boot\bootmgfw.efi</code> exists: <code>ls /boot/EFI/Microsoft/Boot/</code>.</li>
+</ul>
+</section>
+<section id="a-windows-update-stole-the-boot-order-boots-straight-to-windows" class="level3">
+<h3 class="anchored" data-anchor-id="a-windows-update-stole-the-boot-order-boots-straight-to-windows">2. A Windows update stole the boot order (boots straight to Windows)</h3>
+<p>Boot Linux (force the firmware boot menu once), then:</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr                                  <span class="co"># note the GRUB and Windows BootNNNN numbers</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> <span class="op">&lt;</span>GRUB_NUM<span class="op">&gt;</span>,<span class="op">&lt;</span>WINDOWS_NUM<span class="op">&gt;</span>      <span class="co"># put GRUB first again</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Nothing was lost, only the <em>order</em> changed. GRUB still chainloads Windows fine.</p>
+</section>
+<section id="clock-is-wrong-after-switching-os" class="level3">
+<h3 class="anchored" data-anchor-id="clock-is-wrong-after-switching-os">3. Clock is wrong after switching OS</h3>
+<p>The <code>RealTimeIsUniversal</code> registry value (Part 3, Chapter 4) wasn’t set or didn’t take. Re-apply it from an Administrator prompt in Windows and reboot Windows once. Do <strong>not</strong> set Linux to localtime, that just moves the bug.</p>
+</section>
+<section id="windows-demands-a-bitlocker-recovery-key-after-you-installed-grub" class="level3">
+<h3 class="anchored" data-anchor-id="windows-demands-a-bitlocker-recovery-key-after-you-installed-grub">4. Windows demands a BitLocker recovery key after you installed GRUB</h3>
+<p>Device encryption was still on when the boot path changed. Enter the recovery key (from <a href="https://aka.ms/myrecoverykey" target="_blank" rel="noopener">aka.ms/myrecoverykey</a>), then <strong>turn device encryption off</strong> (Part 3, Chapter 4) so it stops re-prompting.</p>
+</section>
+<section id="the-exchange-partition-wont-mount-shows-no-files" class="level3">
+<h3 class="anchored" data-anchor-id="the-exchange-partition-wont-mount-shows-no-files">5. The exchange partition won’t mount / shows no files</h3>
+<ul>
+<li><code>nofail</code> keeps a bad exchange partition from blocking boot, but if <code>/exchange</code> is empty, check <code>findmnt /exchange</code> and <code>blkid /dev/nvme0n1p4</code> (is the <code>fstab</code> UUID correct?).</li>
+<li>Windows’ <strong>Fast Startup</strong> leaves filesystems dirty. If Linux mounts <code>/exchange</code> read-only or refuses, you almost certainly skipped disabling Fast Startup, do it (Part 3, Chapter 4), fully shut Windows down (not restart), and remount.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="part-9-closing-the-loop" class="level1">
+<h1>Part 9 — Closing the loop</h1>
+<p>You now have a single drive that boots <strong>Windows, Arch, and Ubuntu</strong>, with two plain-Btrfs Linux roots, a shared <code>/data</code> the two Linux distros mount as one home for documents, a plain exFAT exchange partition for the Windows handoff, per-OS hibernation that never collides, and one GRUB menu, all without a single passphrase prompt or a single byte of LUKS to go wrong at boot.</p>
+<p>The tradeoff you made is the one Part 1 spelled out: <strong>nothing on this disk is encrypted at rest.</strong> That’s the right call for a stationary, physically-secured machine and the wrong one for a laptop. If the machine’s role changes, the <a href="../2026-06-05-arch-ubuntu-windows-triple-boot/">encrypted triple-boot (Article 10)</a> is the same layout with LUKS2 around each Linux root and the shared <code>/data</code>, and the hardening this no-encryption build let you skip (the <code>--modules</code> EFI-core surgery, the <code>--pbkdf pbkdf2</code> keyslot discipline, the <code>grub&gt;</code> recovery) is exactly what that article now documents in full.</p>
+<p>The desktop layer for the Arch side is still a separate choice, a custom Hyprland is the direction I’m taking (upcoming), and it doesn’t touch any of the multi-boot machinery below it.</p>
+<hr>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Attribution
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The Arch Linux logo is a trademark of the Arch Linux project and is used here under <a href="https://archlinux.org/art/" target="_blank" rel="noopener">Arch Linux’s branding terms</a> for editorial purposes only. The Ubuntu wordmark and Circle of Friends are trademarks of Canonical Ltd.; the Windows name and logo are trademarks of Microsoft Corporation, references here are editorial and follow each owner’s trademark policy.</p>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/evannsmc\.com");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="https://github.com/evannsmc" target="_blank" rel="noopener">GitHub</a> · <a href="https://www.linkedin.com/in/evanns-morales/" target="_blank" rel="noopener">LinkedIn</a> · <a href="https://scholar.google.com/citations?user=kuWXwJsAAAAJ&amp;hl=en&amp;oi=ao" target="_blank" rel="noopener">Scholar</a> · <a href="https://orcid.org/0009-0000-3928-6243" target="_blank" rel="noopener">ORCID</a> <br>© 2026 evannsmc · Evanns Morales-Cuadrado · All rights reserved</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

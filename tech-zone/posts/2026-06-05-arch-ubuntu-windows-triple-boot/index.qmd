@@ -647,13 +647,20 @@ echo "crypt_ubuntu UUID=$(blkid -s UUID -o value /dev/nvme0n1p7) none luks,disca
 echo "GRUB_ENABLE_CRYPTODISK=y" >> /etc/default/grub
 echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub   # 24.04 disables os-prober by default
 update-initramfs -u -k all
-grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Ubuntu --recheck
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Ubuntu --recheck \
+    --modules="part_gpt cryptodisk luks2 btrfs gcry_rijndael gcry_sha256 pbkdf2"
 update-grub                                          # os-prober finds Windows AND Arch
 groupadd -g 1000 <USERNAME>; useradd -m -u 1000 -g 1000 -s /bin/bash -G sudo,adm,cdrom,dip,plugdev <USERNAME> && passwd <USERNAME>
 apt install -y ubuntu-desktop-minimal
 ```
 
-The same two-prompt / single-prompt-keyfile note from the [dual-boot installer callout](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session) applies verbatim (swap `p4`→`p7`). **Stay in the chroot** — Chapter 12 wires up the shared `/data` and the exchange partition before you reboot.
+::: {.callout-important}
+## That `--modules=` on `grub-install` is mandatory, not decorative
+
+Because Ubuntu's `/boot` lives **inside** the encrypted `p7`, GRUB has to load `cryptodisk` + `luks2` + the cipher modules (`gcry_rijndael`, `gcry_sha256`) + `pbkdf2` + `btrfs` *before* it can read its own `grub.cfg`, a chicken-and-egg a plain `grub-install` doesn't resolve. `--modules="…"` bakes them into the EFI core image so they're present at the very first instruction. Omit it (or let a paste split the long line so the flag runs separately) and `grub-install` still reports success, but the **next boot lands at a bare `grub>` prompt**. The [dual-boot's grub> recovery walkthrough](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#emergency-failure-modes) gets you back out (substitute `gpt7` for `gpt4`). Keep the command on one logical line, the trailing `\` does that for paste; hand-typing, type it unbroken or stash the module list in a shell variable first.
+:::
+
+The same two-prompt / single-prompt-keyfile note from the [dual-boot installer callout](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session) applies verbatim (swap `p4`→`p7`) — **including the `--pbkdf pbkdf2` on that `luksAddKey`**: a single Argon2id keyslot makes GRUB 2.12 reject the whole `p7` header (`no cryptodisk module can handle this device`). After adding the keyfile, sanity-check with `cryptsetup luksDump /dev/nvme0n1p7 | grep -E 'Keyslot|PBKDF:'` — every `PBKDF:` line must read `pbkdf2`. **Stay in the chroot** — Chapter 12 wires up the shared `/data` and the exchange partition before you reboot.
 
 ::: {.callout-warning}
 ## Ubuntu reorders NVRAM to boot its own GRUB first
@@ -711,15 +718,19 @@ update-initramfs -u -k all
 update-grub                       # runs os-prober → finds Arch AND Windows
 ```
 
-`update-grub`'s output should include `Found Windows Boot Manager …` and `Found Arch Linux …`. Exit and unmount:
+`update-grub`'s output should include `Found Windows Boot Manager …` and `Found Arch Linux …`. Everything's written, so just reboot, `reboot` flushes and force-unmounts on the way down:
 
 ```bash
 exit
-for d in run sys proc dev/pts dev; do umount -R /mnt/$d 2>/dev/null; done
-umount /mnt/home /mnt/boot/efi /mnt
-cryptsetup close crypt_ubuntu
+sync
 reboot
 ```
+
+::: {.callout-note}
+## Why `reboot` beats unmounting by hand
+
+The `mount --rbind /run /mnt/run` from entering the chroot is *recursive*: it pulls `/run/user/0` and the live session's snap mount namespaces in under `/mnt/run`, so a tidy `umount -R … ; cryptsetup close crypt_ubuntu` sequence fails with `target is busy` no matter how often you retry. The files are already on disk; `sync` flushes the write cache and `reboot` tears down every mount the hard way and closes the LUKS mappings as the kernel shuts down. Don't fight the busy mounts.
+:::
 
 ## Chapter 13: Add Ubuntu's hibernation swap file
 
@@ -812,6 +823,10 @@ If anything's off, the emergency section below covers the triple-boot-specific f
 
 If Part 8 passed, skip this. The dual-boot's [emergency section](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#emergency-failure-modes) covers the LUKS/Btrfs/`/data` failures; the ones below are the Windows-specific additions.
 :::
+
+### 0. You boot Ubuntu and land at a bare `grub>` prompt
+
+Same failure (and same two root causes, missing `--modules` in the EFI core, or an Argon2id keyslot) as the dual-boot, since Ubuntu's `/boot` is inside the encrypted root here too. The full walkthrough lives in the [dual-boot grub> recovery section](../2026-05-19-arch-ubuntu-dual-boot-shared-data/#emergency-failure-modes); the **only** substitution for triple-boot is the partition number, Ubuntu's root is `p7`, so unlock with `cryptomount (hd0,gpt7)` (not `gpt4`), and the `luksDump`/`luksKillSlot`/re-`grub-install` commands all target `/dev/nvme0n1p7`. Windows and Arch are unaffected by this, you can still pick them from a working menu if GRUB's core loaded for those; it's specifically Ubuntu's encrypted `/boot` that GRUB can't reach until the modules are embedded.
 
 ### 1. GRUB menu has no Windows entry
 

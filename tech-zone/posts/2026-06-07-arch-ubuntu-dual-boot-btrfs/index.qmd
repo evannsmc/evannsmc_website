@@ -1,0 +1,1094 @@
+---
+title: "Dual-Boot Arch + Ubuntu (Plain Btrfs, No Encryption) — With a Shared Data Partition"
+description: "The no-encryption sibling of the LUKS+Btrfs dual-boot: one NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root (no LUKS), plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. Same Btrfs subvolume layout (`@`, `@home`, `@snapshots`, `@var_log`, `@swap`), same per-OS zram + NoCOW Btrfs hibernation, same pinned-UID shared `/data`, but with every cryptsetup, keyfile, crypttab, and GRUB-cryptodisk step removed. No passphrase prompts, no encrypted `/boot`, and none of the `grub>` failure modes that come with GRUB unlocking LUKS. GRUB on the single shared ESP, with os-prober enabled."
+author: "Evanns Morales"
+date: "2026-06-07"
+categories: [arch linux, ubuntu, linux, installation, dual-boot, btrfs, snapper, hibernation, grub, os-prober, mkinitcpio, zram, shared partition, no encryption]
+image: ../../../files/tech-zone/arch-logo-dark.svg
+image-alt: "The Arch Linux logo, official wordmark from archlinux.org."
+draft: false
+---
+
+::: {.callout-warning}
+## Disclaimer: this is the reasoned no-encryption variant, not yet a live-tested run
+
+This is the plain-Btrfs twin of the [LUKS+Btrfs dual-boot (Article 07)](../2026-05-19-arch-ubuntu-dual-boot-shared-data/), built by taking that working design and **removing every encryption layer**. It's a reasoned blueprint, not a command-by-command log I've executed end-to-end (yet). The upside of dropping LUKS is that it also drops the parts of Article 07 that bit hardest in practice: the encrypted-`/boot` GRUB setup that can land you at a bare `grub>` prompt, the Argon2id-keyslot trap, the keyfile/`crypttab` dance, and the double passphrase prompt. What's left is the boring, dependable shape, and "boring and dependable" is exactly what you want from a bootloader.
+
+Canonical sources to re-read as you go:
+
+- [`btrfs`](https://man.archlinux.org/man/btrfs.8){target="_blank" rel="noopener"} — subvolumes, swap files, mount options
+- [Arch wiki: GRUB#Dual booting](https://wiki.archlinux.org/title/GRUB#Dual_booting){target="_blank" rel="noopener"} and [`os-prober`](https://wiki.archlinux.org/title/GRUB#Detecting_other_operating_systems){target="_blank" rel="noopener"}
+- [Arch wiki: Btrfs](https://wiki.archlinux.org/title/Btrfs){target="_blank" rel="noopener"} and [Snapper](https://wiki.archlinux.org/title/Snapper){target="_blank" rel="noopener"}
+- [Ubuntu wiki: Installation/FromUSBStick](https://help.ubuntu.com/community/Installation/FromUSBStick){target="_blank" rel="noopener"}
+
+Treat this as a blueprint for the *pattern*, not a substitute for re-reading the tool docs as you go.
+:::
+
+::: {.callout-note}
+## What this is
+
+The same dual-boot layout as [Article 07](../2026-05-19-arch-ubuntu-dual-boot-shared-data/), minus encryption:
+
+- **Two plain Btrfs root partitions** — Arch in its own Btrfs partition, Ubuntu in its own, each carrying the usual subvolumes (`@`, `@home`, …). No LUKS container around either.
+- **One shared 150 GiB plain Btrfs data partition**, mounted at `/data` on both distros, owned by your user on both sides. Just an `fstab` UUID line on each OS, no keyfile, no `crypttab`, no auto-unlock machinery.
+- **Per-OS everyday swap via zram** (compressed RAM, no SSD writes) and **per-OS hibernation** to a NoCOW Btrfs swap file inside each distro's own root, no shared swap partition, no cross-OS resume-image collisions.
+- **One GRUB** on the shared ESP, with `os-prober` enabled so either distro's `grub-mkconfig`/`update-grub` regenerates a menu listing both.
+
+It stops on the console for the Arch side; the desktop layer is your choice, exactly like the encrypted articles. Ubuntu's GNOME comes up out of the box.
+:::
+
+## Why a no-encryption version at all
+
+Full-disk encryption is the right default for a laptop that leaves the house. But there are real cases where it's the wrong tradeoff:
+
+- **A desktop or homelab box that never moves.** Physical-theft is your threat model with FDE; a machine bolted in a rack at home has a very different one. The boot-time passphrase is then pure friction.
+- **Headless / auto-rebooting machines.** Anything that has to come back up unattended after a power blip can't sit at a passphrase prompt. (TPM-bound unlock exists, but that's *more* complexity than this article, not less.)
+- **Learning the layout first.** The encryption is the part most likely to break a first attempt. Getting the dual-boot, the shared `/data`, snapper, and hibernation working *without* LUKS in the way is a clean way to build the model before adding crypto back.
+
+If you want encryption, use [Article 07](../2026-05-19-arch-ubuntu-dual-boot-shared-data/) instead, it's the same design with LUKS2 around each root and the shared partition. This article is for when you've decided you don't.
+
+::: {.callout-important}
+## What you give up by dropping encryption
+
+Be honest with yourself about the threat model. With no LUKS:
+
+- **Anyone who can boot from a USB stick (or pull the SSD) reads everything** — your home directory, the shared `/data`, saved credentials, browser sessions. There's no passphrase gating any of it.
+- **A lost or stolen machine is a data breach**, not just a hardware loss.
+- The shared `/data` here is plain Btrfs; "shared" no longer implies "encrypted at rest."
+
+If any of that is unacceptable for what lives on this machine, stop and use the encrypted article. Everything below assumes you've consciously chosen an unencrypted disk.
+:::
+
+What adding Ubuntu still introduces (encryption or not):
+
+1. **Who owns GRUB?** Both distros want their own bootloader on the same ESP. We pick one as the menu driver (Ubuntu) and let its `os-prober` discover Arch automatically.
+2. **UID/GID coordination for the shared partition.** If `user` is UID 1000 on Arch and UID 1001 on Ubuntu, every file on `/data` looks like it belongs to a different user depending on which OS you booted. We pin UID 1000 on both sides.
+3. **Resume-image collisions.** Two OSes hibernating to the same swap target would overwrite each other's image. We give each OS its own NoCOW Btrfs swap file inside its own root, plus zram for everyday swap.
+4. **`os-prober` is off by default on Arch.** We flip it for both distros so a re-run of `grub-mkconfig` from either side regenerates a complete menu.
+
+---
+
+::: {.callout-important}
+## How to read the commands in this guide
+
+Every command sits in its own copy box, hit the copy icon, paste, run. **But watch for angle-bracket placeholders** like `<USERNAME>`, `<HOSTNAME>`, `<TIMEZONE>`, `<SSID>`, or `<WIFI_PASSWORD>`. Those are values only *you* know, and they're written that way on purpose: `<…>` is invalid shell syntax, so if you blind-paste a line that still has one, it **fails loudly** instead of silently running with my example values. See a `<…>`, replace the whole token (brackets and all) before you run the line. Device paths like `/dev/nvme0n1p3` are left literal, they match the disk-layout table, so double-check *those* against your own `lsblk` once, then they paste cleanly.
+:::
+
+# Part 1 — Bootstrap the Arch live environment
+
+## Chapter 0: Verify the ISO, boot the live USB, get online
+
+### Download and verify the ISO
+
+On a machine you trust, grab three files from the [Arch download page](https://archlinux.org/download/){target="_blank" rel="noopener"} — I keep them together in `~/Downloads/Arch`:
+
+- the ISO (`archlinux-2026.05.01-x86_64.iso`, ~1.4 GiB),
+- its signature (`…​.iso.sig`),
+- the `sha256sums.txt` checksum file.
+
+**Checksum**, confirms the bytes on your disk match what the mirror published:
+
+```bash
+cd ~/Downloads/Arch
+sha256sum -c sha256sums.txt
+# archlinux-2026.05.01-x86_64.iso: OK
+```
+
+**Signature**, confirms the ISO was actually published by the Arch release engineer, not a tampered mirror:
+
+```bash
+gpg --auto-key-locate clear,wkd -v --locate-external-key pierre@archlinux.org
+gpg --verify archlinux-2026.05.01-x86_64.iso.sig archlinux-2026.05.01-x86_64.iso
+# gpg: Good signature from "Pierre Schmitz <pierre@archlinux.org>" [unknown]
+```
+
+::: {.callout-tip}
+## About the "key is not certified" warning
+
+```text
+gpg: WARNING: The key's User ID is not certified with a trusted signature!
+```
+
+Expected. It means you haven't personally signed Pierre's key into your local web of trust, the signature itself is still valid, `gpg` just can't *prove* the key's ownership. Fine for a one-off install.
+:::
+
+Flash the verified ISO to a USB stick with [balenaEtcher](https://etcher.balena.io/){target="_blank" rel="noopener"} (pick image → pick drive → flash) or `dd` if you're comfortable (be very careful with `of=`).
+
+### Boot the install media (and confirm UEFI)
+
+Plug the USB into the target machine, interrupt boot (`F2`/`F10`/`F12`/`Esc` depending on vendor), pick the USB, and choose the default *"Arch Linux install medium"* entry. At the root shell, confirm you booted **UEFI**, not legacy BIOS, everything below (the ESP, GRUB) assumes UEFI:
+
+```bash
+cat /sys/firmware/efi/fw_platform_size
+# 64  (or 32 on very old hardware)
+```
+
+If that file doesn't exist, you're in BIOS mode, fix it in firmware settings before continuing. If the console font is too small on a high-DPI panel, `setfont ter-132b`.
+
+### (Optional but recommended) SSH in from another computer
+
+A dual-boot install is long and reference-heavy; doing it over SSH lets you keep this guide open on one screen and paste commands on the other. First get the live USB online with `iwctl`:
+
+```bash
+iwctl
+```
+
+```text
+device list
+station wlan0 scan
+station wlan0 get-networks
+station wlan0 connect "<SSID>"
+```
+
+Quote any SSID with spaces; substitute `wlan0` with your actual device from `device list`; `exit` when connected. Confirm connectivity:
+
+```bash
+ping -c 3 ping.archlinux.org
+```
+
+Find the address to SSH into:
+
+```bash
+ip -brief address          # look at the wlan0 line for inet x.x.x.x/yy
+```
+
+Make sure the SSH daemon is up, set a *temporary* live-environment root password, then connect from your other machine:
+
+```bash
+systemctl enable --now sshd
+passwd                     # live-USB-only password; the installed system gets its own later
+# from the other computer:
+ssh root@<ip-from-above>
+```
+
+### Keymap, timezone, time sync
+
+```bash
+loadkeys us                                   # your console keymap
+timedatectl set-timezone <TIMEZONE>           # e.g. America/Chicago
+timedatectl set-ntp true                      # sync the clock over the network
+```
+
+::: {.callout-note}
+## Why `set-ntp true` matters even for a 30-minute install
+
+`timedatectl set-ntp true` points `systemd-timesyncd` at network time servers. If the live environment's clock drifts far enough from real time, TLS handshakes and `pacman` operations fail with confusing certificate errors. It's free insurance, always turn it on. (You'll turn it on *again* inside the installed system at first boot; the two clocks are independent.)
+:::
+
+::: {.callout-tip}
+## Confirm what disk you're about to wipe
+
+```bash
+lsblk -d -o NAME,SIZE,MODEL,TRAN
+```
+
+NVMe will show `TRAN=nvme`. Every command below uses `/dev/nvme0n1` as a placeholder — **substitute your actual device**. Wiping the wrong disk is unrecoverable, and with no encryption there's no second factor protecting the data either way.
+:::
+
+---
+
+## Chapter 1: The four-partition layout
+
+This is the central design decision. Four partitions on one drive, the same shape as the encrypted article minus the LUKS column:
+
+| Partition | Size               | Filesystem | Mounted on | Purpose                                            |
+|-----------|-------------------:|------------|------------|----------------------------------------------------|
+| `p1`      | 1 GiB              | FAT32      | `/boot`    | Shared UEFI ESP (kernels, initramfs, GRUB)         |
+| `p2`      | 150 GiB            | Btrfs      | `/data`    | Shared data partition                              |
+| `p3`      | (remaining ÷ 2)    | Btrfs      | `/`        | **Arch** root                                      |
+| `p4`      | (remaining ÷ 2)    | Btrfs      | `/`        | **Ubuntu** root                                    |
+
+::: {.callout-note}
+## Doing the math for your disk
+
+We're allocating 150 GiB for shared data and splitting the rest 50/50 between Arch and Ubuntu. For a 2 TiB SSD, that's:
+
+```text
+2000 GiB (drive)
+  −   1 GiB  (ESP)
+  − 150 GiB  (shared data)
+= 1849 GiB remaining
+  ÷ 2
+≈  924 GiB each for Arch and Ubuntu
+```
+
+Adjust the *split* up or down based on which OS you spend more time in. Nothing downstream depends on the specific gigabyte counts.
+:::
+
+::: {.callout-note}
+## Why no swap partition?
+
+zram (Chapter 9) carries ~all everyday memory pressure on either OS. Hibernation writes to a per-OS NoCOW Btrfs swap file inside each root (Chapter 8 for Arch; Chapter 13 for Ubuntu), sized ≥ RAM and owned by the right OS, so there's no cross-boundary collision. A shared swap partition would only help a workload that exceeds RAM + zram *and* isn't hibernation, a narrow niche. Start without one; add it later by shrinking a root if a real workload forces it.
+:::
+
+Partition with `cfdisk`:
+
+```bash
+cfdisk /dev/nvme0n1
+```
+
+Inside `cfdisk`, move the highlight with `↑`/`↓` (or vim's `j` and `k`) and press `Enter` to choose. Every new partition starts as **Linux filesystem**; to set a different type, highlight it, press `t`, and pick from the list the same way:
+
+1. `d` on every existing partition until the table is empty.
+2. `n` → `1G`   → `t` → **EFI System**      → `/dev/nvme0n1p1`.
+3. `n` → `150G` → leave as **Linux filesystem** → `/dev/nvme0n1p2` (shared data).
+4. `n` → `924G` → leave as **Linux filesystem** → `/dev/nvme0n1p3` (Arch root; substitute your half-of-remaining number).
+5. `n` → rest   → leave as **Linux filesystem** → `/dev/nvme0n1p4` (Ubuntu root).
+6. `w`, then type `yes`.
+
+Verify:
+
+```bash
+lsblk
+```
+
+You should see four children of `nvme0n1`, in order, with the sizes you typed.
+
+---
+
+## Chapter 2: Format the partitions
+
+No `cryptsetup` step here, that's the whole point. We format the Btrfs filesystems directly on the partitions. Format the ESP, the shared data partition, and the Arch root now; leave `p4` for the Ubuntu install in Part 4.
+
+```bash
+mkfs.fat -F32 /dev/nvme0n1p1            # ESP — must be FAT32 so UEFI/GRUB can read it
+mkfs.btrfs -L shared /dev/nvme0n1p2     # shared data
+mkfs.btrfs -L arch   /dev/nvme0n1p3     # Arch root
+```
+
+In the encrypted article this step ran `mkfs.btrfs` against a `/dev/mapper/...` device (the unlocked LUKS container); here it runs against the **raw partition**, because there's no LUKS layer in between. Simpler, and one fewer place to get the device name wrong.
+
+---
+
+## Chapter 3: Create the Btrfs subvolumes on the Arch root
+
+Same five-subvolume layout as the encrypted article, the kernel doesn't care about the names, but snapper does:
+
+```bash
+mount /dev/nvme0n1p3 /mnt
+
+btrfs subvolume create /mnt/@
+btrfs subvolume create /mnt/@home
+btrfs subvolume create /mnt/@snapshots
+btrfs subvolume create /mnt/@var_log
+btrfs subvolume create /mnt/@swap
+
+umount /mnt
+```
+
+<details>
+<summary>Click to expand: what each subvolume is for</summary>
+
+| Subvolume     | Mountpoint     | Why it's separate                                                               |
+|---------------|----------------|---------------------------------------------------------------------------------|
+| `@`           | `/`            | The Arch root filesystem. Snapshotted by snapper.                               |
+| `@home`       | `/home`        | Separate so a root rollback doesn't roll back the user's home directory.        |
+| `@snapshots`  | `/.snapshots`  | Where snapper writes snapshots. Must be its own subvolume.                      |
+| `@var_log`    | `/var/log`     | Logs are append-mostly and would noisy-up every snapshot.                       |
+| `@swap`       | `/swap`        | Dedicated subvolume for the hibernation swap file (NoCOW; see Chapter 8).       |
+
+</details>
+
+And one subvolume on the shared data partition:
+
+```bash
+mount /dev/nvme0n1p2 /mnt
+btrfs subvolume create /mnt/@data
+umount /mnt
+```
+
+A single `@data` is enough; lay it out as a subvolume from day one so you can add snapshots later without restructuring.
+
+::: {.callout-tip}
+## Why subvolumes give you "separate root and home" without separate partitions
+
+What most people mean by "separate `/` and `/home`" in 2026 is *a system-rollback shouldn't stomp my home directory*, and *`/home` should grow freely without re-partitioning*. Both are exactly what Btrfs subvolumes give you, they share the underlying filesystem's free-space pool (so neither side runs out before the disk does) but are independent units for snapshotting, rollback, and quota. The old separate-`/home`-partition pattern was an ext4-era workaround for features Btrfs has natively.
+:::
+
+---
+
+## Chapter 4: Mount everything for pacstrap
+
+Mount the Arch root subvolumes with the right options:
+
+```bash
+mount -o noatime,compress=zstd:3,subvol=@ /dev/nvme0n1p3 /mnt
+mkdir -p /mnt/{boot,home,.snapshots,var/log,swap,data}
+
+mount -o noatime,compress=zstd:3,subvol=@home       /dev/nvme0n1p3 /mnt/home
+mount -o noatime,compress=zstd:3,subvol=@snapshots  /dev/nvme0n1p3 /mnt/.snapshots
+mount -o noatime,compress=zstd:3,subvol=@var_log    /dev/nvme0n1p3 /mnt/var/log
+mount -o noatime,subvol=@swap                       /dev/nvme0n1p3 /mnt/swap
+
+mount /dev/nvme0n1p1 /mnt/boot
+mount -o noatime,compress=zstd:3,subvol=@data /dev/nvme0n1p2 /mnt/data
+```
+
+The `@swap` subvolume mounts **without** compression, a swap file must not be compressed. We mount `/mnt/data` *now* so `genfstab -U /mnt` in the next chapter captures the shared partition automatically, and since there's no `crypttab` to write, that's the *only* thing we have to do for `/data` on the Arch side (plus a one-line `fstab` hardening and a `chown`, Chapter 7).
+
+---
+
+## Chapter 5: Pacstrap, fstab, chroot
+
+Note what's **not** in this package list versus the encrypted article: **no `cryptsetup`**. Nothing here manages a LUKS container, so the tool isn't needed.
+
+```bash
+reflector --country 'United States' --protocol https --latest 20 --age 12 \
+          --sort rate --save /etc/pacman.d/mirrorlist
+
+pacstrap -K /mnt \
+    base linux linux-firmware linux-headers intel-ucode \
+    btrfs-progs \
+    grub efibootmgr grub-btrfs os-prober \
+    snapper snap-pac \
+    networkmanager openssh sudo \
+    neovim git base-devel \
+    zram-generator \
+    inotify-tools \
+    reflector
+```
+
+Use `amd-ucode` instead of `intel-ucode` on AMD hardware. **`os-prober`** is the script GRUB runs to discover other operating systems on the same disk, without it, `grub-mkconfig` would only ever see Arch.
+
+Generate `fstab` and enter the new system:
+
+```bash
+genfstab -U /mnt >> /mnt/etc/fstab
+arch-chroot /mnt
+```
+
+::: {.callout-note}
+## Sanity-check the generated fstab
+
+```bash
+cat /etc/fstab
+```
+
+You should see:
+
+- Five Btrfs lines for the Arch root subvolumes (`/`, `/home`, `/.snapshots`, `/var/log`, `/swap`), all using the same `UUID=` of the **Arch Btrfs filesystem**, each with its own `subvol=@…`.
+- One Btrfs line for `/data` using the **shared Btrfs filesystem's UUID**.
+- One FAT32 line for `/boot`.
+
+The two distinct Btrfs UUIDs (Arch root vs. shared data) confirm `genfstab` saw them as separate filesystems. If you see only one Btrfs UUID, you skipped a mount somewhere; re-run Chapter 4. (In this unencrypted layout, these UUIDs are the *partitions'* own Btrfs UUIDs, there's no LUKS UUID to keep separate, one fewer identifier to track than in Article 07.)
+:::
+
+---
+
+# Part 2 — Inside the chroot
+
+## Chapter 6: Locale, time, hostname, user, with a pinned UID
+
+The one dual-boot-specific change here is pinning the user's UID and GID to `1000` explicitly. We pin the Ubuntu user to 1000 the same way later, so files on `/data` are owned by the same user-as-the-kernel-sees-it on both OSes. 1000 is the conventional first-user ID on both distros, but we set it by hand rather than assume it.
+
+```bash
+# Editor + EDITOR var
+ln -sf /usr/bin/nvim /usr/local/bin/vi
+echo 'export EDITOR=nvim' >> /etc/profile
+
+# Timezone — substitute your zone
+ln -sf /usr/share/zoneinfo/<TIMEZONE> /etc/localtime    # e.g. America/Chicago
+hwclock --systohc
+
+# Locale
+sed -i 's/^#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen
+locale-gen
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+echo "KEYMAP=us"        > /etc/vconsole.conf
+
+# Hostname (suffix-based so Arch and Ubuntu show up distinctly in logs)
+echo "<HOSTNAME>" > /etc/hostname    # e.g. arch-dual
+
+# /etc/hosts
+cat > /etc/hosts <<'EOF'
+127.0.0.1   localhost
+::1         localhost
+127.0.1.1   arch-dual.localdomain arch-dual
+EOF
+
+# Root password
+passwd
+
+# User account — UID and GID pinned to 1000 (matches Ubuntu's default first-user UID)
+groupadd -g 1000 <USERNAME>
+useradd -m -u 1000 -g 1000 -G wheel,video,audio,input <USERNAME>
+passwd <USERNAME>
+
+# sudo for wheel
+sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+```
+
+Replace `<USERNAME>` with whatever username you want; the only thing that matters is that you use the **same username and the same `-u 1000 -g 1000`** when you create the user during Ubuntu install later.
+
+::: {.callout-important}
+## The pinned UID is the load-bearing part of "shared data partition"
+
+Linux filesystems store file ownership as integers, not names. If `user` is UID 1000 on Arch and UID 1001 on Ubuntu, the ownership on `/data` literally cannot match in both directions, *somebody's* `ls -l /data` will show `1001`. Pin the UID at user-create time on both sides and the problem disappears before it starts.
+
+If you forget to pin during Ubuntu install and the user ends up as UID 1001, the recovery is `usermod -u 1000 <USERNAME> && groupmod -g 1000 <USERNAME> && find / -uid 1001 -exec chown 1000 {} +`, workable but tedious. Pin in advance.
+:::
+
+---
+
+## Chapter 7: Harden the `/data` fstab line and hand it to your user
+
+This is where the encrypted article had three chapters (keyfile, `crypttab`, `crypttab.initramfs`). With no encryption, **all of that collapses into two small edits to a partition that's already in `fstab`.** There's no container to unlock, so there's nothing to unlock it *with*, the shared partition is just a Btrfs filesystem `genfstab` already recorded.
+
+First, harden the generated `/data` line. `genfstab` wrote it as a **hard mount**; a hard mount of a device that's briefly missing fails `local-fs.target` → emergency mode. Add `nofail` (boot continues even if `/data` can't mount) and a short device timeout (don't hang 90 s waiting):
+
+```bash
+sed -i 's#subvol=/@data#subvol=/@data,nofail,x-systemd.device-timeout=10s#' /etc/fstab
+grep ' /data ' /etc/fstab
+# UUID=<shared-btrfs> /data btrfs rw,noatime,compress=zstd:3,subvol=/@data,nofail,x-systemd.device-timeout=10s 0 0
+```
+
+::: {.callout-tip}
+## `nofail` is cheap insurance even without encryption
+
+In Article 07, `nofail` was the fix for "my keyfile-unlocked partition dropped me to emergency mode." There's no keyfile here, but the principle still applies to *any* secondary mount: if the shared partition is ever absent (a future repartition, a failing drive, a typo'd UUID), you want a normal login you can debug from, not an emergency shell. `nofail` buys exactly that for one word.
+:::
+
+Now hand `/data` to your user. A freshly-`mkfs`'d Btrfs subvolume is owned by `root:root`, so as things stand only root can write to `/data`. Hand the `@data` subvolume to the user you pinned to **UID 1000** in Chapter 6, do it now, inside the chroot, while `/data` is mounted:
+
+```bash
+chown 1000:1000 /data
+```
+
+Using the numeric `1000:1000` (not a username) is deliberate: it's the *integer* ownership that has to match across both OSes, and it works even though Ubuntu's user doesn't exist yet. Because ownership is stored *in the filesystem*, Ubuntu (also UID 1000) will see these files as owned by *its* user automatically, you won't have to `chown` again from Ubuntu. Skip this and the first-boot probe (`echo … > /data/probe-arch.txt` as your user) fails with `Permission denied`.
+
+---
+
+## Chapter 8: Hibernation swap file for Arch
+
+zram (Chapter 9) handles everyday compressed swap; hibernation goes to a NoCOW swap file *inside* the Arch root, so the resume target is unambiguous and there's no collision with Ubuntu's own hibernation swap file.
+
+```bash
+btrfs filesystem mkswapfile --size 36g --uuid clear /swap/swapfile
+```
+
+`--size 36g` matches the 36 GiB RAM I'm sizing this install for. **Substitute your RAM size with a small margin** (or skip this whole chapter if you don't want hibernation, then `resume=` and `resume_offset=` drop out of the GRUB cmdline in Chapter 10).
+
+::: {.callout-important}
+## Don't `swapon` from inside the chroot
+
+Activating the swap file from the *live USB's kernel* prevents clean unmounting later. `/etc/fstab` will pick it up automatically on first boot of the installed system.
+:::
+
+Persist the swap file in `/etc/fstab`:
+
+```bash
+echo '/swap/swapfile none swap defaults 0 0' >> /etc/fstab
+```
+
+Find the resume offset, save the integer for Chapter 10:
+
+```bash
+btrfs inspect-internal map-swapfile -r /swap/swapfile
+# Save the integer printed — <RESUME_OFFSET> in Chapter 10.
+```
+
+::: {.callout-note}
+## The resume device is simpler without LUKS
+
+In the encrypted article, `resume=` pointed at `/dev/mapper/crypt_arch` (the unlocked container). Here the swap file lives directly on the Arch Btrfs filesystem, so the resume device is just that filesystem, addressed by its UUID. We'll write `resume=UUID=<arch-btrfs-uuid>` in the cmdline, no mapper indirection.
+:::
+
+---
+
+## Chapter 9: zram for everyday compressed swap
+
+```bash
+cat > /etc/systemd/zram-generator.conf <<'EOF'
+[zram0]
+zram-size = ram / 2
+compression-algorithm = zstd
+swap-priority = 100
+fs-type = swap
+EOF
+```
+
+Two-tier swap arrangement:
+
+| Tier | What                              | Priority | When the kernel uses it                                   |
+|------|-----------------------------------|----------|-----------------------------------------------------------|
+| 1    | `/dev/zram0`                      | 100      | Almost all everyday swap-out, compressed in RAM, no SSD writes. |
+| 2    | `/swap/swapfile` (hibernation)    | -2       | Only on hibernation, or last-resort overflow when zram is exhausted. |
+
+---
+
+## Chapter 10: `mkinitcpio` and the GRUB cmdline
+
+### mkinitcpio
+
+Here's a concrete simplification from dropping encryption. Open `/etc/mkinitcpio.conf` and set:
+
+```text
+MODULES=(btrfs)
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)
+```
+
+The encrypted article's `HOOKS` line included **`sd-encrypt`**, the hook that prompts for the LUKS passphrase and unlocks the root from the initramfs. **We remove it** — there's no container to unlock, so the root is mounted directly from the partition. That also means no `/etc/crypttab.initramfs` to write. Regenerate the initramfs:
+
+```bash
+mkinitcpio -P
+```
+
+A successful run ends with `Image generation successful` for each preset.
+
+### GRUB cmdline
+
+Open `/etc/default/grub` and set the `GRUB_CMDLINE_LINUX_DEFAULT` line. Without LUKS there's no `rd.luks.name=…` and no `/dev/mapper/…` root, `grub-mkconfig` auto-detects the root partition and `subvol=@` for you, so the only thing we *must* add by hand is the hibernation resume target:
+
+```bash
+GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet zswap.enabled=0 resume=UUID=<ARCH_BTRFS_UUID> resume_offset=<RESUME_OFFSET>"
+```
+
+Get `<ARCH_BTRFS_UUID>` (the **Btrfs filesystem** UUID of the Arch root, the same one `genfstab` used, *not* a partition or LUKS UUID):
+
+```bash
+blkid -s UUID -o value /dev/nvme0n1p3
+```
+
+Replace `<ARCH_BTRFS_UUID>` and `<RESUME_OFFSET>` with the real values. **Do not include the angle brackets in the file.**
+
+<details>
+<summary>Click to expand: every parameter</summary>
+
+| Parameter                          | Purpose                                                                 |
+|------------------------------------|-------------------------------------------------------------------------|
+| `loglevel=3`                       | Quieter kernel boot logs.                                               |
+| `quiet`                            | Suppress most non-critical kernel boot output.                          |
+| `zswap.enabled=0`                  | Disable zswap; we're using zram.                                        |
+| `resume=UUID=<ARCH_BTRFS_UUID>`    | Resume hibernation from the Arch Btrfs filesystem (where the swap file lives). |
+| `resume_offset=<RESUME_OFFSET>`    | Byte offset (in pages) of the swap file's first extent.                 |
+
+Note what's *gone* compared to Article 07: no `rd.luks.name=`, no `root=/dev/mapper/…`. GRUB's generated `linux` line carries `root=UUID=…` and `rootflags=subvol=@` automatically because it reads them off the mounted root at `grub-mkconfig` time.
+
+</details>
+
+Now enable `os-prober`, the key dual-boot setting. Find the commented `#GRUB_DISABLE_OS_PROBER=false` and uncomment it:
+
+```bash
+sed -i 's/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' /etc/default/grub
+grep '^GRUB_DISABLE_OS_PROBER=' /etc/default/grub
+# Should print: GRUB_DISABLE_OS_PROBER=false
+```
+
+`os-prober` will find nothing yet (Ubuntu isn't installed), but we want the flag flipped so re-running `grub-mkconfig` from Arch *after* Ubuntu exists picks it up.
+
+Install the bootloader and generate the config:
+
+```bash
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+::: {.callout-note}
+## No `--modules`, no `GRUB_ENABLE_CRYPTODISK`, no `grub>` trap
+
+This is the single biggest reliability win of the unencrypted layout. In the encrypted article, Ubuntu's `/boot` lived *inside* a LUKS container, so GRUB had to unlock it to read the kernel, which meant `GRUB_ENABLE_CRYPTODISK=y` and embedding `cryptodisk`/`luks2`/cipher modules into the EFI core image with `grub-install --modules="…"`. Get that wrong (or let a paste split the line) and you land at a bare `grub>` prompt with no menu.
+
+Here, **both** distros keep `/boot` on the unencrypted FAT32 ESP, exactly the standard arrangement GRUB is designed for. GRUB reads the kernel and `grub.cfg` directly, no crypto modules, no core-image surgery, no Argon2id keyslot to poison the header. The entire `grub>` failure class from Article 07 simply cannot occur.
+:::
+
+---
+
+## Chapter 11: Enable services, sanity check, reboot
+
+```bash
+systemctl enable NetworkManager sshd fstrim.timer reflector.timer \
+                 snapper-timeline.timer snapper-cleanup.timer \
+                 grub-btrfsd.service
+```
+
+Final sanity check inside the chroot:
+
+```bash
+grep '^MODULES='                       /etc/mkinitcpio.conf
+grep '^HOOKS='                         /etc/mkinitcpio.conf
+grep '^GRUB_CMDLINE_LINUX_DEFAULT='    /etc/default/grub
+grep '^GRUB_DISABLE_OS_PROBER='        /etc/default/grub
+cat /etc/fstab | grep -E 'subvol=|swap|/data'
+```
+
+Expected output shape (your UUIDs and resume offset will differ):
+
+```text
+MODULES=(btrfs)
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)
+GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet zswap.enabled=0 resume=UUID=<arch-btrfs> resume_offset=1320192"
+GRUB_DISABLE_OS_PROBER=false
+UUID=<arch-btrfs>    /            btrfs    rw,noatime,compress=zstd:3,subvol=/@           0 0
+UUID=<arch-btrfs>    /home        btrfs    rw,noatime,compress=zstd:3,subvol=/@home       0 0
+UUID=<arch-btrfs>    /.snapshots  btrfs    rw,noatime,compress=zstd:3,subvol=/@snapshots  0 0
+UUID=<arch-btrfs>    /var/log     btrfs    rw,noatime,compress=zstd:3,subvol=/@var_log    0 0
+UUID=<arch-btrfs>    /swap        btrfs    rw,noatime,subvol=/@swap                       0 0
+UUID=<shared-btrfs>  /data        btrfs    rw,noatime,compress=zstd:3,subvol=/@data,nofail,x-systemd.device-timeout=10s 0 0
+/swap/swapfile         none swap defaults 0 0
+```
+
+Note there's **no `HOOKS=… sd-encrypt …`**, no `/etc/crypttab`, and no keyfile to list, those are the lines the encrypted article had and this one doesn't.
+
+Leave the chroot and reboot:
+
+```bash
+exit
+umount -R /mnt
+reboot
+```
+
+There's no `cryptsetup close` step, there are no open containers. Pull the USB. Expected first-boot sequence:
+
+1. Firmware → GRUB menu (just `Arch Linux` for now).
+2. Kernel + initramfs.
+3. **No passphrase prompt**, the root mounts directly. (This is the visible payoff of dropping encryption: boot goes straight from GRUB to login.)
+4. systemd starts; `/data` mounts; `/swap/swapfile` activates; zram comes up.
+5. Login prompt.
+
+If you instead drop into emergency mode, jump to the [🚨 emergency section](#emergency-failure-modes).
+
+---
+
+# Part 3 — Arch first boot: verify shared partition, snapper, hibernation
+
+Log in as your user:
+
+```bash
+sudo systemctl status            # System should be "running"
+findmnt /                        # subvol=/@, on /dev/nvme0n1p3
+findmnt /home                    # subvol=/@home
+findmnt /data                    # subvol=/@data, on /dev/nvme0n1p2
+swapon --show                    # zram0 (pri 100) and /swap/swapfile
+```
+
+**What pass looks like:** `findmnt /data` shows the shared Btrfs filesystem on `/dev/nvme0n1p2`, and `swapon --show` lists exactly two devices (`zram0` and `/swap/swapfile`).
+
+### Reconnect to Wi-Fi, re-enable NTP, verify timezone
+
+NetworkManager is enabled but has **no saved networks**, your Wi-Fi credentials lived in the live USB's `iwd` session. For Wi-Fi:
+
+```bash
+nmcli radio wifi on
+nmcli device wifi list
+nmcli device wifi connect "<SSID>" password "<WIFI_PASSWORD>"
+ip -brief address                 # wlan0 should now have an inet address
+ping -c 3 ping.archlinux.org      # should be <1% loss
+```
+
+Turn on NTP in the installed system and confirm the timezone took:
+
+```bash
+sudo timedatectl set-ntp true
+timedatectl status
+# Want: correct "Time zone:", "System clock synchronized: yes", "RTC in local TZ: no".
+# Fix the zone if needed:  sudo timedatectl set-timezone <TIMEZONE>
+```
+
+### Test that the shared partition is actually shareable
+
+```bash
+echo "written from arch" > /data/probe-arch.txt
+ls -l /data/probe-arch.txt
+# Should print: -rw-r--r-- 1 user user ... /data/probe-arch.txt
+stat -c '%u %g' /data/probe-arch.txt
+# Should print: 1000 1000
+```
+
+The second `stat` line confirms the *integer* UID is 1000, that's what Ubuntu's `user` will see when it mounts `/data` later. If it's anything other than 1000, your `useradd` in Chapter 6 didn't pin correctly; fix it with `usermod -u 1000 <USERNAME> && chown -R 1000:1000 /home/<USERNAME>`.
+
+### Configure snapper for `/`
+
+A plain `snapper -c root create-config /` would create its own `.snapshots` subvolume, colliding with the `@snapshots` we mounted in Chapter 4. The Arch-recommended dance sidesteps that:
+
+```bash
+sudo umount /.snapshots
+sudo rm -rf /.snapshots
+sudo snapper -c root create-config /
+sudo btrfs subvolume delete /.snapshots
+sudo mkdir /.snapshots
+sudo chmod 750 /.snapshots
+sudo mount -a
+
+sudo snapper -c root set-config \
+    TIMELINE_LIMIT_HOURLY=5 TIMELINE_LIMIT_DAILY=7 \
+    TIMELINE_LIMIT_WEEKLY=2 TIMELINE_LIMIT_MONTHLY=1 TIMELINE_LIMIT_YEARLY=0
+sudo snapper -c root list      # at least one row
+```
+
+::: {.callout-note}
+## Snapshotting `/home` is a separate decision, and usually "skip it"
+
+Snapper here snapshots only `@` (the system root). Your `/home` is on `@home` and is deliberately *not* in the snapshot/rollback set, so a system rollback never reverts your documents. Most people want this. If you do want versioned `/home`, that's a second `snapper -c home create-config /home`, but back it up off-machine regardless; snapshots are not backups.
+:::
+
+### Verify hibernation **before** you install Ubuntu
+
+```bash
+sudo systemctl hibernate
+```
+
+Screen goes dark, fans stop. Press power to resume, you should land back in the exact same session. If it boots fresh instead, re-check `resume=`/`resume_offset=` in `/etc/default/grub` and re-run `sudo mkinitcpio -P && sudo grub-mkconfig -o /boot/grub/grub.cfg`. Fixing hibernation now, while only Arch exists, is much easier than after Ubuntu has rewritten parts of the boot path.
+
+---
+
+# Part 4 — Install Ubuntu 24 LTS alongside
+
+You now have a verified, snapshot-able Arch install with a shared Btrfs data partition. Time to bring up Ubuntu in `p4`.
+
+Download the [Ubuntu 24.04 LTS Desktop ISO](https://ubuntu.com/download/desktop){target="_blank" rel="noopener"}, verify its `SHA256SUMS` and signature, flash to a USB stick, and boot.
+
+::: {.callout-note}
+## Could you use Ubuntu's graphical installer here? Sometimes, but we don't
+
+The reason Article 07 builds Ubuntu by hand is that 24.04's rewritten installer **dropped on-partition encryption**. Without encryption, that objection goes away, and the GUI installer's manual ("Something else") mode *can* format `p4` as Btrfs and mount it at `/`. But it won't reliably create the `@`/`@home` subvolume layout we want, and it likes to reorder things on the ESP. So we keep the **same by-hand `debootstrap` install** as the encrypted article (minus the crypto): it gives an exact-parity subvolume layout, uses the same tooling you already know, and never surprises you. If you genuinely don't care about subvolume parity, the GUI manual mode is a legitimate shortcut here, just point it at `p4`, choose Btrfs and mount point `/`, and reuse (don't reformat) the existing ESP at `/boot/efi`.
+:::
+
+::: {.callout-warning}
+## Ubuntu will overwrite the EFI NVRAM `BootOrder`
+
+When you run Ubuntu's `grub-install`, it writes an `Ubuntu` NVRAM entry and adjusts the boot order so Ubuntu's GRUB is tried first. That's fine, Ubuntu's GRUB, with `os-prober` enabled, picks up Arch automatically. If you'd rather Arch's GRUB own the menu, restore the order with `efibootmgr` in Part 5. To compare later, dump the current state from the **Arch** side before booting the Ubuntu USB:
+
+```bash
+efibootmgr -v > ~/efi-before-ubuntu.txt
+```
+:::
+
+### Install Ubuntu by hand from the live session
+
+Boot the Ubuntu Desktop USB, choose **"Try Ubuntu"**, connect to Wi-Fi (`debootstrap` needs the network), open a terminal, and become root.
+
+::: {.callout-tip}
+## (Optional but recommended) SSH into the live session first
+
+Like the Arch install, you can drive this over SSH. Two Ubuntu quirks: the Desktop live image doesn't ship the SSH *server*, and you log in as the passwordless `ubuntu` user. Get the live session online, then:
+
+```bash
+sudo apt update && sudo apt install -y openssh-server   # not on the Desktop live image
+sudo passwd ubuntu                                       # the live user has a blank password; SSH rejects that
+sudo systemctl enable --now ssh                          # NB: the unit is 'ssh', not 'sshd'
+ip -brief address                                        # note the inet addr on your wlan0 / enpXsY line
+```
+
+Then from your other machine: `ssh ubuntu@<ip>`, and `sudo -i`. Root SSH is disabled by default (connect as `ubuntu`, then `sudo`), and the live session regenerates a host key every boot, so a "REMOTE HOST IDENTIFICATION HAS CHANGED" warning on reconnect is expected, clear it with `ssh-keygen -R <ip>`. If `apt` asks about a modified `/etc/ssh/sshd_config`, keep the locally installed version.
+:::
+
+```bash
+sudo -i
+apt update && apt install -y debootstrap
+```
+
+Note we **don't** install `cryptsetup-bin`, there's nothing to encrypt.
+
+**1 — Format p4 as Btrfs and create the subvolumes.** No `cryptsetup luksFormat`, no `cryptsetup open`, we `mkfs.btrfs` straight onto the partition:
+
+```bash
+mkfs.btrfs -L ubuntu /dev/nvme0n1p4
+
+mount /dev/nvme0n1p4 /mnt
+btrfs subvolume create /mnt/@
+btrfs subvolume create /mnt/@home
+umount /mnt
+```
+
+**2 — Mount the target, reusing the existing shared ESP.**
+
+```bash
+mount -o noatime,compress=zstd:3,subvol=@ /dev/nvme0n1p4 /mnt
+mkdir -p /mnt/home /mnt/boot/efi
+mount -o noatime,compress=zstd:3,subvol=@home /dev/nvme0n1p4 /mnt/home
+mount /dev/nvme0n1p1 /mnt/boot/efi                   # the shared ESP — never reformat it
+```
+
+**3 — Bootstrap a minimal Ubuntu 24.04 (`noble`) and write its `fstab`** (including the shared `/data` line, which on the Ubuntu side is *just* an `fstab` entry, no `crypttab`):
+
+```bash
+debootstrap --arch amd64 noble /mnt http://archive.ubuntu.com/ubuntu
+
+UB=$(blkid -s UUID -o value /dev/nvme0n1p4)
+ESP=$(blkid -s UUID -o value /dev/nvme0n1p1)
+SHARED=$(blkid -s UUID -o value /dev/nvme0n1p2)
+cat >> /mnt/etc/fstab <<EOF
+UUID=$UB      /          btrfs  noatime,compress=zstd:3,subvol=@                                              0 0
+UUID=$UB      /home      btrfs  noatime,compress=zstd:3,subvol=@home                                         0 0
+UUID=$ESP     /boot/efi  vfat   umask=0077                                                                    0 1
+UUID=$SHARED  /data      btrfs  rw,noatime,compress=zstd:3,subvol=@data,nofail,x-systemd.device-timeout=10s   0 0
+EOF
+mkdir -p /mnt/data
+```
+
+::: {.callout-note}
+## The shared `/data` needs no `chown` from Ubuntu
+
+You already ran `chown 1000:1000 /data` from Arch in Chapter 7, and ownership is stored *in the Btrfs filesystem*, not per-OS. Because the Ubuntu user is also UID 1000, Ubuntu sees `/data` as owned by *its* user the moment it mounts, no second `chown`. This is the entire payoff of pinning UID 1000 on both sides.
+:::
+
+**4 — Enter the chroot.**
+
+```bash
+cp /etc/resolv.conf /mnt/etc/resolv.conf
+for d in dev dev/pts proc sys run; do mount --rbind /$d /mnt/$d 2>/dev/null || mount --bind /$d /mnt/$d; done
+chroot /mnt /bin/bash
+```
+
+**5 — Inside the chroot: sources, kernel, GRUB, user, desktop.** Widen the `debootstrap` `main`-only sources list so `ubuntu-desktop` resolves, then install. Note the package list: **no `cryptsetup`, no `cryptsetup-initramfs`** — neither is needed:
+
+```bash
+cat > /etc/apt/sources.list <<EOF
+deb http://archive.ubuntu.com/ubuntu        noble           main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu        noble-updates   main restricted universe multiverse
+deb http://security.ubuntu.com/ubuntu       noble-security  main restricted universe multiverse
+EOF
+apt update
+apt install -y ubuntu-standard linux-image-generic grub-efi-amd64 os-prober \
+    btrfs-progs network-manager sudo locales tzdata
+
+# os-prober is disabled by default on 24.04 — turn it on so Ubuntu's GRUB lists Arch
+echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub
+
+update-initramfs -u -k all
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Ubuntu --recheck
+update-grub                                          # os-prober finds Arch on p3
+
+# locale, timezone, a hostname distinct from Arch's
+locale-gen en_US.UTF-8 && update-locale LANG=en_US.UTF-8
+ln -sf /usr/share/zoneinfo/<TIMEZONE> /etc/localtime && echo "<HOSTNAME>" > /etc/hostname    # e.g. ubuntu
+
+# the UID-1000 user — same NAME and UID as Arch, for /data ownership parity
+groupadd -g 1000 <USERNAME>; useradd -m -u 1000 -g 1000 -s /bin/bash -G sudo,adm,cdrom,dip,plugdev <USERNAME>
+passwd <USERNAME>
+
+apt install -y ubuntu-desktop-minimal               # the graphical layer (skip for a server box)
+```
+
+::: {.callout-note}
+## Notice what this `grub-install` *doesn't* need
+
+Compare this line to the encrypted article's: there's **no `GRUB_ENABLE_CRYPTODISK=y`**, **no `--modules="part_gpt cryptodisk luks2 …"`**, and **no `crypttab` entry for the root**. Ubuntu's `/boot/efi` is the shared unencrypted ESP and its kernel/initramfs live on a plain Btrfs root GRUB reaches normally. A bare `grub-install` is correct and complete, the chicken-and-egg "GRUB can't read its own config off the encrypted `/boot`" problem doesn't exist here, so neither does the `grub>` prompt it caused.
+:::
+
+Exit the chroot and reboot. Everything's written; `reboot` flushes and unmounts on the way down:
+
+```bash
+exit
+sync
+reboot
+```
+
+::: {.callout-note}
+## Why `reboot` instead of unmounting by hand
+
+The `mount --rbind /run /mnt/run` we did entering the chroot is *recursive*, it pulls `/run/user/0` and the live session's snap mount namespaces in under `/mnt/run`, so a tidy `umount -R …` often fails with `target is busy` no matter how many times you retry. The files are already on disk. `sync` flushes the write cache; `reboot` tears down every mount the hard way. Pull the Ubuntu USB as the laptop restarts.
+:::
+
+---
+
+## Chapter 12: Add the hibernation swap file on Ubuntu
+
+A from-scratch Ubuntu install has no hibernation swap file. Mirror Arch's Chapter 8 from inside the running Ubuntu system. After the reboot, pick **Ubuntu** from the GRUB menu and log in:
+
+```bash
+# Find the Btrfs filesystem mounted at / — should be /dev/nvme0n1p4
+findmnt /
+
+# Create the swap subvolume (a manual install doesn't ship one)
+sudo btrfs subvolume create /swap
+
+# Make a NoCOW swap file — same size logic as Arch (≥ RAM)
+sudo btrfs filesystem mkswapfile --size 36g --uuid clear /swap/swapfile
+
+# Persist in fstab
+echo '/swap/swapfile none swap defaults,pri=-2 0 0' | sudo tee -a /etc/fstab
+
+# Find the resume offset
+sudo btrfs inspect-internal map-swapfile -r /swap/swapfile
+# Save the integer — Ubuntu calls it RESUME_OFFSET too.
+```
+
+Edit `/etc/default/grub`. Ubuntu's `GRUB_CMDLINE_LINUX_DEFAULT` typically reads `quiet splash`. Add `resume=` and `resume_offset=`, using the **Ubuntu Btrfs filesystem's** UUID (`p4`) and the offset from the previous step:
+
+```bash
+sudo blkid -s UUID -o value /dev/nvme0n1p4     # save this as <UBUNTU_BTRFS_UUID>
+sudoedit /etc/default/grub
+```
+
+Set:
+
+```text
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash resume=UUID=<UBUNTU_BTRFS_UUID> resume_offset=<UBUNTU_RESUME_OFFSET>"
+```
+
+Tell Ubuntu's initramfs builder about the hibernation device, then rebuild:
+
+```bash
+echo "RESUME=UUID=<UBUNTU_BTRFS_UUID>" | sudo tee /etc/initramfs-tools/conf.d/resume
+sudo update-initramfs -u -k all
+sudo update-grub
+```
+
+::: {.callout-note}
+## Why the explicit `/etc/initramfs-tools/conf.d/resume` file
+
+Ubuntu's `initramfs-tools` reads this file at build time and bakes the resume device into the initramfs so userspace's hibernation tooling agrees with the kernel cmdline. Without it, `update-initramfs` may pick an unintended device. Pinning to Ubuntu's *own* Btrfs filesystem guarantees Ubuntu always resumes from its own hibernation image, never Arch's.
+:::
+
+Confirm Ubuntu sees the shared partition and its own swap:
+
+```bash
+findmnt /data                 # /dev/nvme0n1p2, subvol=@data
+swapon --show                 # zram (Ubuntu sets it up automatically) + /swap/swapfile
+ls -l /data                   # files written from Arch should appear, owned by user
+sudo systemctl hibernate      # screen darkens; power button resumes into Ubuntu
+```
+
+If hibernation resumes into a fresh boot instead, re-check `RESUME=` and re-run `sudo update-initramfs -u -k all && sudo update-grub`.
+
+---
+
+# Part 5 — Finalize the GRUB menu from Arch
+
+Reboot, pick **Arch Linux**, and re-run `grub-mkconfig` now that Ubuntu exists:
+
+```bash
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+You should see:
+
+```text
+Found Ubuntu 24.04 LTS (24.04) on /dev/nvme0n1p4
+```
+
+…and `grub.cfg` now contains entries for Arch *and* Ubuntu. Either GRUB (Arch's or Ubuntu's) can boot either OS.
+
+### Optional: choose which GRUB owns the menu via NVRAM order
+
+If you'd rather Arch's GRUB be primary:
+
+```bash
+efibootmgr                                 # list current EFI entries
+# Find the BootNNNN number for "GRUB" (Arch) and for "Ubuntu".
+sudo efibootmgr -o GRUB_NUM,UBUNTU_NUM     # substitute the BootNNNN numbers, comma-separated
+```
+
+This reorders NVRAM so Arch's GRUB is tried first. Ubuntu's GRUB stays installed and reachable. The choice is cosmetic + ergonomic, not functional, leave NVRAM alone to keep Ubuntu's GRUB primary (it re-runs `update-grub` on Ubuntu kernel updates automatically).
+
+---
+
+# Part 6 — Final sanity checks across both OSes
+
+### From Arch
+
+```bash
+findmnt /                       # subvol=/@, on /dev/nvme0n1p3
+findmnt /home                   # subvol=/@home
+findmnt /data                   # subvol=/@data, on /dev/nvme0n1p2
+swapon --show                   # zram0 (pri 100) + /swap/swapfile (pri -2)
+sudo snapper -c root list       # at least one snapshot
+sudo systemctl hibernate        # works, resumes into Arch
+ls -l /data                     # files from Arch + files written from Ubuntu
+stat -c '%u %g %n' /data/*      # all UIDs/GIDs == 1000
+```
+
+### From Ubuntu (reboot, pick Ubuntu)
+
+```bash
+findmnt /                       # subvol=/@, on /dev/nvme0n1p4
+findmnt /home                   # subvol=/@home
+findmnt /data                   # subvol=/@data, on /dev/nvme0n1p2 (same UUID as Arch sees)
+swapon --show                   # zram + /swap/swapfile (Ubuntu's own)
+sudo systemctl hibernate        # works, resumes into Ubuntu (separate from Arch's)
+ls -l /data                     # same files as Arch sees, owned by user
+stat -c '%u %g %n' /data/*      # all UIDs/GIDs == 1000
+```
+
+**What pass looks like:** each OS hibernates and resumes into itself, both mount `/data` with identical file ownership, both see exactly two swap devices, and the GRUB menu lists both OSes regardless of which side regenerated it last.
+
+---
+
+[]{#emergency-failure-modes}
+
+::: {.callout-important}
+## 🚨 Emergency: common failure modes
+
+For when something has gone visibly wrong. If the Part 6 sanity check passed, skip the rest.
+:::
+
+::: {.callout-tip}
+## The good news: no `grub>` prompt to recover from
+
+The most painful failure of the *encrypted* dual-boot, GRUB dropping to a bare `grub>` prompt because it couldn't unlock the encrypted `/boot`, **cannot happen here.** Both distros' `/boot` is the plain FAT32 ESP, so GRUB always reads its config and kernels normally. If you came here from Article 07's troubleshooting, that entire section doesn't apply to this layout.
+:::
+
+### 1. Arch boots to a login, but `/data` doesn't mount
+
+Thanks to `nofail` (Chapter 7) you reach a normal login instead of emergency mode. Symptom: `findmnt /data` prints nothing.
+
+- The UUID in `/etc/fstab` doesn't match the partition. `blkid /dev/nvme0n1p2` and compare to the `/data` line in `/etc/fstab`.
+- The partition didn't come up in time. `sudo mount /data` by hand; if that works, the device was just slow, the `x-systemd.device-timeout=10s` already keeps boot from hanging.
+- The `@data` subvolume name is wrong in the mount options. It must be `subvol=/@data`.
+
+After fixing: `sudo systemctl daemon-reload && sudo mount /data && findmnt /data`.
+
+### 2. Boot drops into emergency mode
+
+With no LUKS, the usual causes narrow to:
+
+1. A typo in `/etc/fstab` (a bad UUID on a *non*-`nofail` line, like `/` or `/home`). Boot the Arch USB, `mount -o subvol=@ /dev/nvme0n1p3 /mnt`, `mount /dev/nvme0n1p1 /mnt/boot`, `arch-chroot /mnt`, fix `/etc/fstab`, reboot.
+2. `resume=`/`resume_offset=` left as literal `<…>` text in `/etc/default/grub`. Same chroot recovery, then `grub-mkconfig -o /boot/grub/grub.cfg`.
+3. The initramfs wasn't regenerated after editing `mkinitcpio.conf`. In the chroot: `mkinitcpio -P`.
+
+### 3. GRUB menu shows only one OS
+
+- **`os-prober` not enabled.** `grep ^GRUB_DISABLE_OS_PROBER= /etc/default/grub` must print `GRUB_DISABLE_OS_PROBER=false`.
+- **`os-prober` not installed.** Arch: `pacman -S os-prober`. Ubuntu: `apt install os-prober`.
+
+After fixing, re-run `grub-mkconfig -o /boot/grub/grub.cfg` (Arch) or `update-grub` (Ubuntu). You should see `Found Ubuntu …` / `Found Arch …` in the output.
+
+### 4. Hibernation from one OS resumes into the *other*
+
+Both OSes' `resume=` point at the same device. Each OS's `resume=` must point at its **own** Btrfs filesystem UUID, `p3` for Arch, `p4` for Ubuntu, never the other's. Fix the cmdline (Arch: `/etc/default/grub` → `grub-mkconfig`; Ubuntu: `/etc/default/grub` + `/etc/initramfs-tools/conf.d/resume` → `update-grub` + `update-initramfs -u -k all`).
+
+### 5. File ownership on `/data` looks like `1001` from Ubuntu, `1000` from Arch
+
+The Ubuntu user came out as UID 1001 (you skipped `-u 1000`, or a UID 1000 already existed). Fix from Ubuntu:
+
+```bash
+sudo usermod -u 1000 <USERNAME>
+sudo groupmod -g 1000 <USERNAME>
+sudo find / -uid 1001 -not -path '/proc/*' -not -path '/sys/*' -exec chown 1000 {} +
+sudo find / -gid 1001 -not -path '/proc/*' -not -path '/sys/*' -exec chgrp 1000 {} +
+```
+
+Reboot Ubuntu. Now `id <USERNAME>` prints `uid=1000 gid=1000`.
+
+---
+
+# Part 7 — What comes next
+
+You have two snapshot-able OSes sharing one ESP and one data partition, with hibernation isolated per-OS, and not a single passphrase prompt between power-on and login.
+
+::: {.callout-tip}
+## Want encryption after all?
+
+If this machine's role changes (it becomes a laptop, it starts holding sensitive data), the upgrade path is the [encrypted dual-boot (Article 07)](../2026-05-19-arch-ubuntu-dual-boot-shared-data/), same subvolume layout, same shared-`/data` idea, with LUKS2 around each root and the data partition. There's no in-place "add encryption" shortcut on Linux; it means backing up, re-formatting the roots inside LUKS containers, and restoring. Better to decide up front, which is exactly why this article spells out the tradeoff in Part 1.
+:::
+
+::: {.callout-tip}
+## Desktop layers
+
+The Arch desktop layer is a separate, deliberate choice (a custom Hyprland, GNOME, Plasma, sway, whatever) and stops at the console on purpose. Ubuntu comes up graphical out of the box with whichever flavor you installed.
+:::
+
+::: {.callout-tip}
+## Eventually: triple-boot with Windows (also plain Btrfs)
+
+To bolt Windows on, see the plain-Btrfs [Triple-Boot Arch + Ubuntu + Windows](../2026-06-07-arch-ubuntu-windows-triple-boot-btrfs/) article, it installs Windows *first* (so it can't stomp the ESP), then layers Arch and Ubuntu exactly as above. Windows shares files with Linux through a plain exFAT exchange partition.
+:::
+
+---
+
+::: {.callout-note}
+## Attribution
+
+The Arch Linux logo is a trademark of the Arch Linux project and is used here under [Arch Linux's branding terms](https://archlinux.org/art/){target="_blank" rel="noopener"} for editorial purposes only. The Ubuntu wordmark and Circle of Friends are trademarks of Canonical Ltd., references here are editorial and follow Canonical's [trademark policy](https://ubuntu.com/legal/intellectual-property-policy){target="_blank" rel="noopener"}.
+:::
