@@ -54,6 +54,12 @@ The result is the install I plan to put on my next workstation when I retire the
 
 ---
 
+::: {.callout-important}
+## How to read the commands in this guide
+
+Every command sits in its own copy box — hit the copy icon, paste, run. **But watch for angle-bracket placeholders** like `<USERNAME>`, `<HOSTNAME>`, `<TIMEZONE>`, `<SSID>`, or `<WIFI_PASSWORD>`. Those are values only *you* know, and they're written that way on purpose: `<…>` is invalid shell syntax, so if you blind-paste a line that still has one, it **fails loudly** instead of silently running with my example values. See a `<…>`, replace the whole token (brackets and all) before you run the line. Device paths like `/dev/nvme0n1p3` are left literal — they match the disk-layout table — so double-check *those* against your own `lsblk` once, then they paste cleanly.
+:::
+
 # Part 1 — Bootstrap the Arch live environment
 
 The Arch side of this install begins exactly like the [basic install](../2026-05-01-first-arch-install/) and [Article 03](../2026-05-17-arch-luks-btrfs/): verify the ISO, boot the live USB, get online, set the clock. Earlier drafts of this article just said *"do the first three steps like Article 03"* and moved on — but a dual-boot is exactly the kind of multi-hour job where you don't want to be flipping between three browser tabs to remember how `gpg --verify` goes. So this part is spelled out in full. **If you've done a from-scratch Arch install before, skim to [Chapter 1](#chapter-1-the-four-partition-layout).**
@@ -119,7 +125,7 @@ iwctl
 device list
 station wlan0 scan
 station wlan0 get-networks
-station wlan0 connect "Your SSID Here"
+station wlan0 connect "<SSID>"
 ```
 
 Quote any SSID with spaces; substitute `wlan0` with your actual device from `device list`; `exit` when connected. Confirm connectivity:
@@ -157,7 +163,7 @@ You're enabling `sshd` here so the live USB accepts an incoming connection from 
 
 ```bash
 loadkeys us                                   # your console keymap
-timedatectl set-timezone America/New_York     # substitute your zone
+timedatectl set-timezone <TIMEZONE>           # e.g. America/Chicago
 timedatectl set-ntp true                      # sync the clock over the network
 ```
 
@@ -436,7 +442,7 @@ ln -sf /usr/bin/nvim /usr/local/bin/vi
 echo 'export EDITOR=nvim' >> /etc/profile
 
 # Timezone — substitute your zone
-ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
+ln -sf /usr/share/zoneinfo/<TIMEZONE> /etc/localtime    # e.g. America/Chicago
 hwclock --systohc
 
 # Locale
@@ -446,7 +452,7 @@ echo "LANG=en_US.UTF-8" > /etc/locale.conf
 echo "KEYMAP=us"        > /etc/vconsole.conf
 
 # Hostname (suffix-based so Arch and Ubuntu show up distinctly in logs)
-echo "arch-dual" > /etc/hostname
+echo "<HOSTNAME>" > /etc/hostname    # e.g. arch-dual
 
 # /etc/hosts
 cat > /etc/hosts <<'EOF'
@@ -459,9 +465,9 @@ EOF
 passwd
 
 # User account — UID and GID pinned to 1000 (matches Ubuntu's default first-user UID)
-groupadd -g 1000 user
-useradd -m -u 1000 -g 1000 -G wheel,video,audio,input user
-passwd user
+groupadd -g 1000 <USERNAME>
+useradd -m -u 1000 -g 1000 -G wheel,video,audio,input <USERNAME>
+passwd <USERNAME>
 
 # sudo for wheel
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
@@ -474,7 +480,7 @@ Replace `user` with whatever username you want; the only thing that matters is t
 
 Linux filesystems store file ownership as integers, not names. If `user` is UID 1000 on Arch and `user` is UID 1001 on Ubuntu, the file ownership on `/data` literally cannot match in both directions — *somebody's* `ls -l /data` will show `1001` instead of `user`. Pin the UID at user-create time on both sides and the problem disappears before it starts.
 
-If you forget to pin during Ubuntu install and the user ends up as UID 1001, the recovery is `usermod -u 1000 user && groupmod -g 1000 user && find / -uid 1001 -exec chown 1000 {} +` — workable but tedious. Pin in advance.
+If you forget to pin during Ubuntu install and the user ends up as UID 1001, the recovery is `usermod -u 1000 <USERNAME> && groupmod -g 1000 <USERNAME> && find / -uid 1001 -exec chown 1000 {} +` — workable but tedious. Pin in advance.
 :::
 
 ---
@@ -863,7 +869,7 @@ NetworkManager is enabled and running, but it has **no saved networks** — your
 ```bash
 nmcli radio wifi on
 nmcli device wifi list
-nmcli device wifi connect "Your SSID Here" password "your-passphrase"
+nmcli device wifi connect "<SSID>" password "<WIFI_PASSWORD>"
 ip -brief address                 # wlan0 should now have an inet address
 ping -c 3 ping.archlinux.org      # should be <1% loss
 ```
@@ -874,7 +880,7 @@ The live ISO's `set-ntp true` only affected the live environment; the installed 
 sudo timedatectl set-ntp true
 timedatectl status
 # Want: correct "Time zone:", "System clock synchronized: yes", "RTC in local TZ: no".
-# Fix the zone if needed:  sudo timedatectl set-timezone America/Chicago
+# Fix the zone if needed:  sudo timedatectl set-timezone <TIMEZONE>
 ```
 
 Without NTP the clock drifts until `pacman` starts failing with GPG/TLS errors; without the right zone every timestamp is off by hours. Both fixes are cheap and permanent.
@@ -892,7 +898,7 @@ stat -c '%u %g' /data/probe-arch.txt
 # Should print: 1000 1000
 ```
 
-The point of the second `stat` line is to confirm the *integer* UID is 1000 — that's what Ubuntu's `user` will see when it mounts `/data` later. If the integer is anything other than 1000, your `useradd` in Chapter 6 didn't pin correctly; fix it now with `usermod -u 1000 user && chown -R 1000:1000 /home/user /data/*-by-user`.
+The point of the second `stat` line is to confirm the *integer* UID is 1000 — that's what Ubuntu's `user` will see when it mounts `/data` later. If the integer is anything other than 1000, your `useradd` in Chapter 6 didn't pin correctly; fix it now with `usermod -u 1000 <USERNAME> && chown -R 1000:1000 /home/<USERNAME> /data/*-by-<USERNAME>`.
 
 ### Configure snapper for `/`
 
@@ -1065,11 +1071,11 @@ update-grub                                          # os-prober finds Arch on p
 
 # locale, timezone, a hostname distinct from Arch's
 locale-gen en_US.UTF-8 && update-locale LANG=en_US.UTF-8
-ln -sf /usr/share/zoneinfo/America/Chicago /etc/localtime && echo "ubuntu" > /etc/hostname
+ln -sf /usr/share/zoneinfo/<TIMEZONE> /etc/localtime && echo "<HOSTNAME>" > /etc/hostname    # e.g. ubuntu
 
 # the UID-1000 user — same NAME and UID as Arch, for /data ownership parity
-groupadd -g 1000 user; useradd -m -u 1000 -g 1000 -s /bin/bash -G sudo,adm,cdrom,dip,plugdev user
-passwd user
+groupadd -g 1000 <USERNAME>; useradd -m -u 1000 -g 1000 -s /bin/bash -G sudo,adm,cdrom,dip,plugdev <USERNAME>
+passwd <USERNAME>
 
 apt install -y ubuntu-desktop-minimal               # the graphical layer (skip for a server box)
 ```
@@ -1383,8 +1389,8 @@ Fix the cmdline (Arch: `/etc/default/grub` → `grub-mkconfig`; Ubuntu: `/etc/de
 The Ubuntu installer assigned the user UID 1001 because there was already a UID 1000 in some inherited config (rare, but possible). Fix from Ubuntu:
 
 ```bash
-sudo usermod -u 1000 user
-sudo groupmod -g 1000 user
+sudo usermod -u 1000 <USERNAME>
+sudo groupmod -g 1000 <USERNAME>
 sudo find / -uid 1001 -not -path '/proc/*' -not -path '/sys/*' -exec chown 1000 {} +
 sudo find / -gid 1001 -not -path '/proc/*' -not -path '/sys/*' -exec chgrp 1000 {} +
 ```

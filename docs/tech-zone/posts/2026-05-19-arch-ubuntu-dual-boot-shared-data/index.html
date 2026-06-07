@@ -519,6 +519,19 @@ What this is
 </ol>
 <p>The result is the install I plan to put on my next workstation when I retire the Dell Precision: Arch for daily-driver work, Ubuntu for the (research-y) packages that don’t have decent Arch coverage, and a single home directory’s worth of documents living in one place — mounted, not synced, not copied.</p>
 <hr>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+How to read the commands in this guide
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Every command sits in its own copy box — hit the copy icon, paste, run. <strong>But watch for angle-bracket placeholders</strong> like <code>&lt;USERNAME&gt;</code>, <code>&lt;HOSTNAME&gt;</code>, <code>&lt;TIMEZONE&gt;</code>, <code>&lt;SSID&gt;</code>, or <code>&lt;WIFI_PASSWORD&gt;</code>. Those are values only <em>you</em> know, and they’re written that way on purpose: <code>&lt;…&gt;</code> is invalid shell syntax, so if you blind-paste a line that still has one, it <strong>fails loudly</strong> instead of silently running with my example values. See a <code>&lt;…&gt;</code>, replace the whole token (brackets and all) before you run the line. Device paths like <code>/dev/nvme0n1p3</code> are left literal — they match the disk-layout table — so double-check <em>those</em> against your own <code>lsblk</code> once, then they paste cleanly.</p>
+</div>
+</div>
 </section>
 <section id="part-1-bootstrap-the-arch-live-environment" class="level1">
 <h1>Part 1 — Bootstrap the Arch live environment</h1>
@@ -571,7 +584,7 @@ About the “key is not certified” warning
 <pre class="text"><code>device list
 station wlan0 scan
 station wlan0 get-networks
-station wlan0 connect "Your SSID Here"</code></pre>
+station wlan0 connect "&lt;SSID&gt;"</code></pre>
 <p>Quote any SSID with spaces; substitute <code>wlan0</code> with your actual device from <code>device list</code>; <code>exit</code> when connected. Confirm connectivity:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 3 ping.archlinux.org</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Find the address to SSH into:</p>
@@ -603,7 +616,7 @@ openssh vs.&nbsp;ssh vs.&nbsp;sshd
 <section id="keymap-timezone-time-sync" class="level3">
 <h3 class="anchored" data-anchor-id="keymap-timezone-time-sync">Keymap, timezone, time sync</h3>
 <div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">loadkeys</span> us                                   <span class="co"># your console keymap</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-timezone America/New_York     <span class="co"># substitute your zone</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-timezone <span class="op">&lt;</span>TIMEZONE<span class="op">&gt;</span>           <span class="co"># e.g. America/Chicago</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-ntp true                      <span class="co"># sync the clock over the network</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -974,7 +987,7 @@ Sanity-check the generated fstab
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'export EDITOR=nvim'</span> <span class="op">&gt;&gt;</span> /etc/profile</span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Timezone — substitute your zone</span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/America/New_York /etc/localtime</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/<span class="op">&lt;</span>TIMEZONE<span class="op">&gt;</span> /etc/localtime    <span class="co"># e.g. America/Chicago</span></span>
 <span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="ex">hwclock</span> <span class="at">--systohc</span></span>
 <span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Locale</span></span>
@@ -984,7 +997,7 @@ Sanity-check the generated fstab
 <span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"KEYMAP=us"</span>        <span class="op">&gt;</span> /etc/vconsole.conf</span>
 <span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Hostname (suffix-based so Arch and Ubuntu show up distinctly in logs)</span></span>
-<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"arch-dual"</span> <span class="op">&gt;</span> /etc/hostname</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"&lt;HOSTNAME&gt;"</span> <span class="op">&gt;</span> /etc/hostname    <span class="co"># e.g. arch-dual</span></span>
 <span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a><span class="co"># /etc/hosts</span></span>
 <span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> /etc/hosts <span class="op">&lt;&lt;'EOF'</span></span>
@@ -997,9 +1010,9 @@ Sanity-check the generated fstab
 <span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span></span>
 <span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a><span class="co"># User account — UID and GID pinned to 1000 (matches Ubuntu's default first-user UID)</span></span>
-<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 user</span>
-<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-G</span> wheel,video,audio,input user</span>
-<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> user</span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-G</span> wheel,video,audio,input <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
 <span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a><span class="co"># sudo for wheel</span></span>
 <span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/'</span> /etc/sudoers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1015,7 +1028,7 @@ The pinned UID is the load-bearing part of “shared data partition”
 </div>
 <div class="callout-body-container callout-body">
 <p>Linux filesystems store file ownership as integers, not names. If <code>user</code> is UID 1000 on Arch and <code>user</code> is UID 1001 on Ubuntu, the file ownership on <code>/data</code> literally cannot match in both directions — <em>somebody’s</em> <code>ls -l /data</code> will show <code>1001</code> instead of <code>user</code>. Pin the UID at user-create time on both sides and the problem disappears before it starts.</p>
-<p>If you forget to pin during Ubuntu install and the user ends up as UID 1001, the recovery is <code>usermod -u 1000 user &amp;&amp; groupmod -g 1000 user &amp;&amp; find / -uid 1001 -exec chown 1000 {} +</code> — workable but tedious. Pin in advance.</p>
+<p>If you forget to pin during Ubuntu install and the user ends up as UID 1001, the recovery is <code>usermod -u 1000 &lt;USERNAME&gt; &amp;&amp; groupmod -g 1000 &lt;USERNAME&gt; &amp;&amp; find / -uid 1001 -exec chown 1000 {} +</code> — workable but tedious. Pin in advance.</p>
 </div>
 </div>
 <hr>
@@ -1428,14 +1441,14 @@ crypt_shared UUID=&lt;shared-luks-uuid&gt; /etc/cryptsetup-keys.d/shared.key luk
 <p>NetworkManager is enabled and running, but it has <strong>no saved networks</strong> — your Wi-Fi credentials lived in the live USB’s <code>iwd</code> session, not in the installed system. If you have Ethernet, plug it in (DHCP just works). For Wi-Fi:</p>
 <div class="sourceCode" id="cb50"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> radio wifi on</span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> device wifi list</span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> device wifi connect <span class="st">"Your SSID Here"</span> password <span class="st">"your-passphrase"</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> device wifi connect <span class="st">"&lt;SSID&gt;"</span> password <span class="st">"&lt;WIFI_PASSWORD&gt;"</span></span>
 <span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="ex">ip</span> <span class="at">-brief</span> address                 <span class="co"># wlan0 should now have an inet address</span></span>
 <span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 3 ping.archlinux.org      <span class="co"># should be &lt;1% loss</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The live ISO’s <code>set-ntp true</code> only affected the live environment; the installed system’s <code>systemd-timesyncd</code> is idle until you turn it on. Do that, and confirm the timezone took (it’s easy to ship the chroot’s default <code>America/New_York</code> by copy-paste):</p>
 <div class="sourceCode" id="cb51"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> timedatectl set-ntp true</span>
 <span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> status</span>
 <span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Want: correct "Time zone:", "System clock synchronized: yes", "RTC in local TZ: no".</span></span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix the zone if needed:  sudo timedatectl set-timezone America/Chicago</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix the zone if needed:  sudo timedatectl set-timezone &lt;TIMEZONE&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Without NTP the clock drifts until <code>pacman</code> starts failing with GPG/TLS errors; without the right zone every timestamp is off by hours. Both fixes are cheap and permanent.</p>
 </section>
 <section id="test-that-the-shared-partition-is-actually-shareable" class="level3">
@@ -1447,7 +1460,7 @@ crypt_shared UUID=&lt;shared-luks-uuid&gt; /etc/cryptsetup-keys.d/shared.key luk
 <span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="co">#                            ^^^^^^^^^^^^^ — user/group name, not raw UID</span></span>
 <span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g'</span> /data/probe-arch.txt</span>
 <span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Should print: 1000 1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The point of the second <code>stat</code> line is to confirm the <em>integer</em> UID is 1000 — that’s what Ubuntu’s <code>user</code> will see when it mounts <code>/data</code> later. If the integer is anything other than 1000, your <code>useradd</code> in Chapter 6 didn’t pin correctly; fix it now with <code>usermod -u 1000 user &amp;&amp; chown -R 1000:1000 /home/user /data/*-by-user</code>.</p>
+<p>The point of the second <code>stat</code> line is to confirm the <em>integer</em> UID is 1000 — that’s what Ubuntu’s <code>user</code> will see when it mounts <code>/data</code> later. If the integer is anything other than 1000, your <code>useradd</code> in Chapter 6 didn’t pin correctly; fix it now with <code>usermod -u 1000 &lt;USERNAME&gt; &amp;&amp; chown -R 1000:1000 /home/&lt;USERNAME&gt; /data/*-by-&lt;USERNAME&gt;</code>.</p>
 </section>
 <section id="configure-snapper-for" class="level3">
 <h3 class="anchored" data-anchor-id="configure-snapper-for">Configure snapper for <code>/</code></h3>
@@ -1598,11 +1611,11 @@ Ubuntu will overwrite the EFI NVRAM <code>BootOrder</code>
 <span id="cb64-18"><a href="#cb64-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-19"><a href="#cb64-19" aria-hidden="true" tabindex="-1"></a><span class="co"># locale, timezone, a hostname distinct from Arch's</span></span>
 <span id="cb64-20"><a href="#cb64-20" aria-hidden="true" tabindex="-1"></a><span class="ex">locale-gen</span> en_US.UTF-8 <span class="kw">&amp;&amp;</span> <span class="ex">update-locale</span> LANG=en_US.UTF-8</span>
-<span id="cb64-21"><a href="#cb64-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/America/Chicago /etc/localtime <span class="kw">&amp;&amp;</span> <span class="bu">echo</span> <span class="st">"ubuntu"</span> <span class="op">&gt;</span> /etc/hostname</span>
+<span id="cb64-21"><a href="#cb64-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/<span class="op">&lt;</span>TIMEZONE<span class="op">&gt;</span> /etc/localtime <span class="kw">&amp;&amp;</span> <span class="bu">echo</span> <span class="st">"&lt;HOSTNAME&gt;"</span> <span class="op">&gt;</span> /etc/hostname    <span class="co"># e.g. ubuntu</span></span>
 <span id="cb64-22"><a href="#cb64-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-23"><a href="#cb64-23" aria-hidden="true" tabindex="-1"></a><span class="co"># the UID-1000 user — same NAME and UID as Arch, for /data ownership parity</span></span>
-<span id="cb64-24"><a href="#cb64-24" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 user<span class="kw">;</span> <span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-s</span> /bin/bash <span class="at">-G</span> sudo,adm,cdrom,dip,plugdev user</span>
-<span id="cb64-25"><a href="#cb64-25" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> user</span>
+<span id="cb64-24"><a href="#cb64-24" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span><span class="kw">;</span> <span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-s</span> /bin/bash <span class="at">-G</span> sudo,adm,cdrom,dip,plugdev <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb64-25"><a href="#cb64-25" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
 <span id="cb64-26"><a href="#cb64-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-27"><a href="#cb64-27" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-desktop-minimal               <span class="co"># the graphical layer (skip for a server box)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="callout callout-style-default callout-important callout-titled">
@@ -1845,8 +1858,8 @@ Why the explicit <code>/etc/initramfs-tools/conf.d/resume</code> file
 <section id="file-ownership-on-data-looks-like-1001-from-ubuntu-1000-from-arch" class="level3">
 <h3 class="anchored" data-anchor-id="file-ownership-on-data-looks-like-1001-from-ubuntu-1000-from-arch">5. File ownership on <code>/data</code> looks like <code>1001</code> from Ubuntu, <code>1000</code> from Arch</h3>
 <p>The Ubuntu installer assigned the user UID 1001 because there was already a UID 1000 in some inherited config (rare, but possible). Fix from Ubuntu:</p>
-<div class="sourceCode" id="cb85"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> usermod <span class="at">-u</span> 1000 user</span>
-<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> groupmod <span class="at">-g</span> 1000 user</span>
+<div class="sourceCode" id="cb85"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> usermod <span class="at">-u</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> groupmod <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
 <span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find / <span class="at">-uid</span> 1001 <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/proc/*'</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/sys/*'</span> <span class="at">-exec</span> chown 1000 {} +</span>
 <span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find / <span class="at">-gid</span> 1001 <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/proc/*'</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/sys/*'</span> <span class="at">-exec</span> chgrp 1000 {} +</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Reboot Ubuntu. Now <code>id user</code> prints <code>uid=1000(user) gid=1000(user)</code>.</p>
