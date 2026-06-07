@@ -659,14 +659,33 @@ That's fine — Ubuntu's GRUB has `os-prober` on by default and will list Window
 
 You're still in the chroot from Part 6 (installed Ubuntu mounted at `/mnt`, unlocked as `crypt_ubuntu`). Copy the shared keyfile off the still-unlocked Arch root (`p6`):
 
+::: {.callout-warning}
+## First: prove you're actually *in* the chroot
+
+The live session and the chroot **both** show a `root@…:~#` prompt — indistinguishable by eye — and running this chapter in the live session by mistake writes to throwaway RAM (you'll see `update-initramfs … read-only media` and `grub-probe: … '/cow'` later as the tell). Confirm before touching anything:
+
+```bash
+findmnt -n -o SOURCE /          # MUST print /dev/mapper/crypt_ubuntu
+```
+
+If it prints `overlay`, `/cow`, or a `/dev/loop…`, you're in the live session — re-enter the chroot first:
+
+```bash
+for d in dev dev/pts proc sys run; do mountpoint -q /mnt/$d || mount --rbind /$d /mnt/$d; done
+cp /etc/resolv.conf /mnt/etc/resolv.conf
+chroot /mnt /bin/bash
+```
+
+If the `cryptsetup open` below ever errors with *"Error reading passphrase from terminal"* (a chroot-over-SSH TTY quirk), run just that unlock + `cp` from the **live session**, copying into `/mnt/etc/cryptsetup-keys.d/`, then return to the chroot for the rest.
+:::
+
 ```bash
 cryptsetup open /dev/nvme0n1p6 archroot_tmp
-mount -o subvol=@ /dev/mapper/archroot_tmp /mnt
-mkdir -p /etc/cryptsetup-keys.d
-cp /mnt/etc/cryptsetup-keys.d/shared.key /etc/cryptsetup-keys.d/
-chmod 700 /etc/cryptsetup-keys.d
+mkdir -p /mnt2 && mount -o subvol=@ /dev/mapper/archroot_tmp /mnt2
+mkdir -p /etc/cryptsetup-keys.d && chmod 700 /etc/cryptsetup-keys.d
+cp /mnt2/etc/cryptsetup-keys.d/shared.key /etc/cryptsetup-keys.d/
 chmod 0400 /etc/cryptsetup-keys.d/shared.key
-umount /mnt
+umount /mnt2
 cryptsetup close archroot_tmp
 ```
 
