@@ -5,14 +5,14 @@ author: "Evanns Morales"
 date: "2026-05-05"
 categories: [arch linux, linux, installation, luks, btrfs, grub, mkinitcpio, debugging, dual-boot]
 image: ../../../files/tech-zone/arch-logo-dark.svg
-image-alt: "The Arch Linux logo — official wordmark from archlinux.org."
+image-alt: "The Arch Linux logo, official wordmark from archlinux.org."
 draft: false
 ---
 
 ::: {.callout-warning}
 ## Heads up: this one didn't work
 
-This article is honest. The ambitious dual-boot setup it describes — LUKS + Btrfs + zram + shared data partition + encrypted swap for hibernation — accepted my passphrase at boot and then dropped into a `systemd` emergency shell with a "Timed out waiting for device" error. I'm publishing the design, the install steps, and the post-mortem here as a learning record, not as a guide to copy. If you want a known-good first install, go read [my basic Arch install](../2026-05-01-first-arch-install/) instead.
+The ambitious dual-boot setup it describes — LUKS + Btrfs + zram + shared data partition + encrypted swap for hibernation, accepted my passphrase at boot and then dropped into a `systemd` emergency shell with a "Timed out waiting for device" error. I'm publishing the design, the install steps, and the post-mortem here as a learning record, not as a guide to copy. If you want a known-good first install, go read [my basic Arch install](../2026-05-01-first-arch-install/) instead.
 :::
 
 ## The plan I tried to execute
@@ -23,7 +23,7 @@ After successfully completing the [basic Arch install on my old laptop](../2026-
 - Each distro encrypted at the partition level with **LUKS**.
 - Each distro using **Btrfs** with `zstd` compression, with the Timeshift-friendly subvolume layout (`@` for root, `@home` for home).
 - A **shared data partition** mounted from both distros (`/data`), so my git repos, ROS 2 workspaces, datasets, and media live in one neutral place.
-- **zram** as the primary swap mechanism (compressed swap in RAM — fewer SSD writes during normal use).
+- **zram** as the primary swap mechanism (compressed swap in RAM, fewer SSD writes during normal use).
 - A separate **encrypted swap partition** big enough for hibernation (suspend-to-disk).
 
 The proposed partition layout:
@@ -53,7 +53,7 @@ Timeshift (a snapshot/backup tool) expects exactly `@` and `@home`. If you renam
 
 ### Why one big Btrfs partition per distro instead of separate `/` and `/home` partitions?
 
-With ext4 partitions, you have to *guess* how much space root vs. home will need. If you guess wrong, one fills up while the other has plenty free. Btrfs subvolumes are logically separate but share the same free-space pool inside the partition — so root and home grow into whichever space is actually needed.
+With ext4 partitions, you have to *guess* how much space root vs. home will need. If you guess wrong, one fills up while the other has plenty free. Btrfs subvolumes are logically separate but share the same free-space pool inside the partition, so root and home grow into whichever space is actually needed.
 
 ### Why zram **and** a swap partition?
 
@@ -127,10 +127,10 @@ mount -o noatime,ssd,compress=zstd,subvol=@home \
 
 The mount options earn their keep:
 
-- `noatime` — don't update access timestamps on every read. Reduces unnecessary writes.
-- `ssd` — explicitly enable Btrfs's SSD heuristics. Modern Btrfs usually auto-detects NVMe and SSD devices, but being explicit is harmless and self-documenting.
-- `compress=zstd` — transparent Zstandard compression. Great compression ratio with very low CPU cost.
-- `subvol=@` (and `subvol=@home`) — which subvolume to mount at this path.
+- `noatime`, don't update access timestamps on every read. Reduces unnecessary writes.
+- `ssd`, explicitly enable Btrfs's SSD heuristics. Modern Btrfs usually auto-detects NVMe and SSD devices, but being explicit is harmless and self-documenting.
+- `compress=zstd`, transparent Zstandard compression. Great compression ratio with very low CPU cost.
+- `subvol=@` (and `subvol=@home`), which subvolume to mount at this path.
 
 Notably absent: `discard=async`. Online discard is fine, but I'm planning to use `fstrim.timer` (weekly batch TRIM) instead. Doing both is redundant.
 
@@ -186,7 +186,7 @@ The basic system configuration that follows (timezone, locale, hostname, user, s
 When you boot a system whose root filesystem is on a LUKS-encrypted Btrfs subvolume, the journey from power-on to login prompt has more moving parts than an unencrypted ext4 install:
 
 1. UEFI firmware fires up.
-2. GRUB loads the Linux kernel and an *initramfs* — a small temporary Linux environment that lives in RAM.
+2. GRUB loads the Linux kernel and an *initramfs*, a small temporary Linux environment that lives in RAM.
 3. The initramfs detects hardware, loads kernel modules, and prompts for the LUKS passphrase.
 4. The encrypted partition is unlocked and mapped to `/dev/mapper/arch`.
 5. The Btrfs `@` subvolume is mounted as `/`.
@@ -234,14 +234,14 @@ Hook-by-hook:
 | `block`       | Adds support for SSDs, NVMe, USB block devices, etc.        |
 | `encrypt`     | Unlocks the LUKS container.                                 |
 | `filesystems` | Adds filesystem drivers.                                    |
-| `fsck`        | Filesystem check support — less critical for Btrfs.         |
+| `fsck`        | Filesystem check support, less critical for Btrfs.         |
 
 </details>
 
 ::: {.callout-note}
 ## udev vs. systemd initramfs
 
-This guide uses the traditional **udev**-based initramfs (`udev`, `keyboard`, `keymap`, `encrypt`). The systemd-based equivalent uses different hooks (`systemd`, `sd-vconsole`, `sd-encrypt`) — they're functionally similar but **don't mix them**. Pick one style. Using `udev` in the initramfs has nothing to do with whether your real system uses systemd later — it still does.
+This guide uses the traditional **udev**-based initramfs (`udev`, `keyboard`, `keymap`, `encrypt`). The systemd-based equivalent uses different hooks (`systemd`, `sd-vconsole`, `sd-encrypt`), they're functionally similar but **don't mix them**. Pick one style. Using `udev` in the initramfs has nothing to do with whether your real system uses systemd later, it still does.
 :::
 
 If your keyboard isn't detected at the LUKS prompt (rare, but it happens with some weird USB hubs and old laptop keyboards), you can also explicitly include drivers:
@@ -274,7 +274,7 @@ GRUB needs to know three things to boot this setup:
 
 ### Find the right partition
 
-Before editing anything, verify which `/dev/nvmeXnYpZ` is *actually* the Arch partition. Don't copy a `/dev/nvme0n1p4` from a tutorial — your layout is what `lsblk` says it is.
+Before editing anything, verify which `/dev/nvmeXnYpZ` is *actually* the Arch partition. Don't copy a `/dev/nvme0n1p4` from a tutorial, your layout is what `lsblk` says it is.
 
 ```bash
 lsblk
@@ -360,7 +360,7 @@ GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet zswap.enabled=0 cryptdevice=UUID=<u
 ::: {.callout-important}
 ## Don't use angle brackets in the actual file
 
-The `<uuid>` above is a placeholder. The real line must contain the bare UUID — no angle brackets, no quotes around the UUID, just the value. **This is the exact mistake I made on my first attempt and it's what bricked the boot** (see post-mortem below).
+The `<uuid>` above is a placeholder. The real line must contain the bare UUID, no angle brackets, no quotes around the UUID, just the value. **This is the exact mistake I made on my first attempt and it's what bricked the boot** (see post-mortem below).
 :::
 
 What each kernel parameter does:
@@ -427,9 +427,9 @@ systemctl enable NetworkManager bluetooth sshd firewalld reflector.timer fstrim.
 
 After the install completed cleanly and I rebooted:
 
-1. GRUB loaded successfully — the menu appeared and the Arch entry was selectable.
+1. GRUB loaded successfully, the menu appeared and the Arch entry was selectable.
 2. The kernel started, and I got the LUKS passphrase prompt.
-3. The passphrase was **accepted** — no "wrong passphrase" message.
+3. The passphrase was **accepted**, no "wrong passphrase" message.
 4. After a delay of roughly 90 seconds, the kernel printed:
 
    ```text
@@ -440,7 +440,7 @@ After the install completed cleanly and I rebooted:
 
 5. The system dropped into a `systemd` emergency root shell instead of finishing boot.
 
-The fact that the LUKS prompt appeared *and accepted my passphrase* meant the initramfs was working — the keyboard worked, the `encrypt` hook ran, the passphrase was correct. So whatever was wrong happened **after** the unlock.
+The fact that the LUKS prompt appeared *and accepted my passphrase* meant the initramfs was working, the keyboard worked, the `encrypt` hook ran, the passphrase was correct. So whatever was wrong happened **after** the unlock.
 
 ## Working theories
 
@@ -448,7 +448,7 @@ The error pattern ("password accepted, then timeout waiting for a device by-uuid
 
 1. The `cryptdevice=UUID=...` value in GRUB is wrong or malformed, so the kernel unlocks the wrong UUID (or tries to and gives up).
 2. The `root=` device doesn't match the mapper name from `cryptdevice=`.
-3. The Btrfs `rootflags=subvol=@` is incorrect — for example, mounting the top-level volume that has no `/sbin/init`.
+3. The Btrfs `rootflags=subvol=@` is incorrect, for example, mounting the top-level volume that has no `/sbin/init`.
 
 ## What I tried
 
@@ -515,11 +515,11 @@ I also:
 Even after all of the above, the boot still drops into emergency mode with the same "Timed out waiting for device" message. I haven't fully root-caused it yet. My next experiments will be:
 
 - Boot into the kernel without `quiet` and `loglevel=3` to see the *full* dmesg leading up to the timeout. Drop the `quiet` flag, watch what device the kernel is actually waiting for.
-- Confirm in the emergency shell that `/dev/mapper/arch` exists after the LUKS prompt — if it does, the failure is in mounting, not unlocking; if it doesn't, the `encrypt` hook isn't doing what I think it is.
+- Confirm in the emergency shell that `/dev/mapper/arch` exists after the LUKS prompt, if it does, the failure is in mounting, not unlocking; if it doesn't, the `encrypt` hook isn't doing what I think it is.
 - Try replacing the `udev`-style hooks with the systemd-style equivalents (`sd-encrypt` in place of `encrypt`, `systemd` in place of `udev`) since `sd-encrypt` is the better-tested path on contemporary Arch.
-- Audit `/etc/fstab` — if any line references `/dev/disk/by-uuid/<...>` for the mapper instead of `/dev/mapper/arch`, the systemd unit waiting on that path will time out exactly as I'm seeing.
+- Audit `/etc/fstab`, if any line references `/dev/disk/by-uuid/<...>` for the mapper instead of `/dev/mapper/arch`, the systemd unit waiting on that path will time out exactly as I'm seeing.
 
-I'll publish a follow-up once I know what fixed it. The point of this post is to leave a record of the design and the failure mode so I can come back to it — and so anyone hitting the same "passphrase accepted, then emergency mode" wall has at least *one* concrete shape of the problem to compare against.
+I'll publish a follow-up once I know what fixed it. The point of this post is to leave a record of the design and the failure mode so I can come back to it, and so anyone hitting the same "passphrase accepted, then emergency mode" wall has at least *one* concrete shape of the problem to compare against.
 
 ---
 

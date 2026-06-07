@@ -170,11 +170,11 @@ document.addEventListener('DOMContentLoaded', function () {
 <meta property="og:description" content="A practical reference for the interactive prompts, warnings, and errors you’ll see when installing packages on Arch Linux. Decodes every common pacman question (Y/n confirmations, optional dependencies, provider selection, file conflicts, hooks), every yay/paru question (cleanBuild, diffs, PKGBUILDs to edit), and the warnings that look scary but aren’t (snap-pac perl errors, missing-firmware messages, sd-vconsole notices). Written so future-you can paste a prompt into the search and find the right answer in five seconds.">
 <meta property="og:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
 <meta property="og:site_name" content="evannsmc">
-<meta property="og:image:alt" content="The Arch Linux logo — official wordmark from archlinux.org.">
+<meta property="og:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:title" content="Pacman, Yay, Paru, and the AUR: What Every Prompt Actually Means – evannsmc">
 <meta name="twitter:description" content="A practical reference for the interactive prompts, warnings, and errors you’ll see when installing packages on Arch Linux. Decodes every common pacman question (Y/n confirmations, optional dependencies, provider selection, file conflicts, hooks), every yay/paru question (cleanBuild, diffs, PKGBUILDs to edit), and the warnings that look scary but aren’t (snap-pac perl errors, missing-firmware messages, sd-vconsole notices). Written so future-you can paste a prompt into the search and find the right answer in five seconds.">
 <meta name="twitter:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
-<meta name="twitter:image:alt" content="The Arch Linux logo — official wordmark from archlinux.org.">
+<meta name="twitter:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -486,9 +486,9 @@ What this is
 │       from the official Arch repos and from local .pkg.tar.zst   │
 │       files. Runs pre/post hooks. Tracks dependencies.           │
 └──────────────────────────────────────────────────────────────────┘</code></pre>
-<p><strong>Pacman is always at the bottom.</strong> It does the actual installing — whether the package came from the official repos (<code>pacman -S htop</code>) or from the AUR via yay (<code>yay -S caelestia-meta</code> → builds it → calls pacman to install the result). Every prompt you see ultimately comes from either pacman or yay; understanding which is which is the first step to decoding them.</p>
-<p><strong>AUR</strong> = Arch User Repository — a community-maintained collection of <em>PKGBUILDs</em> (recipes for building packages), <strong>not</strong> packages themselves. To install something from the AUR you (or your helper) need to clone the PKGBUILD, run <code>makepkg</code> to build it, then pacman-install the result.</p>
-<p><strong><code>yay</code> and <code>paru</code></strong> are <em>AUR helpers</em> — they wrap that “clone + makepkg + pacman” loop into a single command and add nice quality-of-life features (parallel downloads, dependency resolution across repo + AUR, interactive search). They’re near-equivalent in capability; the article below covers <strong>yay</strong> in Part 6 and <strong>paru</strong> in Part 6.5 with the same level of detail, since they differ in defaults, configuration model, and flags often enough that you’ll want to know both if you’ve ever picked between them. Caelestia’s install script defaults to yay, but <code>--aur-helper=paru</code> works equally well.</p>
+<p><strong>Pacman is always at the bottom.</strong> It does the actual installing, whether the package came from the official repos (<code>pacman -S htop</code>) or from the AUR via yay (<code>yay -S caelestia-meta</code> → builds it → calls pacman to install the result). Every prompt you see ultimately comes from either pacman or yay; understanding which is which is the first step to decoding them.</p>
+<p><strong>AUR</strong> = Arch User Repository, a community-maintained collection of <em>PKGBUILDs</em> (recipes for building packages), <strong>not</strong> packages themselves. To install something from the AUR you (or your helper) need to clone the PKGBUILD, run <code>makepkg</code> to build it, then pacman-install the result.</p>
+<p><strong><code>yay</code> and <code>paru</code></strong> are <em>AUR helpers</em>, they wrap that “clone + makepkg + pacman” loop into a single command and add nice quality-of-life features (parallel downloads, dependency resolution across repo + AUR, interactive search). They’re near-equivalent in capability; the article below covers <strong>yay</strong> in Part 6 and <strong>paru</strong> in Part 6.5 with the same level of detail, since they differ in defaults, configuration model, and flags often enough that you’ll want to know both if you’ve ever picked between them. Caelestia’s install script defaults to yay, but <code>--aur-helper=paru</code> works equally well.</p>
 <hr>
 </section>
 <section id="part-2-pacman-commands-at-a-glance" class="level1">
@@ -540,7 +540,7 @@ Click to expand: what each command does
 </tr>
 <tr class="even">
 <td><code>pacman -Si &lt;pkg&gt;</code></td>
-<td>Show detailed info about a (repo) package — version, deps, optdeps, size</td>
+<td>Show detailed info about a (repo) package, version, deps, optdeps, size</td>
 </tr>
 <tr class="odd">
 <td><code>pacman -Qi &lt;pkg&gt;</code></td>
@@ -580,8 +580,8 @@ Read this if you only remember three of those
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><strong><code>pacman -Syu</code></strong> is <em>the</em> daily/weekly upgrade command. Never run <code>pacman -Sy &lt;pkg&gt;</code> without the <code>u</code> — that’s the “partial upgrade” anti-pattern that desyncs your system.</li>
-<li><strong><code>pacman -Qi &lt;pkg&gt;</code></strong> is your friend when you want to know <em>anything</em> about an installed package — version, dependencies, optional dependencies, install size, build date.</li>
+<li><strong><code>pacman -Syu</code></strong> is <em>the</em> daily/weekly upgrade command. Never run <code>pacman -Sy &lt;pkg&gt;</code> without the <code>u</code>, that’s the “partial upgrade” anti-pattern that desyncs your system.</li>
+<li><strong><code>pacman -Qi &lt;pkg&gt;</code></strong> is your friend when you want to know <em>anything</em> about an installed package, version, dependencies, optional dependencies, install size, build date.</li>
 <li><strong><code>pacman -Qo /path/to/file</code></strong> is what you use when you find some random file on your system and wonder where it came from.</li>
 </ul>
 </div>
@@ -597,7 +597,7 @@ Read this if you only remember three of those
 Total Installed Size:  0.39 MiB
 
 :: Proceed with installation? [Y/n]</code></pre>
-<p><strong>What it’s asking:</strong> the final go/no-go before pacman modifies your system. Above this line, pacman has printed the full list of packages it’s about to install, upgrade, or remove. Read that list — this is your last chance to abort if you see something unexpected.</p>
+<p><strong>What it’s asking:</strong> the final go/no-go before pacman modifies your system. Above this line, pacman has printed the full list of packages it’s about to install, upgrade, or remove. Read that list, this is your last chance to abort if you see something unexpected.</p>
 <p><strong>What to type:</strong></p>
 <table class="caption-top table">
 <colgroup>
@@ -621,7 +621,7 @@ Total Installed Size:  0.39 MiB
 </tr>
 </tbody>
 </table>
-<p><strong>When to <em>not</em> hit Enter blindly:</strong> if the package count is way larger than you expected (e.g., you <code>pacman -S htop</code> and it wants to install 200 packages), something’s pulled in a giant transitive dependency tree — usually because of an <code>--asdeps</code> typo or because you <code>-Syu</code>’d too. Read the list, abort with <code>n</code>, investigate.</p>
+<p><strong>When to <em>not</em> hit Enter blindly:</strong> if the package count is way larger than you expected (e.g., you <code>pacman -S htop</code> and it wants to install 200 packages), something’s pulled in a giant transitive dependency tree, usually because of an <code>--asdeps</code> typo or because you <code>-Syu</code>’d too. Read the list, abort with <code>n</code>, investigate.</p>
 </section>
 <section id="optional-dependencies-for-x" class="level2">
 <h2 class="anchored" data-anchor-id="optional-dependencies-for-x"><code>Optional dependencies for X</code></h2>
@@ -629,7 +629,7 @@ Total Installed Size:  0.39 MiB
     lm_sensors: show cpu temperatures
     lsof: show files opened by a process
     strace: attach to a running process</code></pre>
-<p><strong>What it’s saying:</strong> <em>informational only.</em> These packages are <strong>not</strong> installed by default — they unlock optional functionality that the package can use <em>if</em> it finds them. You’re being told they exist so you can install them later if you want the extra features.</p>
+<p><strong>What it’s saying:</strong> <em>informational only.</em> These packages are <strong>not</strong> installed by default, they unlock optional functionality that the package can use <em>if</em> it finds them. You’re being told they exist so you can install them later if you want the extra features.</p>
 <p><strong>What to do:</strong> nothing. If you want any of them, <code>pacman -S &lt;optdep&gt;</code> later. If you don’t, ignore.</p>
 </section>
 <section id="there-are-n-providers-available-for-x" class="level2">
@@ -663,7 +663,7 @@ Enter a number (default=1):</code></pre>
 <tr class="even">
 <td><code>pulseaudio</code> (rarely seen now)</td>
 <td><code>pulseaudio</code>, <code>pipewire-pulse</code></td>
-<td><code>pipewire-pulse</code> — same reason</td>
+<td><code>pipewire-pulse</code>, same reason</td>
 </tr>
 <tr class="odd">
 <td><code>java-runtime</code></td>
@@ -693,10 +693,10 @@ Errors occurred, no packages were upgraded.</code></pre>
 <p><strong>What it’s saying:</strong> two packages each want to install the same file at the same path, and pacman refuses to silently let one overwrite the other.</p>
 <p><strong>Common causes:</strong></p>
 <ol type="1">
-<li>You installed something via <code>makepkg -i</code> or curl-piped-bash that wrote files outside of pacman’s bookkeeping — and now a package update from the repos wants to install those same files.</li>
+<li>You installed something via <code>makepkg -i</code> or curl-piped-bash that wrote files outside of pacman’s bookkeeping, and now a package update from the repos wants to install those same files.</li>
 <li>A package was renamed upstream and pacman didn’t catch the migration cleanly.</li>
 </ol>
-<p><strong>Fix:</strong> identify which package owns the file (<code>pacman -Qo /usr/bin/bar</code>). Uninstall the offending one, or use <code>--overwrite '/path/glob'</code> on the pacman command line to grant pacman permission to write over the conflicting file. <strong>Don’t reflexively use <code>--overwrite '*'</code></strong> — that disables every conflict check and is a way to silently break your system.</p>
+<p><strong>Fix:</strong> identify which package owns the file (<code>pacman -Qo /usr/bin/bar</code>). Uninstall the offending one, or use <code>--overwrite '/path/glob'</code> on the pacman command line to grant pacman permission to write over the conflicting file. <strong>Don’t reflexively use <code>--overwrite '*'</code></strong>, that disables every conflict check and is a way to silently break your system.</p>
 </section>
 <section id="running-pre-transaction-hooks-running-post-transaction-hooks" class="level2">
 <h2 class="anchored" data-anchor-id="running-pre-transaction-hooks-running-post-transaction-hooks"><code>:: Running pre-transaction hooks</code> / <code>:: Running post-transaction hooks</code></h2>
@@ -771,7 +771,7 @@ Click to expand: what each hook does
 <pre class="text"><code>warning: nvidia-utils-595.71.05-2 is up to date -- reinstalling
 …
 ==&gt; Marking dependency as explicit: foo</code></pre>
-<p><code>Explicit</code> = a package you (the human) installed directly. <code>Dependency</code> = a package pacman installed because something else needed it. You can re-mark with <code>pacman -D --asexplicit &lt;pkg&gt;</code> (or <code>--asdeps</code>). This matters because <strong>orphan cleanup</strong> (<code>pacman -Qdtq | sudo pacman -Rns -</code>) removes dependency packages that nothing currently depends on — but never explicit ones.</p>
+<p><code>Explicit</code> = a package you (the human) installed directly. <code>Dependency</code> = a package pacman installed because something else needed it. You can re-mark with <code>pacman -D --asexplicit &lt;pkg&gt;</code> (or <code>--asdeps</code>). This matters because <strong>orphan cleanup</strong> (<code>pacman -Qdtq | sudo pacman -Rns -</code>) removes dependency packages that nothing currently depends on, but never explicit ones.</p>
 <hr>
 </section>
 </section>
@@ -796,13 +796,13 @@ Click to expand: what each hook does
 <tbody>
 <tr class="odd">
 <td><code>warning:</code></td>
-<td>Low — informational</td>
+<td>Low, informational</td>
 <td><strong>Yes</strong></td>
 <td>Almost never. Read the message, but the upgrade is proceeding.</td>
 </tr>
 <tr class="even">
 <td><code>error:</code></td>
-<td>High — usually fatal</td>
+<td>High, usually fatal</td>
 <td><strong>No</strong> (aborted)</td>
 <td>Yes. Read the message, fix the cause, re-run.</td>
 </tr>
@@ -836,7 +836,7 @@ Click to expand: what each message means
 <tr class="odd">
 <td><code>warning: nvidia-utils-595.71.05-2 is up to date -- reinstalling</code></td>
 <td>You explicitly asked to install something that’s already installed. Pacman reinstalls it (overwrites the same files).</td>
-<td>Nothing — totally fine.</td>
+<td>Nothing, totally fine.</td>
 </tr>
 <tr class="even">
 <td><code>==&gt; WARNING: sd-vconsole: "/etc/vconsole.conf" not found, will use default values</code> (mkinitcpio)</td>
@@ -845,12 +845,12 @@ Click to expand: what each message means
 </tr>
 <tr class="odd">
 <td><code>==&gt; WARNING: Possibly missing firmware for module: 'qat_6xxx'</code> (mkinitcpio)</td>
-<td>The kernel module exists but its firmware blob isn’t installed. The module won’t load unless you have Intel QAT enterprise crypto hardware — which you don’t if you’re on a normal laptop.</td>
+<td>The kernel module exists but its firmware blob isn’t installed. The module won’t load unless you have Intel QAT enterprise crypto hardware, which you don’t if you’re on a normal laptop.</td>
 <td>Ignore.</td>
 </tr>
 <tr class="even">
 <td><code>==&gt; WARNING: Possibly missing firmware for module: 'aic94xx'</code> etc.</td>
-<td>Same pattern — server-class storage controllers most people don’t have</td>
+<td>Same pattern, server-class storage controllers most people don’t have</td>
 <td>Ignore.</td>
 </tr>
 <tr class="odd">
@@ -897,7 +897,7 @@ Click to expand: what each message means
 </section>
 <section id="part-5-the-aur-and-how-yay-paru-wrap-it" class="level1">
 <h1>Part 5 — The AUR and how yay / paru wrap it</h1>
-<p>The Arch User Repository is a public collection of <strong>PKGBUILDs</strong> — shell-script recipes that tell <code>makepkg</code> how to download, build, and package some piece of software that isn’t in Arch’s official repos. The AUR itself stores no compiled packages; you (or your helper) build them on the spot.</p>
+<p>The Arch User Repository is a public collection of <strong>PKGBUILDs</strong>, shell-script recipes that tell <code>makepkg</code> how to download, build, and package some piece of software that isn’t in Arch’s official repos. The AUR itself stores no compiled packages; you (or your helper) build them on the spot.</p>
 <p><strong><code>yay -S caelestia-meta</code></strong> (or <code>paru -S caelestia-meta</code>) does roughly:</p>
 <ol type="1">
 <li>Search the AUR for <code>caelestia-meta</code>.</li>
@@ -909,11 +909,11 @@ Click to expand: what each message means
 <li>Hand the resulting <code>.pkg.tar.zst</code> files to pacman with <code>pacman -U</code>.</li>
 <li>Pacman runs its normal install + hook pipeline.</li>
 </ol>
-<p>That’s why the helper’s prompts come <strong>first</strong> (about the build), then pacman’s prompts come <strong>last</strong> (about the install). The lifecycle is the same for yay and paru — the differences (covered in Parts 6 and 6.5) are in the prompt wording, the cache path, the configuration model, and the defaults each project shipped.</p>
+<p>That’s why the helper’s prompts come <strong>first</strong> (about the build), then pacman’s prompts come <strong>last</strong> (about the install). The lifecycle is the same for yay and paru, the differences (covered in Parts 6 and 6.5) are in the prompt wording, the cache path, the configuration model, and the defaults each project shipped.</p>
 <hr>
 </section>
 <section id="part-6-yays-interactive-prompts-decoded" class="level1">
-<h1>Part 6 — yay’s interactive prompts, decoded</h1>
+<h1>Part 6, yay’s interactive prompts, decoded</h1>
 <section id="search-results-numbered-list" class="level2">
 <h2 class="anchored" data-anchor-id="search-results-numbered-list">Search results numbered list</h2>
 <pre class="text"><code>$ yay foo
@@ -922,8 +922,8 @@ Click to expand: what each message means
 1 extra/foo    1.0-1                (300 KiB)   Stable foo (official)
 ==&gt; Packages to install (eg: 1 2 3, 1-3 or ^4)
 ==&gt;</code></pre>
-<p><strong>What it’s saying:</strong> here are matching packages from both the official repos (<code>extra/</code> etc.) and the AUR (<code>aur/</code>). The list is <strong>reverse-sorted</strong> — the most relevant result is at the bottom, right next to the prompt, so you can pick it quickly.</p>
-<p>The two numbers in parens after each AUR entry are <strong>votes</strong> and <strong>popularity</strong> — higher is generally more trustworthy (more users, longer-maintained). Repo packages instead show install size.</p>
+<p><strong>What it’s saying:</strong> here are matching packages from both the official repos (<code>extra/</code> etc.) and the AUR (<code>aur/</code>). The list is <strong>reverse-sorted</strong>, the most relevant result is at the bottom, right next to the prompt, so you can pick it quickly.</p>
+<p>The two numbers in parens after each AUR entry are <strong>votes</strong> and <strong>popularity</strong>, higher is generally more trustworthy (more users, longer-maintained). Repo packages instead show install size.</p>
 <p><strong>What to type:</strong></p>
 <details>
 <summary>
@@ -1031,11 +1031,11 @@ Click to expand: what each answer means
 <pre class="text"><code>==&gt; PKGBUILDs to edit?
 ==&gt; [N]one [A]ll [Ab]ort [I]nstalled [No]tInstalled or (1 2 3, 1-3, ^4)</code></pre>
 <p><strong>What it’s asking:</strong> <em>“do you want to open each PKGBUILD in <code>$EDITOR</code> to modify it before makepkg runs?”</em> Used to patch upstream bugs, pin versions, change <code>pkgver()</code> logic, etc.</p>
-<p><strong>What to type:</strong> <code>N</code> (the default). Same audience as the diff prompt — power users patching upstream. For the 99 % case, you trust the AUR maintainer and just want the package built.</p>
+<p><strong>What to type:</strong> <code>N</code> (the default). Same audience as the diff prompt, power users patching upstream. For the 99 % case, you trust the AUR maintainer and just want the package built.</p>
 </section>
 <section id="proceed-with-installation" class="level2">
 <h2 class="anchored" data-anchor-id="proceed-with-installation"><code>:: Proceed with installation?</code></h2>
-<p>After all the build prompts, yay shows the final list of <code>.pkg.tar.zst</code> files it built and prompts again. This is pacman’s <code>:: Proceed with installation? [Y/n]</code> from <a href="#proceed-with-installation-yn">Part 3</a> — same answer (<code>Y</code> or Enter to proceed).</p>
+<p>After all the build prompts, yay shows the final list of <code>.pkg.tar.zst</code> files it built and prompts again. This is pacman’s <code>:: Proceed with installation? [Y/n]</code> from <a href="#proceed-with-installation-yn">Part 3</a>, same answer (<code>Y</code> or Enter to proceed).</p>
 </section>
 <section id="snapshots-created-by-snap-pac-during-aur-builds" class="level2">
 <h2 class="anchored" data-anchor-id="snapshots-created-by-snap-pac-during-aur-builds">Snapshots created by snap-pac during AUR builds</h2>
@@ -1046,12 +1046,12 @@ Click to expand: what each answer means
 :: Running post-transaction hooks...
 (2/2) Performing snapper post snapshots for the following configurations...
 ==&gt; root: 15</code></pre>
-<p>When yay hands the built packages to pacman, the normal snap-pac hook fires — you get a numbered snapshot pair around the install. <code>==&gt; root: 14</code> means snapshot <strong>14</strong> was created in the <code>root</code> snapper config. You can <code>snapper -c root list</code> later to see them.</p>
+<p>When yay hands the built packages to pacman, the normal snap-pac hook fires, you get a numbered snapshot pair around the install. <code>==&gt; root: 14</code> means snapshot <strong>14</strong> was created in the <code>root</code> snapper config. You can <code>snapper -c root list</code> later to see them.</p>
 <hr>
 </section>
 </section>
 <section id="part-6.5-paru-same-job-different-defaults" class="level1">
-<h1>Part 6.5 — paru: same job, different defaults</h1>
+<h1>Part 6.5, paru: same job, different defaults</h1>
 <p><code>paru</code> is the second well-maintained AUR helper most Arch users settle on. It does the same job as yay (clone PKGBUILD → makepkg → hand result to pacman) and most of its prompts read identically. <strong>The differences worth knowing are the defaults, the configuration model, and a few quality-of-life flags that yay doesn’t have or shapes differently.</strong> This section mirrors Part 6 with paru-specific notes.</p>
 <section id="installing-paru" class="level2">
 <h2 class="anchored" data-anchor-id="installing-paru">Installing paru</h2>
@@ -1102,7 +1102,7 @@ yay and paru can both be installed at the same time
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>They don’t conflict — they’re independent helpers operating on the same AUR and the same pacman backend. Some people keep yay for <code>-Syu</code> (mass updates) and paru for interactive searches because they like paru’s news-aggregation output. Others stick to one. There’s no downside to having both other than a few MB of disk.</p>
+<p>They don’t conflict, they’re independent helpers operating on the same AUR and the same pacman backend. Some people keep yay for <code>-Syu</code> (mass updates) and paru for interactive searches because they like paru’s news-aggregation output. Others stick to one. There’s no downside to having both other than a few MB of disk.</p>
 </div>
 </div>
 </section>
@@ -1114,7 +1114,7 @@ yay and paru can both be installed at the same time
 1 extra/foo    1.0-1                                Stable foo (official)
 :: Packages to install (eg: 1 2 3, 1-3 or ^4)
 ::</code></pre>
-<p><strong>What it’s saying:</strong> same as yay — repo and AUR matches together, reverse-sorted with the most-relevant at the bottom (paru calls this <code>BottomUp</code> and it’s on by default). Vote count is <code>+N</code>, popularity is <code>~F</code>. Both default to <code>BottomUp = true</code>, so the visual is near-identical.</p>
+<p><strong>What it’s saying:</strong> same as yay, repo and AUR matches together, reverse-sorted with the most-relevant at the bottom (paru calls this <code>BottomUp</code> and it’s on by default). Vote count is <code>+N</code>, popularity is <code>~F</code>. Both default to <code>BottomUp = true</code>, so the visual is near-identical.</p>
 <p><strong>What to type:</strong> same selectors as yay — <code>1</code>, <code>1 3 5</code>, <code>1-3</code>, <code>^4</code>, <code>A</code>, <code>N</code> / Enter. paru also accepts the <code>::</code> prompt-style entries which pacman uses; yay uses <code>==&gt;</code> for the same prompts. <strong>The substance is identical, the prompt prefix differs.</strong></p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1137,7 +1137,7 @@ Want top-down output instead?
   1 libcava                (Build Files Exist)
 :: Packages to cleanBuild?
 :: [N]one [A]ll [Ab]ort [I]nstalled [No]Installed or (1 2 3, 1-3, ^4)</code></pre>
-<p><strong>What it’s asking:</strong> same as yay’s <code>cleanBuild</code> — paru already has these PKGBUILD directories in <code>~/.cache/paru/clone/</code>, should they be wiped and re-fetched fresh?</p>
+<p><strong>What it’s asking:</strong> same as yay’s <code>cleanBuild</code>, paru already has these PKGBUILD directories in <code>~/.cache/paru/clone/</code>, should they be wiped and re-fetched fresh?</p>
 <p><strong>What to type:</strong> identical answer set to yay’s. Same recommendations: <code>A</code> on a first install (clean slate), <code>N</code> on a retry where you’ve already fixed something downstream.</p>
 <details>
 <summary>
@@ -1176,7 +1176,7 @@ Click to expand: where yay and paru’s cache lives
 <h2 class="anchored" data-anchor-id="diffs-to-show-1"><code>:: Diffs to show?</code></h2>
 <pre class="text"><code>:: Diffs to show?
 :: [N]one [A]ll [Ab]ort [I]nstalled [No]Installed or (1 2 3, 1-3, ^4)</code></pre>
-<p><strong>What it’s asking:</strong> same as yay’s diff prompt — show you the upstream-vs-cached PKGBUILD diff before building?</p>
+<p><strong>What it’s asking:</strong> same as yay’s diff prompt, show you the upstream-vs-cached PKGBUILD diff before building?</p>
 <p><strong>What to type:</strong> <code>N</code> (the default). Same audience and reasoning as Part 6.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1188,7 +1188,7 @@ paru’s distinctive “interactive review” mode
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Where paru genuinely differs from yay: you can flip a setting in <code>~/.config/paru/paru.conf</code> to make the <strong>diffs and PKGBUILD-editing prompts default to interactive</strong> instead of <code>N</code>. Add:</p>
+<p>Where paru differs from yay: you can flip a setting in <code>~/.config/paru/paru.conf</code> to make the <strong>diffs and PKGBUILD-editing prompts default to interactive</strong> instead of <code>N</code>. Add:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode ini code-with-copy"><code class="sourceCode ini"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[options]</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Review</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Now every AUR install drops you into a <code>less</code>-style pager showing the PKGBUILD before the build, and asks “edit? [y/N]” for each one. <strong>This is the AUR-trust-but-verify workflow.</strong> Yay has <code>--review</code> as a per-invocation flag but no persistent equivalent.</p>
@@ -1205,11 +1205,11 @@ paru’s distinctive “interactive review” mode
 </section>
 <section id="proceed-with-installation-1" class="level2">
 <h2 class="anchored" data-anchor-id="proceed-with-installation-1"><code>:: Proceed with installation?</code></h2>
-<p>Identical to yay — after all build prompts, paru shows the final list of <code>.pkg.tar.zst</code> files and hands them to pacman’s <code>:: Proceed with installation? [Y/n]</code> from <a href="#proceed-with-installation-yn">Part 3</a>. Same answer: <code>Y</code> or Enter.</p>
+<p>Identical to yay, after all build prompts, paru shows the final list of <code>.pkg.tar.zst</code> files and hands them to pacman’s <code>:: Proceed with installation? [Y/n]</code> from <a href="#proceed-with-installation-yn">Part 3</a>. Same answer: <code>Y</code> or Enter.</p>
 </section>
 <section id="snapshots-created-by-snap-pac-during-aur-builds-1" class="level2">
 <h2 class="anchored" data-anchor-id="snapshots-created-by-snap-pac-during-aur-builds-1">Snapshots created by snap-pac during AUR builds</h2>
-<p>Identical to yay — when paru hands the built packages to pacman, snap-pac fires and creates a pre/post snapshot pair. The snapshot numbers print under <code>==&gt; root: N</code> exactly as in the yay flow.</p>
+<p>Identical to yay, when paru hands the built packages to pacman, snap-pac fires and creates a pre/post snapshot pair. The snapshot numbers print under <code>==&gt; root: N</code> exactly as in the yay flow.</p>
 </section>
 <section id="parus-configuration-file" class="level2">
 <h2 class="anchored" data-anchor-id="parus-configuration-file">paru’s configuration file</h2>
@@ -1248,7 +1248,7 @@ Click to expand: what each common option does
 </tr>
 <tr class="even">
 <td><code>TopDown</code></td>
-<td>Opposite — most-relevant at top. Set this if you scroll back in the terminal and prefer top-to-bottom reading.</td>
+<td>Opposite, most-relevant at top. Set this if you scroll back in the terminal and prefer top-to-bottom reading.</td>
 </tr>
 <tr class="odd">
 <td><code>SudoLoop</code></td>
@@ -1348,7 +1348,7 @@ Click to expand: side-by-side flag comparison
 </tr>
 <tr class="odd">
 <td>Edit installed PKGBUILD for an already-installed AUR package</td>
-<td>(none — re-clone)</td>
+<td>(none, re-clone)</td>
 <td><code>paru -G &lt;pkg&gt;</code> then edit, then <code>paru -B .</code></td>
 </tr>
 <tr class="even">
@@ -1364,7 +1364,7 @@ Click to expand: side-by-side flag comparison
 </tbody>
 </table>
 </details>
-<p>The flag that I find genuinely useful and yay doesn’t have a clean equivalent of is <strong><code>paru -G</code></strong> — fetches the PKGBUILD without building, so you can read it, edit it locally, then <code>paru -B .</code> from the directory to build your edited version. yay’s <code>-G</code> exists but its build flow assumes you’ll re-clone; paru’s keeps your local edits visible.</p>
+<p>The flag I find useful and yay doesn’t have a clean equivalent of is <strong><code>paru -G</code></strong>, fetches the PKGBUILD without building, so you can read it, edit it locally, then <code>paru -B .</code> from the directory to build your edited version. yay’s <code>-G</code> exists but its build flow assumes you’ll re-clone; paru’s keeps your local edits visible.</p>
 </section>
 <section id="when-to-pick-paru-when-to-pick-yay" class="level2">
 <h2 class="anchored" data-anchor-id="when-to-pick-paru-when-to-pick-yay">When to pick paru, when to pick yay</h2>
@@ -1381,7 +1381,7 @@ Quick decision rubric
 <ul>
 <li><strong>Pick <code>paru</code></strong> if you care about reading PKGBUILDs before they run (the persistent <code>Review</code> workflow), you want news-on-upgrade automatically, you’d rather configure behavior in an INI file than via CLI flags, or you prefer Rust over Go for ideological/maintenance reasons.</li>
 <li><strong>Pick <code>yay</code></strong> if you want the most-installed-by-default option (Caelestia and most install guides reach for yay first), you’re already used to its flag set, you don’t care about reviewing PKGBUILDs, or you simply want zero opinions about which to use and the most established option.</li>
-<li><strong>Pick both</strong> if you can’t decide — they coexist fine, share zero state, and you can experiment with each on the same machine.</li>
+<li><strong>Pick both</strong> if you can’t decide, they coexist fine, share zero state, and you can experiment with each on the same machine.</li>
 </ul>
 <p>For the install in <a href="../2026-05-17-arch-luks-btrfs/">Article 03</a>, either works. The Caelestia install script accepts <code>--aur-helper=paru</code> and behaves identically.</p>
 </div>
@@ -1391,7 +1391,7 @@ Quick decision rubric
 </section>
 <section id="part-7-common-aur-build-failures" class="level1">
 <h1>Part 7 — Common AUR build failures</h1>
-<p>Most AUR builds “just work” — but when one fails, the error is usually in one of three places. Read the makepkg output top-to-bottom and stop at the first <code>error:</code> line.</p>
+<p>Most AUR builds “just work”, but when one fails, the error is usually in one of three places. Read the makepkg output top-to-bottom and stop at the first <code>error:</code> line.</p>
 <details>
 <summary>
 Click to expand: troubleshooting matrix
@@ -1418,7 +1418,7 @@ Click to expand: troubleshooting matrix
 <tr class="odd">
 <td><code>error: failed to commit transaction (conflicting files)</code> after build succeeds</td>
 <td>Built package conflicts with an installed file</td>
-<td>Same as the <a href="#file-in-x-is-owned-by-both-x-and-y">pacman file-conflict case</a> — usually fixed with <code>--overwrite '/path'</code></td>
+<td>Same as the <a href="#file-in-x-is-owned-by-both-x-and-y">pacman file-conflict case</a>, usually fixed with <code>--overwrite '/path'</code></td>
 </tr>
 <tr class="even">
 <td><code>Could not resolve all dependencies.</code></td>
@@ -1428,7 +1428,7 @@ Click to expand: troubleshooting matrix
 <tr class="odd">
 <td>Compilation fails with <code>gcc</code> errors</td>
 <td>Source incompatible with current toolchain</td>
-<td>Usually means the AUR PKGBUILD is stale and needs maintainer attention — check the package’s AUR comments page; sometimes a patch is mentioned there</td>
+<td>Usually means the AUR PKGBUILD is stale and needs maintainer attention, check the package’s AUR comments page; sometimes a patch is mentioned there</td>
 </tr>
 </tbody>
 </table>
@@ -1456,12 +1456,12 @@ Click to expand: troubleshooting matrix
 <p><strong>What you care about:</strong> the <strong>last line</strong> — <code>Initcpio image generation successful</code>. If you see that, the boot-time disk image was rebuilt correctly and the next reboot will use it.</p>
 <p><strong>Warnings you can ignore here:</strong></p>
 <ul>
-<li><code>==&gt; WARNING: Possibly missing firmware for module: '&lt;name&gt;'</code> — the kernel module is preloaded into the initramfs but doesn’t have a matching firmware blob. Harmless if you don’t have the hardware that module drives. The most common ones (<code>qat_6xxx</code>, <code>aic94xx</code>, <code>wd719x</code>) are enterprise gear nobody has on a laptop.</li>
-<li><code>==&gt; WARNING: sd-vconsole: "/etc/vconsole.conf" not found, will use default values</code> — only fires during initial install, before you wrote <code>/etc/vconsole.conf</code>. Goes away after.</li>
+<li><code>==&gt; WARNING: Possibly missing firmware for module: '&lt;name&gt;'</code>, the kernel module is preloaded into the initramfs but doesn’t have a matching firmware blob. Harmless if you don’t have the hardware that module drives. The most common ones (<code>qat_6xxx</code>, <code>aic94xx</code>, <code>wd719x</code>) are enterprise gear nobody has on a laptop.</li>
+<li><code>==&gt; WARNING: sd-vconsole: "/etc/vconsole.conf" not found, will use default values</code>, only fires during initial install, before you wrote <code>/etc/vconsole.conf</code>. Goes away after.</li>
 </ul>
 <p><strong>Errors that are real:</strong></p>
 <ul>
-<li><code>==&gt; ERROR: Failed to install kernel</code>, <code>==&gt; ERROR: missing required module</code>, anything containing the word <code>failed</code> — these mean the next boot will not work. Stop, diagnose, fix before rebooting.</li>
+<li><code>==&gt; ERROR: Failed to install kernel</code>, <code>==&gt; ERROR: missing required module</code>, anything containing the word <code>failed</code>, these mean the next boot will not work. Stop, diagnose, fix before rebooting.</li>
 </ul>
 <hr>
 </section>
@@ -1491,7 +1491,7 @@ Click to expand: what each prompt means
 <tr class="odd">
 <td><code>:: Proceed with installation? [Y/n]</code></td>
 <td>Y</td>
-<td>Enter (Y) — but <strong>read the package list first</strong></td>
+<td>Enter (Y), but <strong>read the package list first</strong></td>
 <td>Final go/no-go</td>
 </tr>
 <tr class="even">
@@ -1550,7 +1550,7 @@ Click to expand: what each prompt means
 <blockquote class="blockquote">
 <p><em>Do not move the cloned repo after running install.fish. The symlinks in <code>~/.config/</code> point back into it; moving or deleting the source orphans every symlink.</em></p>
 </blockquote>
-<p>So you can’t just pick the bundle’s files up, drop them into your own dotfiles repo, and call it a day — the install script is <em>part of the install</em>, and the symlinks it creates are <em>load-bearing</em>.</p>
+<p>So you can’t just pick the bundle’s files up, drop them into your own dotfiles repo, and call it a day, the install script is <em>part of the install</em>, and the symlinks it creates are <em>load-bearing</em>.</p>
 <p>If you naïvely add your own dotfiles <strong>on top</strong> by copying files into the bundle’s repo, the next <code>git pull</code> will fight you (merge conflicts on every customization). So the natural question is: how do I keep my own customizations cleanly separated from the bundle’s, <em>and</em> under my own version control, <em>and</em> not fight the bundle’s update process?</p>
 </section>
 <section id="the-answer-stow-your-personal-overlay-not-the-bundle" class="level2">
@@ -1593,7 +1593,7 @@ Click to expand: what each prompt means
 <section id="two-rules-that-keep-this-clean" class="level2">
 <h2 class="anchored" data-anchor-id="two-rules-that-keep-this-clean">Two rules that keep this clean</h2>
 <ol type="1">
-<li><p><strong>Your stow packages should <em>add</em> files to <code>~/.config/</code>, never <em>replace</em> what the bundle installed.</strong> Use new filenames (<code>99-user.fish</code>, <code>personal-binds.conf</code>), or use subdirectories the bundle leaves alone (<code>conf.d/</code>, <code>local/</code>, <code>plugins/</code>). If you stow a file that has the same path as a bundle symlink, stow refuses with a “would override” error — which is the <em>right</em> behavior; it’s telling you to pick a non-colliding name.</p></li>
+<li><p><strong>Your stow packages should <em>add</em> files to <code>~/.config/</code>, never <em>replace</em> what the bundle installed.</strong> Use new filenames (<code>99-user.fish</code>, <code>personal-binds.conf</code>), or use subdirectories the bundle leaves alone (<code>conf.d/</code>, <code>local/</code>, <code>plugins/</code>). If you stow a file that has the same path as a bundle symlink, stow refuses with a “would override” error, which is the <em>right</em> behavior; it’s telling you to pick a non-colliding name.</p></li>
 <li><p><strong>Treat both the bundle’s repo and your overlay as part of the install.</strong> Back up both. On a reinstall, restore both. If you ever want to remove your overlay cleanly: <code>cd ~/dotfiles &amp;&amp; stow -D */</code> removes every symlink in one shot.</p></li>
 </ol>
 </section>
@@ -1631,7 +1631,7 @@ Click to expand: what each prompt means
 </tr>
 </tbody>
 </table>
-<p>For a bundle like Caelestia where you want <strong>clean separation between bundle and overlay</strong>, stow is the right pick — its symlink approach makes the boundary explicit and impossible to confuse. You can always see which files came from Caelestia (symlinks into <code>~/.local/share/caelestia/</code>) and which came from your overlay (symlinks into <code>~/dotfiles/</code>) by running <code>ls -l ~/.config/&lt;dir&gt;/</code>.</p>
+<p>For a bundle like Caelestia where you want <strong>clean separation between bundle and overlay</strong>, stow is the right pick, its symlink approach makes the boundary explicit and impossible to confuse. You can always see which files came from Caelestia (symlinks into <code>~/.local/share/caelestia/</code>) and which came from your overlay (symlinks into <code>~/dotfiles/</code>) by running <code>ls -l ~/.config/&lt;dir&gt;/</code>.</p>
 <hr>
 </section>
 </section>
@@ -1639,15 +1639,15 @@ Click to expand: what each prompt means
 <h1>Part 11 — Hardening (optional)</h1>
 <p>A handful of small <code>/etc/pacman.conf</code> tweaks worth knowing about:</p>
 <ul>
-<li><strong><code>ParallelDownloads = 5</code></strong> (default in current Arch) — pacman downloads up to 5 packages in parallel. Bigger numbers help on fast connections; smaller (or <code>1</code>) helps if your network is flaky or rate-limited.</li>
-<li><strong><code>Color</code></strong> — uncomment for colored output. Easier to spot warnings vs errors.</li>
-<li><strong><code>ILoveCandy</code></strong> — uncomment for pac-man-shaped progress bars during downloads. Pure aesthetic; harmless.</li>
-<li><strong><code>VerbosePkgLists</code></strong> — uncomment to show old version → new version columns in upgrade lists. I always have this on.</li>
+<li><strong><code>ParallelDownloads = 5</code></strong> (default in current Arch), pacman downloads up to 5 packages in parallel. Bigger numbers help on fast connections; smaller (or <code>1</code>) helps if your network is flaky or rate-limited.</li>
+<li><strong><code>Color</code></strong>, uncomment for colored output. Easier to spot warnings vs errors.</li>
+<li><strong><code>ILoveCandy</code></strong>, uncomment for pac-man-shaped progress bars during downloads. Pure aesthetic; harmless.</li>
+<li><strong><code>VerbosePkgLists</code></strong>, uncomment to show old version → new version columns in upgrade lists. I always have this on.</li>
 </ul>
 <p>For <code>/etc/makepkg.conf</code> (affects AUR builds):</p>
 <ul>
-<li><strong><code>MAKEFLAGS="-j$(nproc)"</code></strong> — parallel compilation using all your CPU cores. Speeds up Quickshell, Chromium-based AUR packages, etc. by a lot.</li>
-<li><strong><code>COMPRESSXZ</code></strong> / <strong><code>COMPRESSZST</code></strong> — if you’re disk-constrained, you can switch the package compressor; for most users the defaults are fine.</li>
+<li><strong><code>MAKEFLAGS="-j$(nproc)"</code></strong>, parallel compilation using all your CPU cores. Speeds up Quickshell, Chromium-based AUR packages, etc. by a lot.</li>
+<li><strong><code>COMPRESSXZ</code></strong> / <strong><code>COMPRESSZST</code></strong>, if you’re disk-constrained, you can switch the package compressor; for most users the defaults are fine.</li>
 </ul>
 <hr>
 <div class="callout callout-style-default callout-note callout-titled">

@@ -8,7 +8,7 @@
 
 <meta name="author" content="Evanns Morales">
 <meta name="dcterms.date" content="2026-05-18">
-<meta name="description" content="A side-by-side compilation of three single-boot Arch Linux install procedures derived from what I learned writing Articles 01–04: Arch + Btrfs subvolumes (no encryption), Arch + LUKS (no Btrfs), and Arch + LUKS + Btrfs (the snapshot-ready encrypted single-boot from Article 03). Use the tab switcher to pick the variant you want. Each tab is a complete, copy-pasteable procedure isolated to one variable change relative to the basic install, and stops on the console — the desktop layer is a separate choice.">
+<meta name="description" content="A side-by-side compilation of three single-boot Arch Linux install procedures derived from what I learned writing Articles 01–04: Arch + Btrfs subvolumes (no encryption), Arch + LUKS (no Btrfs), and Arch + LUKS + Btrfs (the snapshot-ready encrypted single-boot from Article 03). Use the tab switcher to pick the variant you want. Each tab is a complete, copy-pasteable procedure isolated to one variable change relative to the basic install, and stops on the console, the desktop layer is a separate choice.">
 
 <title>Three Single-Boot Arch Variants: Btrfs, LUKS, or Both – evannsmc</title>
 <style>
@@ -167,14 +167,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <link rel="stylesheet" href="../../../styles.css">
 <meta property="og:title" content="Three Single-Boot Arch Variants: Btrfs, LUKS, or Both – evannsmc">
-<meta property="og:description" content="A side-by-side compilation of three single-boot Arch Linux install procedures derived from what I learned writing Articles 01–04: Arch + Btrfs subvolumes (no encryption), Arch + LUKS (no Btrfs), and Arch + LUKS + Btrfs (the snapshot-ready encrypted single-boot from Article 03). Use the tab switcher to pick the variant you want. Each tab is a complete, copy-pasteable procedure isolated to one variable change relative to the basic install, and stops on the console — the desktop layer is a separate choice.">
+<meta property="og:description" content="A side-by-side compilation of three single-boot Arch Linux install procedures derived from what I learned writing Articles 01–04: Arch + Btrfs subvolumes (no encryption), Arch + LUKS (no Btrfs), and Arch + LUKS + Btrfs (the snapshot-ready encrypted single-boot from Article 03). Use the tab switcher to pick the variant you want. Each tab is a complete, copy-pasteable procedure isolated to one variable change relative to the basic install, and stops on the console, the desktop layer is a separate choice.">
 <meta property="og:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
 <meta property="og:site_name" content="evannsmc">
-<meta property="og:image:alt" content="The Arch Linux logo — official wordmark from archlinux.org.">
+<meta property="og:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:title" content="Three Single-Boot Arch Variants: Btrfs, LUKS, or Both – evannsmc">
-<meta name="twitter:description" content="A side-by-side compilation of three single-boot Arch Linux install procedures derived from what I learned writing Articles 01–04: Arch + Btrfs subvolumes (no encryption), Arch + LUKS (no Btrfs), and Arch + LUKS + Btrfs (the snapshot-ready encrypted single-boot from Article 03). Use the tab switcher to pick the variant you want. Each tab is a complete, copy-pasteable procedure isolated to one variable change relative to the basic install, and stops on the console — the desktop layer is a separate choice.">
+<meta name="twitter:description" content="A side-by-side compilation of three single-boot Arch Linux install procedures derived from what I learned writing Articles 01–04: Arch + Btrfs subvolumes (no encryption), Arch + LUKS (no Btrfs), and Arch + LUKS + Btrfs (the snapshot-ready encrypted single-boot from Article 03). Use the tab switcher to pick the variant you want. Each tab is a complete, copy-pasteable procedure isolated to one variable change relative to the basic install, and stops on the console, the desktop layer is a separate choice.">
 <meta name="twitter:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
-<meta name="twitter:image:alt" content="The Arch Linux logo — official wordmark from archlinux.org.">
+<meta name="twitter:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <div>
   <div class="description">
-    A side-by-side compilation of three single-boot Arch Linux install procedures derived from what I learned writing Articles 01–04: Arch + Btrfs subvolumes (no encryption), Arch + LUKS (no Btrfs), and Arch + LUKS + Btrfs (the snapshot-ready encrypted single-boot from Article 03). Use the tab switcher to pick the variant you want. Each tab is a complete, copy-pasteable procedure isolated to one variable change relative to the basic install, and stops on the console — the desktop layer is a separate choice.
+    A side-by-side compilation of three single-boot Arch Linux install procedures derived from what I learned writing Articles 01–04: Arch + Btrfs subvolumes (no encryption), Arch + LUKS (no Btrfs), and Arch + LUKS + Btrfs (the snapshot-ready encrypted single-boot from Article 03). Use the tab switcher to pick the variant you want. Each tab is a complete, copy-pasteable procedure isolated to one variable change relative to the basic install, and stops on the console, the desktop layer is a separate choice.
   </div>
 </div>
 
@@ -464,11 +464,11 @@ document.addEventListener('DOMContentLoaded', function () {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Honesty disclaimer: I haven’t run these three exactly line-by-line
+Disclaimer: I haven’t run these three exactly line-by-line
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Unlike <a href="../2026-05-01-first-arch-install/">Article 02 (basic install)</a>, <a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01 (failed dual-boot post-mortem)</a>, and <a href="../2026-05-17-arch-luks-btrfs/">Article 03 (LUKS+Btrfs single-boot)</a> — which are first-hand install logs I executed and can vouch for command-by-command — <strong>the three procedures in this compilation are reasoned derivations</strong>. They’re built from what I learned in those four articles plus the <a href="https://wiki.archlinux.org/title/Installation_guide" target="_blank" rel="noopener">Arch wiki</a> and standard practice for each technology in isolation. I’ve verified every command in the man pages and the wiki, but I have <strong>not</strong> run all three end-to-end on a real machine and watched them boot.</p>
+<p>Unlike <a href="../2026-05-01-first-arch-install/">Article 02 (basic install)</a>, <a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01 (failed dual-boot post-mortem)</a>, and <a href="../2026-05-17-arch-luks-btrfs/">Article 03 (LUKS+Btrfs single-boot)</a>, which are first-hand install logs I executed and can vouch for command-by-command — <strong>the three procedures in this compilation are reasoned derivations</strong>. They’re built from what I learned in those four articles plus the <a href="https://wiki.archlinux.org/title/Installation_guide" target="_blank" rel="noopener">Arch wiki</a> and standard practice for each technology in isolation. I’ve verified every command in the man pages and the wiki, but I have <strong>not</strong> run all three end-to-end on a real machine and watched them boot.</p>
 <p>If you spot something wrong, the canonical sources are:</p>
 <ul>
 <li><a href="https://man.archlinux.org/man/mkinitcpio.8" target="_blank" rel="noopener"><code>mkinitcpio</code></a> (initramfs hook configuration)</li>
@@ -482,13 +482,13 @@ Honesty disclaimer: I haven’t run these three exactly line-by-line
 </div>
 <section id="how-to-use-this-article" class="level2">
 <h2 class="anchored" data-anchor-id="how-to-use-this-article">How to use this article</h2>
-<p>Pick the tab that matches the install you want. Each tab is fully self-contained — it tells you the partition layout, the formatting commands, the mkinitcpio hooks, the GRUB cmdline, and how to verify the boot. Where a tab is identical to <a href="../2026-05-01-first-arch-install/">Article 02 (the basic install)</a>, I point at the relevant section instead of restating it; the tabs are written as <strong>diffs against the basic install</strong>, not full re-derivations.</p>
+<p>Pick the tab that matches the install you want. Each tab is fully self-contained, it tells you the partition layout, the formatting commands, the mkinitcpio hooks, the GRUB cmdline, and how to verify the boot. Where a tab is identical to <a href="../2026-05-01-first-arch-install/">Article 02 (the basic install)</a>, I point at the relevant section instead of restating it; the tabs are written as <strong>diffs against the basic install</strong>, not full re-derivations.</p>
 <p>Common prerequisites for all three tabs (same as the basic install):</p>
 <ul>
 <li>A booted Arch live ISO (<code>archlinux-2026.05.01-x86_64.iso</code> or newer)</li>
 <li>Working network (<code>iwctl</code> for Wi-Fi or wired DHCP)</li>
 <li>NTP synced (<code>timedatectl set-ntp true</code>)</li>
-<li>Disk identified — these examples use <code>/dev/nvme0n1</code>, substitute your device</li>
+<li>Disk identified, these examples use <code>/dev/nvme0n1</code>, substitute your device</li>
 </ul>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Arch + Btrfs</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Arch + LUKS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Arch + LUKS + Btrfs</a></li></ul>
@@ -499,7 +499,7 @@ Honesty disclaimer: I haven’t run these three exactly line-by-line
 <p><strong>What’s different:</strong> the formatting step, the subvolume layout, the mount options, the <code>BINARIES</code> line in <code>mkinitcpio.conf</code>, the GRUB cmdline.</p>
 <section id="partition-layout" class="level3">
 <h3 class="anchored" data-anchor-id="partition-layout">Partition layout</h3>
-<p>Same three partitions as the basic install — but the root partition will hold Btrfs subvolumes instead of one ext4 filesystem:</p>
+<p>Same three partitions as the basic install, but the root partition will hold Btrfs subvolumes instead of one ext4 filesystem:</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 15%">
@@ -565,7 +565,7 @@ Honesty disclaimer: I haven’t run these three exactly line-by-line
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> subvol=@var_log,compress=zstd:3,noatime   /dev/nvme0n1p3 /mnt/var/log</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> /dev/nvme0n1p2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><code>compress=zstd:3</code> is the level the Arch wiki recommends — good ratio, low CPU. <code>noatime</code> prevents needless metadata churn on every read.</p>
+<p><code>compress=zstd:3</code> is the level the Arch wiki recommends, good ratio, low CPU. <code>noatime</code> prevents needless metadata churn on every read.</p>
 </section>
 <section id="pacstrap-fstab" class="level3">
 <h3 class="anchored" data-anchor-id="pacstrap-fstab">Pacstrap + fstab</h3>
@@ -580,11 +580,11 @@ Honesty disclaimer: I haven’t run these three exactly line-by-line
 <section id="inside-the-chroot-mkinitcpio-and-grub" class="level3">
 <h3 class="anchored" data-anchor-id="inside-the-chroot-mkinitcpio-and-grub">Inside the chroot — <code>mkinitcpio</code> and GRUB</h3>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Locale, time, hostname, user, sudo — same as <a href="../2026-05-01-first-arch-install/">Article 02 Chapter 6</a>.</p>
+<p>Locale, time, hostname, user, sudo, same as <a href="../2026-05-01-first-arch-install/">Article 02 Chapter 6</a>.</p>
 <p><code>/etc/mkinitcpio.conf</code> needs <code>btrfs</code> added to <code>BINARIES</code>:</p>
 <pre class="text"><code>BINARIES=(btrfs)
 HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)</code></pre>
-<p>The default <code>HOOKS=</code> line already covers a Btrfs root — no encryption hook needed because there’s no LUKS layer. Rebuild:</p>
+<p>The default <code>HOOKS=</code> line already covers a Btrfs root, no encryption hook needed because there’s no LUKS layer. Rebuild:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkinitcpio</span> <span class="at">-P</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>GRUB on a Btrfs root needs <strong>no kernel-cmdline changes</strong> vs.&nbsp;a plain ext4 install — Btrfs is detected and mounted automatically from the root device’s UUID. Install GRUB exactly as <a href="../2026-05-01-first-arch-install/">Article 02 Chapter 11</a>:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
@@ -598,7 +598,7 @@ HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont bl
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">snapper</span> <span class="at">-c</span> home create-config /home    <span class="co"># optional — see Article 03 on whether to snapshot /home</span></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable snapper-timeline.timer snapper-cleanup.timer</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable grub-btrfsd.service</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><code>snap-pac</code> is the pacman hook that takes pre+post snapshots around every pacman transaction — so every <code>pacman -Syu</code> is reversible. <code>grub-btrfsd</code> watches <code>@snapshots</code> and rebuilds the GRUB menu so you can boot into a snapshot.</p>
+<p><code>snap-pac</code> is the pacman hook that takes pre+post snapshots around every pacman transaction, so every <code>pacman -Syu</code> is reversible. <code>grub-btrfsd</code> watches <code>@snapshots</code> and rebuilds the GRUB menu so you can boot into a snapshot.</p>
 </section>
 <section id="verify-exit-reboot" class="level3">
 <h3 class="anchored" data-anchor-id="verify-exit-reboot">Verify, exit, reboot</h3>
@@ -620,7 +620,7 @@ HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont bl
 <p><strong>What’s different:</strong> an extra <code>cryptsetup luksFormat</code> step before mkfs, a <code>cryptsetup open</code> to expose the mapper device, the <code>BINARIES</code>/<code>HOOKS</code> lines in <code>mkinitcpio.conf</code>, the GRUB cmdline with <code>cryptdevice=</code> / <code>rd.luks.name=</code>, an <code>/etc/crypttab</code> entry.</p>
 <section id="partition-layout-1" class="level3">
 <h3 class="anchored" data-anchor-id="partition-layout-1">Partition layout</h3>
-<p>Same three partitions as the basic install — but the root partition is a LUKS container, not a raw filesystem:</p>
+<p>Same three partitions as the basic install, but the root partition is a LUKS container, not a raw filesystem:</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 13%">
@@ -664,7 +664,7 @@ HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont bl
 </table>
 <p><strong>Two notes on the swap partition:</strong></p>
 <ul>
-<li>For this variant I’m assuming you want an unencrypted regular partition swap-only (no hibernation). If you want hibernation-safe encrypted swap, see <a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01’s plan</a> — but be aware Article 01 didn’t boot, so use the <a href="../2026-05-17-arch-luks-btrfs/">Article 03 swap-file-in-LUKS pattern</a> instead (which lives in the <code>LUKS + Btrfs</code> tab on this page).</li>
+<li>For this variant I’m assuming you want an unencrypted regular partition swap-only (no hibernation). If you want hibernation-safe encrypted swap, see <a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01’s plan</a>, but be aware Article 01 didn’t boot, so use the <a href="../2026-05-17-arch-luks-btrfs/">Article 03 swap-file-in-LUKS pattern</a> instead (which lives in the <code>LUKS + Btrfs</code> tab on this page).</li>
 <li>The most-common simple pattern in 2026 is <strong>skip the swap partition entirely</strong> and use zram. Add <code>zram-generator</code> after first boot.</li>
 </ul>
 </section>
@@ -688,7 +688,7 @@ The mapper name <code>cryptroot</code> matters
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>You’ll reference this name <em>three</em> times: here in <code>cryptsetup open</code>, in the GRUB cmdline (<code>rd.luks.name=…=cryptroot</code>), and as <code>/dev/mapper/cryptroot</code> in the kernel <code>root=</code> parameter. They have to match exactly. A typo here is the most common reason the install boots into emergency mode — exactly the failure described in <a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01</a>.</p>
+<p>You’ll reference this name <em>three</em> times: here in <code>cryptsetup open</code>, in the GRUB cmdline (<code>rd.luks.name=…=cryptroot</code>), and as <code>/dev/mapper/cryptroot</code> in the kernel <code>root=</code> parameter. They have to match exactly. A typo here is the most common reason the install boots into emergency mode, exactly the failure described in <a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01</a>.</p>
 </div>
 </div>
 </section>
@@ -704,13 +704,13 @@ The mapper name <code>cryptroot</code> matters
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  vim nano sudo git man-db man-pages texinfo</span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The new package vs.&nbsp;Article 02 is <strong><code>cryptsetup</code></strong> (so the running system can re-open the LUKS container after boot, even though the initramfs already opened it). <code>genfstab -U</code> writes <code>/dev/mapper/cryptroot</code> as the root device using its UUID — that’s fine, the initramfs hook below replaces it functionally.</p>
+<p>The new package vs.&nbsp;Article 02 is <strong><code>cryptsetup</code></strong> (so the running system can re-open the LUKS container after boot, even though the initramfs already opened it). <code>genfstab -U</code> writes <code>/dev/mapper/cryptroot</code> as the root device using its UUID, that’s fine, the initramfs hook below replaces it functionally.</p>
 </section>
 <section id="inside-the-chroot-mkinitcpio-crypttab-grub" class="level3">
 <h3 class="anchored" data-anchor-id="inside-the-chroot-mkinitcpio-crypttab-grub">Inside the chroot — <code>mkinitcpio</code>, <code>crypttab</code>, GRUB</h3>
 <div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Locale, time, hostname, user, sudo — same as <a href="../2026-05-01-first-arch-install/">Article 02 Chapter 6</a>.</p>
-<p>The critical edit is <code>/etc/mkinitcpio.conf</code>. Pick <strong>one</strong> of two valid hook layouts (I recommend <code>sd-encrypt</code> — it’s the modern systemd-based path Article 03 uses):</p>
+<p>Locale, time, hostname, user, sudo, same as <a href="../2026-05-01-first-arch-install/">Article 02 Chapter 6</a>.</p>
+<p>The critical edit is <code>/etc/mkinitcpio.conf</code>. Pick <strong>one</strong> of two valid hook layouts (I recommend <code>sd-encrypt</code>, it’s the modern systemd-based path Article 03 uses):</p>
 <pre class="text"><code># Modern (systemd-based) — pairs with kernel cmdline rd.luks.name=…
 HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)</code></pre>
 <p>Or the legacy busybox path:</p>
@@ -730,7 +730,7 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet loglevel=3 rd.luks.name=&lt;LUKS-UUID&gt;=cryp
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<code>GRUB_ENABLE_CRYPTODISK=y</code> — when you need it
+<code>GRUB_ENABLE_CRYPTODISK=y</code>, when you need it
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -743,7 +743,7 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet loglevel=3 rd.luks.name=&lt;LUKS-UUID&gt;=cryp
 </section>
 <section id="etccrypttab.initramfs-optional-but-recommended-for-sd-encrypt" class="level3">
 <h3 class="anchored" data-anchor-id="etccrypttab.initramfs-optional-but-recommended-for-sd-encrypt"><code>/etc/crypttab.initramfs</code> (optional but recommended for <code>sd-encrypt</code>)</h3>
-<p>If you used the <code>sd-encrypt</code> hook above, the kernel cmdline already does the unlocking — but adding an <code>/etc/crypttab.initramfs</code> entry makes the configuration discoverable post-install and lets future-you read it without parsing GRUB:</p>
+<p>If you used the <code>sd-encrypt</code> hook above, the kernel cmdline already does the unlocking, but adding an <code>/etc/crypttab.initramfs</code> entry makes the configuration discoverable post-install and lets future-you read it without parsing GRUB:</p>
 <pre class="text"><code># /etc/crypttab.initramfs
 cryptroot UUID=&lt;LUKS-UUID&gt; none luks</code></pre>
 <p><code>mkinitcpio</code> will copy it into the initramfs on the next rebuild. Re-run <code>mkinitcpio -P</code> if you add this.</p>
@@ -763,9 +763,9 @@ cryptroot UUID=&lt;LUKS-UUID&gt; none luks</code></pre>
 </section>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<p><strong>What this variant gives you:</strong> the full single-boot install from <a href="../2026-05-17-arch-luks-btrfs/">Article 03</a>, condensed. LUKS2 underneath, Btrfs subvolumes on top, zram for everyday swap, a NoCOW Btrfs swap file for hibernation, snapper + grub-btrfs from day one. Stops on the console — desktop layer is your call (Caelestia, custom Hyprland, GNOME, Plasma, sway, dwm, …).</p>
-<p><strong>What’s the same as Article 03:</strong> every command in Parts 1–3 of that article — partitioning, LUKS format, Btrfs subvolume layout, mount options, pacstrap, mkinitcpio hooks, GRUB cmdline, snapper config, first-boot verification.</p>
-<p><strong>What’s different:</strong> this tab is a quick procedural distillation — read it as a checklist. The full prose explanations (why each <code>cryptdevice=</code> option is shaped the way it is, why <code>compress=zstd:3</code> specifically, why a NoCOW swap file vs.&nbsp;an encrypted swap partition) live in Article 03.</p>
+<p><strong>What this variant gives you:</strong> the full single-boot install from <a href="../2026-05-17-arch-luks-btrfs/">Article 03</a>, condensed. LUKS2 underneath, Btrfs subvolumes on top, zram for everyday swap, a NoCOW Btrfs swap file for hibernation, snapper + grub-btrfs from day one. Stops on the console, desktop layer is your call (Caelestia, custom Hyprland, GNOME, Plasma, sway, dwm, …).</p>
+<p><strong>What’s the same as Article 03:</strong> every command in Parts 1–3 of that article, partitioning, LUKS format, Btrfs subvolume layout, mount options, pacstrap, mkinitcpio hooks, GRUB cmdline, snapper config, first-boot verification.</p>
+<p><strong>What’s different:</strong> this tab is a quick procedural distillation, read it as a checklist. The full prose explanations (why each <code>cryptdevice=</code> option is shaped the way it is, why <code>compress=zstd:3</code> specifically, why a NoCOW swap file vs.&nbsp;an encrypted swap partition) live in Article 03.</p>
 <section id="partition-layout-same-as-article-03" class="level3">
 <h3 class="anchored" data-anchor-id="partition-layout-same-as-article-03">Partition layout (same as Article 03)</h3>
 <table class="caption-top table">
@@ -802,7 +802,7 @@ cryptroot UUID=&lt;LUKS-UUID&gt; none luks</code></pre>
 </tr>
 </tbody>
 </table>
-<p>No separate swap partition — zram + a NoCOW swap file inside <code>@swap</code> cover both everyday compression and hibernation.</p>
+<p>No separate swap partition, zram + a NoCOW swap file inside <code>@swap</code> cover both everyday compression and hibernation.</p>
 </section>
 <section id="format-open-layout" class="level3">
 <h3 class="anchored" data-anchor-id="format-open-layout">Format, open, layout</h3>
@@ -840,7 +840,7 @@ cryptroot UUID=&lt;LUKS-UUID&gt; none luks</code></pre>
 <section id="inside-the-chroot" class="level3">
 <h3 class="anchored" data-anchor-id="inside-the-chroot">Inside the chroot</h3>
 <div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Locale, time, hostname, user, sudo — same as <a href="../2026-05-01-first-arch-install/">Article 02 Chapter 6</a>.</p>
+<p>Locale, time, hostname, user, sudo, same as <a href="../2026-05-01-first-arch-install/">Article 02 Chapter 6</a>.</p>
 <section id="mkinitcpio.conf" class="level4">
 <h4 class="anchored" data-anchor-id="mkinitcpio.conf"><code>mkinitcpio.conf</code></h4>
 <pre class="text"><code>BINARIES=(btrfs)
@@ -885,7 +885,7 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet loglevel=3 rd.luks.name=&lt;LUKS-UUID&gt;=cryp
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">chown</span> :wheel /.snapshots <span class="kw">&amp;&amp;</span> <span class="fu">chmod</span> 750 /.snapshots</span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable snapper-timeline.timer snapper-cleanup.timer</span>
 <span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable grub-btrfsd.service</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><code>snap-pac</code> is already installed and active — it’ll start taking pre/post snapshots around every pacman transaction automatically.</p>
+<p><code>snap-pac</code> is already installed and active, it’ll start taking pre/post snapshots around every pacman transaction automatically.</p>
 </section>
 </section>
 <section id="verify-exit-reboot-2" class="level3">
@@ -903,7 +903,7 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet loglevel=3 rd.luks.name=&lt;LUKS-UUID&gt;=cryp
 </section>
 <section id="next-pick-a-desktop-layer" class="level3">
 <h3 class="anchored" data-anchor-id="next-pick-a-desktop-layer">Next: pick a desktop layer</h3>
-<p>This tab stops where Article 03 stops in its install layer — you have an encrypted, snapshot-able, hibernation-ready single-boot Arch system, on the console. The desktop is its own piece of work, and which one you reach for depends on how much opinionation you want pre-baked:</p>
+<p>This tab stops where Article 03 stops in its install layer, you have an encrypted, snapshot-able, hibernation-ready single-boot Arch system, on the console. The desktop is its own piece of work, and which one you reach for depends on how much opinionation you want pre-baked:</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -914,7 +914,7 @@ Path A → Custom Hyprland (upcoming)
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A Hyprland setup picked piece by piece — your bar, your terminal, your keybinds, your theme — with no project-bundle layer on top. Slower to “first screenshot” but every component is one you chose. Article dashed in the upcoming section on the <a href="../../">Tech Zone landing</a>.</p>
+<p>A Hyprland setup picked piece by piece, your bar, your terminal, your keybinds, your theme, with no project-bundle layer on top. Slower to “first screenshot” but every component is one you chose. Article dashed in the upcoming section on the <a href="../../">Tech Zone landing</a>.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -927,7 +927,7 @@ Path B → Something else entirely (no article)
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>If you want GNOME, Plasma, sway, dwm, or anything else, install the relevant <code>gnome</code> / <code>plasma</code> / <code>sway</code> / <code>dwm</code> group with <code>pacman</code>. The install layer this tab leaves you with is desktop-agnostic — nothing about the LUKS+Btrfs+snapper stack assumes a particular compositor.</p>
+<p>If you want GNOME, Plasma, sway, dwm, or anything else, install the relevant <code>gnome</code> / <code>plasma</code> / <code>sway</code> / <code>dwm</code> group with <code>pacman</code>. The install layer this tab leaves you with is desktop-agnostic, nothing about the LUKS+Btrfs+snapper stack assumes a particular compositor.</p>
 </div>
 </div>
 </section>
@@ -939,7 +939,7 @@ Path B → Something else entirely (no article)
 <section id="why-one-article-with-three-tabs-instead-of-three-separate-articles" class="level2">
 <h2 class="anchored" data-anchor-id="why-one-article-with-three-tabs-instead-of-three-separate-articles">Why one article with three tabs instead of three separate articles?</h2>
 <p>The reasoning, briefly: these three procedures share ~70% of their content with <a href="../2026-05-01-first-arch-install/">Article 02 (basic install)</a>, and the parts that <em>differ</em> are exactly the parts a reader picking between them needs to compare side-by-side. A tab switcher does that in a way three separate articles can’t.</p>
-<p>If you do want them as separate articles, every command above is self-contained — you can copy a tab’s content into its own file and it’ll still make sense.</p>
+<p>If you do want them as separate articles, every command above is self-contained, you can copy a tab’s content into its own file and it’ll still make sense.</p>
 <hr>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">

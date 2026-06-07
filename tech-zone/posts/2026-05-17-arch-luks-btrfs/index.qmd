@@ -1,11 +1,11 @@
 ---
 title: "Arch + LUKS + Btrfs — Encrypted, Snapshot-Ready Single-Boot"
-description: "Single-boot Arch Linux on an NVMe SSD: LUKS2 full-disk encryption, Btrfs with proper subvolumes (@, @home, @snapshots, @var_log, @swap), zram for everyday compressed swap, a NoCOW swap file on Btrfs for hibernation, snapper + grub-btrfs for bootable snapshots. A working, copy-pasteable expansion of my basic Arch install — with every correction from the failed-boot post-mortem already baked in. The desktop layer is deliberately a separate choice, see Part 4."
+description: "Single-boot Arch Linux on an NVMe SSD: LUKS2 full-disk encryption, Btrfs with proper subvolumes (@, @home, @snapshots, @var_log, @swap), zram for everyday compressed swap, a NoCOW swap file on Btrfs for hibernation, snapper + grub-btrfs for bootable snapshots. A working, copy-pasteable expansion of my basic Arch install, with every correction from the failed-boot post-mortem already baked in. The desktop layer is deliberately a separate choice, see Part 4."
 author: "Evanns Morales"
 date: "2026-05-17"
 categories: [arch linux, linux, installation, luks, btrfs, snapper, hibernation, grub, mkinitcpio, systemd, zram]
 image: ../../../files/tech-zone/arch-logo-dark.svg
-image-alt: "The Arch Linux logo — official wordmark from archlinux.org."
+image-alt: "The Arch Linux logo, official wordmark from archlinux.org."
 draft: false
 ---
 
@@ -20,19 +20,19 @@ The encrypted, snapshot-able install layer I'm actually running on my daily-driv
 - a **NoCOW Btrfs swap file** big enough for hibernation (suspend-to-disk),
 - **snapper** + **grub-btrfs** for bootable, per-`pacman`-transaction snapshots.
 
-It is **single-boot** and stops on the console — the desktop layer is deliberately a separate choice. **Part 4 (at the end)** points at that next step: a piece-by-piece custom Hyprland (upcoming), or any environment you prefer (GNOME, Plasma, sway, dwm) — none of which is required for the install itself. Dual-boot and triple-boot setups get their own articles too — those add complexity I want to introduce one variable at a time after this one is rock-solid.
+It is **single-boot** and stops on the console, the desktop layer is deliberately a separate choice. **Part 4 (at the end)** points at that next step: a piece-by-piece custom Hyprland (upcoming), or any environment you prefer (GNOME, Plasma, sway, dwm), none of which is required for the install itself. Dual-boot and triple-boot setups get their own articles too, those add complexity I want to introduce one variable at a time after this one is rock-solid.
 :::
 
 ::: {.callout-tip}
 ## How to read the hardware-specific examples in this guide
 
-Some sections of this article have variance by machine — the swap-file size, the kernel image you pick, what `lspci` actually prints. Wherever that's the case, you'll see a **tabbed block** with one example per machine. The tabs don't change anything else on the page — they just show or hide the example content.
+Some sections of this article have variance by machine, the swap-file size, the kernel image you pick, what `lspci` actually prints. Wherever that's the case, you'll see a **tabbed block** with one example per machine. The tabs don't change anything else on the page, they just show or hide the example content.
 
-- **Generic** — the version a reader on unknown hardware should follow.
-- **Dell Precision (Intel Iris Xe + RTX A2000)** — the actual `lspci` output, exact commands, and post-install env vars from my Dell Precision mobile workstation. This is the machine I've fully installed and tested this guide on.
-- **Dell Pro 16 Plus** — placeholder for a second machine I'll install this stack on later. Content lands when I actually run through it.
+- **Generic**, the version a reader on unknown hardware should follow.
+- **Dell Precision (Intel Iris Xe + RTX A2000)**, the actual `lspci` output, exact commands, and post-install env vars from my Dell Precision mobile workstation. This is the machine I've fully installed and tested this guide on.
+- **Dell Pro 16 Plus**, placeholder for a second machine I'll install this stack on later. Content lands when I actually run through it.
 
-GPU drivers themselves are part of the *desktop* layer, not the install — they live in the desktop article (upcoming, for Custom Hyprland), not here.
+GPU drivers themselves are part of the *desktop* layer, not the install, they live in the desktop article (upcoming, for Custom Hyprland), not here.
 :::
 
 ## Why this is its own article (and not just "Article 01, fixed")
@@ -41,7 +41,7 @@ My [first attempt at LUKS + Btrfs](../2026-05-05-arch-luks-btrfs-lessons/) dropp
 
 1. **systemd-based initramfs** (`sd-encrypt`) instead of the older `udev`/`encrypt` hook. The kernel parameter format (`rd.luks.name=<UUID>=<name>`) is documented in `systemd-cryptsetup-generator(8)`, accepts no `:` separator, and is harder to mistype than `cryptdevice=`.
 2. **No dual-boot.** Last time I tried to land LUKS + Btrfs + zram + shared partition + dual-boot Ubuntu in one swing. This time the goal is one OS, fully working, with a desktop on top.
-3. **A real swap file on Btrfs** for hibernation, plus zram for normal swap pressure. This replaces last attempt's "separate encrypted swap partition" — same outcome, fewer partitions.
+3. **A real swap file on Btrfs** for hibernation, plus zram for normal swap pressure. This replaces last attempt's "separate encrypted swap partition", same outcome, fewer partitions.
 4. **Snapper integration from day one**, so the very first `pacman -Syu` already creates a rollback point.
 
 The result is the install I trust enough to put my dissertation work, my dotfiles, and my GPG keys on.
@@ -66,14 +66,14 @@ Once you have a shell on the target machine with networking and the clock synced
 lsblk -d -o NAME,SIZE,MODEL,TRAN
 ```
 
-The NVMe drive will show `TRAN=nvme`. Note the device — usually `/dev/nvme0n1`. Every command below uses `/dev/nvme0n1` and its partitions as a placeholder. **Substitute your actual device** if it differs. Wiping the wrong disk is the kind of mistake LUKS can't save you from.
+The NVMe drive will show `TRAN=nvme`. Note the device, usually `/dev/nvme0n1`. Every command below uses `/dev/nvme0n1` and its partitions as a placeholder. **Substitute your actual device** if it differs. Wiping the wrong disk is the kind of mistake LUKS can't save you from.
 :::
 
 ---
 
 ## Chapter 1: Partitioning
 
-For this install I'm using exactly two partitions — the EFI System Partition, and one big Linux partition that I'll LUKS-encrypt and then carve into Btrfs subvolumes:
+For this install I'm using exactly two partitions, the EFI System Partition, and one big Linux partition that I'll LUKS-encrypt and then carve into Btrfs subvolumes:
 
 | Partition           | Size       | Filesystem | Encryption | Purpose                                |
 |---------------------|-----------:|------------|------------|----------------------------------------|
@@ -172,7 +172,7 @@ Subvolume-by-subvolume:
 ::: {.callout-tip}
 ## Names matter for tooling, not the kernel
 
-The names `@`, `@home`, `@snapshots`, and `@var_log` are conventions, not requirements — the kernel doesn't care. But **snapper** and **Timeshift** default to those names. Rename them and you'll fight your tools forever. I'm using exactly the default names so every guide I read in the future "just works."
+The names `@`, `@home`, `@snapshots`, and `@var_log` are conventions, not requirements, the kernel doesn't care. But **snapper** and **Timeshift** default to those names. Rename them and you'll fight your tools forever. I'm using exactly the default names so every guide I read in the future "just works."
 :::
 
 ---
@@ -193,13 +193,13 @@ mount /dev/nvme0n1p1 /mnt/boot
 
 The mount options earn their keep:
 
-- `noatime` — don't update the access timestamp on every read. Reduces unnecessary writes on SSDs and is harmless for almost every workload.
-- `compress=zstd:3` — transparent Zstandard compression at level 3. Strong compression ratio (often 40 %+ on text and source) with negligible CPU cost. Modern Btrfs picks `zstd:3` if you just say `compress=zstd`; spelling out the level is documentation.
-- `subvol=@`, `subvol=@home`, … — tells Btrfs which subvolume is mounted at this path.
+- `noatime`, don't update the access timestamp on every read. Reduces unnecessary writes on SSDs and is harmless for almost every workload.
+- `compress=zstd:3`, transparent Zstandard compression at level 3. Strong compression ratio (often 40 %+ on text and source) with negligible CPU cost. Modern Btrfs picks `zstd:3` if you just say `compress=zstd`; spelling out the level is documentation.
+- `subvol=@`, `subvol=@home`, …, tells Btrfs which subvolume is mounted at this path.
 
 Notably absent: the `ssd` option. Modern Btrfs auto-detects NVMe and SSD-class block devices reliably; specifying it is harmless but no longer informative. Also absent: `discard=async` — I use `fstrim.timer` (weekly batch TRIM) instead. Doing both is redundant and slightly slower.
 
-The `@swap` subvolume mounts **without** compression — a swap file must not be compressed (swap pages need to be readable as-is when the kernel pages them back in).
+The `@swap` subvolume mounts **without** compression, a swap file must not be compressed (swap pages need to be readable as-is when the kernel pages them back in).
 
 ### Recovery: starting the mount step over
 
@@ -244,7 +244,7 @@ The new packages beyond Article 02:
 
 | Package           | Why |
 |-------------------|-----|
-| `cryptsetup`      | LUKS userspace + the `/usr/lib/initcpio/install/sd-encrypt` hook script. **Not pulled in by `base`** on current Arch — without it, the next time mkinitcpio runs (e.g., on a kernel update) it would silently produce an initramfs that can't unlock your disk. Install it explicitly. |
+| `cryptsetup`      | LUKS userspace + the `/usr/lib/initcpio/install/sd-encrypt` hook script. **Not pulled in by `base`** on current Arch, without it, the next time mkinitcpio runs (e.g., on a kernel update) it would silently produce an initramfs that can't unlock your disk. Install it explicitly. |
 | `btrfs-progs`     | Userspace Btrfs tools (`btrfs`, `mkfs.btrfs`, `btrfs filesystem mkswapfile`). Required on every Btrfs system. |
 | `grub-btrfs`      | Generates extra GRUB menu entries for each Btrfs snapshot so you can boot directly into a prior state. |
 | `snapper`         | Snapshot manager. Takes per-config snapshots on a timer and on every `pacman` transaction (via `snap-pac`). |
@@ -260,8 +260,8 @@ The new packages beyond Article 02:
 
 Both of these print in red but are expected and do **not** mean the install failed:
 
-1. **`sd-vconsole: "/etc/vconsole.conf" not found, will use default values`** — mkinitcpio built an initramfs before we created `/etc/vconsole.conf`. The very first boot's LUKS prompt will use the default `us` keymap (fine for most people); we set it properly in Chapter 6 and rebuild the initramfs in Chapter 9.
-2. **`fatal library error, lookup self`** after `Performing snapper post snapshots` — `snap-pac`'s pacman hook fired against a snapper that has no configs yet (and perl's library paths inside the brand-new chroot aren't fully resolved). The hook would have been a no-op anyway — nothing is snapshotted, nothing is broken. We configure snapper properly in Part 3 (first boot), and the warning disappears from then on.
+1. **`sd-vconsole: "/etc/vconsole.conf" not found, will use default values`**, mkinitcpio built an initramfs before we created `/etc/vconsole.conf`. The very first boot's LUKS prompt will use the default `us` keymap (fine for most people); we set it properly in Chapter 6 and rebuild the initramfs in Chapter 9.
+2. **`fatal library error, lookup self`** after `Performing snapper post snapshots` — `snap-pac`'s pacman hook fired against a snapper that has no configs yet (and perl's library paths inside the brand-new chroot aren't fully resolved). The hook would have been a no-op anyway, nothing is snapshotted, nothing is broken. We configure snapper properly in Part 3 (first boot), and the warning disappears from then on.
 
 To confirm pacstrap actually succeeded despite the noise:
 
@@ -288,7 +288,7 @@ arch-chroot /mnt
 cat /etc/fstab
 ```
 
-Each line should reference `UUID=…` (not `/dev/nvme0n1pN`) and the Btrfs entries should each carry `subvol=@…` in their options. If you see anything mounted from `/dev/mapper/cryptroot` *without* a `subvol=` entry, edit that out — you'd be mounting the top-level Btrfs volume on top of itself.
+Each line should reference `UUID=…` (not `/dev/nvme0n1pN`) and the Btrfs entries should each carry `subvol=@…` in their options. If you see anything mounted from `/dev/mapper/cryptroot` *without* a `subvol=` entry, edit that out, you'd be mounting the top-level Btrfs volume on top of itself.
 :::
 
 ---
@@ -335,10 +335,10 @@ passwd user
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 ```
 
-Replace `user` with whatever username you want. I'm using `arch` as the bare hostname (so the shell prompt reads `user@arch`) — if you'd rather have a more descriptive hostname like `arch-thinkpad` or `lab-laptop`, change both the `/etc/hostname` line and the trailing `arch.localdomain arch` token in `/etc/hosts`. The extra groups (`video`, `audio`, `input`) preempt small annoyances later with Hyprland (`video` for GPU access, `input` for libinput devices, `audio` for the legacy ALSA path some apps still want).
+Replace `user` with whatever username you want. I'm using `arch` as the bare hostname (so the shell prompt reads `user@arch`), if you'd rather have a more descriptive hostname like `arch-thinkpad` or `lab-laptop`, change both the `/etc/hostname` line and the trailing `arch.localdomain arch` token in `/etc/hosts`. The extra groups (`video`, `audio`, `input`) preempt small annoyances later with Hyprland (`video` for GPU access, `input` for libinput devices, `audio` for the legacy ALSA path some apps still want).
 
 ::: {.callout-important}
-## Substitute *your* timezone — don't inherit mine
+## Substitute *your* timezone, don't inherit mine
 
 The `ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime` line above sets the system timezone to my zone (US Eastern). **Change it to wherever you actually are**, or you'll be doing time-zone math in your head for the lifetime of this install. Find your zone first:
 
@@ -374,9 +374,9 @@ Line-by-line, here's what we just wrote:
 
 Two things are worth knowing about that third line:
 
-1. **Why a separate `127.0.1.1` instead of `127.0.0.1`?** It's a Debian-ism the Arch Wiki adopted: by giving your hostname its own loopback address, nothing on a real network can ever depend on you accidentally pointing your hostname at the generic loopback. `127.0.0.0/8` is a /8 subnet (16 million addresses) entirely reserved for loopback, so there's room to spare and `127.0.1.1` is *also* purely local — it never leaves your machine. Functionally either would work; conventionally, `127.0.1.1` is what you use.
+1. **Why a separate `127.0.1.1` instead of `127.0.0.1`?** It's a Debian-ism the Arch Wiki adopted: by giving your hostname its own loopback address, nothing on a real network can ever depend on you accidentally pointing your hostname at the generic loopback. `127.0.0.0/8` is a /8 subnet (16 million addresses) entirely reserved for loopback, so there's room to spare and `127.0.1.1` is *also* purely local, it never leaves your machine. Functionally either would work; conventionally, `127.0.1.1` is what you use.
 
-2. **What does `.localdomain` mean?** It's a placeholder *domain suffix* for machines that aren't on a real DNS domain — a stand-in fully-qualified name when there's no actual one. Calls like `hostname -f` (get the FQDN), `gethostname()`, and `getfqdn()` from various languages all walk `/etc/hosts` looking for an entry that names this host. With `arch.localdomain arch` on the third line, they all return `arch.localdomain` instead of failing or returning an empty string. If you ever actually join a domain (`mycompany.internal`, say), you'd change this to `arch.mycompany.internal arch`.
+2. **What does `.localdomain` mean?** It's a placeholder *domain suffix* for machines that aren't on a real DNS domain, a stand-in fully-qualified name when there's no actual one. Calls like `hostname -f` (get the FQDN), `gethostname()`, and `getfqdn()` from various languages all walk `/etc/hosts` looking for an entry that names this host. With `arch.localdomain arch` on the third line, they all return `arch.localdomain` instead of failing or returning an empty string. If you ever actually join a domain (`mycompany.internal`, say), you'd change this to `arch.mycompany.internal arch`.
 
 **Why it matters in practice:** without this line, `sudo` adds a 1–3 second pause on each invocation while it tries (and fails) to reverse-resolve your hostname. Mail clients, print spoolers, and a handful of other tools have the same pattern. Adding the line is essentially free and removes the delay.
 :::
@@ -384,7 +384,7 @@ Two things are worth knowing about that third line:
 ::: {.callout-tip}
 ## Already booted and want to change the hostname later?
 
-Don't edit `/etc/hostname` by hand on a running system — use `hostnamectl`, which updates the file, the kernel's runtime hostname, and the systemd-hostnamed D-Bus property in one shot:
+Don't edit `/etc/hostname` by hand on a running system, use `hostnamectl`, which updates the file, the kernel's runtime hostname, and the systemd-hostnamed D-Bus property in one shot:
 
 ```bash
 sudo hostnamectl set-hostname arch
@@ -403,14 +403,14 @@ cat /etc/hosts            # should now have three lines
 getent hosts arch         # should print "127.0.1.1   arch.localdomain arch"
 ```
 
-Then open a new shell (or log out / log back in) — your current shell cached `$HOSTNAME` at startup and won't update in place. Substitute `arch` with whatever hostname you actually want in both commands.
+Then open a new shell (or log out / log back in), your current shell cached `$HOSTNAME` at startup and won't update in place. Substitute `arch` with whatever hostname you actually want in both commands.
 :::
 
 ---
 
 ## Chapter 7: The hibernation swap file
 
-This is the new ground vs. both Article 02 (no swap file at all) and Article 01 (separate encrypted swap partition). Since the whole root volume is LUKS-encrypted, a swap file *inside* it is automatically encrypted too — no extra cryptsetup dance.
+This is the new ground vs. both Article 02 (no swap file at all) and Article 01 (separate encrypted swap partition). Since the whole root volume is LUKS-encrypted, a swap file *inside* it is automatically encrypted too, no extra cryptsetup dance.
 
 ### Why a swap file *and* zram?
 
@@ -419,7 +419,7 @@ Different jobs, complementary defaults:
 - **zram** is fast, compressed swap in RAM. Used first (higher priority). Almost all everyday memory pressure goes here, and you never pay an SSD write for it.
 - **Swap file** is durable swap on disk. The only kind that survives a power cycle. Hibernation writes the contents of RAM into it; on resume, the kernel reads it back.
 
-zram alone cannot host hibernation — it lives in RAM and disappears at power-off. So we need both: zram for everyday performance, swap file for hibernation.
+zram alone cannot host hibernation, it lives in RAM and disappears at power-off. So we need both: zram for everyday performance, swap file for hibernation.
 
 ### Create the swap file the Btrfs-correct way
 
@@ -432,7 +432,7 @@ btrfs filesystem mkswapfile --size 20g --uuid clear /swap/swapfile
 What that one command does for you:
 
 1. Creates a file at `/swap/swapfile`.
-2. Sets the **NoCOW** attribute (`chattr +C`) — required because copy-on-write swap files break in interesting and silent ways.
+2. Sets the **NoCOW** attribute (`chattr +C`), required because copy-on-write swap files break in interesting and silent ways.
 3. Disables compression on the file.
 4. Preallocates extents (so the kernel can compute a stable offset for hibernation).
 5. Runs `mkswap` against it.
@@ -441,7 +441,7 @@ What that one command does for you:
 ::: {.callout-important}
 ## Don't `swapon` from inside the chroot
 
-It's tempting to immediately run `swapon /swap/swapfile` to "verify" it works. **Don't.** That would activate the swap file on the *live USB's kernel* (the chroot doesn't have its own), which then prevents you from unmounting `/mnt` cleanly at reboot time, and can leave the swap signature in an "in use" state when you try to power-cycle. The first boot of the installed system will activate the swap file via `/etc/fstab` automatically — that's the right time.
+It's tempting to immediately run `swapon /swap/swapfile` to "verify" it works. **Don't.** That would activate the swap file on the *live USB's kernel* (the chroot doesn't have its own), which then prevents you from unmounting `/mnt` cleanly at reboot time, and can leave the swap signature in an "in use" state when you try to power-cycle. The first boot of the installed system will activate the swap file via `/etc/fstab` automatically, that's the right time.
 :::
 
 Pick a size that fits your RAM **plus a small margin**. For 16 GB RAM I'd use 20 GB. For 32 GB RAM I'd use 36 GB. Hibernation needs to be able to write the full contents of RAM to disk; running out of swap mid-hibernate corrupts the resume image.
@@ -454,13 +454,13 @@ echo '/swap/swapfile none swap defaults 0 0' >> /etc/fstab
 
 ### Find the resume offset
 
-Hibernation resume needs to know the *byte offset* of the swap file's first physical block inside the underlying device — there's no filesystem layer during resume, just the raw block device.
+Hibernation resume needs to know the *byte offset* of the swap file's first physical block inside the underlying device, there's no filesystem layer during resume, just the raw block device.
 
 ```bash
 btrfs inspect-internal map-swapfile -r /swap/swapfile
 ```
 
-The `-r` flag prints the offset in the resume-friendly units the kernel expects (pages, not bytes). Save the number it prints — we'll feed it to GRUB in the next chapter.
+The `-r` flag prints the offset in the resume-friendly units the kernel expects (pages, not bytes). Save the number it prints, we'll feed it to GRUB in the next chapter.
 
 I'll refer to it as `<RESUME_OFFSET>` below.
 
@@ -483,15 +483,15 @@ What each key does:
 | Key                       | What it sets |
 |---------------------------|---------------|
 | `zram-size = ram / 2`     | The zram device gets half of physical RAM. Compressed inside the kernel; typical 3–4× compression ratio means you effectively double your usable memory before the disk swap kicks in. |
-| `compression-algorithm`   | `zstd` is fast and compresses well — the right default in 2026. |
+| `compression-algorithm`   | `zstd` is fast and compresses well, the right default in 2026. |
 | `swap-priority = 100`     | High priority means the kernel prefers zram over the swap file. The swap file's priority defaults to ~–2 in `/etc/fstab`, so zram is used first; swap file only as overflow and for hibernation. |
 | `fs-type = swap`          | Treat the zram device as swap, not a regular filesystem. |
 
-Nothing else needed — the `systemd-zram-setup@zram0.service` unit is generated automatically at boot from this config.
+Nothing else needed, the `systemd-zram-setup@zram0.service` unit is generated automatically at boot from this config.
 
 ---
 
-## Chapter 9: mkinitcpio — the systemd way
+## Chapter 9: mkinitcpio, the systemd way
 
 This is the chapter that has to be right or nothing boots. We're using the *systemd* initramfs (formerly called the "systemd hooks" or "sd-encrypt path"), which differs from the `udev`/`encrypt` flow my previous attempt used.
 
@@ -507,7 +507,7 @@ Hook-by-hook (only the changed-vs-Article-01 ones):
 | Hook            | What it does |
 |-----------------|--------------|
 | `systemd`       | Replaces `udev`. Boots a small systemd inside the initramfs and uses unit files to coordinate early boot. |
-| `sd-vconsole`   | Loads the console keymap inside the initramfs — needed so your LUKS prompt accepts your password as typed. |
+| `sd-vconsole`   | Loads the console keymap inside the initramfs, needed so your LUKS prompt accepts your password as typed. |
 | `sd-encrypt`    | systemd's equivalent of the `encrypt` hook. Honors `rd.luks.name=…` on the kernel cmdline. |
 
 Why `MODULES=(btrfs)` even though `filesystems` covers it? `autodetect` *should* pull in `btrfs.ko` automatically since the root filesystem is Btrfs, but being explicit costs nothing and guards against a one-off edge case where `autodetect` strips it.
@@ -522,7 +522,7 @@ A successful run ends with `Image generation successful` for each preset (`linux
 
 ---
 
-## Chapter 10: GRUB — the cmdline that actually boots
+## Chapter 10: GRUB, the cmdline that actually boots
 
 Get the **UUID of the encrypted partition itself** (`/dev/nvme0n1p2`, not the mapper):
 
@@ -538,7 +538,7 @@ Open `/etc/default/grub` and find:
 GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"
 ```
 
-Replace it with this single line (no real angle brackets, no extra quoting — just the bare UUID where it says `<UUID>`, and the integer where it says `<RESUME_OFFSET>`):
+Replace it with this single line (no real angle brackets, no extra quoting, just the bare UUID where it says `<UUID>`, and the integer where it says `<RESUME_OFFSET>`):
 
 ```bash
 GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet zswap.enabled=0 rd.luks.name=<UUID>=cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ resume=/dev/mapper/cryptroot resume_offset=<RESUME_OFFSET>"
@@ -547,7 +547,7 @@ GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet zswap.enabled=0 rd.luks.name=<UUID>
 ::: {.callout-important}
 ## The placeholders are placeholders
 
-Replace `<UUID>` with the bare UUID and `<RESUME_OFFSET>` with the integer from `btrfs inspect-internal map-swapfile -r`. **Do not include the angle brackets in the actual file.** That is exactly the second mistake I made in my [first attempt](../2026-05-05-arch-luks-btrfs-lessons/) and it's the kind of typo that produces a polite kernel message followed by ninety seconds of timeout and an emergency shell — recovery in the [🚨 emergency section at the bottom of this article](#emergency-timed-out-waiting-for-device).
+Replace `<UUID>` with the bare UUID and `<RESUME_OFFSET>` with the integer from `btrfs inspect-internal map-swapfile -r`. **Do not include the angle brackets in the actual file.** That is exactly the second mistake I made in my [first attempt](../2026-05-05-arch-luks-btrfs-lessons/) and it's the kind of typo that produces a polite kernel message followed by ninety seconds of timeout and an emergency shell, recovery in the [🚨 emergency section at the bottom of this article](#emergency-timed-out-waiting-for-device).
 :::
 
 Kernel-parameter-by-kernel-parameter:
@@ -575,12 +575,12 @@ grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-The `grub-mkconfig` output should end with `done`. If you see `error: failed to get canonical path of …`, your `/etc/fstab` has a typo — fix it before rebooting.
+The `grub-mkconfig` output should end with `done`. If you see `error: failed to get canonical path of …`, your `/etc/fstab` has a typo, fix it before rebooting.
 
 ::: {.callout-note}
 ## Why we don't need `GRUB_ENABLE_CRYPTODISK=y`
 
-`GRUB_ENABLE_CRYPTODISK=y` matters when **GRUB itself** has to read encrypted blocks — i.e., when `/boot` (and therefore `grub.cfg`, kernels, and initramfs images) is inside a LUKS container. In this install, `/boot` is the unencrypted FAT32 ESP, so GRUB never has to decrypt anything; the kernel and initramfs are read in clear, and decryption happens inside the initramfs once it's running. Leaving `GRUB_ENABLE_CRYPTODISK` unset is the right default.
+`GRUB_ENABLE_CRYPTODISK=y` matters when **GRUB itself** has to read encrypted blocks, i.e., when `/boot` (and therefore `grub.cfg`, kernels, and initramfs images) is inside a LUKS container. In this install, `/boot` is the unencrypted FAT32 ESP, so GRUB never has to decrypt anything; the kernel and initramfs are read in clear, and decryption happens inside the initramfs once it's running. Leaving `GRUB_ENABLE_CRYPTODISK` unset is the right default.
 :::
 
 ---
@@ -599,7 +599,7 @@ What each timer/service is for, in addition to what Article 02 enabled:
 |-------------------------------|-----|
 | `snapper-timeline.timer`      | Hourly snapshots (configurable). |
 | `snapper-cleanup.timer`       | Garbage-collects old snapshots according to retention policy. |
-| `grub-btrfsd.service`         | Watches `/.snapshots/` and regenerates `grub.cfg` whenever snapper makes or deletes a snapshot — keeps the boot menu up to date with restorable points. |
+| `grub-btrfsd.service`         | Watches `/.snapshots/` and regenerates `grub.cfg` whenever snapper makes or deletes a snapshot, keeps the boot menu up to date with restorable points. |
 
 Final sanity checks before reboot:
 
@@ -611,7 +611,7 @@ cat /etc/fstab | grep -E 'subvol=|swap'
 swapon --show
 ```
 
-Here is the actual output from my own install, end-to-end — yours should have the same *shape*, with your own UUIDs and resume offset:
+Here is the actual output from my own install, end-to-end, yours should have the same *shape*, with your own UUIDs and resume offset:
 
 ```text
 MODULES=(btrfs)
@@ -630,18 +630,18 @@ NAME           TYPE SIZE USED PRIO
 ::: {.callout-note}
 ## Why there are *two* UUIDs in this output
 
-Look closely — the GRUB line and the fstab lines reference different UUIDs:
+Look closely, the GRUB line and the fstab lines reference different UUIDs:
 
 - `rd.luks.name=`**`d2c12564-…`**`=cryptroot` is the **LUKS partition UUID**. It identifies the raw encrypted block device (`/dev/nvme0n1p2`). GRUB hands this string to the kernel; sd-encrypt uses it to find the partition to unlock.
-- `UUID=`**`a0c30a40-…`** in every fstab line is the **Btrfs filesystem UUID** — the filesystem that lives *inside* the unlocked LUKS container, on `/dev/mapper/cryptroot`. genfstab uses this so the mount entries survive even if the underlying mapper changes name.
+- `UUID=`**`a0c30a40-…`** in every fstab line is the **Btrfs filesystem UUID**, the filesystem that lives *inside* the unlocked LUKS container, on `/dev/mapper/cryptroot`. genfstab uses this so the mount entries survive even if the underlying mapper changes name.
 
-Two layers, two identifiers. If you ever confuse them — pasting the Btrfs UUID into `rd.luks.name=`, for example — the kernel will look for a LUKS partition with the Btrfs UUID, fail to find it, and you'll get the "Timed out waiting for device" emergency-mode failure mode from [Article 01](../2026-05-05-arch-luks-btrfs-lessons/) (recovery: [🚨 emergency section at the bottom of this article](#emergency-timed-out-waiting-for-device)). Verify with `blkid /dev/nvme0n1p2` (should print `TYPE="crypto_LUKS"`) — that's the partition whose UUID belongs on the GRUB cmdline.
+Two layers, two identifiers. If you ever confuse them, pasting the Btrfs UUID into `rd.luks.name=`, for example, the kernel will look for a LUKS partition with the Btrfs UUID, fail to find it, and you'll get the "Timed out waiting for device" emergency-mode failure mode from [Article 01](../2026-05-05-arch-luks-btrfs-lessons/) (recovery: [🚨 emergency section at the bottom of this article](#emergency-timed-out-waiting-for-device)). Verify with `blkid /dev/nvme0n1p2` (should print `TYPE="crypto_LUKS"`), that's the partition whose UUID belongs on the GRUB cmdline.
 :::
 
 ::: {.callout-tip}
 ## The swapon --show line above
 
-The fact that `/swap/swapfile` appears *active* in this output is because I ran `swapon /swap/swapfile` inside the chroot to test it before realizing that's exactly what the [Don't swapon from inside the chroot](#chapter-7-the-hibernation-swap-file) callout warns against. The reboot block below has `swapoff -a` before `umount -R /mnt` specifically so this case still cleans up correctly — but the cleanest path is to skip the test-swapon entirely and trust that `/etc/fstab` will pick it up on first boot.
+The fact that `/swap/swapfile` appears *active* in this output is because I ran `swapon /swap/swapfile` inside the chroot to test it before realizing that's exactly what the [Don't swapon from inside the chroot](#chapter-7-the-hibernation-swap-file) callout warns against. The reboot block below has `swapoff -a` before `umount -R /mnt` specifically so this case still cleans up correctly, but the cleanest path is to skip the test-swapon entirely and trust that `/etc/fstab` will pick it up on first boot.
 :::
 
 Then leave the chroot and reboot, in this exact order:
@@ -665,7 +665,7 @@ Pull the USB as the laptop starts. The expected sequence:
 5. The mapper appears, the `@` subvolume mounts as `/`, control hands off to the real systemd.
 6. You land at a `login:` prompt.
 
-If you instead drop into `emergency mode`, jump to the [🚨 emergency section at the bottom of this article](#emergency-timed-out-waiting-for-device) before continuing — that's the documented recovery path for the "Timed out waiting for device" failure mode.
+If you instead drop into `emergency mode`, jump to the [🚨 emergency section at the bottom of this article](#emergency-timed-out-waiting-for-device) before continuing, that's the documented recovery path for the "Timed out waiting for device" failure mode.
 
 ---
 
@@ -682,7 +682,7 @@ swapon --show           # Should show /dev/zram0 (pri 100) AND /swap/swapfile
 
 ### Verify your hostname (and fix it if it's off)
 
-Your shell prompt should already be reading `<your-user>@arch` (e.g. `user@arch`). If you instead see something like `user@user-arch` — because you copy-pasted the chroot block from an earlier draft of this article, or just picked a different name in Chapter 6 — fix it now. The hostname is what shows up in your prompt, in `mDNS` (`arch.local` for things like AirDrop-style discovery), in NetworkManager's DHCP requests, and in every `journalctl` entry from now on; getting it right early saves grep noise forever.
+Your shell prompt should already be reading `<your-user>@arch` (e.g. `user@arch`). If you instead see something like `user@user-arch`, because you copy-pasted the chroot block from an earlier draft of this article, or just picked a different name in Chapter 6, fix it now. The hostname is what shows up in your prompt, in `mDNS` (`arch.local` for things like AirDrop-style discovery), in NetworkManager's DHCP requests, and in every `journalctl` entry from now on; getting it right early saves grep noise forever.
 
 Check what's currently set:
 
@@ -713,7 +713,7 @@ Substitute `arch` everywhere with whatever hostname you actually picked.
 
 The kernel hostname changed instantly, but two things still see the old value:
 
-- **Your current shell** cached `$HOSTNAME` at startup. Your prompt won't update until you open a new shell — either log out and back in, or `Ctrl-Alt-F2` to another TTY.
+- **Your current shell** cached `$HOSTNAME` at startup. Your prompt won't update until you open a new shell, either log out and back in, or `Ctrl-Alt-F2` to another TTY.
 - **Long-running services that read the hostname once at boot** (NetworkManager publishing your name over mDNS, for example) keep the old name until restarted.
 
 You can fix both without a reboot:
@@ -734,7 +734,7 @@ After the reboot you'll need to re-unlock LUKS, log back in, and your prompt sho
 
 ### Reconnect to Wi-Fi (do this before anything else needs the network)
 
-NetworkManager is enabled and running, but it has **no saved networks** — your Wi-Fi credentials lived in the live USB's `iwd`/`iwctl` session, not in the installed system. The very first thing to do after the sanity checks is re-establish a connection so `pacman`, `timesyncd`, snapper, and everything downstream actually works.
+NetworkManager is enabled and running, but it has **no saved networks**, your Wi-Fi credentials lived in the live USB's `iwd`/`iwctl` session, not in the installed system. The very first thing to do after the sanity checks is re-establish a connection so `pacman`, `timesyncd`, snapper, and everything downstream actually works.
 
 If you have an **Ethernet cable**, plug it in — NetworkManager runs DHCP automatically and you're online in a couple seconds. Skip to the next subsection.
 
@@ -776,7 +776,7 @@ ping -c 3 ping.archlinux.org         # should see <1% packet loss
 
 </details>
 
-The saved-connection file lives at `/etc/NetworkManager/system-connections/<SSID>.nmconnection`, mode 600, root-owned, with the passphrase **in plaintext** — back it up or treat it as a secret accordingly.
+The saved-connection file lives at `/etc/NetworkManager/system-connections/<SSID>.nmconnection`, mode 600, root-owned, with the passphrase **in plaintext**, back it up or treat it as a secret accordingly.
 :::
 
 ### Re-enable NTP and verify your timezone
@@ -816,7 +816,7 @@ Three things to check at a glance:
 - **System clock synchronized: yes** (means NTP is working).
 - **RTC in local TZ: no** (means the hardware clock is in UTC, which is the only correct setting — `yes` here causes wall-clock weirdness around DST transitions).
 
-Without NTP on, the clock drifts to whatever the hardware RTC says, and `pacman` operations start failing with mysterious GPG / TLS errors as soon as the skew gets large enough. Without the right zone, every timestamp you ever see is off by 1–24 hours. Both fixes are cheap and permanent — do them now.
+Without NTP on, the clock drifts to whatever the hardware RTC says, and `pacman` operations start failing with mysterious GPG / TLS errors as soon as the skew gets large enough. Without the right zone, every timestamp you ever see is off by 1–24 hours. Both fixes are cheap and permanent, do them now.
 
 ### Configure snapper for `/` properly
 
@@ -858,16 +858,16 @@ A live question worth thinking through rather than enabling reflexively, because
 
 | Your workflow looks like… | Recommendation |
 |---------------------------|----------------|
-| Code, papers, configs, mostly git-tracked | **Skip** — git already gives you rollback for the things you'd want to roll back |
+| Code, papers, configs, mostly git-tracked | **Skip**, git already gives you rollback for the things you'd want to roll back |
 | Heavy builds (cargo / npm / Python / ROS / ML) | **Skip** *unless* you mark build dirs NoCOW first (see below) |
-| Large datasets, video, ROS bags, model checkpoints | **Skip** — snapshot growth scales with edits to these |
+| Large datasets, video, ROS bags, model checkpoints | **Skip**, snapshot growth scales with edits to these |
 | Hand-edited dotfiles you don't track in git | **Enable** with tight retention (next block) |
 | Mostly small documents / email / browser profile | **Enable** with tight retention |
 
 </details>
 
 ::: {.callout-tip}
-## If you decide to enable it — use tight retention
+## If you decide to enable it, use tight retention
 
 The default snapper retention is too generous for `/home`. This config keeps only ~6 rolling snapshots, which is enough to recover from "I deleted that file twenty minutes ago" without storing a month of build artifacts:
 
@@ -887,7 +887,7 @@ sudo snapper -c home set-config \
 ::: {.callout-tip}
 ## Mark build / cache directories NoCOW *regardless* of whether you enable home snapper
 
-Even on the live filesystem (no snapshots involved), Btrfs's copy-on-write semantics produce fragmentation on heavily-rewritten files — exactly what `cargo target/`, `~/.cache/`, and Python venvs are. Setting NoCOW on those directories *before* you populate them tells Btrfs to skip COW for the files inside, which both prevents that fragmentation and means snapshots (if you turn them on later) never pin those build artifacts.
+Even on the live filesystem (no snapshots involved), Btrfs's copy-on-write semantics produce fragmentation on heavily-rewritten files, exactly what `cargo target/`, `~/.cache/`, and Python venvs are. Setting NoCOW on those directories *before* you populate them tells Btrfs to skip COW for the files inside, which both prevents that fragmentation and means snapshots (if you turn them on later) never pin those build artifacts.
 
 ```bash
 mkdir -p ~/.cache ~/code/builds ~/.cargo
@@ -898,22 +898,22 @@ mkdir -p ~/ros2_ws/{build,install,log}
 chattr +C ~/ros2_ws/{build,install,log}
 ```
 
-`chattr +C` only affects *new* files — existing files in the directory keep their old (COW) attributes. So set this on empty directories before they fill up, or recreate the directory contents to inherit it.
+`chattr +C` only affects *new* files, existing files in the directory keep their old (COW) attributes. So set this on empty directories before they fill up, or recreate the directory contents to inherit it.
 :::
 
 ::: {.callout-note}
 ## "If I'm not snapshotting `/home`, why not just NoCOW the whole thing?"
 
-Reasonable question — and the answer is a trade-off. NoCOW disables four things Btrfs gives you by default, three of which you probably want for most of `/home`:
+Reasonable question, and the answer is a trade-off. NoCOW disables four things Btrfs gives you by default, three of which you probably want for most of `/home`:
 
 | What CoW gives you | What NoCOW takes away |
 |--------------------|-----------------------|
 | **Per-extent data checksums** — Btrfs verifies every read; silently catches bitrot on disk and refuses to return corrupted data. | NoCOW files have no per-extent checksums. A flipped bit in a paper draft or a git pack file returns wrong bytes instead of failing loudly. |
-| **Transparent compression** (your `compress=zstd:3` mount option) — text-heavy data (source code, LaTeX, JSON, logs, markdown) typically compresses 50–70 %. | NoCOW disables compression for that file. A typical `/home` of code + papers loses several GB of effective free space if NoCOW'd whole. |
+| **Transparent compression** (your `compress=zstd:3` mount option), text-heavy data (source code, LaTeX, JSON, logs, markdown) typically compresses 50–70 %. | NoCOW disables compression for that file. A typical `/home` of code + papers loses several GB of effective free space if NoCOW'd whole. |
 | **Reflinks** — `cp --reflink=auto` finishes in milliseconds and uses zero extra disk because both names point at the same extents. Git, snapshot-y backup tools, and `cp` itself rely on this. | NoCOW files can't be reflinked; `cp --reflink=auto` silently falls back to a normal byte-for-byte copy. |
-| **Snapshot semantics** — if you ever change your mind and `snapper -c home create-config /home`, snapshots correctly preserve file state. | NoCOW files appear in snapshots but modifications are visible across all of them — snapshots silently don't capture the "before" state. Breaks rollback for those files. |
+| **Snapshot semantics**, if you ever change your mind and `snapper -c home create-config /home`, snapshots correctly preserve file state. | NoCOW files appear in snapshots but modifications are visible across all of them, snapshots silently don't capture the "before" state. Breaks rollback for those files. |
 
-The CoW *cost* (the fragmentation we just talked about) only shows up on files with a **write-modify-write-modify** pattern — build artifacts, browser cache, ML checkpoints, VM disk images, hot database files. For the rest of `/home` (code repos, papers, photos, configs, downloads, dotfiles), files are written once and read many times — CoW's overhead on those is essentially zero, and you get checksums + compression + reflinks for free.
+The CoW *cost* (the fragmentation we just talked about) only shows up on files with a **write-modify-write-modify** pattern, build artifacts, browser cache, ML checkpoints, VM disk images, hot database files. For the rest of `/home` (code repos, papers, photos, configs, downloads, dotfiles), files are written once and read many times — CoW's overhead on those is essentially zero, and you get checksums + compression + reflinks for free.
 
 **The rule that actually works:** NoCOW the *specific subtrees* with bad write patterns, leave everything else CoW.
 
@@ -942,8 +942,8 @@ sudo snapper -c root list
 
 **What you should see depends on whether `pacman -Syu` actually did anything:**
 
-- **If packages were upgraded**: a pre + post snapshot pair appears, bracketing the update — descriptions like `pacman -Syu` and cleanup `number`. From here on, *every* upgrading `pacman` invocation gives you a rollback point.
-- **If `pacman -Syu` printed `there is nothing to do`** (likely on a fresh install — pacstrap already pulled the latest from a current mirror): no pre/post snapshots are created, because *no transaction happened*. snap-pac hooks transactions, not bare `-Syu` syncs. You'll only see snapshot `0 │ single │ current`, which is snapper's reference placeholder, not real data.
+- **If packages were upgraded**: a pre + post snapshot pair appears, bracketing the update, descriptions like `pacman -Syu` and cleanup `number`. From here on, *every* upgrading `pacman` invocation gives you a rollback point.
+- **If `pacman -Syu` printed `there is nothing to do`** (likely on a fresh install, pacstrap already pulled the latest from a current mirror): no pre/post snapshots are created, because *no transaction happened*. snap-pac hooks transactions, not bare `-Syu` syncs. You'll only see snapshot `0 │ single │ current`, which is snapper's reference placeholder, not real data.
 
 To prove snap-pac is wired up without waiting for a real upgrade, either force a manual snapshot or install one small package:
 
@@ -987,7 +987,7 @@ After `Option B`, the snap-pac hook output during the install confirms snapshots
 
 | Column        | What it means |
 |---------------|---------------|
-| `#`           | The snapshot's integer ID, assigned in order of creation. `0` is special — see below. |
+| `#`           | The snapshot's integer ID, assigned in order of creation. `0` is special, see below. |
 | `Type`        | `single` (a standalone snapshot), `pre` (taken before a transaction), or `post` (taken after a transaction). `pre`/`post` always come in pairs created by the same pacman invocation. |
 | `Pre #`       | Only filled in on `post` rows. Points back at the matching `pre` snapshot. Lets snapper treat the pair as a unit when you query or roll back. |
 | `Date`        | Local timestamp the snapshot was taken. |
@@ -1000,7 +1000,7 @@ After `Option B`, the snap-pac hook output during the install confirms snapshots
 
 A few specifics about what we're seeing above:
 
-- **Snapshot `0 │ single │ current`** is snapper's reference placeholder, created when you ran `snapper -c root create-config /`. It's not a real point-in-time copy — it's an abstract pointer to "the live state of `/` *right now*." You can't roll back *to* it (you're already there), but tools use it as the "before" half of various diffs.
+- **Snapshot `0 │ single │ current`** is snapper's reference placeholder, created when you ran `snapper -c root create-config /`. It's not a real point-in-time copy, it's an abstract pointer to "the live state of `/` *right now*." You can't roll back *to* it (you're already there), but tools use it as the "before" half of various diffs.
 - **Snapshot `1 │ pre`** was taken by snap-pac the instant before pacman started touching the filesystem. Description is the exact pacman command line. Cleanup is `number`, so this snapshot stays around until ten newer pre/post pairs exist.
 - **Snapshot `2 │ post`** was taken the instant after pacman finished. `Pre # = 1` ties it back to its pre. Description is the package(s) that were affected. Same timestamp as snapshot 1 because the install took less than a second.
 
@@ -1019,7 +1019,7 @@ sudo snapper -c root undochange 1..2     # safer: just revert the files
 sudo snapper -c root rollback 1
 ```
 
-`undochange` reverts the file changes only — safe and reversible. `rollback` is heavier: it makes snapshot 1's tree the new default subvolume, and the next boot uses that subvolume as `/`. Use `rollback` to recover from a system that won't boot after a bad update; use `undochange` for "I wish I hadn't installed that one package."
+`undochange` reverts the file changes only, safe and reversible. `rollback` is heavier: it makes snapshot 1's tree the new default subvolume, and the next boot uses that subvolume as `/`. Use `rollback` to recover from a system that won't boot after a bad update; use `undochange` for "I wish I hadn't installed that one package."
 
 The `snapper-timeline.timer` enabled in Chapter 11 fires `OnCalendar=hourly`, so within an hour of first boot, snapshots will also start appearing automatically with cleanup `timeline`. You'll soon see a steadily-growing list with descriptions like `timeline`, garbage-collected per the `TIMELINE_LIMIT_HOURLY=5 / DAILY=7 / WEEKLY=2 / MONTHLY=1` retention you set.
 
@@ -1032,10 +1032,10 @@ sudo systemctl hibernate
 The screen should go dark, the fans stop, the power LED dim. Press the power button to wake it. The expected sequence on resume:
 
 1. Firmware → GRUB → kernel + initramfs (same as a cold boot).
-2. **`sd-encrypt` prompts for your LUKS passphrase** — see the security-model callout below for why this is the only prompt you should see.
+2. **`sd-encrypt` prompts for your LUKS passphrase**, see the security-model callout below for why this is the only prompt you should see.
 3. After unlock, `systemd-hibernate-resume.service` reads the hibernation image from `/swap/swapfile` (decrypted on the fly by LUKS as it reads), restores RAM, and userspace picks up where it left off.
 
-If the system instead boots fresh (clean login prompt, no windows restored), your `resume=` parameters didn't take — re-check the GRUB cmdline and re-run `mkinitcpio -P && grub-mkconfig -o /boot/grub/grub.cfg`.
+If the system instead boots fresh (clean login prompt, no windows restored), your `resume=` parameters didn't take, re-check the GRUB cmdline and re-run `mkinitcpio -P && grub-mkconfig -o /boot/grub/grub.cfg`.
 
 #### What `dmesg` should show after a successful hibernate + resume
 
@@ -1050,17 +1050,17 @@ Two informational lines, no errors:
 [  948.817235] efivarfs: removing variable HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67
 ```
 
-Both lines reference the EFI variable `HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67` — the trailing UUID is systemd's standard namespace UUID for this variable name and is identical on every Linux machine that uses systemd hibernation. What the two lines are *telling* you:
+Both lines reference the EFI variable `HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67`, the trailing UUID is systemd's standard namespace UUID for this variable name and is identical on every Linux machine that uses systemd hibernation. What the two lines are *telling* you:
 
-- **`Clear Stale Hibernate Storage Info skipped, unmet condition check …`** (early in boot, ~25 s). The `systemd-hibernate-clear.service` unit ran, checked whether the `HibernateLocation` EFI variable existed, found it didn't (because at that moment you hadn't yet hibernated this session), and skipped. **Not an error** — it's the unit correctly declining to do work when there's nothing to clean up.
+- **`Clear Stale Hibernate Storage Info skipped, unmet condition check …`** (early in boot, ~25 s). The `systemd-hibernate-clear.service` unit ran, checked whether the `HibernateLocation` EFI variable existed, found it didn't (because at that moment you hadn't yet hibernated this session), and skipped. **Not an error**, it's the unit correctly declining to do work when there's nothing to clean up.
 - **`efivarfs: removing variable HibernateLocation-…`** (later, however many minutes after boot you ran `systemctl hibernate`). The variable was written by `systemctl hibernate`, persisted across the power cycle, read by the resume logic on next boot, and then *removed* by the kernel after the resume finished and the bookkeeping was no longer needed. **This is the success signature of a complete hibernate + resume cycle.**
 
-If hibernation *failed* (image couldn't be written, resume couldn't find the image, the swap file wasn't recognized), you'd see explicit `PM: hibernation` error lines mixed in with these — typically including the string `failed`, `error`, or `Cannot find swap device`. The absence of such lines is the proof the chain worked end-to-end.
+If hibernation *failed* (image couldn't be written, resume couldn't find the image, the swap file wasn't recognized), you'd see explicit `PM: hibernation` error lines mixed in with these, typically including the string `failed`, `error`, or `Cannot find swap device`. The absence of such lines is the proof the chain worked end-to-end.
 
 ::: {.callout-note}
 ## Hibernation + LUKS: what this gives you, security-wise
 
-The hibernation image lives in `/swap/swapfile`, which sits inside `/dev/mapper/cryptroot` — the unlocked LUKS volume. So *the contents of your RAM at the moment you hit hibernate are encrypted on disk at rest*, as a side-effect of where the swap file lives. There is no separate "hibernation password" — your LUKS passphrase is the only thing standing between a stolen laptop and the contents of RAM.
+The hibernation image lives in `/swap/swapfile`, which sits inside `/dev/mapper/cryptroot`, the unlocked LUKS volume. So *the contents of your RAM at the moment you hit hibernate are encrypted on disk at rest*, as a side-effect of where the swap file lives. There is no separate "hibernation password", your LUKS passphrase is the only thing standing between a stolen laptop and the contents of RAM.
 
 **This gives hibernation the security posture of a fully-shut-down device** while preserving "wake up where I left off" UX. Compare with the alternatives:
 
@@ -1068,13 +1068,13 @@ The hibernation image lives in `/swap/swapfile`, which sits inside `/dev/mapper/
 |---------------------|--------------------------------------|--------------------------|
 | **Shutdown**        | Empty (RAM is unpowered, contents lost) | None |
 | **Hibernate**       | Encrypted in swap file, inside LUKS  | None |
-| **Suspend (S3)**    | **Plaintext, still in powered RAM**  | Minutes — attacker can chill the chips, transplant, dump |
+| **Suspend (S3)**    | **Plaintext, still in powered RAM**  | Minutes, attacker can chill the chips, transplant, dump |
 
 For a laptop that leaves your physical control (travel, conference rooms, anywhere you might want to close the lid and walk away with confidence), **hibernate is meaningfully more secure than suspend**.
 
 What hibernation + LUKS does **not** protect against: someone walking up to your unlocked desktop session after you've successfully resumed. The LUKS prompt gates *getting back into the machine*; once that prompt is satisfied, you're returned to whatever session state existed before you hibernated. If you didn't have a screen-locker active at hibernate time, the unlocked desktop is sitting right there after resume.
 
-For full two-factor coverage — LUKS to boot/resume, screen-lock to re-enter a session — pair this install with a screen locker once your chosen desktop is up. Whichever Part 4 path you take, install and configure a locker:
+For full two-factor coverage — LUKS to boot/resume, screen-lock to re-enter a session, pair this install with a screen locker once your chosen desktop is up. Whichever Part 4 path you take, install and configure a locker:
 
 ```bash
 # Hyprland: hyprlock + hypridle (works under any Hyprland setup — Caelestia bundle or custom)
@@ -1116,7 +1116,7 @@ ls /.snapshots/                  # numbered snapshot directories matching the li
 - `swapon --show` shows zram at priority 100 plus your swap file at a lower priority.
 - `snapper -c root list` has at least one row.
 
-**If any line fails or returns empty:** something in Parts 1–3 didn't quite land. Don't try to layer a desktop on top of that — fix the install first. The most common failure mode (kernel cmdline / mkinitcpio mistakes manifesting as an emergency-mode boot) has its own emergency section at the [end of this article](#emergency-timed-out-waiting-for-device). If you're stuck on something else (snapper config not found, a subvolume missing from `findmnt`), the chapter that set up the failing piece is usually the right place to re-read — Chapter 5 (fstab), Chapter 9 (mkinitcpio), Chapter 10 (GRUB), or Chapter 12 (snapper).
+**If any line fails or returns empty:** something in Parts 1–3 didn't quite land. Don't try to layer a desktop on top of that, fix the install first. The most common failure mode (kernel cmdline / mkinitcpio mistakes manifesting as an emergency-mode boot) has its own emergency section at the [end of this article](#emergency-timed-out-waiting-for-device). If you're stuck on something else (snapper config not found, a subvolume missing from `findmnt`), the chapter that set up the failing piece is usually the right place to re-read — Chapter 5 (fstab), Chapter 9 (mkinitcpio), Chapter 10 (GRUB), or Chapter 12 (snapper).
 
 Only continue to Part 4 once every line above looks the way it should. The install layer is the foundation everything else sits on; a wobble here will compound the moment you start a desktop.
 
@@ -1124,17 +1124,17 @@ Only continue to Part 4 once every line above looks the way it should. The insta
 
 # Part 4 — Pick your desktop layer
 
-You now have a verified, encrypted, snapshot-able single-boot Arch system on the console. **The next step — putting a graphical session in front of it — is its own choice**, and I deliberately keep it out of this article so the install layer above stays desktop-agnostic. PipeWire audio, GPU drivers, the AUR helper, the login manager, the bar, the wallpaper layer, every keybind — none of that is required for the install to be considered "done." It's a separate body of work.
+You now have a verified, encrypted, snapshot-able single-boot Arch system on the console. **The next step, putting a graphical session in front of it, is its own choice**, and I deliberately keep it out of this article so the install layer above stays desktop-agnostic. PipeWire audio, GPU drivers, the AUR helper, the login manager, the bar, the wallpaper layer, every keybind, none of that is required for the install to be considered "done." It's a separate body of work.
 
-The direction I'm taking — and the one I'll document next — is a **custom Hyprland**, built piece by piece:
+The direction I'm taking, and the one I'll document next, is a **custom Hyprland**, built piece by piece:
 
 ::: {.callout-tip}
 ## Custom Hyprland (upcoming)
 
-A from-scratch Hyprland setup built piece by piece — your own status bar choice (`waybar`, `ironbar`, `eww`, …), your own terminal, your own keybinds, your own theme — with no project-bundle layer on top. Every component is one you picked, and there's no surprise opinion baked in. **More upfront decisions, but no "now what?" moments when a bundle script fails halfway through and leaves you in a half-themed Hyprland.** This is the path I'm taking on my next laptop. Article dashed in the upcoming section on the [Tech Zone landing](../../).
+A from-scratch Hyprland setup built piece by piece, your own status bar choice (`waybar`, `ironbar`, `eww`, …), your own terminal, your own keybinds, your own theme, with no project-bundle layer on top. Every component is one you picked, and there's no surprise opinion baked in. **More upfront decisions, but no "now what?" moments when a bundle script fails halfway through and leaves you in a half-themed Hyprland.** This is the path I'm taking on my next laptop. Article dashed in the upcoming section on the [Tech Zone landing](../../).
 :::
 
-I spent a while living inside the **Caelestia** Hyprland bundle as a fast way to "looks like a screenshot," and it's a reasonable on-ramp — but I'm not shipping a dedicated guide for it, because the parts worth keeping (PipeWire, GPU drivers, an AUR helper, a login manager) are exactly the à-la-carte pieces the custom-Hyprland article will cover, minus the baked-in opinions you'd likely strip later anyway.
+I spent a while living inside the **Caelestia** Hyprland bundle as a fast way to "looks like a screenshot," and it's a reasonable on-ramp, but I'm not shipping a dedicated guide for it, because the parts worth keeping (PipeWire, GPU drivers, an AUR helper, a login manager) are exactly the à-la-carte pieces the custom-Hyprland article will cover, minus the baked-in opinions you'd likely strip later anyway.
 
 If you'd rather not touch Hyprland at all: this install layer is desktop-agnostic. Install the `gnome`, `plasma`, `sway`, or `dwm` group with `pacman` and nothing about the LUKS+Btrfs+snapper stack underneath cares which compositor you land on.
 
@@ -1147,7 +1147,7 @@ If you'd rather not touch Hyprland at all: this install layer is desktop-agnosti
 
 **You only need this section if something has gone horribly wrong.** Specifically: you rebooted into the new system after Part 3, GRUB loaded, the LUKS prompt accepted your passphrase, and then the kernel dropped into a `systemd` emergency shell with a `Timed out waiting for device` line followed by a couple of `Dependency failed for /sysroot` lines and `You are in emergency mode.`
 
-**This is the exact failure mode that bricked the [first attempt at this install (Article 01)](../2026-05-05-arch-luks-btrfs-lessons/).** Don't panic — your data is intact (the LUKS volume is still there, just not being mounted as root); you need to fix one of four typos and rebuild. If your install is *not* in emergency mode and the [Part 3.5 sanity check](#part-3-5-sanity-check) passed, you can skip this section entirely.
+**This is the exact failure mode that bricked the [first attempt at this install (Article 01)](../2026-05-05-arch-luks-btrfs-lessons/).** Don't panic, your data is intact (the LUKS volume is still there, just not being mounted as root); you need to fix one of four typos and rebuild. If your install is *not* in emergency mode and the [Part 3.5 sanity check](#part-3-5-sanity-check) passed, you can skip this section entirely.
 :::
 
 If you land in emergency mode after the LUKS prompt, the failure mode is almost always one of:
@@ -1155,7 +1155,7 @@ If you land in emergency mode after the LUKS prompt, the failure mode is almost 
 1. **`<UUID>` or `<RESUME_OFFSET>` left as literal text** in `/etc/default/grub`. Re-read [Chapter 10](#chapter-10-grub--the-cmdline-that-actually-boots).
 2. **Mapper name mismatch** between `rd.luks.name=…=cryptroot` and `root=/dev/mapper/cryptroot`. They have to match exactly.
 3. **`rootflags=subvol=@` missing.** Without it, the kernel mounts the top-level Btrfs volume, which has no `/sbin/init`.
-4. **`mkinitcpio.conf` left as the defaults** — no `sd-encrypt` hook, no `btrfs` module. Re-edit, re-run `mkinitcpio -P`.
+4. **`mkinitcpio.conf` left as the defaults**, no `sd-encrypt` hook, no `btrfs` module. Re-edit, re-run `mkinitcpio -P`.
 
 To recover, boot the install USB again and re-enter the system:
 
@@ -1168,7 +1168,7 @@ arch-chroot /mnt
 
 Then fix the offending file, re-run `mkinitcpio -P` and `grub-mkconfig -o /boot/grub/grub.cfg`, `exit`, `umount -R /mnt`, `cryptsetup close cryptroot`, `reboot`.
 
-If you want loud boot logs to see exactly what the kernel is waiting for, remove `quiet` and `loglevel=3` from `GRUB_CMDLINE_LINUX_DEFAULT` temporarily and regenerate the GRUB config. Once it boots cleanly, re-run the [Part 3.5 sanity check](#part-3-5-sanity-check) — that's the official "all good" gate.
+If you want loud boot logs to see exactly what the kernel is waiting for, remove `quiet` and `loglevel=3` from `GRUB_CMDLINE_LINUX_DEFAULT` temporarily and regenerate the GRUB config. Once it boots cleanly, re-run the [Part 3.5 sanity check](#part-3-5-sanity-check), that's the official "all good" gate.
 
 ---
 

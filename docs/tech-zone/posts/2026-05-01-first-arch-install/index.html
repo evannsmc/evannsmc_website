@@ -8,7 +8,7 @@
 
 <meta name="author" content="Evanns Morales">
 <meta name="dcterms.date" content="2026-05-01">
-<meta name="description" content="A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop — verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install.">
+<meta name="description" content="A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop, verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install.">
 
 <title>My First Arch Linux Install: A Basic Setup on an Old Laptop – evannsmc</title>
 <style>
@@ -167,14 +167,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <link rel="stylesheet" href="../../../styles.css">
 <meta property="og:title" content="My First Arch Linux Install: A Basic Setup on an Old Laptop – evannsmc">
-<meta property="og:description" content="A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop — verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install.">
+<meta property="og:description" content="A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop, verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install.">
 <meta property="og:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
 <meta property="og:site_name" content="evannsmc">
-<meta property="og:image:alt" content="The Arch Linux logo — official wordmark from archlinux.org.">
+<meta property="og:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:title" content="My First Arch Linux Install: A Basic Setup on an Old Laptop – evannsmc">
-<meta name="twitter:description" content="A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop — verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install.">
+<meta name="twitter:description" content="A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop, verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install.">
 <meta name="twitter:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
-<meta name="twitter:image:alt" content="The Arch Linux logo — official wordmark from archlinux.org.">
+<meta name="twitter:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <div>
   <div class="description">
-    A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop — verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install.
+    A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop, verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install.
   </div>
 </div>
 
@@ -465,13 +465,13 @@ What this is
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>This is a personal install log: the <strong>basic</strong> Arch Linux install I did on an old laptop as my entry point into the distribution. I deliberately kept it simple — no Btrfs subvolumes, no full-disk encryption, no zram. Just <code>ext4</code>, a swap partition (so I can play with hibernation later), and separate <code>/</code> and <code>/home</code> partitions. The more ambitious dual-boot, encrypted, snapshot-able workstation is the <em>next</em> article in this Tech Zone.</p>
+<p>This is a personal install log: the <strong>basic</strong> Arch Linux install I did on an old laptop as my entry point into the distribution. I deliberately kept it simple, no Btrfs subvolumes, no full-disk encryption, no zram. Just <code>ext4</code>, a swap partition (so I can play with hibernation later), and separate <code>/</code> and <code>/home</code> partitions. The more ambitious dual-boot, encrypted, snapshot-able workstation is the <em>next</em> article in this Tech Zone.</p>
 </div>
 </div>
 <section id="why-an-old-laptop-and-why-basic" class="level2">
 <h2 class="anchored" data-anchor-id="why-an-old-laptop-and-why-basic">Why an old laptop, and why basic?</h2>
 <p>I’m planning to migrate my main laptop and my desktop to a dual-boot <strong>Ubuntu + Arch</strong> setup with Btrfs subvolumes, LUKS full-disk encryption, zram for everyday swap, and a dedicated encrypted swap partition for hibernation. That is the long-term goal.</p>
-<p>But I have never installed Arch before. Doing a maximalist install on the machines I work from every day is how you end up unable to write your dissertation chapter on Monday morning. So this article walks through the <strong>boring, dependable, first-time install</strong> on an old laptop I don’t care about bricking. Once I have the basic mental model — <code>pacstrap</code>, <code>chroot</code>, <code>mkinitcpio</code>, <code>grub-install</code>, the systemd service ecosystem — the next round can layer Btrfs, LUKS, and zram on top with confidence.</p>
+<p>But I have never installed Arch before. Doing a maximalist install on the machines I work from every day is how you end up unable to write your dissertation chapter on Monday morning. So this article walks through the <strong>boring, dependable, first-time install</strong> on an old laptop I don’t care about bricking. Once I have the basic mental model — <code>pacstrap</code>, <code>chroot</code>, <code>mkinitcpio</code>, <code>grub-install</code>, the systemd service ecosystem, the next round can layer Btrfs, LUKS, and zram on top with confidence.</p>
 <p>The ISO I’m using is <code>archlinux-2026.05.01-x86_64.iso</code>, the May 2026 monthly snapshot. Anything in this guide that depends on a specific kernel version or package set should still work on later snapshots, but commands like <code>cfdisk</code> and <code>pacstrap</code> are the same across releases — Arch is rolling, so the install media just bootstraps you to a current state.</p>
 <p>I borrow structure and a handful of phrasings from Radley Lewis’s excellent <a href="https://www.radleylewis.com/lab/guides/arch-installation-guide/" target="_blank" rel="noopener">Arch installation guide</a> — go read it if you want a second voice on the same material. The commentary, choices, and mistakes here are mine.</p>
 <hr>
@@ -526,7 +526,7 @@ gpg:          There is no indication that the signature belongs to the owner.</c
 <section id="burn-the-iso-to-a-usb-drive" class="level3">
 <h3 class="anchored" data-anchor-id="burn-the-iso-to-a-usb-drive">Burn the ISO to a USB drive</h3>
 <p>I used <a href="https://etcher.balena.io/#download-etcher" target="_blank" rel="noopener">balenaEtcher</a>: download the Linux x86 zip, unzip, run the executable, follow three steps (pick image, pick drive, flash). Done.</p>
-<p>If you prefer the command line, <code>dd</code> works too — just be very careful with <code>of=</code>.</p>
+<p>If you prefer the command line, <code>dd</code> works too, just be very careful with <code>of=</code>.</p>
 <hr>
 </section>
 </section>
@@ -581,7 +581,7 @@ openssh vs.&nbsp;ssh vs.&nbsp;sshd
 <div class="callout-body-container callout-body">
 <p>A trio that confused me at first.</p>
 <ul>
-<li><strong><code>openssh</code></strong> is the <em>package</em> — the upstream project that ships both the client and the server.</li>
+<li><strong><code>openssh</code></strong> is the <em>package</em>, the upstream project that ships both the client and the server.</li>
 <li><strong><code>ssh</code></strong> is the <em>client</em> binary you run on your laptop to connect into something.</li>
 <li><strong><code>sshd</code></strong> is the <em>server</em> daemon that listens for incoming connections.</li>
 </ul>
@@ -592,7 +592,7 @@ openssh vs.&nbsp;ssh vs.&nbsp;sshd
 <section id="set-a-root-password-and-connect-from-your-other-machine" class="level3">
 <h3 class="anchored" data-anchor-id="set-a-root-password-and-connect-from-your-other-machine">Set a root password and connect from your other machine</h3>
 <div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>This is only for the live environment — you’ll set a separate password for the installed system later. Then from any other computer on the same network:</p>
+<p>This is only for the live environment, you’ll set a separate password for the installed system later. Then from any other computer on the same network:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> root@<span class="op">&lt;</span>ip-address-from-earlier<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The rest of this guide is much more comfortable from a real keyboard.</p>
 <hr>
@@ -678,7 +678,7 @@ What <code>set-ntp true</code> actually does
 <section id="find-the-ssd" class="level3">
 <h3 class="anchored" data-anchor-id="find-the-ssd">Find the SSD</h3>
 <div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fdisk</span> <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The disk you want is the big one — usually <code>nvme0n1</code> on modern laptops (the <code>NVMe</code> naming reflects how SSDs talk to the motherboard over PCIe). Note its full path: <code>/dev/nvme0n1</code>.</p>
+<p>The disk you want is the big one, usually <code>nvme0n1</code> on modern laptops (the <code>NVMe</code> naming reflects how SSDs talk to the motherboard over PCIe). Note its full path: <code>/dev/nvme0n1</code>.</p>
 </section>
 <section id="edit-the-partition-table" class="level3">
 <h3 class="anchored" data-anchor-id="edit-the-partition-table">Edit the partition table</h3>
@@ -712,11 +712,11 @@ What <code>set-ntp true</code> actually does
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkswap</span>        /dev/nvme0n1p2    <span class="co"># Swap area</span></span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.ext4</span>     /dev/nvme0n1p3    <span class="co"># Root filesystem</span></span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.ext4</span>     /dev/nvme0n1p4    <span class="co"># Home filesystem</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The EFI partition <em>must</em> be FAT32 — the UEFI specification mandates it. Everything else is your choice; I’m going with <code>ext4</code> because it is rock-solid, well-understood, and has no exotic features I’ll need before I rebuild with Btrfs in the next article.</p>
+<p>The EFI partition <em>must</em> be FAT32, the UEFI specification mandates it. Everything else is your choice; I’m going with <code>ext4</code> because it is rock-solid, well-understood, and has no exotic features I’ll need before I rebuild with Btrfs in the next article.</p>
 </section>
 <section id="mount" class="level3">
 <h3 class="anchored" data-anchor-id="mount">Mount</h3>
-<p>Mounting is how you attach a partition to a directory tree so the OS can actually use it. The Arch install lives in <code>/mnt</code> from the live environment’s point of view — that becomes <code>/</code> from the installed system’s point of view after reboot.</p>
+<p>Mounting is how you attach a partition to a directory tree so the OS can actually use it. The Arch install lives in <code>/mnt</code> from the live environment’s point of view, that becomes <code>/</code> from the installed system’s point of view after reboot.</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p3 /mnt              <span class="co"># mount root first</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/<span class="dt">{boot</span><span class="op">,</span><span class="dt">home}</span>              <span class="co"># create mount points inside the new root</span></span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot         <span class="co"># EFI partition at /boot</span></span>
@@ -745,7 +745,7 @@ Order matters
 </section>
 <section id="recovery-starting-the-mount-step-over" class="level3">
 <h3 class="anchored" data-anchor-id="recovery-starting-the-mount-step-over">Recovery: starting the mount step over</h3>
-<p>If you mis-mounted something or activated swap twice, nothing is broken — you can cleanly reset the mount state and start over.</p>
+<p>If you mis-mounted something or activated swap twice, nothing is broken, you can cleanly reset the mount state and start over.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">swapoff</span> /dev/nvme0n1p2     <span class="co"># ignore errors if swap isn't on</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> <span class="at">-R</span> /mnt             <span class="co"># recursively unmount everything under /mnt</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="kw">|</span> <span class="fu">grep</span> /mnt          <span class="co"># should print nothing</span></span>
@@ -824,7 +824,7 @@ Click to expand: what each package does
 </tr>
 <tr class="even">
 <td><code>grub</code></td>
-<td>GRUB 2 bootloader — selects the kernel and hands off control to it.</td>
+<td>GRUB 2 bootloader, selects the kernel and hands off control to it.</td>
 </tr>
 <tr class="odd">
 <td><code>efibootmgr</code></td>
@@ -848,7 +848,7 @@ Click to expand: what each package does
 </tr>
 <tr class="even">
 <td><code>base-devel</code></td>
-<td><code>make</code>, <code>gcc</code>, <code>pkgconf</code>, <code>fakeroot</code>, etc. — required for building AUR packages.</td>
+<td><code>make</code>, <code>gcc</code>, <code>pkgconf</code>, <code>fakeroot</code>, etc., required for building AUR packages.</td>
 </tr>
 <tr class="odd">
 <td><code>intel-ucode</code></td>
@@ -863,7 +863,7 @@ Click to expand: what each package does
 <div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><code>genfstab</code> scans the currently mounted partitions and writes their UUIDs into <code>/mnt/etc/fstab</code>. Using <code>-U</code> (UUIDs) instead of <code>-L</code> (labels) is the safer default — UUIDs survive disk renaming. The <code>&gt;&gt;</code> appends to the file; do <em>not</em> use <code>&gt;</code> (it would overwrite anything already there).</p>
-<p><code>arch-chroot /mnt</code> is a smarter <code>chroot</code> — it mounts <code>/proc</code>, <code>/sys</code>, <code>/dev</code>, and a few other API filesystems inside <code>/mnt</code> first, so things like <code>pacman</code> work normally from inside the new system. After this command, your shell prompt is “inside” the new Arch install.</p>
+<p><code>arch-chroot /mnt</code> is a smarter <code>chroot</code>, it mounts <code>/proc</code>, <code>/sys</code>, <code>/dev</code>, and a few other API filesystems inside <code>/mnt</code> first, so things like <code>pacman</code> work normally from inside the new system. After this command, your shell prompt is “inside” the new Arch install.</p>
 <hr>
 </section>
 </section>
@@ -914,11 +914,11 @@ Click to expand: what each package does
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> user</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Replace <code>user</code> with whatever your username should be. Flag-by-flag:</p>
 <ul>
-<li><code>-m</code> — create a home directory at <code>/home/user</code>.</li>
-<li><code>-g users</code> — primary group is <code>users</code>.</li>
+<li><code>-m</code>, create a home directory at <code>/home/user</code>.</li>
+<li><code>-g users</code>, primary group is <code>users</code>.</li>
 <li><code>-G wheel</code> — <em>also</em> add the user to the <code>wheel</code> group.</li>
 </ul>
-<p>The <code>wheel</code> group is a Unix convention going back to early BSD: it’s the group of people allowed to become root. On Arch (and most modern distros), you grant <code>sudo</code> privileges by enabling sudo for everyone in <code>wheel</code> — not by listing each user individually.</p>
+<p>The <code>wheel</code> group is a Unix convention going back to early BSD: it’s the group of people allowed to become root. On Arch (and most modern distros), you grant <code>sudo</code> privileges by enabling sudo for everyone in <code>wheel</code>, not by listing each user individually.</p>
 </section>
 <section id="enable-sudo-for-the-wheel-group" class="level3">
 <h3 class="anchored" data-anchor-id="enable-sudo-for-the-wheel-group">7. Enable sudo for the wheel group</h3>
@@ -957,11 +957,11 @@ Click to expand: what each package does
 <tbody>
 <tr class="odd">
 <td><code>linux-headers</code></td>
-<td>Kernel headers — required to build out-of-tree modules (DKMS, NVIDIA, ZFS, …). Skip only if you know you’ll never build a module.</td>
+<td>Kernel headers, required to build out-of-tree modules (DKMS, NVIDIA, ZFS, …). Skip only if you know you’ll never build a module.</td>
 </tr>
 <tr class="even">
 <td><code>mtools</code></td>
-<td>Userspace utilities for manipulating FAT filesystems — handy when poking at the EFI partition.</td>
+<td>Userspace utilities for manipulating FAT filesystems, handy when poking at the EFI partition.</td>
 </tr>
 <tr class="odd">
 <td><code>network-manager-applet</code></td>
@@ -977,7 +977,7 @@ Click to expand: what each package does
 </tr>
 <tr class="even">
 <td><code>ipset</code></td>
-<td>Lets the firewall match against large IP sets efficiently. Useful even if you don’t use it directly — many tools depend on it.</td>
+<td>Lets the firewall match against large IP sets efficiently. Useful even if you don’t use it directly, many tools depend on it.</td>
 </tr>
 <tr class="odd">
 <td><code>firewalld</code></td>
@@ -1021,7 +1021,7 @@ Click to expand: what each package does
 <tbody>
 <tr class="odd">
 <td><code>man-db man-pages texinfo</code></td>
-<td>Man pages and info pages. Skip only if you genuinely never read documentation locally.</td>
+<td>Man pages and info pages. Skip only if you never read documentation locally.</td>
 </tr>
 <tr class="even">
 <td><code>bluez bluez-utils bluez-deprecated-tools</code></td>
@@ -1037,7 +1037,7 @@ Click to expand: what each package does
 </tr>
 <tr class="odd">
 <td><code>sof-firmware</code></td>
-<td>Sound Open Firmware — needed by most modern Intel laptop audio codecs.</td>
+<td>Sound Open Firmware, needed by most modern Intel laptop audio codecs.</td>
 </tr>
 <tr class="even">
 <td><code>ttf-iosevka-nerd</code></td>
@@ -1049,7 +1049,7 @@ Click to expand: what each package does
 </tr>
 <tr class="even">
 <td><code>firefox</code></td>
-<td>Browser. Optional in the strict sense — you can install your browser of choice later.</td>
+<td>Browser. Optional in the strict sense, you can install your browser of choice later.</td>
 </tr>
 </tbody>
 </table>
@@ -1092,7 +1092,7 @@ Why <code>.timer</code> units instead of cron
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>reflector.timer</code> and <code>fstrim.timer</code> are systemd timer units — the modern replacement for cron jobs. They run their corresponding <code>.service</code> unit on a schedule (<code>fstrim.timer</code> defaults to weekly), log into the journal, and depend on the right targets so they don’t fire during boot or shutdown. You don’t need to install cron unless you really want to.</p>
+<p><code>reflector.timer</code> and <code>fstrim.timer</code> are systemd timer units, the modern replacement for cron jobs. They run their corresponding <code>.service</code> unit on a schedule (<code>fstrim.timer</code> defaults to weekly), log into the journal, and depend on the right targets so they don’t fire during boot or shutdown. You don’t need to install cron unless you really want to.</p>
 </div>
 </div>
 </section>
@@ -1114,7 +1114,7 @@ Why <code>.timer</code> units instead of cron
 <hr>
 <section id="whats-next" class="level2">
 <h2 class="anchored" data-anchor-id="whats-next">What’s next</h2>
-<p>This was the deliberately boring first install. The next article is the opposite — my attempt to do all of this <strong>plus</strong> LUKS full-disk encryption, Btrfs subvolumes (<code>@</code>, <code>@home</code>, <code>@snapshots</code>), zram for everyday swap, and a dual-boot side-by-side with Ubuntu. It did not boot. It taught me a lot. That post-mortem is up next.</p>
+<p>This was the deliberately boring first install. The next article is the opposite, my attempt to do all of this <strong>plus</strong> LUKS full-disk encryption, Btrfs subvolumes (<code>@</code>, <code>@home</code>, <code>@snapshots</code>), zram for everyday swap, and a dual-boot side-by-side with Ubuntu. It did not boot. It taught me a lot. That post-mortem is up next.</p>
 <hr>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">

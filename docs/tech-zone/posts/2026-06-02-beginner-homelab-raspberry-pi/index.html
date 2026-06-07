@@ -489,7 +489,7 @@ What this is
 <p>In practice, that means running Tailscale and a traditional VPN side-by-side is often more complicated than it first appears.</p>
 <p>After a lot of experimentation, the setup I personally use is the boring one: - Tailscale when I want access to my homelab. - Mullvad when I want VPN privacy. At home, I can set the DNS address to my RPI’s static IP. Anywhere else, I can just use Mullvad’s DNS blocking settings. - One active at a time (usually Mullvad is on, and I switch to Tailscale when I want to access my hosted media).</p>
 <p>There are ways around this. Tailscale exit nodes, especially the Mullvad add-on, provide a cleaner integration and can give you the benefits of both at once. But they also introduce tradeoffs in flexibility, and control.</p>
-<p>Rather than pretending there is a perfect solution, the guide walks through the tradeoffs and explains why I ultimately chose the setup I did. I also mention an untested idea suggested by friend more experienced in homelabbing — running the VPN at the router level instead of the device level — but I couldn’t evaluate it on my own hardware because my router firmware doesn’t support it.</p>
+<p>Rather than pretending there is a perfect solution, the guide walks through the tradeoffs and explains why I ultimately chose the setup I did. I also mention an untested idea suggested by friend more experienced in homelabbing, running the VPN at the router level instead of the device level, but I couldn’t evaluate it on my own hardware because my router firmware doesn’t support it.</p>
 </section>
 <section id="why-i-wrote-it-this-way" class="level2">
 <h2 class="anchored" data-anchor-id="why-i-wrote-it-this-way">Why I wrote it this way</h2>
@@ -502,7 +502,7 @@ What this is
 </ul>
 <p>More than anything, the project became a way to learn how the pieces fit together: Docker, DNS, TLS certificates, reverse proxies, VPNs, local networking, and the tradeoffs involved in modern self-hosting.</p>
 <p>If you’ve wanted a homelab but didn’t want to expose anything to the public internet, this is the path I’d hand you.</p>
-<p>➡️ <strong><a href="https://github.com/evannsmc/BeginnerHomelabGuide" target="_blank" rel="noopener">Beginner Homelab on a Raspberry Pi on GitHub</a></strong> — per-chapter READMEs, standalone PDFs, and the complete whole-book PDF.</p>
+<p>➡️ <strong><a href="https://github.com/evannsmc/BeginnerHomelabGuide" target="_blank" rel="noopener">Beginner Homelab on a Raspberry Pi on GitHub</a></strong>, per-chapter READMEs, standalone PDFs, and the complete whole-book PDF.</p>
 
 
 </section>

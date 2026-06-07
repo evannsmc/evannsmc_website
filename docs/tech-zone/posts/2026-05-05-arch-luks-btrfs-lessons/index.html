@@ -170,11 +170,11 @@ document.addEventListener('DOMContentLoaded', function () {
 <meta property="og:description" content="A post-mortem on my second pass at installing Arch Linux: full-disk LUKS encryption, Btrfs subvolumes for / and /home, zram for everyday swap, a shared data partition, and a dedicated encrypted swap partition for hibernation, set up to dual-boot with Ubuntu. GRUB loaded, the LUKS prompt accepted my passphrase, and then the kernel dropped me into emergency mode. Here’s the plan, the failure, and everything I’ve tried so far.">
 <meta property="og:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
 <meta property="og:site_name" content="evannsmc">
-<meta property="og:image:alt" content="The Arch Linux logo — official wordmark from archlinux.org.">
+<meta property="og:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:title" content="An Ambitious Arch Install That Didn’t Boot — LUKS, Btrfs, and What I Learned – evannsmc">
 <meta name="twitter:description" content="A post-mortem on my second pass at installing Arch Linux: full-disk LUKS encryption, Btrfs subvolumes for / and /home, zram for everyday swap, a shared data partition, and a dedicated encrypted swap partition for hibernation, set up to dual-boot with Ubuntu. GRUB loaded, the LUKS prompt accepted my passphrase, and then the kernel dropped me into emergency mode. Here’s the plan, the failure, and everything I’ve tried so far.">
 <meta name="twitter:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
-<meta name="twitter:image:alt" content="The Arch Linux logo — official wordmark from archlinux.org.">
+<meta name="twitter:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -467,7 +467,7 @@ Heads up: this one didn’t work
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>This article is honest. The ambitious dual-boot setup it describes — LUKS + Btrfs + zram + shared data partition + encrypted swap for hibernation — accepted my passphrase at boot and then dropped into a <code>systemd</code> emergency shell with a “Timed out waiting for device” error. I’m publishing the design, the install steps, and the post-mortem here as a learning record, not as a guide to copy. If you want a known-good first install, go read <a href="../2026-05-01-first-arch-install/">my basic Arch install</a> instead.</p>
+<p>The ambitious dual-boot setup it describes — LUKS + Btrfs + zram + shared data partition + encrypted swap for hibernation, accepted my passphrase at boot and then dropped into a <code>systemd</code> emergency shell with a “Timed out waiting for device” error. I’m publishing the design, the install steps, and the post-mortem here as a learning record, not as a guide to copy. If you want a known-good first install, go read <a href="../2026-05-01-first-arch-install/">my basic Arch install</a> instead.</p>
 </div>
 </div>
 <section id="the-plan-i-tried-to-execute" class="level2">
@@ -478,7 +478,7 @@ Heads up: this one didn’t work
 <li>Each distro encrypted at the partition level with <strong>LUKS</strong>.</li>
 <li>Each distro using <strong>Btrfs</strong> with <code>zstd</code> compression, with the Timeshift-friendly subvolume layout (<code>@</code> for root, <code>@home</code> for home).</li>
 <li>A <strong>shared data partition</strong> mounted from both distros (<code>/data</code>), so my git repos, ROS 2 workspaces, datasets, and media live in one neutral place.</li>
-<li><strong>zram</strong> as the primary swap mechanism (compressed swap in RAM — fewer SSD writes during normal use).</li>
+<li><strong>zram</strong> as the primary swap mechanism (compressed swap in RAM, fewer SSD writes during normal use).</li>
 <li>A separate <strong>encrypted swap partition</strong> big enough for hibernation (suspend-to-disk).</li>
 </ul>
 <p>The proposed partition layout:</p>
@@ -557,7 +557,7 @@ Why these names
 </div>
 <section id="why-one-big-btrfs-partition-per-distro-instead-of-separate-and-home-partitions" class="level3">
 <h3 class="anchored" data-anchor-id="why-one-big-btrfs-partition-per-distro-instead-of-separate-and-home-partitions">Why one big Btrfs partition per distro instead of separate <code>/</code> and <code>/home</code> partitions?</h3>
-<p>With ext4 partitions, you have to <em>guess</em> how much space root vs.&nbsp;home will need. If you guess wrong, one fills up while the other has plenty free. Btrfs subvolumes are logically separate but share the same free-space pool inside the partition — so root and home grow into whichever space is actually needed.</p>
+<p>With ext4 partitions, you have to <em>guess</em> how much space root vs.&nbsp;home will need. If you guess wrong, one fills up while the other has plenty free. Btrfs subvolumes are logically separate but share the same free-space pool inside the partition, so root and home grow into whichever space is actually needed.</p>
 </section>
 <section id="why-zram-and-a-swap-partition" class="level3">
 <h3 class="anchored" data-anchor-id="why-zram-and-a-swap-partition">Why zram <strong>and</strong> a swap partition?</h3>
@@ -616,10 +616,10 @@ Why these names
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    /dev/mapper/arch /mnt/home</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The mount options earn their keep:</p>
 <ul>
-<li><code>noatime</code> — don’t update access timestamps on every read. Reduces unnecessary writes.</li>
-<li><code>ssd</code> — explicitly enable Btrfs’s SSD heuristics. Modern Btrfs usually auto-detects NVMe and SSD devices, but being explicit is harmless and self-documenting.</li>
-<li><code>compress=zstd</code> — transparent Zstandard compression. Great compression ratio with very low CPU cost.</li>
-<li><code>subvol=@</code> (and <code>subvol=@home</code>) — which subvolume to mount at this path.</li>
+<li><code>noatime</code>, don’t update access timestamps on every read. Reduces unnecessary writes.</li>
+<li><code>ssd</code>, explicitly enable Btrfs’s SSD heuristics. Modern Btrfs usually auto-detects NVMe and SSD devices, but being explicit is harmless and self-documenting.</li>
+<li><code>compress=zstd</code>, transparent Zstandard compression. Great compression ratio with very low CPU cost.</li>
+<li><code>subvol=@</code> (and <code>subvol=@home</code>), which subvolume to mount at this path.</li>
 </ul>
 <p>Notably absent: <code>discard=async</code>. Online discard is fine, but I’m planning to use <code>fstrim.timer</code> (weekly batch TRIM) instead. Doing both is redundant.</p>
 </section>
@@ -665,7 +665,7 @@ Why these names
 <p>When you boot a system whose root filesystem is on a LUKS-encrypted Btrfs subvolume, the journey from power-on to login prompt has more moving parts than an unencrypted ext4 install:</p>
 <ol type="1">
 <li>UEFI firmware fires up.</li>
-<li>GRUB loads the Linux kernel and an <em>initramfs</em> — a small temporary Linux environment that lives in RAM.</li>
+<li>GRUB loads the Linux kernel and an <em>initramfs</em>, a small temporary Linux environment that lives in RAM.</li>
 <li>The initramfs detects hardware, loads kernel modules, and prompts for the LUKS passphrase.</li>
 <li>The encrypted partition is unlocked and mapped to <code>/dev/mapper/arch</code>.</li>
 <li>The Btrfs <code>@</code> subvolume is mounted as <code>/</code>.</li>
@@ -745,7 +745,7 @@ Click to expand: what each hook does
 </tr>
 <tr class="even">
 <td><code>fsck</code></td>
-<td>Filesystem check support — less critical for Btrfs.</td>
+<td>Filesystem check support, less critical for Btrfs.</td>
 </tr>
 </tbody>
 </table>
@@ -760,7 +760,7 @@ udev vs.&nbsp;systemd initramfs
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>This guide uses the traditional <strong>udev</strong>-based initramfs (<code>udev</code>, <code>keyboard</code>, <code>keymap</code>, <code>encrypt</code>). The systemd-based equivalent uses different hooks (<code>systemd</code>, <code>sd-vconsole</code>, <code>sd-encrypt</code>) — they’re functionally similar but <strong>don’t mix them</strong>. Pick one style. Using <code>udev</code> in the initramfs has nothing to do with whether your real system uses systemd later — it still does.</p>
+<p>This guide uses the traditional <strong>udev</strong>-based initramfs (<code>udev</code>, <code>keyboard</code>, <code>keymap</code>, <code>encrypt</code>). The systemd-based equivalent uses different hooks (<code>systemd</code>, <code>sd-vconsole</code>, <code>sd-encrypt</code>), they’re functionally similar but <strong>don’t mix them</strong>. Pick one style. Using <code>udev</code> in the initramfs has nothing to do with whether your real system uses systemd later, it still does.</p>
 </div>
 </div>
 <p>If your keyboard isn’t detected at the LUKS prompt (rare, but it happens with some weird USB hubs and old laptop keyboards), you can also explicitly include drivers:</p>
@@ -785,7 +785,7 @@ udev vs.&nbsp;systemd initramfs
 </ul>
 <section id="find-the-right-partition" class="level3">
 <h3 class="anchored" data-anchor-id="find-the-right-partition">Find the right partition</h3>
-<p>Before editing anything, verify which <code>/dev/nvmeXnYpZ</code> is <em>actually</em> the Arch partition. Don’t copy a <code>/dev/nvme0n1p4</code> from a tutorial — your layout is what <code>lsblk</code> says it is.</p>
+<p>Before editing anything, verify which <code>/dev/nvmeXnYpZ</code> is <em>actually</em> the Arch partition. Don’t copy a <code>/dev/nvme0n1p4</code> from a tutorial, your layout is what <code>lsblk</code> says it is.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Look for the row whose mapper device is mounted at <code>/</code> (and <code>/home</code>). For me it was:</p>
 <pre class="text"><code>nvme0n1p4
@@ -838,7 +838,7 @@ Don’t use angle brackets in the actual file
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The <code>&lt;uuid&gt;</code> above is a placeholder. The real line must contain the bare UUID — no angle brackets, no quotes around the UUID, just the value. <strong>This is the exact mistake I made on my first attempt and it’s what bricked the boot</strong> (see post-mortem below).</p>
+<p>The <code>&lt;uuid&gt;</code> above is a placeholder. The real line must contain the bare UUID, no angle brackets, no quotes around the UUID, just the value. <strong>This is the exact mistake I made on my first attempt and it’s what bricked the boot</strong> (see post-mortem below).</p>
 </div>
 </div>
 <p>What each kernel parameter does:</p>
@@ -916,16 +916,16 @@ Click to expand
 <h2 class="anchored" data-anchor-id="what-i-saw">What I saw</h2>
 <p>After the install completed cleanly and I rebooted:</p>
 <ol type="1">
-<li><p>GRUB loaded successfully — the menu appeared and the Arch entry was selectable.</p></li>
+<li><p>GRUB loaded successfully, the menu appeared and the Arch entry was selectable.</p></li>
 <li><p>The kernel started, and I got the LUKS passphrase prompt.</p></li>
-<li><p>The passphrase was <strong>accepted</strong> — no “wrong passphrase” message.</p></li>
+<li><p>The passphrase was <strong>accepted</strong>, no “wrong passphrase” message.</p></li>
 <li><p>After a delay of roughly 90 seconds, the kernel printed:</p>
 <pre class="text"><code>A password is required to access the Arch volume.
 Timed out waiting for device /dev/disk/by-uuid/&lt;some-uuid&gt;.
 You are in emergency mode.</code></pre></li>
 <li><p>The system dropped into a <code>systemd</code> emergency root shell instead of finishing boot.</p></li>
 </ol>
-<p>The fact that the LUKS prompt appeared <em>and accepted my passphrase</em> meant the initramfs was working — the keyboard worked, the <code>encrypt</code> hook ran, the passphrase was correct. So whatever was wrong happened <strong>after</strong> the unlock.</p>
+<p>The fact that the LUKS prompt appeared <em>and accepted my passphrase</em> meant the initramfs was working, the keyboard worked, the <code>encrypt</code> hook ran, the passphrase was correct. So whatever was wrong happened <strong>after</strong> the unlock.</p>
 </section>
 <section id="working-theories" class="level2">
 <h2 class="anchored" data-anchor-id="working-theories">Working theories</h2>
@@ -933,7 +933,7 @@ You are in emergency mode.</code></pre></li>
 <ol type="1">
 <li>The <code>cryptdevice=UUID=...</code> value in GRUB is wrong or malformed, so the kernel unlocks the wrong UUID (or tries to and gives up).</li>
 <li>The <code>root=</code> device doesn’t match the mapper name from <code>cryptdevice=</code>.</li>
-<li>The Btrfs <code>rootflags=subvol=@</code> is incorrect — for example, mounting the top-level volume that has no <code>/sbin/init</code>.</li>
+<li>The Btrfs <code>rootflags=subvol=@</code> is incorrect, for example, mounting the top-level volume that has no <code>/sbin/init</code>.</li>
 </ol>
 </section>
 <section id="what-i-tried" class="level2">
@@ -974,11 +974,11 @@ You are in emergency mode.</code></pre></li>
 <p>Even after all of the above, the boot still drops into emergency mode with the same “Timed out waiting for device” message. I haven’t fully root-caused it yet. My next experiments will be:</p>
 <ul>
 <li>Boot into the kernel without <code>quiet</code> and <code>loglevel=3</code> to see the <em>full</em> dmesg leading up to the timeout. Drop the <code>quiet</code> flag, watch what device the kernel is actually waiting for.</li>
-<li>Confirm in the emergency shell that <code>/dev/mapper/arch</code> exists after the LUKS prompt — if it does, the failure is in mounting, not unlocking; if it doesn’t, the <code>encrypt</code> hook isn’t doing what I think it is.</li>
+<li>Confirm in the emergency shell that <code>/dev/mapper/arch</code> exists after the LUKS prompt, if it does, the failure is in mounting, not unlocking; if it doesn’t, the <code>encrypt</code> hook isn’t doing what I think it is.</li>
 <li>Try replacing the <code>udev</code>-style hooks with the systemd-style equivalents (<code>sd-encrypt</code> in place of <code>encrypt</code>, <code>systemd</code> in place of <code>udev</code>) since <code>sd-encrypt</code> is the better-tested path on contemporary Arch.</li>
-<li>Audit <code>/etc/fstab</code> — if any line references <code>/dev/disk/by-uuid/&lt;...&gt;</code> for the mapper instead of <code>/dev/mapper/arch</code>, the systemd unit waiting on that path will time out exactly as I’m seeing.</li>
+<li>Audit <code>/etc/fstab</code>, if any line references <code>/dev/disk/by-uuid/&lt;...&gt;</code> for the mapper instead of <code>/dev/mapper/arch</code>, the systemd unit waiting on that path will time out exactly as I’m seeing.</li>
 </ul>
-<p>I’ll publish a follow-up once I know what fixed it. The point of this post is to leave a record of the design and the failure mode so I can come back to it — and so anyone hitting the same “passphrase accepted, then emergency mode” wall has at least <em>one</em> concrete shape of the problem to compare against.</p>
+<p>I’ll publish a follow-up once I know what fixed it. The point of this post is to leave a record of the design and the failure mode so I can come back to it, and so anyone hitting the same “passphrase accepted, then emergency mode” wall has at least <em>one</em> concrete shape of the problem to compare against.</p>
 <hr>
 </section>
 <section id="what-im-taking-away" class="level2">

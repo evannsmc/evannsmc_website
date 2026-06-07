@@ -8,7 +8,7 @@
 
 <meta name="author" content="Evanns Morales">
 <meta name="dcterms.date" content="2026-05-17">
-<meta name="description" content="Single-boot Arch Linux on an NVMe SSD: LUKS2 full-disk encryption, Btrfs with proper subvolumes (@, @home, @snapshots, @var_log, @swap), zram for everyday compressed swap, a NoCOW swap file on Btrfs for hibernation, snapper + grub-btrfs for bootable snapshots. A working, copy-pasteable expansion of my basic Arch install — with every correction from the failed-boot post-mortem already baked in. The desktop layer is deliberately a separate choice, see Part 4.">
+<meta name="description" content="Single-boot Arch Linux on an NVMe SSD: LUKS2 full-disk encryption, Btrfs with proper subvolumes (@, @home, @snapshots, @var_log, @swap), zram for everyday compressed swap, a NoCOW swap file on Btrfs for hibernation, snapper + grub-btrfs for bootable snapshots. A working, copy-pasteable expansion of my basic Arch install, with every correction from the failed-boot post-mortem already baked in. The desktop layer is deliberately a separate choice, see Part 4.">
 
 <title>Arch + LUKS + Btrfs — Encrypted, Snapshot-Ready Single-Boot – evannsmc</title>
 <style>
@@ -167,14 +167,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <link rel="stylesheet" href="../../../styles.css">
 <meta property="og:title" content="Arch + LUKS + Btrfs — Encrypted, Snapshot-Ready Single-Boot – evannsmc">
-<meta property="og:description" content="Single-boot Arch Linux on an NVMe SSD: LUKS2 full-disk encryption, Btrfs with proper subvolumes (@, @home, @snapshots, @var_log, @swap), zram for everyday compressed swap, a NoCOW swap file on Btrfs for hibernation, snapper + grub-btrfs for bootable snapshots. A working, copy-pasteable expansion of my basic Arch install — with every correction from the failed-boot post-mortem already baked in. The desktop layer is deliberately a separate choice, see Part 4.">
+<meta property="og:description" content="Single-boot Arch Linux on an NVMe SSD: LUKS2 full-disk encryption, Btrfs with proper subvolumes (@, @home, @snapshots, @var_log, @swap), zram for everyday compressed swap, a NoCOW swap file on Btrfs for hibernation, snapper + grub-btrfs for bootable snapshots. A working, copy-pasteable expansion of my basic Arch install, with every correction from the failed-boot post-mortem already baked in. The desktop layer is deliberately a separate choice, see Part 4.">
 <meta property="og:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
 <meta property="og:site_name" content="evannsmc">
-<meta property="og:image:alt" content="The Arch Linux logo — official wordmark from archlinux.org.">
+<meta property="og:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:title" content="Arch + LUKS + Btrfs — Encrypted, Snapshot-Ready Single-Boot – evannsmc">
-<meta name="twitter:description" content="Single-boot Arch Linux on an NVMe SSD: LUKS2 full-disk encryption, Btrfs with proper subvolumes (@, @home, @snapshots, @var_log, @swap), zram for everyday compressed swap, a NoCOW swap file on Btrfs for hibernation, snapper + grub-btrfs for bootable snapshots. A working, copy-pasteable expansion of my basic Arch install — with every correction from the failed-boot post-mortem already baked in. The desktop layer is deliberately a separate choice, see Part 4.">
+<meta name="twitter:description" content="Single-boot Arch Linux on an NVMe SSD: LUKS2 full-disk encryption, Btrfs with proper subvolumes (@, @home, @snapshots, @var_log, @swap), zram for everyday compressed swap, a NoCOW swap file on Btrfs for hibernation, snapper + grub-btrfs for bootable snapshots. A working, copy-pasteable expansion of my basic Arch install, with every correction from the failed-boot post-mortem already baked in. The desktop layer is deliberately a separate choice, see Part 4.">
 <meta name="twitter:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
-<meta name="twitter:image:alt" content="The Arch Linux logo — official wordmark from archlinux.org.">
+<meta name="twitter:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -430,7 +430,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <div>
   <div class="description">
-    Single-boot Arch Linux on an NVMe SSD: LUKS2 full-disk encryption, Btrfs with proper subvolumes (@, <span class="citation" data-cites="home">@home</span>, <span class="citation" data-cites="snapshots">@snapshots</span>, <span class="citation" data-cites="var_log">@var_log</span>, <span class="citation" data-cites="swap">@swap</span>), zram for everyday compressed swap, a NoCOW swap file on Btrfs for hibernation, snapper + grub-btrfs for bootable snapshots. A working, copy-pasteable expansion of my basic Arch install — with every correction from the failed-boot post-mortem already baked in. The desktop layer is deliberately a separate choice, see Part 4.
+    Single-boot Arch Linux on an NVMe SSD: LUKS2 full-disk encryption, Btrfs with proper subvolumes (@, <span class="citation" data-cites="home">@home</span>, <span class="citation" data-cites="snapshots">@snapshots</span>, <span class="citation" data-cites="var_log">@var_log</span>, <span class="citation" data-cites="swap">@swap</span>), zram for everyday compressed swap, a NoCOW swap file on Btrfs for hibernation, snapper + grub-btrfs for bootable snapshots. A working, copy-pasteable expansion of my basic Arch install, with every correction from the failed-boot post-mortem already baked in. The desktop layer is deliberately a separate choice, see Part 4.
   </div>
 </div>
 
@@ -477,7 +477,7 @@ What this is
 <li>a <strong>NoCOW Btrfs swap file</strong> big enough for hibernation (suspend-to-disk),</li>
 <li><strong>snapper</strong> + <strong>grub-btrfs</strong> for bootable, per-<code>pacman</code>-transaction snapshots.</li>
 </ul>
-<p>It is <strong>single-boot</strong> and stops on the console — the desktop layer is deliberately a separate choice. <strong>Part 4 (at the end)</strong> points at that next step: a piece-by-piece custom Hyprland (upcoming), or any environment you prefer (GNOME, Plasma, sway, dwm) — none of which is required for the install itself. Dual-boot and triple-boot setups get their own articles too — those add complexity I want to introduce one variable at a time after this one is rock-solid.</p>
+<p>It is <strong>single-boot</strong> and stops on the console, the desktop layer is deliberately a separate choice. <strong>Part 4 (at the end)</strong> points at that next step: a piece-by-piece custom Hyprland (upcoming), or any environment you prefer (GNOME, Plasma, sway, dwm), none of which is required for the install itself. Dual-boot and triple-boot setups get their own articles too, those add complexity I want to introduce one variable at a time after this one is rock-solid.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -490,13 +490,13 @@ How to read the hardware-specific examples in this guide
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Some sections of this article have variance by machine — the swap-file size, the kernel image you pick, what <code>lspci</code> actually prints. Wherever that’s the case, you’ll see a <strong>tabbed block</strong> with one example per machine. The tabs don’t change anything else on the page — they just show or hide the example content.</p>
+<p>Some sections of this article have variance by machine, the swap-file size, the kernel image you pick, what <code>lspci</code> actually prints. Wherever that’s the case, you’ll see a <strong>tabbed block</strong> with one example per machine. The tabs don’t change anything else on the page, they just show or hide the example content.</p>
 <ul>
-<li><strong>Generic</strong> — the version a reader on unknown hardware should follow.</li>
-<li><strong>Dell Precision (Intel Iris Xe + RTX A2000)</strong> — the actual <code>lspci</code> output, exact commands, and post-install env vars from my Dell Precision mobile workstation. This is the machine I’ve fully installed and tested this guide on.</li>
-<li><strong>Dell Pro 16 Plus</strong> — placeholder for a second machine I’ll install this stack on later. Content lands when I actually run through it.</li>
+<li><strong>Generic</strong>, the version a reader on unknown hardware should follow.</li>
+<li><strong>Dell Precision (Intel Iris Xe + RTX A2000)</strong>, the actual <code>lspci</code> output, exact commands, and post-install env vars from my Dell Precision mobile workstation. This is the machine I’ve fully installed and tested this guide on.</li>
+<li><strong>Dell Pro 16 Plus</strong>, placeholder for a second machine I’ll install this stack on later. Content lands when I actually run through it.</li>
 </ul>
-<p>GPU drivers themselves are part of the <em>desktop</em> layer, not the install — they live in the desktop article (upcoming, for Custom Hyprland), not here.</p>
+<p>GPU drivers themselves are part of the <em>desktop</em> layer, not the install, they live in the desktop article (upcoming, for Custom Hyprland), not here.</p>
 </div>
 </div>
 <section id="why-this-is-its-own-article-and-not-just-article-01-fixed" class="level2">
@@ -505,7 +505,7 @@ How to read the hardware-specific examples in this guide
 <ol type="1">
 <li><strong>systemd-based initramfs</strong> (<code>sd-encrypt</code>) instead of the older <code>udev</code>/<code>encrypt</code> hook. The kernel parameter format (<code>rd.luks.name=&lt;UUID&gt;=&lt;name&gt;</code>) is documented in <code>systemd-cryptsetup-generator(8)</code>, accepts no <code>:</code> separator, and is harder to mistype than <code>cryptdevice=</code>.</li>
 <li><strong>No dual-boot.</strong> Last time I tried to land LUKS + Btrfs + zram + shared partition + dual-boot Ubuntu in one swing. This time the goal is one OS, fully working, with a desktop on top.</li>
-<li><strong>A real swap file on Btrfs</strong> for hibernation, plus zram for normal swap pressure. This replaces last attempt’s “separate encrypted swap partition” — same outcome, fewer partitions.</li>
+<li><strong>A real swap file on Btrfs</strong> for hibernation, plus zram for normal swap pressure. This replaces last attempt’s “separate encrypted swap partition”, same outcome, fewer partitions.</li>
 <li><strong>Snapper integration from day one</strong>, so the very first <code>pacman -Syu</code> already creates a rollback point.</li>
 </ol>
 <p>The result is the install I trust enough to put my dissertation work, my dotfiles, and my GPG keys on.</p>
@@ -532,13 +532,13 @@ Confirm what disk you’re about to wipe
 </div>
 <div class="callout-body-container callout-body">
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-d</span> <span class="at">-o</span> NAME,SIZE,MODEL,TRAN</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The NVMe drive will show <code>TRAN=nvme</code>. Note the device — usually <code>/dev/nvme0n1</code>. Every command below uses <code>/dev/nvme0n1</code> and its partitions as a placeholder. <strong>Substitute your actual device</strong> if it differs. Wiping the wrong disk is the kind of mistake LUKS can’t save you from.</p>
+<p>The NVMe drive will show <code>TRAN=nvme</code>. Note the device, usually <code>/dev/nvme0n1</code>. Every command below uses <code>/dev/nvme0n1</code> and its partitions as a placeholder. <strong>Substitute your actual device</strong> if it differs. Wiping the wrong disk is the kind of mistake LUKS can’t save you from.</p>
 </div>
 </div>
 <hr>
 <section id="chapter-1-partitioning" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-1-partitioning">Chapter 1: Partitioning</h2>
-<p>For this install I’m using exactly two partitions — the EFI System Partition, and one big Linux partition that I’ll LUKS-encrypt and then carve into Btrfs subvolumes:</p>
+<p>For this install I’m using exactly two partitions, the EFI System Partition, and one big Linux partition that I’ll LUKS-encrypt and then carve into Btrfs subvolumes:</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 21%">
@@ -683,7 +683,7 @@ Names matter for tooling, not the kernel
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The names <code>@</code>, <code>@home</code>, <code>@snapshots</code>, and <code>@var_log</code> are conventions, not requirements — the kernel doesn’t care. But <strong>snapper</strong> and <strong>Timeshift</strong> default to those names. Rename them and you’ll fight your tools forever. I’m using exactly the default names so every guide I read in the future “just works.”</p>
+<p>The names <code>@</code>, <code>@home</code>, <code>@snapshots</code>, and <code>@var_log</code> are conventions, not requirements, the kernel doesn’t care. But <strong>snapper</strong> and <strong>Timeshift</strong> default to those names. Rename them and you’ll fight your tools forever. I’m using exactly the default names so every guide I read in the future “just works.”</p>
 </div>
 </div>
 <hr>
@@ -701,12 +701,12 @@ Names matter for tooling, not the kernel
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The mount options earn their keep:</p>
 <ul>
-<li><code>noatime</code> — don’t update the access timestamp on every read. Reduces unnecessary writes on SSDs and is harmless for almost every workload.</li>
-<li><code>compress=zstd:3</code> — transparent Zstandard compression at level 3. Strong compression ratio (often 40 %+ on text and source) with negligible CPU cost. Modern Btrfs picks <code>zstd:3</code> if you just say <code>compress=zstd</code>; spelling out the level is documentation.</li>
-<li><code>subvol=@</code>, <code>subvol=@home</code>, … — tells Btrfs which subvolume is mounted at this path.</li>
+<li><code>noatime</code>, don’t update the access timestamp on every read. Reduces unnecessary writes on SSDs and is harmless for almost every workload.</li>
+<li><code>compress=zstd:3</code>, transparent Zstandard compression at level 3. Strong compression ratio (often 40 %+ on text and source) with negligible CPU cost. Modern Btrfs picks <code>zstd:3</code> if you just say <code>compress=zstd</code>; spelling out the level is documentation.</li>
+<li><code>subvol=@</code>, <code>subvol=@home</code>, …, tells Btrfs which subvolume is mounted at this path.</li>
 </ul>
 <p>Notably absent: the <code>ssd</code> option. Modern Btrfs auto-detects NVMe and SSD-class block devices reliably; specifying it is harmless but no longer informative. Also absent: <code>discard=async</code> — I use <code>fstrim.timer</code> (weekly batch TRIM) instead. Doing both is redundant and slightly slower.</p>
-<p>The <code>@swap</code> subvolume mounts <strong>without</strong> compression — a swap file must not be compressed (swap pages need to be readable as-is when the kernel pages them back in).</p>
+<p>The <code>@swap</code> subvolume mounts <strong>without</strong> compression, a swap file must not be compressed (swap pages need to be readable as-is when the kernel pages them back in).</p>
 <section id="recovery-starting-the-mount-step-over" class="level3">
 <h3 class="anchored" data-anchor-id="recovery-starting-the-mount-step-over">Recovery: starting the mount step over</h3>
 <p>If you fumble a <code>mount -o</code>, this resets everything cleanly without rebuilding anything else:</p>
@@ -753,7 +753,7 @@ Click to expand: what each package does
 <tbody>
 <tr class="odd">
 <td><code>cryptsetup</code></td>
-<td>LUKS userspace + the <code>/usr/lib/initcpio/install/sd-encrypt</code> hook script. <strong>Not pulled in by <code>base</code></strong> on current Arch — without it, the next time mkinitcpio runs (e.g., on a kernel update) it would silently produce an initramfs that can’t unlock your disk. Install it explicitly.</td>
+<td>LUKS userspace + the <code>/usr/lib/initcpio/install/sd-encrypt</code> hook script. <strong>Not pulled in by <code>base</code></strong> on current Arch, without it, the next time mkinitcpio runs (e.g., on a kernel update) it would silently produce an initramfs that can’t unlock your disk. Install it explicitly.</td>
 </tr>
 <tr class="even">
 <td><code>btrfs-progs</code></td>
@@ -798,8 +798,8 @@ Two harmless warnings you will see during pacstrap
 <div class="callout-body-container callout-body">
 <p>Both of these print in red but are expected and do <strong>not</strong> mean the install failed:</p>
 <ol type="1">
-<li><strong><code>sd-vconsole: "/etc/vconsole.conf" not found, will use default values</code></strong> — mkinitcpio built an initramfs before we created <code>/etc/vconsole.conf</code>. The very first boot’s LUKS prompt will use the default <code>us</code> keymap (fine for most people); we set it properly in Chapter 6 and rebuild the initramfs in Chapter 9.</li>
-<li><strong><code>fatal library error, lookup self</code></strong> after <code>Performing snapper post snapshots</code> — <code>snap-pac</code>’s pacman hook fired against a snapper that has no configs yet (and perl’s library paths inside the brand-new chroot aren’t fully resolved). The hook would have been a no-op anyway — nothing is snapshotted, nothing is broken. We configure snapper properly in Part 3 (first boot), and the warning disappears from then on.</li>
+<li><strong><code>sd-vconsole: "/etc/vconsole.conf" not found, will use default values</code></strong>, mkinitcpio built an initramfs before we created <code>/etc/vconsole.conf</code>. The very first boot’s LUKS prompt will use the default <code>us</code> keymap (fine for most people); we set it properly in Chapter 6 and rebuild the initramfs in Chapter 9.</li>
+<li><strong><code>fatal library error, lookup self</code></strong> after <code>Performing snapper post snapshots</code> — <code>snap-pac</code>’s pacman hook fired against a snapper that has no configs yet (and perl’s library paths inside the brand-new chroot aren’t fully resolved). The hook would have been a no-op anyway, nothing is snapshotted, nothing is broken. We configure snapper properly in Part 3 (first boot), and the warning disappears from then on.</li>
 </ol>
 <p>To confirm pacstrap actually succeeded despite the noise:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> /mnt/boot/vmlinuz-linux       <span class="co"># kernel image is present</span></span>
@@ -822,7 +822,7 @@ Sanity-check the generated fstab
 </div>
 <div class="callout-body-container callout-body">
 <div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /etc/fstab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Each line should reference <code>UUID=…</code> (not <code>/dev/nvme0n1pN</code>) and the Btrfs entries should each carry <code>subvol=@…</code> in their options. If you see anything mounted from <code>/dev/mapper/cryptroot</code> <em>without</em> a <code>subvol=</code> entry, edit that out — you’d be mounting the top-level Btrfs volume on top of itself.</p>
+<p>Each line should reference <code>UUID=…</code> (not <code>/dev/nvme0n1pN</code>) and the Btrfs entries should each carry <code>subvol=@…</code> in their options. If you see anything mounted from <code>/dev/mapper/cryptroot</code> <em>without</em> a <code>subvol=</code> entry, edit that out, you’d be mounting the top-level Btrfs volume on top of itself.</p>
 </div>
 </div>
 <hr>
@@ -866,14 +866,14 @@ Sanity-check the generated fstab
 <span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a><span class="co"># sudo for wheel</span></span>
 <span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/'</span> /etc/sudoers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Replace <code>user</code> with whatever username you want. I’m using <code>arch</code> as the bare hostname (so the shell prompt reads <code>user@arch</code>) — if you’d rather have a more descriptive hostname like <code>arch-thinkpad</code> or <code>lab-laptop</code>, change both the <code>/etc/hostname</code> line and the trailing <code>arch.localdomain arch</code> token in <code>/etc/hosts</code>. The extra groups (<code>video</code>, <code>audio</code>, <code>input</code>) preempt small annoyances later with Hyprland (<code>video</code> for GPU access, <code>input</code> for libinput devices, <code>audio</code> for the legacy ALSA path some apps still want).</p>
+<p>Replace <code>user</code> with whatever username you want. I’m using <code>arch</code> as the bare hostname (so the shell prompt reads <code>user@arch</code>), if you’d rather have a more descriptive hostname like <code>arch-thinkpad</code> or <code>lab-laptop</code>, change both the <code>/etc/hostname</code> line and the trailing <code>arch.localdomain arch</code> token in <code>/etc/hosts</code>. The extra groups (<code>video</code>, <code>audio</code>, <code>input</code>) preempt small annoyances later with Hyprland (<code>video</code> for GPU access, <code>input</code> for libinput devices, <code>audio</code> for the legacy ALSA path some apps still want).</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Substitute <em>your</em> timezone — don’t inherit mine
+Substitute <em>your</em> timezone, don’t inherit mine
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -928,8 +928,8 @@ What <code>/etc/hosts</code> is, and what <code>arch.localdomain</code> means
 </table>
 <p>Two things are worth knowing about that third line:</p>
 <ol type="1">
-<li><p><strong>Why a separate <code>127.0.1.1</code> instead of <code>127.0.0.1</code>?</strong> It’s a Debian-ism the Arch Wiki adopted: by giving your hostname its own loopback address, nothing on a real network can ever depend on you accidentally pointing your hostname at the generic loopback. <code>127.0.0.0/8</code> is a /8 subnet (16 million addresses) entirely reserved for loopback, so there’s room to spare and <code>127.0.1.1</code> is <em>also</em> purely local — it never leaves your machine. Functionally either would work; conventionally, <code>127.0.1.1</code> is what you use.</p></li>
-<li><p><strong>What does <code>.localdomain</code> mean?</strong> It’s a placeholder <em>domain suffix</em> for machines that aren’t on a real DNS domain — a stand-in fully-qualified name when there’s no actual one. Calls like <code>hostname -f</code> (get the FQDN), <code>gethostname()</code>, and <code>getfqdn()</code> from various languages all walk <code>/etc/hosts</code> looking for an entry that names this host. With <code>arch.localdomain arch</code> on the third line, they all return <code>arch.localdomain</code> instead of failing or returning an empty string. If you ever actually join a domain (<code>mycompany.internal</code>, say), you’d change this to <code>arch.mycompany.internal arch</code>.</p></li>
+<li><p><strong>Why a separate <code>127.0.1.1</code> instead of <code>127.0.0.1</code>?</strong> It’s a Debian-ism the Arch Wiki adopted: by giving your hostname its own loopback address, nothing on a real network can ever depend on you accidentally pointing your hostname at the generic loopback. <code>127.0.0.0/8</code> is a /8 subnet (16 million addresses) entirely reserved for loopback, so there’s room to spare and <code>127.0.1.1</code> is <em>also</em> purely local, it never leaves your machine. Functionally either would work; conventionally, <code>127.0.1.1</code> is what you use.</p></li>
+<li><p><strong>What does <code>.localdomain</code> mean?</strong> It’s a placeholder <em>domain suffix</em> for machines that aren’t on a real DNS domain, a stand-in fully-qualified name when there’s no actual one. Calls like <code>hostname -f</code> (get the FQDN), <code>gethostname()</code>, and <code>getfqdn()</code> from various languages all walk <code>/etc/hosts</code> looking for an entry that names this host. With <code>arch.localdomain arch</code> on the third line, they all return <code>arch.localdomain</code> instead of failing or returning an empty string. If you ever actually join a domain (<code>mycompany.internal</code>, say), you’d change this to <code>arch.mycompany.internal arch</code>.</p></li>
 </ol>
 <p><strong>Why it matters in practice:</strong> without this line, <code>sudo</code> adds a 1–3 second pause on each invocation while it tries (and fails) to reverse-resolve your hostname. Mail clients, print spoolers, and a handful of other tools have the same pattern. Adding the line is essentially free and removes the delay.</p>
 </div>
@@ -944,21 +944,21 @@ Already booted and want to change the hostname later?
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Don’t edit <code>/etc/hostname</code> by hand on a running system — use <code>hostnamectl</code>, which updates the file, the kernel’s runtime hostname, and the systemd-hostnamed D-Bus property in one shot:</p>
+<p>Don’t edit <code>/etc/hostname</code> by hand on a running system, use <code>hostnamectl</code>, which updates the file, the kernel’s runtime hostname, and the systemd-hostnamed D-Bus property in one shot:</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> hostnamectl set-hostname arch</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Then update the third line of <code>/etc/hosts</code> to match. If <code>/etc/hosts</code> is still at the default (only the two <code>localhost</code> lines), append the missing entry without touching what’s there:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"127.0.1.1   arch.localdomain arch"</span> <span class="kw">|</span> <span class="fu">sudo</span> tee <span class="at">-a</span> /etc/hosts</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Verify it took:</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /etc/hosts            <span class="co"># should now have three lines</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">getent</span> hosts arch         <span class="co"># should print "127.0.1.1   arch.localdomain arch"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Then open a new shell (or log out / log back in) — your current shell cached <code>$HOSTNAME</code> at startup and won’t update in place. Substitute <code>arch</code> with whatever hostname you actually want in both commands.</p>
+<p>Then open a new shell (or log out / log back in), your current shell cached <code>$HOSTNAME</code> at startup and won’t update in place. Substitute <code>arch</code> with whatever hostname you actually want in both commands.</p>
 </div>
 </div>
 <hr>
 </section>
 <section id="chapter-7-the-hibernation-swap-file" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-7-the-hibernation-swap-file">Chapter 7: The hibernation swap file</h2>
-<p>This is the new ground vs.&nbsp;both Article 02 (no swap file at all) and Article 01 (separate encrypted swap partition). Since the whole root volume is LUKS-encrypted, a swap file <em>inside</em> it is automatically encrypted too — no extra cryptsetup dance.</p>
+<p>This is the new ground vs.&nbsp;both Article 02 (no swap file at all) and Article 01 (separate encrypted swap partition). Since the whole root volume is LUKS-encrypted, a swap file <em>inside</em> it is automatically encrypted too, no extra cryptsetup dance.</p>
 <section id="why-a-swap-file-and-zram" class="level3">
 <h3 class="anchored" data-anchor-id="why-a-swap-file-and-zram">Why a swap file <em>and</em> zram?</h3>
 <p>Different jobs, complementary defaults:</p>
@@ -966,7 +966,7 @@ Already booted and want to change the hostname later?
 <li><strong>zram</strong> is fast, compressed swap in RAM. Used first (higher priority). Almost all everyday memory pressure goes here, and you never pay an SSD write for it.</li>
 <li><strong>Swap file</strong> is durable swap on disk. The only kind that survives a power cycle. Hibernation writes the contents of RAM into it; on resume, the kernel reads it back.</li>
 </ul>
-<p>zram alone cannot host hibernation — it lives in RAM and disappears at power-off. So we need both: zram for everyday performance, swap file for hibernation.</p>
+<p>zram alone cannot host hibernation, it lives in RAM and disappears at power-off. So we need both: zram for everyday performance, swap file for hibernation.</p>
 </section>
 <section id="create-the-swap-file-the-btrfs-correct-way" class="level3">
 <h3 class="anchored" data-anchor-id="create-the-swap-file-the-btrfs-correct-way">Create the swap file the Btrfs-correct way</h3>
@@ -975,7 +975,7 @@ Already booted and want to change the hostname later?
 <p>What that one command does for you:</p>
 <ol type="1">
 <li>Creates a file at <code>/swap/swapfile</code>.</li>
-<li>Sets the <strong>NoCOW</strong> attribute (<code>chattr +C</code>) — required because copy-on-write swap files break in interesting and silent ways.</li>
+<li>Sets the <strong>NoCOW</strong> attribute (<code>chattr +C</code>), required because copy-on-write swap files break in interesting and silent ways.</li>
 <li>Disables compression on the file.</li>
 <li>Preallocates extents (so the kernel can compute a stable offset for hibernation).</li>
 <li>Runs <code>mkswap</code> against it.</li>
@@ -991,7 +991,7 @@ Don’t <code>swapon</code> from inside the chroot
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>It’s tempting to immediately run <code>swapon /swap/swapfile</code> to “verify” it works. <strong>Don’t.</strong> That would activate the swap file on the <em>live USB’s kernel</em> (the chroot doesn’t have its own), which then prevents you from unmounting <code>/mnt</code> cleanly at reboot time, and can leave the swap signature in an “in use” state when you try to power-cycle. The first boot of the installed system will activate the swap file via <code>/etc/fstab</code> automatically — that’s the right time.</p>
+<p>It’s tempting to immediately run <code>swapon /swap/swapfile</code> to “verify” it works. <strong>Don’t.</strong> That would activate the swap file on the <em>live USB’s kernel</em> (the chroot doesn’t have its own), which then prevents you from unmounting <code>/mnt</code> cleanly at reboot time, and can leave the swap signature in an “in use” state when you try to power-cycle. The first boot of the installed system will activate the swap file via <code>/etc/fstab</code> automatically, that’s the right time.</p>
 </div>
 </div>
 <p>Pick a size that fits your RAM <strong>plus a small margin</strong>. For 16 GB RAM I’d use 20 GB. For 32 GB RAM I’d use 36 GB. Hibernation needs to be able to write the full contents of RAM to disk; running out of swap mid-hibernate corrupts the resume image.</p>
@@ -1000,9 +1000,9 @@ Don’t <code>swapon</code> from inside the chroot
 </section>
 <section id="find-the-resume-offset" class="level3">
 <h3 class="anchored" data-anchor-id="find-the-resume-offset">Find the resume offset</h3>
-<p>Hibernation resume needs to know the <em>byte offset</em> of the swap file’s first physical block inside the underlying device — there’s no filesystem layer during resume, just the raw block device.</p>
+<p>Hibernation resume needs to know the <em>byte offset</em> of the swap file’s first physical block inside the underlying device, there’s no filesystem layer during resume, just the raw block device.</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The <code>-r</code> flag prints the offset in the resume-friendly units the kernel expects (pages, not bytes). Save the number it prints — we’ll feed it to GRUB in the next chapter.</p>
+<p>The <code>-r</code> flag prints the offset in the resume-friendly units the kernel expects (pages, not bytes). Save the number it prints, we’ll feed it to GRUB in the next chapter.</p>
 <p>I’ll refer to it as <code>&lt;RESUME_OFFSET&gt;</code> below.</p>
 <hr>
 </section>
@@ -1034,7 +1034,7 @@ Don’t <code>swapon</code> from inside the chroot
 </tr>
 <tr class="even">
 <td><code>compression-algorithm</code></td>
-<td><code>zstd</code> is fast and compresses well — the right default in 2026.</td>
+<td><code>zstd</code> is fast and compresses well, the right default in 2026.</td>
 </tr>
 <tr class="odd">
 <td><code>swap-priority = 100</code></td>
@@ -1046,11 +1046,11 @@ Don’t <code>swapon</code> from inside the chroot
 </tr>
 </tbody>
 </table>
-<p>Nothing else needed — the <code>systemd-zram-setup@zram0.service</code> unit is generated automatically at boot from this config.</p>
+<p>Nothing else needed, the <code>systemd-zram-setup@zram0.service</code> unit is generated automatically at boot from this config.</p>
 <hr>
 </section>
 <section id="chapter-9-mkinitcpio-the-systemd-way" class="level2">
-<h2 class="anchored" data-anchor-id="chapter-9-mkinitcpio-the-systemd-way">Chapter 9: mkinitcpio — the systemd way</h2>
+<h2 class="anchored" data-anchor-id="chapter-9-mkinitcpio-the-systemd-way">Chapter 9: mkinitcpio, the systemd way</h2>
 <p>This is the chapter that has to be right or nothing boots. We’re using the <em>systemd</em> initramfs (formerly called the “systemd hooks” or “sd-encrypt path”), which differs from the <code>udev</code>/<code>encrypt</code> flow my previous attempt used.</p>
 <p>Open <code>/etc/mkinitcpio.conf</code> and set exactly these two lines:</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="va">MODULES</span><span class="op">=</span><span class="va">(</span>btrfs<span class="va">)</span></span>
@@ -1074,7 +1074,7 @@ Don’t <code>swapon</code> from inside the chroot
 </tr>
 <tr class="even">
 <td><code>sd-vconsole</code></td>
-<td>Loads the console keymap inside the initramfs — needed so your LUKS prompt accepts your password as typed.</td>
+<td>Loads the console keymap inside the initramfs, needed so your LUKS prompt accepts your password as typed.</td>
 </tr>
 <tr class="odd">
 <td><code>sd-encrypt</code></td>
@@ -1089,13 +1089,13 @@ Don’t <code>swapon</code> from inside the chroot
 <hr>
 </section>
 <section id="chapter-10-grub-the-cmdline-that-actually-boots" class="level2">
-<h2 class="anchored" data-anchor-id="chapter-10-grub-the-cmdline-that-actually-boots">Chapter 10: GRUB — the cmdline that actually boots</h2>
+<h2 class="anchored" data-anchor-id="chapter-10-grub-the-cmdline-that-actually-boots">Chapter 10: GRUB, the cmdline that actually boots</h2>
 <p>Get the <strong>UUID of the encrypted partition itself</strong> (<code>/dev/nvme0n1p2</code>, not the mapper):</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>That returns a string like <code>0e6caf44-4ba9-4279-8f29-ad2344ea4387</code>. Copy it.</p>
 <p>Open <code>/etc/default/grub</code> and find:</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="va">GRUB_CMDLINE_LINUX_DEFAULT</span><span class="op">=</span><span class="st">"loglevel=3 quiet"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Replace it with this single line (no real angle brackets, no extra quoting — just the bare UUID where it says <code>&lt;UUID&gt;</code>, and the integer where it says <code>&lt;RESUME_OFFSET&gt;</code>):</p>
+<p>Replace it with this single line (no real angle brackets, no extra quoting, just the bare UUID where it says <code>&lt;UUID&gt;</code>, and the integer where it says <code>&lt;RESUME_OFFSET&gt;</code>):</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="va">GRUB_CMDLINE_LINUX_DEFAULT</span><span class="op">=</span><span class="st">"loglevel=3 quiet zswap.enabled=0 rd.luks.name=&lt;UUID&gt;=cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ resume=/dev/mapper/cryptroot resume_offset=&lt;RESUME_OFFSET&gt;"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1107,7 +1107,7 @@ The placeholders are placeholders
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Replace <code>&lt;UUID&gt;</code> with the bare UUID and <code>&lt;RESUME_OFFSET&gt;</code> with the integer from <code>btrfs inspect-internal map-swapfile -r</code>. <strong>Do not include the angle brackets in the actual file.</strong> That is exactly the second mistake I made in my <a href="../2026-05-05-arch-luks-btrfs-lessons/">first attempt</a> and it’s the kind of typo that produces a polite kernel message followed by ninety seconds of timeout and an emergency shell — recovery in the <a href="#emergency-timed-out-waiting-for-device">🚨 emergency section at the bottom of this article</a>.</p>
+<p>Replace <code>&lt;UUID&gt;</code> with the bare UUID and <code>&lt;RESUME_OFFSET&gt;</code> with the integer from <code>btrfs inspect-internal map-swapfile -r</code>. <strong>Do not include the angle brackets in the actual file.</strong> That is exactly the second mistake I made in my <a href="../2026-05-05-arch-luks-btrfs-lessons/">first attempt</a> and it’s the kind of typo that produces a polite kernel message followed by ninety seconds of timeout and an emergency shell, recovery in the <a href="#emergency-timed-out-waiting-for-device">🚨 emergency section at the bottom of this article</a>.</p>
 </div>
 </div>
 <p>Kernel-parameter-by-kernel-parameter:</p>
@@ -1165,7 +1165,7 @@ Click to expand
 <p>Install the bootloader and generate the GRUB config:</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The <code>grub-mkconfig</code> output should end with <code>done</code>. If you see <code>error: failed to get canonical path of …</code>, your <code>/etc/fstab</code> has a typo — fix it before rebooting.</p>
+<p>The <code>grub-mkconfig</code> output should end with <code>done</code>. If you see <code>error: failed to get canonical path of …</code>, your <code>/etc/fstab</code> has a typo, fix it before rebooting.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1176,7 +1176,7 @@ Why we don’t need <code>GRUB_ENABLE_CRYPTODISK=y</code>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>GRUB_ENABLE_CRYPTODISK=y</code> matters when <strong>GRUB itself</strong> has to read encrypted blocks — i.e., when <code>/boot</code> (and therefore <code>grub.cfg</code>, kernels, and initramfs images) is inside a LUKS container. In this install, <code>/boot</code> is the unencrypted FAT32 ESP, so GRUB never has to decrypt anything; the kernel and initramfs are read in clear, and decryption happens inside the initramfs once it’s running. Leaving <code>GRUB_ENABLE_CRYPTODISK</code> unset is the right default.</p>
+<p><code>GRUB_ENABLE_CRYPTODISK=y</code> matters when <strong>GRUB itself</strong> has to read encrypted blocks, i.e., when <code>/boot</code> (and therefore <code>grub.cfg</code>, kernels, and initramfs images) is inside a LUKS container. In this install, <code>/boot</code> is the unencrypted FAT32 ESP, so GRUB never has to decrypt anything; the kernel and initramfs are read in clear, and decryption happens inside the initramfs once it’s running. Leaving <code>GRUB_ENABLE_CRYPTODISK</code> unset is the right default.</p>
 </div>
 </div>
 <hr>
@@ -1209,7 +1209,7 @@ Why we don’t need <code>GRUB_ENABLE_CRYPTODISK=y</code>
 </tr>
 <tr class="odd">
 <td><code>grub-btrfsd.service</code></td>
-<td>Watches <code>/.snapshots/</code> and regenerates <code>grub.cfg</code> whenever snapper makes or deletes a snapshot — keeps the boot menu up to date with restorable points.</td>
+<td>Watches <code>/.snapshots/</code> and regenerates <code>grub.cfg</code> whenever snapper makes or deletes a snapshot, keeps the boot menu up to date with restorable points.</td>
 </tr>
 </tbody>
 </table>
@@ -1219,7 +1219,7 @@ Why we don’t need <code>GRUB_ENABLE_CRYPTODISK=y</code>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_CMDLINE_LINUX_DEFAULT='</span>    /etc/default/grub</span>
 <span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /etc/fstab <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">'subvol=|swap'</span></span>
 <span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Here is the actual output from my own install, end-to-end — yours should have the same <em>shape</em>, with your own UUIDs and resume offset:</p>
+<p>Here is the actual output from my own install, end-to-end, yours should have the same <em>shape</em>, with your own UUIDs and resume offset:</p>
 <pre class="text"><code>MODULES=(btrfs)
 HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)
 GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet zswap.enabled=0 rd.luks.name=d2c12564-6eeb-4ae9-a862-a016a1da7132=cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ resume=/dev/mapper/cryptroot resume_offset=1320192"
@@ -1241,12 +1241,12 @@ Why there are <em>two</em> UUIDs in this output
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Look closely — the GRUB line and the fstab lines reference different UUIDs:</p>
+<p>Look closely, the GRUB line and the fstab lines reference different UUIDs:</p>
 <ul>
 <li><code>rd.luks.name=</code><strong><code>d2c12564-…</code></strong><code>=cryptroot</code> is the <strong>LUKS partition UUID</strong>. It identifies the raw encrypted block device (<code>/dev/nvme0n1p2</code>). GRUB hands this string to the kernel; sd-encrypt uses it to find the partition to unlock.</li>
-<li><code>UUID=</code><strong><code>a0c30a40-…</code></strong> in every fstab line is the <strong>Btrfs filesystem UUID</strong> — the filesystem that lives <em>inside</em> the unlocked LUKS container, on <code>/dev/mapper/cryptroot</code>. genfstab uses this so the mount entries survive even if the underlying mapper changes name.</li>
+<li><code>UUID=</code><strong><code>a0c30a40-…</code></strong> in every fstab line is the <strong>Btrfs filesystem UUID</strong>, the filesystem that lives <em>inside</em> the unlocked LUKS container, on <code>/dev/mapper/cryptroot</code>. genfstab uses this so the mount entries survive even if the underlying mapper changes name.</li>
 </ul>
-<p>Two layers, two identifiers. If you ever confuse them — pasting the Btrfs UUID into <code>rd.luks.name=</code>, for example — the kernel will look for a LUKS partition with the Btrfs UUID, fail to find it, and you’ll get the “Timed out waiting for device” emergency-mode failure mode from <a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01</a> (recovery: <a href="#emergency-timed-out-waiting-for-device">🚨 emergency section at the bottom of this article</a>). Verify with <code>blkid /dev/nvme0n1p2</code> (should print <code>TYPE="crypto_LUKS"</code>) — that’s the partition whose UUID belongs on the GRUB cmdline.</p>
+<p>Two layers, two identifiers. If you ever confuse them, pasting the Btrfs UUID into <code>rd.luks.name=</code>, for example, the kernel will look for a LUKS partition with the Btrfs UUID, fail to find it, and you’ll get the “Timed out waiting for device” emergency-mode failure mode from <a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01</a> (recovery: <a href="#emergency-timed-out-waiting-for-device">🚨 emergency section at the bottom of this article</a>). Verify with <code>blkid /dev/nvme0n1p2</code> (should print <code>TYPE="crypto_LUKS"</code>), that’s the partition whose UUID belongs on the GRUB cmdline.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -1259,7 +1259,7 @@ The swapon –show line above
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The fact that <code>/swap/swapfile</code> appears <em>active</em> in this output is because I ran <code>swapon /swap/swapfile</code> inside the chroot to test it before realizing that’s exactly what the <a href="#chapter-7-the-hibernation-swap-file">Don’t swapon from inside the chroot</a> callout warns against. The reboot block below has <code>swapoff -a</code> before <code>umount -R /mnt</code> specifically so this case still cleans up correctly — but the cleanest path is to skip the test-swapon entirely and trust that <code>/etc/fstab</code> will pick it up on first boot.</p>
+<p>The fact that <code>/swap/swapfile</code> appears <em>active</em> in this output is because I ran <code>swapon /swap/swapfile</code> inside the chroot to test it before realizing that’s exactly what the <a href="#chapter-7-the-hibernation-swap-file">Don’t swapon from inside the chroot</a> callout warns against. The reboot block below has <code>swapoff -a</code> before <code>umount -R /mnt</code> specifically so this case still cleans up correctly, but the cleanest path is to skip the test-swapon entirely and trust that <code>/etc/fstab</code> will pick it up on first boot.</p>
 </div>
 </div>
 <p>Then leave the chroot and reboot, in this exact order:</p>
@@ -1278,7 +1278,7 @@ The swapon –show line above
 <li>The mapper appears, the <code>@</code> subvolume mounts as <code>/</code>, control hands off to the real systemd.</li>
 <li>You land at a <code>login:</code> prompt.</li>
 </ol>
-<p>If you instead drop into <code>emergency mode</code>, jump to the <a href="#emergency-timed-out-waiting-for-device">🚨 emergency section at the bottom of this article</a> before continuing — that’s the documented recovery path for the “Timed out waiting for device” failure mode.</p>
+<p>If you instead drop into <code>emergency mode</code>, jump to the <a href="#emergency-timed-out-waiting-for-device">🚨 emergency section at the bottom of this article</a> before continuing, that’s the documented recovery path for the “Timed out waiting for device” failure mode.</p>
 <hr>
 </section>
 </section>
@@ -1291,7 +1291,7 @@ The swapon –show line above
 <span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>           <span class="co"># Should show /dev/zram0 (pri 100) AND /swap/swapfile</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <section id="verify-your-hostname-and-fix-it-if-its-off" class="level3">
 <h3 class="anchored" data-anchor-id="verify-your-hostname-and-fix-it-if-its-off">Verify your hostname (and fix it if it’s off)</h3>
-<p>Your shell prompt should already be reading <code>&lt;your-user&gt;@arch</code> (e.g.&nbsp;<code>user@arch</code>). If you instead see something like <code>user@user-arch</code> — because you copy-pasted the chroot block from an earlier draft of this article, or just picked a different name in Chapter 6 — fix it now. The hostname is what shows up in your prompt, in <code>mDNS</code> (<code>arch.local</code> for things like AirDrop-style discovery), in NetworkManager’s DHCP requests, and in every <code>journalctl</code> entry from now on; getting it right early saves grep noise forever.</p>
+<p>Your shell prompt should already be reading <code>&lt;your-user&gt;@arch</code> (e.g.&nbsp;<code>user@arch</code>). If you instead see something like <code>user@user-arch</code>, because you copy-pasted the chroot block from an earlier draft of this article, or just picked a different name in Chapter 6, fix it now. The hostname is what shows up in your prompt, in <code>mDNS</code> (<code>arch.local</code> for things like AirDrop-style discovery), in NetworkManager’s DHCP requests, and in every <code>journalctl</code> entry from now on; getting it right early saves grep noise forever.</p>
 <p>Check what’s currently set:</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hostnamectl</span>                       <span class="co"># full status (Static hostname, Icon name, Chassis, …)</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /etc/hosts                    <span class="co"># should have 3 lines — see below</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1315,7 +1315,7 @@ Do you need to reboot?
 <div class="callout-body-container callout-body">
 <p>The kernel hostname changed instantly, but two things still see the old value:</p>
 <ul>
-<li><strong>Your current shell</strong> cached <code>$HOSTNAME</code> at startup. Your prompt won’t update until you open a new shell — either log out and back in, or <code>Ctrl-Alt-F2</code> to another TTY.</li>
+<li><strong>Your current shell</strong> cached <code>$HOSTNAME</code> at startup. Your prompt won’t update until you open a new shell, either log out and back in, or <code>Ctrl-Alt-F2</code> to another TTY.</li>
 <li><strong>Long-running services that read the hostname once at boot</strong> (NetworkManager publishing your name over mDNS, for example) keep the old name until restarted.</li>
 </ul>
 <p>You can fix both without a reboot:</p>
@@ -1329,7 +1329,7 @@ Do you need to reboot?
 </section>
 <section id="reconnect-to-wi-fi-do-this-before-anything-else-needs-the-network" class="level3">
 <h3 class="anchored" data-anchor-id="reconnect-to-wi-fi-do-this-before-anything-else-needs-the-network">Reconnect to Wi-Fi (do this before anything else needs the network)</h3>
-<p>NetworkManager is enabled and running, but it has <strong>no saved networks</strong> — your Wi-Fi credentials lived in the live USB’s <code>iwd</code>/<code>iwctl</code> session, not in the installed system. The very first thing to do after the sanity checks is re-establish a connection so <code>pacman</code>, <code>timesyncd</code>, snapper, and everything downstream actually works.</p>
+<p>NetworkManager is enabled and running, but it has <strong>no saved networks</strong>, your Wi-Fi credentials lived in the live USB’s <code>iwd</code>/<code>iwctl</code> session, not in the installed system. The very first thing to do after the sanity checks is re-establish a connection so <code>pacman</code>, <code>timesyncd</code>, snapper, and everything downstream actually works.</p>
 <p>If you have an <strong>Ethernet cable</strong>, plug it in — NetworkManager runs DHCP automatically and you’re online in a couple seconds. Skip to the next subsection.</p>
 <p>For <strong>Wi-Fi</strong>, three <code>nmcli</code> commands:</p>
 <div class="sourceCode" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Make sure the wifi radio is on (it usually is, but cheap to confirm)</span></span>
@@ -1400,7 +1400,7 @@ Click to expand: what each command does
 </tbody>
 </table>
 </details>
-<p>The saved-connection file lives at <code>/etc/NetworkManager/system-connections/&lt;SSID&gt;.nmconnection</code>, mode 600, root-owned, with the passphrase <strong>in plaintext</strong> — back it up or treat it as a secret accordingly.</p>
+<p>The saved-connection file lives at <code>/etc/NetworkManager/system-connections/&lt;SSID&gt;.nmconnection</code>, mode 600, root-owned, with the passphrase <strong>in plaintext</strong>, back it up or treat it as a secret accordingly.</p>
 </div>
 </div>
 </section>
@@ -1428,7 +1428,7 @@ System clock synchronized: yes
 <li><strong>System clock synchronized: yes</strong> (means NTP is working).</li>
 <li><strong>RTC in local TZ: no</strong> (means the hardware clock is in UTC, which is the only correct setting — <code>yes</code> here causes wall-clock weirdness around DST transitions).</li>
 </ul>
-<p>Without NTP on, the clock drifts to whatever the hardware RTC says, and <code>pacman</code> operations start failing with mysterious GPG / TLS errors as soon as the skew gets large enough. Without the right zone, every timestamp you ever see is off by 1–24 hours. Both fixes are cheap and permanent — do them now.</p>
+<p>Without NTP on, the clock drifts to whatever the hardware RTC says, and <code>pacman</code> operations start failing with mysterious GPG / TLS errors as soon as the skew gets large enough. Without the right zone, every timestamp you ever see is off by 1–24 hours. Both fixes are cheap and permanent, do them now.</p>
 </section>
 <section id="configure-snapper-for-properly" class="level3">
 <h3 class="anchored" data-anchor-id="configure-snapper-for-properly">Configure snapper for <code>/</code> properly</h3>
@@ -1472,7 +1472,7 @@ Click to expand
 <tbody>
 <tr class="odd">
 <td>Code, papers, configs, mostly git-tracked</td>
-<td><strong>Skip</strong> — git already gives you rollback for the things you’d want to roll back</td>
+<td><strong>Skip</strong>, git already gives you rollback for the things you’d want to roll back</td>
 </tr>
 <tr class="even">
 <td>Heavy builds (cargo / npm / Python / ROS / ML)</td>
@@ -1480,7 +1480,7 @@ Click to expand
 </tr>
 <tr class="odd">
 <td>Large datasets, video, ROS bags, model checkpoints</td>
-<td><strong>Skip</strong> — snapshot growth scales with edits to these</td>
+<td><strong>Skip</strong>, snapshot growth scales with edits to these</td>
 </tr>
 <tr class="even">
 <td>Hand-edited dotfiles you don’t track in git</td>
@@ -1499,7 +1499,7 @@ Click to expand
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-If you decide to enable it — use tight retention
+If you decide to enable it, use tight retention
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1524,14 +1524,14 @@ Mark build / cache directories NoCOW <em>regardless</em> of whether you enable h
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Even on the live filesystem (no snapshots involved), Btrfs’s copy-on-write semantics produce fragmentation on heavily-rewritten files — exactly what <code>cargo target/</code>, <code>~/.cache/</code>, and Python venvs are. Setting NoCOW on those directories <em>before</em> you populate them tells Btrfs to skip COW for the files inside, which both prevents that fragmentation and means snapshots (if you turn them on later) never pin those build artifacts.</p>
+<p>Even on the live filesystem (no snapshots involved), Btrfs’s copy-on-write semantics produce fragmentation on heavily-rewritten files, exactly what <code>cargo target/</code>, <code>~/.cache/</code>, and Python venvs are. Setting NoCOW on those directories <em>before</em> you populate them tells Btrfs to skip COW for the files inside, which both prevents that fragmentation and means snapshots (if you turn them on later) never pin those build artifacts.</p>
 <div class="sourceCode" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/.cache ~/code/builds ~/.cargo</span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">chattr</span> +C ~/.cache ~/code/builds ~/.cargo     <span class="co"># new files inside inherit NoCOW</span></span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ROS workspace pattern — mark build/install/log before colcon ever creates them</span></span>
 <span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/ros2_ws/<span class="dt">{build</span><span class="op">,</span><span class="dt">install</span><span class="op">,</span><span class="dt">log}</span></span>
 <span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="fu">chattr</span> +C ~/ros2_ws/<span class="dt">{build</span><span class="op">,</span><span class="dt">install</span><span class="op">,</span><span class="dt">log}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><code>chattr +C</code> only affects <em>new</em> files — existing files in the directory keep their old (COW) attributes. So set this on empty directories before they fill up, or recreate the directory contents to inherit it.</p>
+<p><code>chattr +C</code> only affects <em>new</em> files, existing files in the directory keep their old (COW) attributes. So set this on empty directories before they fill up, or recreate the directory contents to inherit it.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -1544,7 +1544,7 @@ Mark build / cache directories NoCOW <em>regardless</em> of whether you enable h
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Reasonable question — and the answer is a trade-off. NoCOW disables four things Btrfs gives you by default, three of which you probably want for most of <code>/home</code>:</p>
+<p>Reasonable question, and the answer is a trade-off. NoCOW disables four things Btrfs gives you by default, three of which you probably want for most of <code>/home</code>:</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 46%">
@@ -1562,7 +1562,7 @@ Mark build / cache directories NoCOW <em>regardless</em> of whether you enable h
 <td>NoCOW files have no per-extent checksums. A flipped bit in a paper draft or a git pack file returns wrong bytes instead of failing loudly.</td>
 </tr>
 <tr class="even">
-<td><strong>Transparent compression</strong> (your <code>compress=zstd:3</code> mount option) — text-heavy data (source code, LaTeX, JSON, logs, markdown) typically compresses 50–70 %.</td>
+<td><strong>Transparent compression</strong> (your <code>compress=zstd:3</code> mount option), text-heavy data (source code, LaTeX, JSON, logs, markdown) typically compresses 50–70 %.</td>
 <td>NoCOW disables compression for that file. A typical <code>/home</code> of code + papers loses several GB of effective free space if NoCOW’d whole.</td>
 </tr>
 <tr class="odd">
@@ -1570,12 +1570,12 @@ Mark build / cache directories NoCOW <em>regardless</em> of whether you enable h
 <td>NoCOW files can’t be reflinked; <code>cp --reflink=auto</code> silently falls back to a normal byte-for-byte copy.</td>
 </tr>
 <tr class="even">
-<td><strong>Snapshot semantics</strong> — if you ever change your mind and <code>snapper -c home create-config /home</code>, snapshots correctly preserve file state.</td>
-<td>NoCOW files appear in snapshots but modifications are visible across all of them — snapshots silently don’t capture the “before” state. Breaks rollback for those files.</td>
+<td><strong>Snapshot semantics</strong>, if you ever change your mind and <code>snapper -c home create-config /home</code>, snapshots correctly preserve file state.</td>
+<td>NoCOW files appear in snapshots but modifications are visible across all of them, snapshots silently don’t capture the “before” state. Breaks rollback for those files.</td>
 </tr>
 </tbody>
 </table>
-<p>The CoW <em>cost</em> (the fragmentation we just talked about) only shows up on files with a <strong>write-modify-write-modify</strong> pattern — build artifacts, browser cache, ML checkpoints, VM disk images, hot database files. For the rest of <code>/home</code> (code repos, papers, photos, configs, downloads, dotfiles), files are written once and read many times — CoW’s overhead on those is essentially zero, and you get checksums + compression + reflinks for free.</p>
+<p>The CoW <em>cost</em> (the fragmentation we just talked about) only shows up on files with a <strong>write-modify-write-modify</strong> pattern, build artifacts, browser cache, ML checkpoints, VM disk images, hot database files. For the rest of <code>/home</code> (code repos, papers, photos, configs, downloads, dotfiles), files are written once and read many times — CoW’s overhead on those is essentially zero, and you get checksums + compression + reflinks for free.</p>
 <p><strong>The rule that actually works:</strong> NoCOW the <em>specific subtrees</em> with bad write patterns, leave everything else CoW.</p>
 <details>
 <summary>
@@ -1624,8 +1624,8 @@ Click to expand
 <span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root list</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>What you should see depends on whether <code>pacman -Syu</code> actually did anything:</strong></p>
 <ul>
-<li><strong>If packages were upgraded</strong>: a pre + post snapshot pair appears, bracketing the update — descriptions like <code>pacman -Syu</code> and cleanup <code>number</code>. From here on, <em>every</em> upgrading <code>pacman</code> invocation gives you a rollback point.</li>
-<li><strong>If <code>pacman -Syu</code> printed <code>there is nothing to do</code></strong> (likely on a fresh install — pacstrap already pulled the latest from a current mirror): no pre/post snapshots are created, because <em>no transaction happened</em>. snap-pac hooks transactions, not bare <code>-Syu</code> syncs. You’ll only see snapshot <code>0 │ single │ current</code>, which is snapper’s reference placeholder, not real data.</li>
+<li><strong>If packages were upgraded</strong>: a pre + post snapshot pair appears, bracketing the update, descriptions like <code>pacman -Syu</code> and cleanup <code>number</code>. From here on, <em>every</em> upgrading <code>pacman</code> invocation gives you a rollback point.</li>
+<li><strong>If <code>pacman -Syu</code> printed <code>there is nothing to do</code></strong> (likely on a fresh install, pacstrap already pulled the latest from a current mirror): no pre/post snapshots are created, because <em>no transaction happened</em>. snap-pac hooks transactions, not bare <code>-Syu</code> syncs. You’ll only see snapshot <code>0 │ single │ current</code>, which is snapper’s reference placeholder, not real data.</li>
 </ul>
 <p>To prove snap-pac is wired up without waiting for a real upgrade, either force a manual snapshot or install one small package:</p>
 <div class="sourceCode" id="cb50"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Option A — manual snapshot</span></span>
@@ -1674,7 +1674,7 @@ Click to expand
 <tbody>
 <tr class="odd">
 <td><code>#</code></td>
-<td>The snapshot’s integer ID, assigned in order of creation. <code>0</code> is special — see below.</td>
+<td>The snapshot’s integer ID, assigned in order of creation. <code>0</code> is special, see below.</td>
 </tr>
 <tr class="even">
 <td><code>Type</code></td>
@@ -1709,7 +1709,7 @@ Click to expand
 </details>
 <p>A few specifics about what we’re seeing above:</p>
 <ul>
-<li><strong>Snapshot <code>0 │ single │ current</code></strong> is snapper’s reference placeholder, created when you ran <code>snapper -c root create-config /</code>. It’s not a real point-in-time copy — it’s an abstract pointer to “the live state of <code>/</code> <em>right now</em>.” You can’t roll back <em>to</em> it (you’re already there), but tools use it as the “before” half of various diffs.</li>
+<li><strong>Snapshot <code>0 │ single │ current</code></strong> is snapper’s reference placeholder, created when you ran <code>snapper -c root create-config /</code>. It’s not a real point-in-time copy, it’s an abstract pointer to “the live state of <code>/</code> <em>right now</em>.” You can’t roll back <em>to</em> it (you’re already there), but tools use it as the “before” half of various diffs.</li>
 <li><strong>Snapshot <code>1 │ pre</code></strong> was taken by snap-pac the instant before pacman started touching the filesystem. Description is the exact pacman command line. Cleanup is <code>number</code>, so this snapshot stays around until ten newer pre/post pairs exist.</li>
 <li><strong>Snapshot <code>2 │ post</code></strong> was taken the instant after pacman finished. <code>Pre # = 1</code> ties it back to its pre. Description is the package(s) that were affected. Same timestamp as snapshot 1 because the install took less than a second.</li>
 </ul>
@@ -1724,7 +1724,7 @@ Click to expand
 <span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root undochange 1..2     <span class="co"># safer: just revert the files</span></span>
 <span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a><span class="co"># or, full rollback (changes default subvolume; needs reboot):</span></span>
 <span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root rollback 1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><code>undochange</code> reverts the file changes only — safe and reversible. <code>rollback</code> is heavier: it makes snapshot 1’s tree the new default subvolume, and the next boot uses that subvolume as <code>/</code>. Use <code>rollback</code> to recover from a system that won’t boot after a bad update; use <code>undochange</code> for “I wish I hadn’t installed that one package.”</p>
+<p><code>undochange</code> reverts the file changes only, safe and reversible. <code>rollback</code> is heavier: it makes snapshot 1’s tree the new default subvolume, and the next boot uses that subvolume as <code>/</code>. Use <code>rollback</code> to recover from a system that won’t boot after a bad update; use <code>undochange</code> for “I wish I hadn’t installed that one package.”</p>
 <p>The <code>snapper-timeline.timer</code> enabled in Chapter 11 fires <code>OnCalendar=hourly</code>, so within an hour of first boot, snapshots will also start appearing automatically with cleanup <code>timeline</code>. You’ll soon see a steadily-growing list with descriptions like <code>timeline</code>, garbage-collected per the <code>TIMELINE_LIMIT_HOURLY=5 / DAILY=7 / WEEKLY=2 / MONTHLY=1</code> retention you set.</p>
 </section>
 <section id="test-hibernation-before-you-trust-it" class="level3">
@@ -1733,22 +1733,22 @@ Click to expand
 <p>The screen should go dark, the fans stop, the power LED dim. Press the power button to wake it. The expected sequence on resume:</p>
 <ol type="1">
 <li>Firmware → GRUB → kernel + initramfs (same as a cold boot).</li>
-<li><strong><code>sd-encrypt</code> prompts for your LUKS passphrase</strong> — see the security-model callout below for why this is the only prompt you should see.</li>
+<li><strong><code>sd-encrypt</code> prompts for your LUKS passphrase</strong>, see the security-model callout below for why this is the only prompt you should see.</li>
 <li>After unlock, <code>systemd-hibernate-resume.service</code> reads the hibernation image from <code>/swap/swapfile</code> (decrypted on the fly by LUKS as it reads), restores RAM, and userspace picks up where it left off.</li>
 </ol>
-<p>If the system instead boots fresh (clean login prompt, no windows restored), your <code>resume=</code> parameters didn’t take — re-check the GRUB cmdline and re-run <code>mkinitcpio -P &amp;&amp; grub-mkconfig -o /boot/grub/grub.cfg</code>.</p>
+<p>If the system instead boots fresh (clean login prompt, no windows restored), your <code>resume=</code> parameters didn’t take, re-check the GRUB cmdline and re-run <code>mkinitcpio -P &amp;&amp; grub-mkconfig -o /boot/grub/grub.cfg</code>.</p>
 <section id="what-dmesg-should-show-after-a-successful-hibernate-resume" class="level4">
 <h4 class="anchored" data-anchor-id="what-dmesg-should-show-after-a-successful-hibernate-resume">What <code>dmesg</code> should show after a successful hibernate + resume</h4>
 <div class="sourceCode" id="cb54"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> dmesg <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-i</span> hibernate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Two informational lines, no errors:</p>
 <pre class="text"><code>[   25.728339] systemd[1]: Clear Stale Hibernate Storage Info skipped, unmet condition check ConditionPathExists=/sys/firmware/efi/efivars/HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67
 [  948.817235] efivarfs: removing variable HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67</code></pre>
-<p>Both lines reference the EFI variable <code>HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67</code> — the trailing UUID is systemd’s standard namespace UUID for this variable name and is identical on every Linux machine that uses systemd hibernation. What the two lines are <em>telling</em> you:</p>
+<p>Both lines reference the EFI variable <code>HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67</code>, the trailing UUID is systemd’s standard namespace UUID for this variable name and is identical on every Linux machine that uses systemd hibernation. What the two lines are <em>telling</em> you:</p>
 <ul>
-<li><strong><code>Clear Stale Hibernate Storage Info skipped, unmet condition check …</code></strong> (early in boot, ~25 s). The <code>systemd-hibernate-clear.service</code> unit ran, checked whether the <code>HibernateLocation</code> EFI variable existed, found it didn’t (because at that moment you hadn’t yet hibernated this session), and skipped. <strong>Not an error</strong> — it’s the unit correctly declining to do work when there’s nothing to clean up.</li>
+<li><strong><code>Clear Stale Hibernate Storage Info skipped, unmet condition check …</code></strong> (early in boot, ~25 s). The <code>systemd-hibernate-clear.service</code> unit ran, checked whether the <code>HibernateLocation</code> EFI variable existed, found it didn’t (because at that moment you hadn’t yet hibernated this session), and skipped. <strong>Not an error</strong>, it’s the unit correctly declining to do work when there’s nothing to clean up.</li>
 <li><strong><code>efivarfs: removing variable HibernateLocation-…</code></strong> (later, however many minutes after boot you ran <code>systemctl hibernate</code>). The variable was written by <code>systemctl hibernate</code>, persisted across the power cycle, read by the resume logic on next boot, and then <em>removed</em> by the kernel after the resume finished and the bookkeeping was no longer needed. <strong>This is the success signature of a complete hibernate + resume cycle.</strong></li>
 </ul>
-<p>If hibernation <em>failed</em> (image couldn’t be written, resume couldn’t find the image, the swap file wasn’t recognized), you’d see explicit <code>PM: hibernation</code> error lines mixed in with these — typically including the string <code>failed</code>, <code>error</code>, or <code>Cannot find swap device</code>. The absence of such lines is the proof the chain worked end-to-end.</p>
+<p>If hibernation <em>failed</em> (image couldn’t be written, resume couldn’t find the image, the swap file wasn’t recognized), you’d see explicit <code>PM: hibernation</code> error lines mixed in with these, typically including the string <code>failed</code>, <code>error</code>, or <code>Cannot find swap device</code>. The absence of such lines is the proof the chain worked end-to-end.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1759,7 +1759,7 @@ Hibernation + LUKS: what this gives you, security-wise
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The hibernation image lives in <code>/swap/swapfile</code>, which sits inside <code>/dev/mapper/cryptroot</code> — the unlocked LUKS volume. So <em>the contents of your RAM at the moment you hit hibernate are encrypted on disk at rest</em>, as a side-effect of where the swap file lives. There is no separate “hibernation password” — your LUKS passphrase is the only thing standing between a stolen laptop and the contents of RAM.</p>
+<p>The hibernation image lives in <code>/swap/swapfile</code>, which sits inside <code>/dev/mapper/cryptroot</code>, the unlocked LUKS volume. So <em>the contents of your RAM at the moment you hit hibernate are encrypted on disk at rest</em>, as a side-effect of where the swap file lives. There is no separate “hibernation password”, your LUKS passphrase is the only thing standing between a stolen laptop and the contents of RAM.</p>
 <p><strong>This gives hibernation the security posture of a fully-shut-down device</strong> while preserving “wake up where I left off” UX. Compare with the alternatives:</p>
 <table class="caption-top table">
 <colgroup>
@@ -1788,13 +1788,13 @@ Hibernation + LUKS: what this gives you, security-wise
 <tr class="odd">
 <td><strong>Suspend (S3)</strong></td>
 <td><strong>Plaintext, still in powered RAM</strong></td>
-<td>Minutes — attacker can chill the chips, transplant, dump</td>
+<td>Minutes, attacker can chill the chips, transplant, dump</td>
 </tr>
 </tbody>
 </table>
 <p>For a laptop that leaves your physical control (travel, conference rooms, anywhere you might want to close the lid and walk away with confidence), <strong>hibernate is meaningfully more secure than suspend</strong>.</p>
 <p>What hibernation + LUKS does <strong>not</strong> protect against: someone walking up to your unlocked desktop session after you’ve successfully resumed. The LUKS prompt gates <em>getting back into the machine</em>; once that prompt is satisfied, you’re returned to whatever session state existed before you hibernated. If you didn’t have a screen-locker active at hibernate time, the unlocked desktop is sitting right there after resume.</p>
-<p>For full two-factor coverage — LUKS to boot/resume, screen-lock to re-enter a session — pair this install with a screen locker once your chosen desktop is up. Whichever Part 4 path you take, install and configure a locker:</p>
+<p>For full two-factor coverage — LUKS to boot/resume, screen-lock to re-enter a session, pair this install with a screen locker once your chosen desktop is up. Whichever Part 4 path you take, install and configure a locker:</p>
 <div class="sourceCode" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Hyprland: hyprlock + hypridle (works under any Hyprland setup — Caelestia bundle or custom)</span></span>
 <span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="ex">yay</span> <span class="at">-S</span> hyprlock hypridle</span>
 <span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1830,14 +1830,14 @@ Hibernation + LUKS: what this gives you, security-wise
 <li><code>swapon --show</code> shows zram at priority 100 plus your swap file at a lower priority.</li>
 <li><code>snapper -c root list</code> has at least one row.</li>
 </ul>
-<p><strong>If any line fails or returns empty:</strong> something in Parts 1–3 didn’t quite land. Don’t try to layer a desktop on top of that — fix the install first. The most common failure mode (kernel cmdline / mkinitcpio mistakes manifesting as an emergency-mode boot) has its own emergency section at the <a href="#emergency-timed-out-waiting-for-device">end of this article</a>. If you’re stuck on something else (snapper config not found, a subvolume missing from <code>findmnt</code>), the chapter that set up the failing piece is usually the right place to re-read — Chapter 5 (fstab), Chapter 9 (mkinitcpio), Chapter 10 (GRUB), or Chapter 12 (snapper).</p>
+<p><strong>If any line fails or returns empty:</strong> something in Parts 1–3 didn’t quite land. Don’t try to layer a desktop on top of that, fix the install first. The most common failure mode (kernel cmdline / mkinitcpio mistakes manifesting as an emergency-mode boot) has its own emergency section at the <a href="#emergency-timed-out-waiting-for-device">end of this article</a>. If you’re stuck on something else (snapper config not found, a subvolume missing from <code>findmnt</code>), the chapter that set up the failing piece is usually the right place to re-read — Chapter 5 (fstab), Chapter 9 (mkinitcpio), Chapter 10 (GRUB), or Chapter 12 (snapper).</p>
 <p>Only continue to Part 4 once every line above looks the way it should. The install layer is the foundation everything else sits on; a wobble here will compound the moment you start a desktop.</p>
 <hr>
 </section>
 <section id="part-4-pick-your-desktop-layer" class="level1">
 <h1>Part 4 — Pick your desktop layer</h1>
-<p>You now have a verified, encrypted, snapshot-able single-boot Arch system on the console. <strong>The next step — putting a graphical session in front of it — is its own choice</strong>, and I deliberately keep it out of this article so the install layer above stays desktop-agnostic. PipeWire audio, GPU drivers, the AUR helper, the login manager, the bar, the wallpaper layer, every keybind — none of that is required for the install to be considered “done.” It’s a separate body of work.</p>
-<p>The direction I’m taking — and the one I’ll document next — is a <strong>custom Hyprland</strong>, built piece by piece:</p>
+<p>You now have a verified, encrypted, snapshot-able single-boot Arch system on the console. <strong>The next step, putting a graphical session in front of it, is its own choice</strong>, and I deliberately keep it out of this article so the install layer above stays desktop-agnostic. PipeWire audio, GPU drivers, the AUR helper, the login manager, the bar, the wallpaper layer, every keybind, none of that is required for the install to be considered “done.” It’s a separate body of work.</p>
+<p>The direction I’m taking, and the one I’ll document next, is a <strong>custom Hyprland</strong>, built piece by piece:</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1848,10 +1848,10 @@ Custom Hyprland (upcoming)
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A from-scratch Hyprland setup built piece by piece — your own status bar choice (<code>waybar</code>, <code>ironbar</code>, <code>eww</code>, …), your own terminal, your own keybinds, your own theme — with no project-bundle layer on top. Every component is one you picked, and there’s no surprise opinion baked in. <strong>More upfront decisions, but no “now what?” moments when a bundle script fails halfway through and leaves you in a half-themed Hyprland.</strong> This is the path I’m taking on my next laptop. Article dashed in the upcoming section on the <a href="../../">Tech Zone landing</a>.</p>
+<p>A from-scratch Hyprland setup built piece by piece, your own status bar choice (<code>waybar</code>, <code>ironbar</code>, <code>eww</code>, …), your own terminal, your own keybinds, your own theme, with no project-bundle layer on top. Every component is one you picked, and there’s no surprise opinion baked in. <strong>More upfront decisions, but no “now what?” moments when a bundle script fails halfway through and leaves you in a half-themed Hyprland.</strong> This is the path I’m taking on my next laptop. Article dashed in the upcoming section on the <a href="../../">Tech Zone landing</a>.</p>
 </div>
 </div>
-<p>I spent a while living inside the <strong>Caelestia</strong> Hyprland bundle as a fast way to “looks like a screenshot,” and it’s a reasonable on-ramp — but I’m not shipping a dedicated guide for it, because the parts worth keeping (PipeWire, GPU drivers, an AUR helper, a login manager) are exactly the à-la-carte pieces the custom-Hyprland article will cover, minus the baked-in opinions you’d likely strip later anyway.</p>
+<p>I spent a while living inside the <strong>Caelestia</strong> Hyprland bundle as a fast way to “looks like a screenshot,” and it’s a reasonable on-ramp, but I’m not shipping a dedicated guide for it, because the parts worth keeping (PipeWire, GPU drivers, an AUR helper, a login manager) are exactly the à-la-carte pieces the custom-Hyprland article will cover, minus the baked-in opinions you’d likely strip later anyway.</p>
 <p>If you’d rather not touch Hyprland at all: this install layer is desktop-agnostic. Install the <code>gnome</code>, <code>plasma</code>, <code>sway</code>, or <code>dwm</code> group with <code>pacman</code> and nothing about the LUKS+Btrfs+snapper stack underneath cares which compositor you land on.</p>
 <hr>
 <p><span id="emergency-timed-out-waiting-for-device"></span></p>
@@ -1866,7 +1866,7 @@ Custom Hyprland (upcoming)
 </div>
 <div class="callout-body-container callout-body">
 <p><strong>You only need this section if something has gone horribly wrong.</strong> Specifically: you rebooted into the new system after Part 3, GRUB loaded, the LUKS prompt accepted your passphrase, and then the kernel dropped into a <code>systemd</code> emergency shell with a <code>Timed out waiting for device</code> line followed by a couple of <code>Dependency failed for /sysroot</code> lines and <code>You are in emergency mode.</code></p>
-<p><strong>This is the exact failure mode that bricked the <a href="../2026-05-05-arch-luks-btrfs-lessons/">first attempt at this install (Article 01)</a>.</strong> Don’t panic — your data is intact (the LUKS volume is still there, just not being mounted as root); you need to fix one of four typos and rebuild. If your install is <em>not</em> in emergency mode and the <a href="#part-3-5-sanity-check">Part 3.5 sanity check</a> passed, you can skip this section entirely.</p>
+<p><strong>This is the exact failure mode that bricked the <a href="../2026-05-05-arch-luks-btrfs-lessons/">first attempt at this install (Article 01)</a>.</strong> Don’t panic, your data is intact (the LUKS volume is still there, just not being mounted as root); you need to fix one of four typos and rebuild. If your install is <em>not</em> in emergency mode and the <a href="#part-3-5-sanity-check">Part 3.5 sanity check</a> passed, you can skip this section entirely.</p>
 </div>
 </div>
 <p>If you land in emergency mode after the LUKS prompt, the failure mode is almost always one of:</p>
@@ -1874,7 +1874,7 @@ Custom Hyprland (upcoming)
 <li><strong><code>&lt;UUID&gt;</code> or <code>&lt;RESUME_OFFSET&gt;</code> left as literal text</strong> in <code>/etc/default/grub</code>. Re-read <a href="#chapter-10-grub--the-cmdline-that-actually-boots">Chapter 10</a>.</li>
 <li><strong>Mapper name mismatch</strong> between <code>rd.luks.name=…=cryptroot</code> and <code>root=/dev/mapper/cryptroot</code>. They have to match exactly.</li>
 <li><strong><code>rootflags=subvol=@</code> missing.</strong> Without it, the kernel mounts the top-level Btrfs volume, which has no <code>/sbin/init</code>.</li>
-<li><strong><code>mkinitcpio.conf</code> left as the defaults</strong> — no <code>sd-encrypt</code> hook, no <code>btrfs</code> module. Re-edit, re-run <code>mkinitcpio -P</code>.</li>
+<li><strong><code>mkinitcpio.conf</code> left as the defaults</strong>, no <code>sd-encrypt</code> hook, no <code>btrfs</code> module. Re-edit, re-run <code>mkinitcpio -P</code>.</li>
 </ol>
 <p>To recover, boot the install USB again and re-enter the system:</p>
 <div class="sourceCode" id="cb58"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> open /dev/nvme0n1p2 cryptroot</span>
@@ -1882,7 +1882,7 @@ Custom Hyprland (upcoming)
 <span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot</span>
 <span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Then fix the offending file, re-run <code>mkinitcpio -P</code> and <code>grub-mkconfig -o /boot/grub/grub.cfg</code>, <code>exit</code>, <code>umount -R /mnt</code>, <code>cryptsetup close cryptroot</code>, <code>reboot</code>.</p>
-<p>If you want loud boot logs to see exactly what the kernel is waiting for, remove <code>quiet</code> and <code>loglevel=3</code> from <code>GRUB_CMDLINE_LINUX_DEFAULT</code> temporarily and regenerate the GRUB config. Once it boots cleanly, re-run the <a href="#part-3-5-sanity-check">Part 3.5 sanity check</a> — that’s the official “all good” gate.</p>
+<p>If you want loud boot logs to see exactly what the kernel is waiting for, remove <code>quiet</code> and <code>loglevel=3</code> from <code>GRUB_CMDLINE_LINUX_DEFAULT</code> temporarily and regenerate the GRUB config. Once it boots cleanly, re-run the <a href="#part-3-5-sanity-check">Part 3.5 sanity check</a>, that’s the official “all good” gate.</p>
 <hr>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">

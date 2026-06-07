@@ -8,7 +8,7 @@
 
 <meta name="author" content="Evanns Morales">
 <meta name="dcterms.date" content="2026-06-05">
-<meta name="description" content="The full-circle finale of the install series: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS. Windows goes on first so it can’t stomp the bootloader; Arch and Ubuntu layer on exactly as in the dual-boot article — two independently LUKS2+Btrfs-encrypted roots, one shared 150 GiB LUKS+Btrfs /data partition the two Linux distros mount read-write, per-OS zram + NoCOW Btrfs hibernation. Windows stays out of the encrypted pool entirely (it can’t read LUKS or Btrfs); cross-OS exchange with Windows happens through a separate plain exFAT partition every OS can read. One GRUB on the shared 1 GiB ESP with os-prober enabled, chainloading the Windows boot manager. Secure Boot off, BitLocker off — the simplest reliable triple-boot, with every lesson from Articles 01–07 underneath.">
+<meta name="description" content="The full-circle finale of the install series: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS. Windows goes on first so it can’t stomp the bootloader; Arch and Ubuntu layer on exactly as in the dual-boot article, two independently LUKS2+Btrfs-encrypted roots, one shared 150 GiB LUKS+Btrfs /data partition the two Linux distros mount read-write, per-OS zram + NoCOW Btrfs hibernation. Windows stays out of the encrypted pool entirely (it can’t read LUKS or Btrfs); cross-OS exchange with Windows happens through a separate plain exFAT partition every OS can read. One GRUB on the shared 1 GiB ESP with os-prober enabled, chainloading the Windows boot manager. Secure Boot off, BitLocker off, the simplest reliable triple-boot, with every lesson from Articles 01–07 underneath.">
 
 <title>Triple-Boot Arch + Ubuntu + Windows — Closing the Loop on Article 01 – evannsmc</title>
 <style>
@@ -167,14 +167,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <link rel="stylesheet" href="../../../styles.css">
 <meta property="og:title" content="Triple-Boot Arch + Ubuntu + Windows — Closing the Loop on Article 01 – evannsmc">
-<meta property="og:description" content="The full-circle finale of the install series: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS. Windows goes on first so it can’t stomp the bootloader; Arch and Ubuntu layer on exactly as in the dual-boot article — two independently LUKS2+Btrfs-encrypted roots, one shared 150 GiB LUKS+Btrfs /data partition the two Linux distros mount read-write, per-OS zram + NoCOW Btrfs hibernation. Windows stays out of the encrypted pool entirely (it can’t read LUKS or Btrfs); cross-OS exchange with Windows happens through a separate plain exFAT partition every OS can read. One GRUB on the shared 1 GiB ESP with os-prober enabled, chainloading the Windows boot manager. Secure Boot off, BitLocker off — the simplest reliable triple-boot, with every lesson from Articles 01–07 underneath.">
+<meta property="og:description" content="The full-circle finale of the install series: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS. Windows goes on first so it can’t stomp the bootloader; Arch and Ubuntu layer on exactly as in the dual-boot article, two independently LUKS2+Btrfs-encrypted roots, one shared 150 GiB LUKS+Btrfs /data partition the two Linux distros mount read-write, per-OS zram + NoCOW Btrfs hibernation. Windows stays out of the encrypted pool entirely (it can’t read LUKS or Btrfs); cross-OS exchange with Windows happens through a separate plain exFAT partition every OS can read. One GRUB on the shared 1 GiB ESP with os-prober enabled, chainloading the Windows boot manager. Secure Boot off, BitLocker off, the simplest reliable triple-boot, with every lesson from Articles 01–07 underneath.">
 <meta property="og:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
 <meta property="og:site_name" content="evannsmc">
-<meta property="og:image:alt" content="The Arch Linux logo — official wordmark from archlinux.org.">
+<meta property="og:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:title" content="Triple-Boot Arch + Ubuntu + Windows — Closing the Loop on Article 01 – evannsmc">
-<meta name="twitter:description" content="The full-circle finale of the install series: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS. Windows goes on first so it can’t stomp the bootloader; Arch and Ubuntu layer on exactly as in the dual-boot article — two independently LUKS2+Btrfs-encrypted roots, one shared 150 GiB LUKS+Btrfs /data partition the two Linux distros mount read-write, per-OS zram + NoCOW Btrfs hibernation. Windows stays out of the encrypted pool entirely (it can’t read LUKS or Btrfs); cross-OS exchange with Windows happens through a separate plain exFAT partition every OS can read. One GRUB on the shared 1 GiB ESP with os-prober enabled, chainloading the Windows boot manager. Secure Boot off, BitLocker off — the simplest reliable triple-boot, with every lesson from Articles 01–07 underneath.">
+<meta name="twitter:description" content="The full-circle finale of the install series: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS. Windows goes on first so it can’t stomp the bootloader; Arch and Ubuntu layer on exactly as in the dual-boot article, two independently LUKS2+Btrfs-encrypted roots, one shared 150 GiB LUKS+Btrfs /data partition the two Linux distros mount read-write, per-OS zram + NoCOW Btrfs hibernation. Windows stays out of the encrypted pool entirely (it can’t read LUKS or Btrfs); cross-OS exchange with Windows happens through a separate plain exFAT partition every OS can read. One GRUB on the shared 1 GiB ESP with os-prober enabled, chainloading the Windows boot manager. Secure Boot off, BitLocker off, the simplest reliable triple-boot, with every lesson from Articles 01–07 underneath.">
 <meta name="twitter:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
-<meta name="twitter:image:alt" content="The Arch Linux logo — official wordmark from archlinux.org.">
+<meta name="twitter:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -439,7 +439,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <div>
   <div class="description">
-    The full-circle finale of the install series: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS. Windows goes on first so it can’t stomp the bootloader; Arch and Ubuntu layer on exactly as in the dual-boot article — two independently LUKS2+Btrfs-encrypted roots, one shared 150 GiB LUKS+Btrfs <code>/data</code> partition the two Linux distros mount read-write, per-OS zram + NoCOW Btrfs hibernation. Windows stays out of the encrypted pool entirely (it can’t read LUKS or Btrfs); cross-OS exchange with Windows happens through a separate plain exFAT partition every OS can read. One GRUB on the shared 1 GiB ESP with os-prober enabled, chainloading the Windows boot manager. Secure Boot off, BitLocker off — the simplest reliable triple-boot, with every lesson from Articles 01–07 underneath.
+    The full-circle finale of the install series: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS. Windows goes on first so it can’t stomp the bootloader; Arch and Ubuntu layer on exactly as in the dual-boot article, two independently LUKS2+Btrfs-encrypted roots, one shared 150 GiB LUKS+Btrfs <code>/data</code> partition the two Linux distros mount read-write, per-OS zram + NoCOW Btrfs hibernation. Windows stays out of the encrypted pool entirely (it can’t read LUKS or Btrfs); cross-OS exchange with Windows happens through a separate plain exFAT partition every OS can read. One GRUB on the shared 1 GiB ESP with os-prober enabled, chainloading the Windows boot manager. Secure Boot off, BitLocker off, the simplest reliable triple-boot, with every lesson from Articles 01–07 underneath.
   </div>
 </div>
 
@@ -474,11 +474,11 @@ document.addEventListener('DOMContentLoaded', function () {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Honesty disclaimer: this is the reasoned culmination, not yet a live-tested run
+Disclaimer: this is the reasoned culmination, not yet a live-tested run
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Like the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/">dual-boot article (Article 07)</a>, this is a <strong>carefully reasoned blueprint</strong>, not a command-by-command install log I’ve already executed. It stacks the parts I <em>have</em> run first-hand — the <a href="../2026-05-17-arch-luks-btrfs/">LUKS+Btrfs single-boot (Article 03)</a> and the dual-boot extension — and adds a Windows partition plus the three-way integration on top, built from the <a href="https://wiki.archlinux.org/title/Dual_boot_with_Windows" target="_blank" rel="noopener">Arch wiki on dual-booting Windows</a>, Microsoft’s <a href="https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/configure-uefigpt-based-hard-drive-partitions" target="_blank" rel="noopener">UEFI/GPT install docs</a>, and the <code>os-prober</code> / <code>efibootmgr</code> man pages.</p>
+<p>Like the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/">dual-boot article (Article 07)</a>, this is a <strong>carefully reasoned blueprint</strong>, not a command-by-command install log I’ve already executed. It stacks the parts I <em>have</em> run first-hand, the <a href="../2026-05-17-arch-luks-btrfs/">LUKS+Btrfs single-boot (Article 03)</a> and the dual-boot extension, and adds a Windows partition plus the three-way integration on top, built from the <a href="https://wiki.archlinux.org/title/Dual_boot_with_Windows" target="_blank" rel="noopener">Arch wiki on dual-booting Windows</a>, Microsoft’s <a href="https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/configure-uefigpt-based-hard-drive-partitions" target="_blank" rel="noopener">UEFI/GPT install docs</a>, and the <code>os-prober</code> / <code>efibootmgr</code> man pages.</p>
 <p>I’ll run it for real on the next workstation build and update in place if anything changes. Canonical sources to re-read as you go:</p>
 <ul>
 <li><a href="https://wiki.archlinux.org/title/Dual_boot_with_Windows" target="_blank" rel="noopener">Arch wiki: Dual boot with Windows</a> — ESP sharing, <code>os-prober</code>, the localtime/UTC clock fix</li>
@@ -500,30 +500,30 @@ What this is
 <div class="callout-body-container callout-body">
 <p>The last article in the install arc: <strong>one NVMe drive, three operating systems.</strong></p>
 <ul>
-<li><strong>Windows 11</strong>, installed <strong>first</strong>, on its own NTFS partition. It owns nothing but its own files — but it boots first during setup so it can’t clobber a bootloader that isn’t there yet.</li>
-<li><strong>Arch Linux</strong> and <strong>Ubuntu 24 LTS</strong>, each in its <strong>own LUKS2 container</strong> carrying the same Btrfs subvolume layout (<code>@</code>, <code>@home</code>, <code>@snapshots</code>, <code>@var_log</code>, <code>@swap</code>) — exactly the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/">dual-boot setup</a>, unchanged.</li>
-<li><strong>One shared 150 GiB LUKS+Btrfs <code>/data</code> partition</strong> the two <strong>Linux</strong> distros mount read-write, keyfile-unlocked at boot. <strong>Windows is deliberately left out of it</strong> — it can’t read LUKS or Btrfs, and bolting a third-party driver onto an encrypted volume is exactly the kind of fragility this series avoids.</li>
-<li><strong>One plain exFAT exchange partition</strong> that <em>all three</em> OSes read and write, for the files you genuinely need to hand to Windows (or that Windows needs to hand to Linux).</li>
-<li><strong>Per-OS zram</strong> for everyday swap and <strong>per-OS NoCOW Btrfs hibernation</strong> inside each Linux root — no cross-OS resume collisions.</li>
+<li><strong>Windows 11</strong>, installed <strong>first</strong>, on its own NTFS partition. It owns nothing but its own files, but it boots first during setup so it can’t clobber a bootloader that isn’t there yet.</li>
+<li><strong>Arch Linux</strong> and <strong>Ubuntu 24 LTS</strong>, each in its <strong>own LUKS2 container</strong> carrying the same Btrfs subvolume layout (<code>@</code>, <code>@home</code>, <code>@snapshots</code>, <code>@var_log</code>, <code>@swap</code>), exactly the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/">dual-boot setup</a>, unchanged.</li>
+<li><strong>One shared 150 GiB LUKS+Btrfs <code>/data</code> partition</strong> the two <strong>Linux</strong> distros mount read-write, keyfile-unlocked at boot. <strong>Windows is deliberately left out of it</strong>, it can’t read LUKS or Btrfs, and bolting a third-party driver onto an encrypted volume is exactly the kind of fragility this series avoids.</li>
+<li><strong>One plain exFAT exchange partition</strong> that <em>all three</em> OSes read and write, for the files you need to hand to Windows (or that Windows needs to hand to Linux).</li>
+<li><strong>Per-OS zram</strong> for everyday swap and <strong>per-OS NoCOW Btrfs hibernation</strong> inside each Linux root, no cross-OS resume collisions.</li>
 <li><strong>One GRUB</strong> on the shared 1 GiB ESP, <code>os-prober</code> enabled, chainloading both Ubuntu and the <strong>Windows boot manager</strong>.</li>
-<li><strong>Secure Boot off, BitLocker off</strong> — the simplest configuration that boots all three reliably (the tradeoffs are spelled out below).</li>
+<li><strong>Secure Boot off, BitLocker off</strong>, the simplest configuration that boots all three reliably (the tradeoffs are spelled out below).</li>
 </ul>
-<p>It stops on the console for the Arch side, exactly like every prior article — the desktop layer is a separate choice. Windows and Ubuntu come up graphical out of the box.</p>
+<p>It stops on the console for the Arch side, exactly like every prior article, the desktop layer is a separate choice. Windows and Ubuntu come up graphical out of the box.</p>
 </div>
 </div>
 <section id="why-this-closes-the-loop-on-article-01" class="level2">
 <h2 class="anchored" data-anchor-id="why-this-closes-the-loop-on-article-01">Why this closes the loop on Article 01</h2>
-<p><a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01</a> — my very first ambitious attempt — tried to land LUKS, Btrfs, zram, a shared data partition, <em>and</em> a dual-boot in one swing, and dropped me into emergency mode. The whole series since has been a march back toward that target, one variable at a time:</p>
+<p><a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01</a>, my very first ambitious attempt, tried to land LUKS, Btrfs, zram, a shared data partition, <em>and</em> a dual-boot in one swing, and dropped me into emergency mode. The whole series since has been a march back toward that target, one variable at a time:</p>
 <ul>
-<li><strong>Article 02</strong> — the boring, dependable basic install (ext4, no encryption) to build the mental model.</li>
-<li><strong>Article 03</strong> — that mental model done right: LUKS2 + Btrfs + snapper + hibernation, single-boot, <em>booting</em>.</li>
-<li><strong>Articles 04–06</strong> — the AUR/pacman reference, and the three single-boot variants compiled side by side.</li>
-<li><strong>Article 07</strong> — the dual-boot: Arch + Ubuntu, shared encrypted <code>/data</code>, per-OS hibernation.</li>
+<li><strong>Article 02</strong>, the boring, dependable basic install (ext4, no encryption) to build the mental model.</li>
+<li><strong>Article 03</strong>, that mental model done right: LUKS2 + Btrfs + snapper + hibernation, single-boot, <em>booting</em>.</li>
+<li><strong>Articles 04–06</strong>, the AUR/pacman reference, and the three single-boot variants compiled side by side.</li>
+<li><strong>Article 07</strong>, the dual-boot: Arch + Ubuntu, shared encrypted <code>/data</code>, per-OS hibernation.</li>
 </ul>
-<p>This article is the original Article 01 ambition <strong>plus Windows</strong> — reached on purpose, with every fix from the post-mortem already baked in. Why add Windows at all? Because some collaborators live in the Microsoft Office / Adobe / vendor-CAD world that still doesn’t have a credible Linux story, and a VM isn’t always enough. So: a real Windows partition that boots natively, sitting beside the daily-driver Arch and the research-package Ubuntu.</p>
+<p>This article is the original Article 01 ambition <strong>plus Windows</strong>, reached on purpose, with every fix from the post-mortem already baked in. Why add Windows at all? Because some collaborators live in the Microsoft Office / Adobe / vendor-CAD world that still doesn’t have a credible Linux story, and a VM isn’t always enough. So: a real Windows partition that boots natively, sitting beside the daily-driver Arch and the research-package Ubuntu.</p>
 <p>Adding Windows introduces five concerns the dual-boot didn’t have:</p>
 <ol type="1">
-<li><strong>Windows is a bad bootloader citizen.</strong> It writes its boot manager to the ESP and reorders NVRAM to put itself first — and a major Windows update will happily do it again. So Windows goes <strong>first</strong>, and GRUB (installed after) becomes the menu that chainloads it. We also note how to put GRUB back on top after a Windows update steals the boot order.</li>
+<li><strong>Windows is a bad bootloader citizen.</strong> It writes its boot manager to the ESP and reorders NVRAM to put itself first, and a major Windows update will happily do it again. So Windows goes <strong>first</strong>, and GRUB (installed after) becomes the menu that chainloads it. We also note how to put GRUB back on top after a Windows update steals the boot order.</li>
 <li><strong>Windows can’t read LUKS or Btrfs.</strong> The encrypted shared <code>/data</code> is Linux-only by design. Windows↔︎Linux file exchange uses a <strong>separate plain exFAT partition</strong> every OS reads natively.</li>
 <li><strong>The RTC clock war.</strong> Windows assumes the hardware clock is local time; Linux assumes UTC. Left alone, every OS switch shifts your clock by your UTC offset. We fix it by telling Windows to use UTC.</li>
 <li><strong>Fast Startup and “device encryption.”</strong> Windows 11’s Fast Startup leaves the NTFS volume in a hibernated/dirty state, and some hardware silently auto-enables BitLocker device encryption. Both interfere with a clean triple-boot; we turn them off.</li>
@@ -540,7 +540,7 @@ How to read the commands in this guide
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Every command sits in its own copy box — hit the copy icon, paste, run. <strong>But watch for angle-bracket placeholders</strong> like <code>&lt;USERNAME&gt;</code>, <code>&lt;HOSTNAME&gt;</code>, <code>&lt;TIMEZONE&gt;</code>, <code>&lt;SSID&gt;</code>, or <code>&lt;WIFI_PASSWORD&gt;</code>. Those are values only <em>you</em> know, and they’re written that way on purpose: <code>&lt;…&gt;</code> is invalid shell syntax, so if you blind-paste a line that still has one, it <strong>fails loudly</strong> instead of silently running with my example values. See a <code>&lt;…&gt;</code>, replace the whole token (brackets and all) before you run the line. Device paths like <code>/dev/nvme0n1p3</code> are left literal — they match the disk-layout table — so double-check <em>those</em> against your own <code>lsblk</code> once, then they paste cleanly.</p>
+<p>Every command sits in its own copy box, hit the copy icon, paste, run. <strong>But watch for angle-bracket placeholders</strong> like <code>&lt;USERNAME&gt;</code>, <code>&lt;HOSTNAME&gt;</code>, <code>&lt;TIMEZONE&gt;</code>, <code>&lt;SSID&gt;</code>, or <code>&lt;WIFI_PASSWORD&gt;</code>. Those are values only <em>you</em> know, and they’re written that way on purpose: <code>&lt;…&gt;</code> is invalid shell syntax, so if you blind-paste a line that still has one, it <strong>fails loudly</strong> instead of silently running with my example values. See a <code>&lt;…&gt;</code>, replace the whole token (brackets and all) before you run the line. Device paths like <code>/dev/nvme0n1p3</code> are left literal, they match the disk-layout table, so double-check <em>those</em> against your own <code>lsblk</code> once, then they paste cleanly.</p>
 </div>
 </div>
 </section>
@@ -635,7 +635,7 @@ Doing the math for your disk
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>For a 2 TiB SSD, holding back 1 GiB ESP + 16 MiB MSR + 250 GiB Windows + 64 GiB exchange + 150 GiB shared data leaves ≈ 1535 GiB to split between the two Linux roots — roughly <strong>767 GiB each</strong>. Adjust every number to taste; nothing downstream depends on the exact gigabyte counts, only on the <em>order</em> and the partition <em>types</em>. If you rarely touch Windows, shrink p3 to 120 GiB and hand the rest to Linux.</p>
+<p>For a 2 TiB SSD, holding back 1 GiB ESP + 16 MiB MSR + 250 GiB Windows + 64 GiB exchange + 150 GiB shared data leaves ≈ 1535 GiB to split between the two Linux roots, roughly <strong>767 GiB each</strong>. Adjust every number to taste; nothing downstream depends on the exact gigabyte counts, only on the <em>order</em> and the partition <em>types</em>. If you rarely touch Windows, shrink p3 to 120 GiB and hand the rest to Linux.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-important callout-titled">
@@ -644,12 +644,12 @@ Doing the math for your disk
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Why a 1 GiB ESP we create ourselves — not the 100 MiB one Windows makes
+Why a 1 GiB ESP we create ourselves, not the 100 MiB one Windows makes
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <p>If you let the Windows installer own a blank disk, it creates a <strong>100 MiB</strong> ESP. That’s fine for Windows alone, but far too small to also hold two Linux distros’ kernels + initramfs images in <code>/boot</code>. The whole series puts <code>/boot</code> <em>on the ESP</em> (unencrypted, so GRUB can read it without <code>GRUB_ENABLE_CRYPTODISK</code>), and that needs room.</p>
-<p>So we <strong>pre-create the partition table from the Arch live USB first</strong>, including a generous 1 GiB ESP, and then point the Windows installer at the partition we made for it. Windows is happy to <em>reuse</em> an existing ESP of adequate size — it only insists on creating its own when it doesn’t find one. This is the single most important ordering trick in the article.</p>
+<p>So we <strong>pre-create the partition table from the Arch live USB first</strong>, including a generous 1 GiB ESP, and then point the Windows installer at the partition we made for it. Windows is happy to <em>reuse</em> an existing ESP of adequate size, it only insists on creating its own when it doesn’t find one. This is the single most important ordering trick in the article.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -662,18 +662,18 @@ Why Windows is left out of the shared <code>/data</code>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The dual-boot’s shared <code>/data</code> is a LUKS2 container with Btrfs inside. Windows can read <strong>neither</strong> layer natively, and the third-party options (WinBtrfs for the filesystem; nothing trustworthy for LUKS) mean running an <em>unencrypted</em> Btrfs volume and bolting an experimental driver onto it — throwing away the encryption that’s the whole point. Not worth it.</p>
-<p>Instead, Windows gets a clean separation: it never touches <code>/data</code>. The handful of files you actually need to move between Windows and Linux go through the <strong>plain exFAT exchange partition</strong> (<code>p4</code>), which all three OSes read and write with first-class, built-in drivers. The tradeoff is honest and explicit: <strong>anything on the exchange partition is unencrypted.</strong> Treat it as a transfer airlock, not a home for secrets — keep those on the encrypted <code>/data</code> (Linux) or inside Windows’ own profile.</p>
+<p>The dual-boot’s shared <code>/data</code> is a LUKS2 container with Btrfs inside. Windows can read <strong>neither</strong> layer natively, and the third-party options (WinBtrfs for the filesystem; nothing trustworthy for LUKS) mean running an <em>unencrypted</em> Btrfs volume and bolting an experimental driver onto it, throwing away the encryption that’s the whole point. Not worth it.</p>
+<p>Instead, Windows gets a clean separation: it never touches <code>/data</code>. The handful of files you actually need to move between Windows and Linux go through the <strong>plain exFAT exchange partition</strong> (<code>p4</code>), which all three OSes read and write with first-class, built-in drivers. The tradeoff is explicit: <strong>anything on the exchange partition is unencrypted.</strong> Treat it as a transfer airlock, not a home for secrets, keep those on the encrypted <code>/data</code> (Linux) or inside Windows’ own profile.</p>
 </div>
 </div>
 <hr>
 </section>
 <section id="part-2-pre-partition-the-disk-from-the-arch-live-usb" class="level1">
 <h1>Part 2 — Pre-partition the disk from the Arch live USB</h1>
-<p>We boot the Arch installer <strong>first</strong>, only to lay down the partition table (and format the ESP so Windows recognizes it). The Arch <em>install</em> itself happens later, in Part 4 — after Windows is on disk.</p>
+<p>We boot the Arch installer <strong>first</strong>, only to lay down the partition table (and format the ESP so Windows recognizes it). The Arch <em>install</em> itself happens later, in Part 4, after Windows is on disk.</p>
 <section id="chapter-0-verify-the-iso-boot-the-live-usb-confirm-uefi" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-0-verify-the-iso-boot-the-live-usb-confirm-uefi">Chapter 0: Verify the ISO, boot the live USB, confirm UEFI</h2>
-<p>This is the same first-time-install bootstrap as every article in the series — spelled out in full so you don’t need another tab open. <strong>Done it before? Skim to <a href="#chapter-1-lay-down-the-partition-table">Chapter 1</a>.</strong></p>
+<p>This is the same first-time-install bootstrap as every article in the series, spelled out in full so you don’t need another tab open. <strong>Done it before? Skim to <a href="#chapter-1-lay-down-the-partition-table">Chapter 1</a>.</strong></p>
 <section id="download-and-verify-the-iso" class="level3">
 <h3 class="anchored" data-anchor-id="download-and-verify-the-iso">Download and verify the ISO</h3>
 <p>On a machine you trust, grab the ISO, its <code>.sig</code>, and <code>sha256sums.txt</code> from the <a href="https://archlinux.org/download/" target="_blank" rel="noopener">Arch download page</a> into one directory (I use <code>~/Downloads/Arch</code>):</p>
@@ -684,11 +684,11 @@ Why Windows is left out of the shared <code>/data</code>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--auto-key-locate</span> clear,wkd <span class="at">-v</span> <span class="at">--locate-external-key</span> pierre@archlinux.org</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--verify</span> archlinux-2026.05.01-x86_64.iso.sig archlinux-2026.05.01-x86_64.iso</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># gpg: Good signature from "Pierre Schmitz &lt;pierre@archlinux.org&gt;" [unknown]   # published by Arch's release engineer</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The <code>WARNING: The key's User ID is not certified</code> line is expected (you haven’t signed Pierre’s key into your web of trust) — the signature is still valid. Flash the verified ISO to a USB stick with <a href="https://etcher.balena.io/" target="_blank" rel="noopener">balenaEtcher</a> or <code>dd</code> (mind <code>of=</code>).</p>
+<p>The <code>WARNING: The key's User ID is not certified</code> line is expected (you haven’t signed Pierre’s key into your web of trust), the signature is still valid. Flash the verified ISO to a USB stick with <a href="https://etcher.balena.io/" target="_blank" rel="noopener">balenaEtcher</a> or <code>dd</code> (mind <code>of=</code>).</p>
 </section>
 <section id="boot-the-install-media-and-confirm-uefi" class="level3">
 <h3 class="anchored" data-anchor-id="boot-the-install-media-and-confirm-uefi">Boot the install media and confirm UEFI</h3>
-<p>Plug the USB in, interrupt boot (<code>F2</code>/<code>F10</code>/<code>F12</code>/<code>Esc</code>), pick the USB, choose <em>“Arch Linux install medium.”</em> At the root shell, confirm UEFI mode — the entire triple-boot design assumes it:</p>
+<p>Plug the USB in, interrupt boot (<code>F2</code>/<code>F10</code>/<code>F12</code>/<code>Esc</code>), pick the USB, choose <em>“Arch Linux install medium.”</em> At the root shell, confirm UEFI mode, the entire triple-boot design assumes it:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /sys/firmware/efi/fw_platform_size</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 64   (32 on very old hardware; if the file is absent you booted BIOS — fix in firmware)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="callout callout-style-default callout-important callout-titled">
@@ -701,7 +701,7 @@ Turn off Secure Boot now, while you’re in firmware
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Before leaving the firmware setup screen, <strong>disable Secure Boot</strong>. Our GRUB isn’t signed with a key your firmware trusts, so Secure Boot would refuse to load it. (Keeping Secure Boot on is possible with <code>shim</code> + MOK enrollment + a signed GRUB, but that’s a substantially longer and more fragile path — out of scope for this “simplest reliable” build.) While you’re there, set the firmware to <strong>UEFI-only</strong> (disable CSM/legacy boot) so Windows installs in UEFI/GPT mode, matching Linux.</p>
+<p>Before leaving the firmware setup screen, <strong>disable Secure Boot</strong>. Our GRUB isn’t signed with a key your firmware trusts, so Secure Boot would refuse to load it. (Keeping Secure Boot on is possible with <code>shim</code> + MOK enrollment + a signed GRUB, but that’s a substantially longer and more fragile path, out of scope for this “simplest reliable” build.) While you’re there, set the firmware to <strong>UEFI-only</strong> (disable CSM/legacy boot) so Windows installs in UEFI/GPT mode, matching Linux.</p>
 </div>
 </div>
 <p>If the console font is too small, <code>setfont ter-132b</code>. (You don’t strictly need the network for partitioning, but if you want to SSH in from another machine for comfort, it’s the same <code>iwctl</code> → <code>systemctl enable --now sshd</code> → <code>passwd</code> dance as the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-0-verify-the-iso-boot-the-live-usb-get-online">dual-boot Chapter 0</a>.)</p>
@@ -709,7 +709,7 @@ Turn off Secure Boot now, while you’re in firmware
 </section>
 <section id="chapter-1-lay-down-the-partition-table" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-1-lay-down-the-partition-table">Chapter 1: Lay down the partition table</h2>
-<p>Confirm the disk first — wiping the wrong one is unrecoverable:</p>
+<p>Confirm the disk first, wiping the wrong one is unrecoverable:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-d</span> <span class="at">-o</span> NAME,SIZE,MODEL,TRAN      <span class="co"># NVMe shows TRAN=nvme</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Every command below uses <code>/dev/nvme0n1</code> as a placeholder — <strong>substitute your actual device.</strong> Partition with <code>cfdisk</code> (GPT label):</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -735,7 +735,7 @@ If <code>cfdisk</code> has no “Microsoft reserved” / “Microsoft basic data
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>cfdisk</code> exposes a curated type list; older builds may not. Two options: (a) just make <code>p2</code>/<code>p3</code>/<code>p4</code> <strong>Linux filesystem</strong> for now — the Windows installer will re-stamp <code>p3</code>’s type to <em>Microsoft basic data</em> and create the MSR itself when it installs; or (b) use <code>gdisk</code> instead, where you can set exact GPT type GUIDs (<code>0700</code> Microsoft basic data, <code>0c01</code> Microsoft reserved, <code>ef00</code> EFI system, <code>8300</code> Linux filesystem). The MSR is technically optional on UEFI/GPT — Windows will create one if it’s missing and there’s room — but reserving 16 MiB now keeps the layout tidy and predictable.</p>
+<p><code>cfdisk</code> exposes a curated type list; older builds may not. Two options: (a) just make <code>p2</code>/<code>p3</code>/<code>p4</code> <strong>Linux filesystem</strong> for now, the Windows installer will re-stamp <code>p3</code>’s type to <em>Microsoft basic data</em> and create the MSR itself when it installs; or (b) use <code>gdisk</code> instead, where you can set exact GPT type GUIDs (<code>0700</code> Microsoft basic data, <code>0c01</code> Microsoft reserved, <code>ef00</code> EFI system, <code>8300</code> Linux filesystem). The MSR is technically optional on UEFI/GPT — Windows will create one if it’s missing and there’s room, but reserving 16 MiB now keeps the layout tidy and predictable.</p>
 </div>
 </div>
 </section>
@@ -746,8 +746,8 @@ If <code>cfdisk</code> has no “Microsoft reserved” / “Microsoft basic data
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.exfat</span>   <span class="at">-n</span> EXCHANGE  /dev/nvme0n1p4      <span class="co"># plain exchange (needs exfatprogs, present on the live ISO)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Leave <code>p2</code>, <code>p3</code>, <code>p5</code>, <code>p6</code>, <code>p7</code> unformatted:</p>
 <ul>
-<li><code>p3</code> — the Windows installer formats it NTFS.</li>
-<li><code>p5</code>/<code>p6</code> — we LUKS-format them during the Arch install in Part 4.</li>
+<li><code>p3</code>, the Windows installer formats it NTFS.</li>
+<li><code>p5</code>/<code>p6</code>, we LUKS-format them during the Arch install in Part 4.</li>
 <li><code>p7</code> — Ubuntu’s installer formats it.</li>
 </ul>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,PARTTYPENAME /dev/nvme0n1   <span class="co"># sanity-check the table before rebooting</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -763,7 +763,7 @@ If <code>cfdisk</code> has no “Microsoft reserved” / “Microsoft basic data
 <h2 class="anchored" data-anchor-id="chapter-3-run-the-windows-installer">Chapter 3: Run the Windows installer</h2>
 <ol type="1">
 <li>Flash a Windows 11 install USB (Microsoft’s <strong>Media Creation Tool</strong>, or the ISO via Rufus in <strong>GPT/UEFI</strong> mode). Boot it.</li>
-<li>Proceed to <strong>“Where do you want to install Windows?”</strong> You’ll see the partitions you made. <strong>Select <code>p3</code> (the ~250 GiB Microsoft basic data partition)</strong>, and click <strong>Format</strong> (NTFS). <strong>Do not delete partitions, and do not let the installer reformat the whole disk</strong> — that would destroy the ESP and the space reserved for Linux.</li>
+<li>Proceed to <strong>“Where do you want to install Windows?”</strong> You’ll see the partitions you made. <strong>Select <code>p3</code> (the ~250 GiB Microsoft basic data partition)</strong>, and click <strong>Format</strong> (NTFS). <strong>Do not delete partitions, and do not let the installer reformat the whole disk</strong>, that would destroy the ESP and the space reserved for Linux.</li>
 <li>Windows installs into <code>p3</code>, reuses the existing 1 GiB ESP for its boot manager (<code>\EFI\Microsoft\Boot\bootmgfw.efi</code>), and uses the MSR. Let it reboot into Windows and finish OOBE (out-of-box experience).</li>
 </ol>
 <div class="callout callout-style-default callout-warning callout-titled">
@@ -776,7 +776,7 @@ If the installer refuses <code>p3</code> (“can’t install to this disk”)
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The usual cause is a firmware still in CSM/legacy mode, or a stray active/boot flag. Re-check that the firmware is <strong>UEFI-only</strong> (Part 2). If the installer insists on its own partitioning, the fallback is to let it install to <code>p3</code> and create whatever MSR/recovery partitions it wants <em>inside the space we gave it</em> — but never let it touch <code>p1</code> (ESP) or the Linux partitions. Worst case, it shrinks the usable Linux space slightly; the rest of the article is unaffected.</p>
+<p>The usual cause is a firmware still in CSM/legacy mode, or a stray active/boot flag. Re-check that the firmware is <strong>UEFI-only</strong> (Part 2). If the installer insists on its own partitioning, the fallback is to let it install to <code>p3</code> and create whatever MSR/recovery partitions it wants <em>inside the space we gave it</em>, but never let it touch <code>p1</code> (ESP) or the Linux partitions. Worst case, it shrinks the usable Linux space slightly; the rest of the article is unaffected.</p>
 </div>
 </div>
 </section>
@@ -785,7 +785,7 @@ If the installer refuses <code>p3</code> (“can’t install to this disk”)
 <p>Three settings, all from inside the freshly installed Windows. Skipping these is the #1 source of “my clock is wrong” and “Linux won’t boot after a Windows update” complaints.</p>
 <section id="disable-bitlocker-device-encryption" class="level3">
 <h3 class="anchored" data-anchor-id="disable-bitlocker-device-encryption">Disable BitLocker / device encryption</h3>
-<p>Windows 11 silently turns on <em>device encryption</em> on a lot of modern hardware. An encrypted C: you can’t read from Linux is fine in principle (we never mount C: from Linux) — but BitLocker <strong>prompts for a recovery key whenever the boot path changes</strong>, and installing GRUB <em>is</em> a boot-path change. So turn it off:</p>
+<p>Windows 11 silently turns on <em>device encryption</em> on a lot of modern hardware. An encrypted C: you can’t read from Linux is fine in principle (we never mount C: from Linux), but BitLocker <strong>prompts for a recovery key whenever the boot path changes</strong>, and installing GRUB <em>is</em> a boot-path change. So turn it off:</p>
 <ul>
 <li><strong>Settings → Privacy &amp; security → Device encryption → Off</strong> (wait for decryption to finish), or</li>
 <li>on Pro editions, <strong>Control Panel → BitLocker Drive Encryption → Turn off</strong> for C:.</li>
@@ -813,17 +813,17 @@ Why we fix the clock on the Windows side, not the Linux side
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>You <em>could</em> instead set Linux to localtime (<code>timedatectl set-local-rtc 1</code>), but the Arch wiki explicitly discourages it — localtime RTC breaks around DST transitions and is a documented source of subtle bugs. One registry value on Windows is the clean fix; do it there.</p>
+<p>You <em>could</em> instead set Linux to localtime (<code>timedatectl set-local-rtc 1</code>), but the Arch wiki explicitly discourages it, localtime RTC breaks around DST transitions and is a documented source of subtle bugs. One registry value on Windows is the clean fix; do it there.</p>
 </div>
 </div>
-<p>With Windows installed, tamed, and shut down, you’re back to where the dual-boot article started — except now there’s a Windows partition and a Windows boot manager sitting in the ESP, waiting to be discovered.</p>
+<p>With Windows installed, tamed, and shut down, you’re back to where the dual-boot article started, except now there’s a Windows partition and a Windows boot manager sitting in the ESP, waiting to be discovered.</p>
 <hr>
 </section>
 </section>
 </section>
 <section id="part-4-install-arch-into-p6-luks-btrfs" class="level1">
 <h1>Part 4 — Install Arch into p6 (LUKS + Btrfs)</h1>
-<p>Boot the Arch live USB again. From here, the Arch install is <strong>identical to the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/">dual-boot Article 07</a></strong> — same LUKS2 containers, same Btrfs subvolumes, same keyfile-unlocked shared <code>/data</code>, same per-OS hibernation — with one difference: the partitions already exist (we made them in Part 2) and Windows is already present, so we <strong>don’t</strong> repartition. Every command is inline below; for the deep <em>why</em> behind each step, the dual-boot article’s matching chapter is linked.</p>
+<p>Boot the Arch live USB again. From here, the Arch install is <strong>identical to the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/">dual-boot Article 07</a></strong>, same LUKS2 containers, same Btrfs subvolumes, same keyfile-unlocked shared <code>/data</code>, same per-OS hibernation, with one difference: the partitions already exist (we made them in Part 2) and Windows is already present, so we <strong>don’t</strong> repartition. Every command is inline below; for the deep <em>why</em> behind each step, the dual-boot article’s matching chapter is linked.</p>
 <p>Re-run the Chapter 0 bootstrap if you rebooted out of the live USB (verify ISO, boot, confirm UEFI, get online). Then:</p>
 <section id="chapter-5-format-the-two-arch-side-luks-containers" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-5-format-the-two-arch-side-luks-containers">Chapter 5: Format the two Arch-side LUKS containers</h2>
@@ -865,7 +865,7 @@ Why we fix the clock on the Windows side, not the Linux side
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot</span>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@data /dev/mapper/crypt_shared /mnt/data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><code>@swap</code> mounts <strong>without</strong> compression (a swap file must not be compressed). Note we mount the shared <code>/data</code> now so <code>genfstab</code> captures it — but we deliberately <strong>do not</strong> add the exFAT exchange partition to <code>genfstab</code>’s view yet; we’ll add a hand-tuned <code>fstab</code> line for it in Chapter 9 (exFAT needs ownership options Btrfs doesn’t). <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-4-mount-everything-for-pacstrap">Mount-option rationale →</a></p>
+<p><code>@swap</code> mounts <strong>without</strong> compression (a swap file must not be compressed). Note we mount the shared <code>/data</code> now so <code>genfstab</code> captures it, but we deliberately <strong>do not</strong> add the exFAT exchange partition to <code>genfstab</code>’s view yet; we’ll add a hand-tuned <code>fstab</code> line for it in Chapter 9 (exFAT needs ownership options Btrfs doesn’t). <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-4-mount-everything-for-pacstrap">Mount-option rationale →</a></p>
 </section>
 <section id="chapter-8-pacstrap-fstab-chroot" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-8-pacstrap-fstab-chroot">Chapter 8: Pacstrap, fstab, chroot</h2>
@@ -888,9 +888,9 @@ Why we fix the clock on the Windows side, not the Linux side
 </section>
 <section id="chapter-9-configure-the-system-inside-the-chroot" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-9-configure-the-system-inside-the-chroot">Chapter 9: Configure the system inside the chroot</h2>
-<p>This folds together the dual-boot’s Chapters 6–11 — locale/user (with pinned UID), the shared-partition keyfile, <code>crypttab</code>, hibernation, zram, the exchange-partition <code>fstab</code> line, and <code>mkinitcpio</code>. Each block is the same as the dual-boot; run them in order.</p>
+<p>This folds together the dual-boot’s Chapters 6–11, locale/user (with pinned UID), the shared-partition keyfile, <code>crypttab</code>, hibernation, zram, the exchange-partition <code>fstab</code> line, and <code>mkinitcpio</code>. Each block is the same as the dual-boot; run them in order.</p>
 <section id="locale-time-hostname-user-with-a-pinned-uid-1000" class="level3">
-<h3 class="anchored" data-anchor-id="locale-time-hostname-user-with-a-pinned-uid-1000">Locale, time, hostname, user — with a pinned UID 1000</h3>
+<h3 class="anchored" data-anchor-id="locale-time-hostname-user-with-a-pinned-uid-1000">Locale, time, hostname, user, with a pinned UID 1000</h3>
 <div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/bin/nvim /usr/local/bin/vi</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'export EDITOR=nvim'</span> <span class="op">&gt;&gt;</span> /etc/profile</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -916,7 +916,7 @@ Why we fix the clock on the Windows side, not the Linux side
 <span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
 <span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/'</span> /etc/sudoers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Replace <code>user</code> with whatever username you actually want — it’s a placeholder, not a name to copy verbatim. The <strong>pinned UID/GID 1000</strong> is what makes file ownership on the shared <code>/data</code> match between Arch and Ubuntu — Ubuntu’s installer also assigns its first user UID 1000. Use the <strong>same username and UID</strong> when you create the Ubuntu user later. <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-6-locale-time-hostname-user-with-a-pinned-uid">Why the pinned UID is load-bearing →</a></p>
+<p>Replace <code>user</code> with whatever username you actually want, it’s a placeholder, not a name to copy verbatim. The <strong>pinned UID/GID 1000</strong> is what makes file ownership on the shared <code>/data</code> match between Arch and Ubuntu — Ubuntu’s installer also assigns its first user UID 1000. Use the <strong>same username and UID</strong> when you create the Ubuntu user later. <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-6-locale-time-hostname-user-with-a-pinned-uid">Why the pinned UID is load-bearing →</a></p>
 </section>
 <section id="keyfile-crypttab-for-the-shared-data" class="level3">
 <h3 class="anchored" data-anchor-id="keyfile-crypttab-for-the-shared-data">Keyfile + crypttab for the shared <code>/data</code></h3>
@@ -937,7 +937,7 @@ Why we fix the clock on the Windows side, not the Linux side
 <span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Hand the shared @data subvolume to your UID-1000 user — a fresh Btrfs subvolume is root-owned,</span></span>
 <span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="co"># so without this the first-boot probe (echo … &gt; /data/probe-arch.txt as your user) is Permission denied.</span></span>
 <span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="fu">chown</span> 1000:1000 /data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The keyfile lives inside the encrypted Arch root, so it’s only readable once that root is unlocked — the shared partition unlocks silently <em>after</em> the root mounts, no second passphrase prompt. We copy the same keyfile onto the Ubuntu root later.</p>
+<p>The keyfile lives inside the encrypted Arch root, so it’s only readable once that root is unlocked, the shared partition unlocks silently <em>after</em> the root mounts, no second passphrase prompt. We copy the same keyfile onto the Ubuntu root later.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -948,7 +948,7 @@ Why we fix the clock on the Windows side, not the Linux side
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>This is the single most important robustness fix for a keyfile-unlocked second LUKS volume: without <code>nofail</code>, <em>any</em> hiccup unlocking or mounting the shared partition (wrong UUID, keyfile permissions, the keyslot missing) cascades into a failed boot and drops the whole machine to emergency mode — even though your <strong>root</strong> is fine. <code>nofail</code> (on the <code>crypttab</code> line) plus <code>nofail,x-systemd.device-timeout=10s</code> (on the <code>/data</code> <code>fstab</code> line) turns “couldn’t bring up <code>/data</code>” into a log line you fix after login instead of a boot-stopper. <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-8-etccrypttab-entry-for-the-shared-data-partition">Full reasoning + the <code>journalctl</code>/<code>daemon-reload</code> debug recipe →</a></p>
+<p>This is the single most important robustness fix for a keyfile-unlocked second LUKS volume: without <code>nofail</code>, <em>any</em> hiccup unlocking or mounting the shared partition (wrong UUID, keyfile permissions, the keyslot missing) cascades into a failed boot and drops the whole machine to emergency mode, even though your <strong>root</strong> is fine. <code>nofail</code> (on the <code>crypttab</code> line) plus <code>nofail,x-systemd.device-timeout=10s</code> (on the <code>/data</code> <code>fstab</code> line) turns “couldn’t bring up <code>/data</code>” into a log line you fix after login instead of a boot-stopper. <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-8-etccrypttab-entry-for-the-shared-data-partition">Full reasoning + the <code>journalctl</code>/<code>daemon-reload</code> debug recipe →</a></p>
 </div>
 </div>
 <p><a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-7-generate-the-shared-keyfile-and-add-it-to-the-shared-luks-container">Keyfile boot-sequence walkthrough →</a></p>
@@ -958,7 +958,7 @@ Why we fix the clock on the Windows side, not the Linux side
 <p>exFAT has no Unix ownership, so we assign it at mount time. Add the line by hand (it isn’t in <code>genfstab</code> because we didn’t mount it):</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"UUID=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p4<span class="va">)</span><span class="st"> /exchange exfat defaults,uid=1000,gid=1000,umask=022,nofail 0 0"</span> <span class="dt">\</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">&gt;&gt;</span> /etc/fstab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><code>uid=1000,gid=1000</code> makes every file on the exchange show up as owned by your user; <code>umask=022</code> gives sane permissions; <strong><code>nofail</code></strong> means a missing/!unformatted exchange partition won’t block boot. [exFAT is the only partition Windows shares — see Part 1’s tradeoff note.]</p>
+<p><code>uid=1000,gid=1000</code> makes every file on the exchange show up as owned by your user; <code>umask=022</code> gives sane permissions; <strong><code>nofail</code></strong> means a missing/!unformatted exchange partition won’t block boot. [exFAT is the only partition Windows shares, see Part 1’s tradeoff note.]</p>
 </section>
 <section id="hibernation-swap-file-zram" class="level3">
 <h3 class="anchored" data-anchor-id="hibernation-swap-file-zram">Hibernation swap file + zram</h3>
@@ -987,18 +987,18 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 </section>
 </section>
 <section id="chapter-10-grub-cmdline-os-prober-install" class="level2">
-<h2 class="anchored" data-anchor-id="chapter-10-grub-cmdline-os-prober-install">Chapter 10: GRUB — cmdline, os-prober, install</h2>
+<h2 class="anchored" data-anchor-id="chapter-10-grub-cmdline-os-prober-install">Chapter 10: GRUB, cmdline, os-prober, install</h2>
 <p>Get the <strong>Arch root LUKS partition’s UUID</strong> (<code>p6</code>, not the mapper):</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p6</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Edit <code>/etc/default/grub</code>, replacing the <code>GRUB_CMDLINE_LINUX_DEFAULT</code> line (substitute real values — <strong>no angle brackets in the file</strong>):</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="va">GRUB_CMDLINE_LINUX_DEFAULT</span><span class="op">=</span><span class="st">"loglevel=3 quiet zswap.enabled=0 rd.luks.name=&lt;UUID&gt;=crypt_arch root=/dev/mapper/crypt_arch rootflags=subvol=@ resume=/dev/mapper/crypt_arch resume_offset=&lt;RESUME_OFFSET&gt;"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Then enable <code>os-prober</code> — the key triple-boot setting, because this is what makes GRUB discover <strong>both</strong> Windows and Ubuntu:</p>
+<p>Then enable <code>os-prober</code>, the key triple-boot setting, because this is what makes GRUB discover <strong>both</strong> Windows and Ubuntu:</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/'</span> /etc/default/grub</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_DISABLE_OS_PROBER='</span> /etc/default/grub      <span class="co"># GRUB_DISABLE_OS_PROBER=false</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Install GRUB to the shared ESP and generate the config:</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>This time — unlike the dual-boot’s first pass — <code>os-prober</code> already has something to find: <strong>Windows</strong>. You should see it in the output:</p>
+<p>This time, unlike the dual-boot’s first pass — <code>os-prober</code> already has something to find: <strong>Windows</strong>. You should see it in the output:</p>
 <pre class="text"><code>Found Windows Boot Manager on /dev/nvme0n1p1@/EFI/Microsoft/Boot/bootmgfw.efi</code></pre>
 <p>…and <code>grub.cfg</code> will contain an Arch entry plus a <strong>Windows Boot Manager</strong> entry that chainloads <code>bootmgfw.efi</code>. Ubuntu doesn’t exist yet, so it won’t appear until Part 6. We leave <code>GRUB_ENABLE_CRYPTODISK</code> unset — <code>/boot</code> is the unencrypted ESP, so GRUB never reads encrypted blocks. <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#chapter-12-grub-cmdline">Why no cryptodisk →</a></p>
 </section>
@@ -1035,7 +1035,7 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 <span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>        <span class="co"># zram0 (pri 100) + /swap/swapfile (pri -2)</span></span>
 <span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status crypt_arch      <span class="co"># active LUKS2 (Arch root)</span></span>
 <span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status crypt_shared    <span class="co"># active LUKS2 (shared data)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Reconnect Wi-Fi, re-enable NTP, and verify the timezone — the live ISO’s settings don’t carry into the installed system:</p>
+<p>Reconnect Wi-Fi, re-enable NTP, and verify the timezone, the live ISO’s settings don’t carry into the installed system:</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> radio wifi on</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> device wifi connect <span class="st">"&lt;SSID&gt;"</span> password <span class="st">"&lt;WIFI_PASSWORD&gt;"</span></span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 3 ping.archlinux.org</span>
@@ -1101,7 +1101,7 @@ Driving it remotely over SSH?
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The Ubuntu Desktop live image has no SSH server and logs you in as a passwordless <code>ubuntu</code> user, so it needs a few setup commands first — do it exactly as in the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session">dual-boot SSH-in callout</a> (<code>apt install openssh-server</code>, <code>passwd ubuntu</code>, <code>systemctl enable --now ssh</code>, then <code>ssh ubuntu@&lt;ip&gt;</code> + <code>sudo -i</code>).</p>
+<p>The Ubuntu Desktop live image has no SSH server and logs you in as a passwordless <code>ubuntu</code> user, so it needs a few setup commands first, do it exactly as in the <a href="../2026-05-19-arch-ubuntu-dual-boot-shared-data/#install-ubuntu-by-hand-from-the-live-session">dual-boot SSH-in callout</a> (<code>apt install openssh-server</code>, <code>passwd ubuntu</code>, <code>systemctl enable --now ssh</code>, then <code>ssh ubuntu@&lt;ip&gt;</code> + <code>sudo -i</code>).</p>
 </div>
 </div>
 <p>Open a terminal, <code>sudo -i</code>, <code>apt update &amp;&amp; apt install -y debootstrap cryptsetup-bin</code>, then:</p>
@@ -1170,9 +1170,9 @@ First: prove you’re actually <em>in</em> the chroot
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The live session and the chroot <strong>both</strong> show a <code>root@…:~#</code> prompt — indistinguishable by eye — and running this chapter in the live session by mistake writes to throwaway RAM (you’ll see <code>update-initramfs … read-only media</code> and <code>grub-probe: … '/cow'</code> later as the tell). Confirm before touching anything:</p>
+<p>The live session and the chroot <strong>both</strong> show a <code>root@…:~#</code> prompt, indistinguishable by eye, and running this chapter in the live session by mistake writes to throwaway RAM (you’ll see <code>update-initramfs … read-only media</code> and <code>grub-probe: … '/cow'</code> later as the tell). Confirm before touching anything:</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> <span class="at">-n</span> <span class="at">-o</span> SOURCE /          <span class="co"># MUST print /dev/mapper/crypt_ubuntu</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>If it prints <code>overlay</code>, <code>/cow</code>, or a <code>/dev/loop…</code>, you’re in the live session — re-enter the chroot first:</p>
+<p>If it prints <code>overlay</code>, <code>/cow</code>, or a <code>/dev/loop…</code>, you’re in the live session, re-enter the chroot first:</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> dev dev/pts proc sys run<span class="kw">;</span> <span class="cf">do</span> <span class="ex">mountpoint</span> <span class="at">-q</span> /mnt/<span class="va">$d</span> <span class="kw">||</span> <span class="fu">mount</span> <span class="at">--rbind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span><span class="kw">;</span> <span class="cf">done</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> /etc/resolv.conf /mnt/etc/resolv.conf</span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">chroot</span> /mnt /bin/bash</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1285,7 +1285,7 @@ The pass condition
 <p><code>grub-mkconfig</code>/<code>update-grub</code> didn’t list Windows. Checklist:</p>
 <ul>
 <li><strong><code>os-prober</code> installed and enabled?</strong> <code>grep ^GRUB_DISABLE_OS_PROBER= /etc/default/grub</code> → <code>false</code>; <code>pacman -S os-prober</code> (Arch) / <code>apt install os-prober</code> (Ubuntu).</li>
-<li><strong>ESP actually mounted at <code>/boot</code> when you ran <code>grub-mkconfig</code>?</strong> <code>os-prober</code> finds <code>bootmgfw.efi</code> on the ESP — if <code>/boot</code> wasn’t mounted, it can’t see it. <code>findmnt /boot</code>, then re-run.</li>
+<li><strong>ESP actually mounted at <code>/boot</code> when you ran <code>grub-mkconfig</code>?</strong> <code>os-prober</code> finds <code>bootmgfw.efi</code> on the ESP, if <code>/boot</code> wasn’t mounted, it can’t see it. <code>findmnt /boot</code>, then re-run.</li>
 <li><strong>Windows installed in UEFI mode?</strong> A Windows installed in legacy/BIOS mode has no <code>bootmgfw.efi</code> for <code>os-prober</code> to find. Confirm <code>\EFI\Microsoft\Boot\bootmgfw.efi</code> exists: <code>ls /boot/EFI/Microsoft/Boot/</code>.</li>
 </ul>
 </section>
@@ -1294,11 +1294,11 @@ The pass condition
 <p>Windows feature updates re-assert themselves first in NVRAM. From a Linux live USB or by forcing the firmware boot menu once, boot Linux, then:</p>
 <div class="sourceCode" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr                                  <span class="co"># note the GRUB and Windows BootNNNN numbers</span></span>
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> <span class="op">&lt;</span>GRUB_NUM<span class="op">&gt;</span>,<span class="op">&lt;</span>WINDOWS_NUM<span class="op">&gt;</span>,...  <span class="co"># put GRUB first again</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Nothing was lost — only the <em>order</em> changed. GRUB still chainloads Windows fine.</p>
+<p>Nothing was lost, only the <em>order</em> changed. GRUB still chainloads Windows fine.</p>
 </section>
 <section id="clock-is-wrong-after-switching-os" class="level3">
 <h3 class="anchored" data-anchor-id="clock-is-wrong-after-switching-os">3. Clock is wrong after switching OS</h3>
-<p>The <code>RealTimeIsUniversal</code> registry value (Part 3, Chapter 4) wasn’t set or didn’t take. Re-apply it from an Administrator prompt in Windows and reboot Windows once. Do <strong>not</strong> “fix” it by setting Linux to localtime — that just moves the bug.</p>
+<p>The <code>RealTimeIsUniversal</code> registry value (Part 3, Chapter 4) wasn’t set or didn’t take. Re-apply it from an Administrator prompt in Windows and reboot Windows once. Do <strong>not</strong> “fix” it by setting Linux to localtime, that just moves the bug.</p>
 </section>
 <section id="windows-demands-a-bitlocker-recovery-key-after-you-installed-grub" class="level3">
 <h3 class="anchored" data-anchor-id="windows-demands-a-bitlocker-recovery-key-after-you-installed-grub">4. Windows demands a BitLocker recovery key after you installed GRUB</h3>
@@ -1307,8 +1307,8 @@ The pass condition
 <section id="the-exchange-partition-wont-mount-shows-no-files" class="level3">
 <h3 class="anchored" data-anchor-id="the-exchange-partition-wont-mount-shows-no-files">5. The exchange partition won’t mount / shows no files</h3>
 <ul>
-<li><code>nofail</code> should keep a bad exchange partition from blocking boot — but if <code>/exchange</code> is empty, check <code>findmnt /exchange</code> and <code>blkid /dev/nvme0n1p4</code> (is the UUID in <code>fstab</code> correct?).</li>
-<li>Windows’ <strong>Fast Startup</strong> leaves filesystems dirty. If Linux mounts <code>/exchange</code> read-only or refuses, you almost certainly skipped disabling Fast Startup — do it (Part 3, Chapter 4), fully shut Windows down (not restart), and remount.</li>
+<li><code>nofail</code> should keep a bad exchange partition from blocking boot, but if <code>/exchange</code> is empty, check <code>findmnt /exchange</code> and <code>blkid /dev/nvme0n1p4</code> (is the UUID in <code>fstab</code> correct?).</li>
+<li>Windows’ <strong>Fast Startup</strong> leaves filesystems dirty. If Linux mounts <code>/exchange</code> read-only or refuses, you almost certainly skipped disabling Fast Startup, do it (Part 3, Chapter 4), fully shut Windows down (not restart), and remount.</li>
 </ul>
 <hr>
 </section>
@@ -1318,12 +1318,12 @@ The pass condition
 <p>You now have what <a href="../2026-05-05-arch-luks-btrfs-lessons/">Article 01</a> set out to build and then some: a single drive that boots <strong>Windows, Arch, and Ubuntu</strong>, with two independently encrypted Linux roots, an encrypted shared <code>/data</code> the two Linux distros mount as one home for documents, a plain exchange partition for the Windows handoff, per-OS hibernation that never collides, and one GRUB menu that ties it together.</p>
 <p>The things that finally paid off, traced back to where they first bit me:</p>
 <ul>
-<li><strong>The <code>cryptdevice=</code>/<code>rd.luks.name=</code> cmdline discipline</strong> from Article 01’s failed boot — every encrypted root here unlocks on the first try because the cmdline is right.</li>
-<li><strong>Btrfs subvolumes over separate partitions</strong> (Article 03) — what let two distros share free space and snapshot independently without re-partitioning.</li>
-<li><strong>The keyfile-in-the-encrypted-root pattern</strong> (Article 07) — one passphrase per OS at boot, everything else silent.</li>
-<li><strong>Installing Windows first</strong> — the one ordering decision that turns “Windows clobbered my bootloader” into a non-event.</li>
+<li><strong>The <code>cryptdevice=</code>/<code>rd.luks.name=</code> cmdline discipline</strong> from Article 01’s failed boot, every encrypted root here unlocks on the first try because the cmdline is right.</li>
+<li><strong>Btrfs subvolumes over separate partitions</strong> (Article 03), what let two distros share free space and snapshot independently without re-partitioning.</li>
+<li><strong>The keyfile-in-the-encrypted-root pattern</strong> (Article 07), one passphrase per OS at boot, everything else silent.</li>
+<li><strong>Installing Windows first</strong>, the one ordering decision that turns “Windows clobbered my bootloader” into a non-event.</li>
 </ul>
-<p>The desktop layer for the Arch side is still a separate choice — a custom Hyprland is the direction I’m taking (upcoming) — and it doesn’t touch any of the multi-boot machinery below it. That’s the whole point of stopping each install at the console: the hard, irreversible decisions (partitions, encryption, bootloader) are done and verified before a single pixel of desktop is drawn.</p>
+<p>The desktop layer for the Arch side is still a separate choice, a custom Hyprland is the direction I’m taking (upcoming), and it doesn’t touch any of the multi-boot machinery below it. That’s the whole point of stopping each install at the console: the hard, irreversible decisions (partitions, encryption, bootloader) are done and verified before a single pixel of desktop is drawn.</p>
 <hr>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1335,7 +1335,7 @@ Attribution
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The Arch Linux logo is a trademark of the Arch Linux project and is used here under <a href="https://archlinux.org/art/" target="_blank" rel="noopener">Arch Linux’s branding terms</a> for editorial purposes only. The Ubuntu wordmark and Circle of Friends are trademarks of Canonical Ltd.; the Windows name and logo are trademarks of Microsoft Corporation — references here are editorial and follow each owner’s trademark policy.</p>
+<p>The Arch Linux logo is a trademark of the Arch Linux project and is used here under <a href="https://archlinux.org/art/" target="_blank" rel="noopener">Arch Linux’s branding terms</a> for editorial purposes only. The Ubuntu wordmark and Circle of Friends are trademarks of Canonical Ltd.; the Windows name and logo are trademarks of Microsoft Corporation, references here are editorial and follow each owner’s trademark policy.</p>
 </div>
 </div>
 

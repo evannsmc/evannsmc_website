@@ -1,25 +1,25 @@
 ---
 title: "My First Arch Linux Install: A Basic Setup on an Old Laptop"
-description: "A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop — verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install."
+description: "A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop, verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install."
 author: "Evanns Morales"
 date: "2026-05-01"
 categories: [arch linux, linux, installation, dotfiles, bootloader, grub, systemd]
 image: ../../../files/tech-zone/arch-logo-dark.svg
-image-alt: "The Arch Linux logo — official wordmark from archlinux.org."
+image-alt: "The Arch Linux logo, official wordmark from archlinux.org."
 draft: false
 ---
 
 ::: {.callout-note}
 ## What this is
 
-This is a personal install log: the **basic** Arch Linux install I did on an old laptop as my entry point into the distribution. I deliberately kept it simple — no Btrfs subvolumes, no full-disk encryption, no zram. Just `ext4`, a swap partition (so I can play with hibernation later), and separate `/` and `/home` partitions. The more ambitious dual-boot, encrypted, snapshot-able workstation is the *next* article in this Tech Zone.
+This is a personal install log: the **basic** Arch Linux install I did on an old laptop as my entry point into the distribution. I deliberately kept it simple, no Btrfs subvolumes, no full-disk encryption, no zram. Just `ext4`, a swap partition (so I can play with hibernation later), and separate `/` and `/home` partitions. The more ambitious dual-boot, encrypted, snapshot-able workstation is the *next* article in this Tech Zone.
 :::
 
 ## Why an old laptop, and why basic?
 
 I'm planning to migrate my main laptop and my desktop to a dual-boot **Ubuntu + Arch** setup with Btrfs subvolumes, LUKS full-disk encryption, zram for everyday swap, and a dedicated encrypted swap partition for hibernation. That is the long-term goal.
 
-But I have never installed Arch before. Doing a maximalist install on the machines I work from every day is how you end up unable to write your dissertation chapter on Monday morning. So this article walks through the **boring, dependable, first-time install** on an old laptop I don't care about bricking. Once I have the basic mental model — `pacstrap`, `chroot`, `mkinitcpio`, `grub-install`, the systemd service ecosystem — the next round can layer Btrfs, LUKS, and zram on top with confidence.
+But I have never installed Arch before. Doing a maximalist install on the machines I work from every day is how you end up unable to write your dissertation chapter on Monday morning. So this article walks through the **boring, dependable, first-time install** on an old laptop I don't care about bricking. Once I have the basic mental model — `pacstrap`, `chroot`, `mkinitcpio`, `grub-install`, the systemd service ecosystem, the next round can layer Btrfs, LUKS, and zram on top with confidence.
 
 The ISO I'm using is `archlinux-2026.05.01-x86_64.iso`, the May 2026 monthly snapshot. Anything in this guide that depends on a specific kernel version or package set should still work on later snapshots, but commands like `cfdisk` and `pacstrap` are the same across releases — Arch is rolling, so the install media just bootstraps you to a current state.
 
@@ -87,7 +87,7 @@ This is expected. It means you haven't personally signed Pierre's key as part of
 
 I used [balenaEtcher](https://etcher.balena.io/#download-etcher){target="_blank" rel="noopener"}: download the Linux x86 zip, unzip, run the executable, follow three steps (pick image, pick drive, flash). Done.
 
-If you prefer the command line, `dd` works too — just be very careful with `of=`.
+If you prefer the command line, `dd` works too, just be very careful with `of=`.
 
 ---
 
@@ -165,7 +165,7 @@ systemctl enable --now sshd
 
 A trio that confused me at first.
 
-- **`openssh`** is the *package* — the upstream project that ships both the client and the server.
+- **`openssh`** is the *package*, the upstream project that ships both the client and the server.
 - **`ssh`** is the *client* binary you run on your laptop to connect into something.
 - **`sshd`** is the *server* daemon that listens for incoming connections.
 
@@ -178,7 +178,7 @@ In the Arch live environment, `openssh` is already installed, the `ssh` client i
 passwd
 ```
 
-This is only for the live environment — you'll set a separate password for the installed system later. Then from any other computer on the same network:
+This is only for the live environment, you'll set a separate password for the installed system later. Then from any other computer on the same network:
 
 ```bash
 ssh root@<ip-address-from-earlier>
@@ -237,7 +237,7 @@ Separate `/` and `/home` partitions mean I can reinstall Arch later without nuki
 fdisk -l
 ```
 
-The disk you want is the big one — usually `nvme0n1` on modern laptops (the `NVMe` naming reflects how SSDs talk to the motherboard over PCIe). Note its full path: `/dev/nvme0n1`.
+The disk you want is the big one, usually `nvme0n1` on modern laptops (the `NVMe` naming reflects how SSDs talk to the motherboard over PCIe). Note its full path: `/dev/nvme0n1`.
 
 ### Edit the partition table
 
@@ -281,11 +281,11 @@ mkfs.ext4     /dev/nvme0n1p3    # Root filesystem
 mkfs.ext4     /dev/nvme0n1p4    # Home filesystem
 ```
 
-The EFI partition *must* be FAT32 — the UEFI specification mandates it. Everything else is your choice; I'm going with `ext4` because it is rock-solid, well-understood, and has no exotic features I'll need before I rebuild with Btrfs in the next article.
+The EFI partition *must* be FAT32, the UEFI specification mandates it. Everything else is your choice; I'm going with `ext4` because it is rock-solid, well-understood, and has no exotic features I'll need before I rebuild with Btrfs in the next article.
 
 ### Mount
 
-Mounting is how you attach a partition to a directory tree so the OS can actually use it. The Arch install lives in `/mnt` from the live environment's point of view — that becomes `/` from the installed system's point of view after reboot.
+Mounting is how you attach a partition to a directory tree so the OS can actually use it. The Arch install lives in `/mnt` from the live environment's point of view, that becomes `/` from the installed system's point of view after reboot.
 
 ```bash
 mount /dev/nvme0n1p3 /mnt              # mount root first
@@ -313,7 +313,7 @@ You should see all three partitions mounted under `/mnt` and the swap device act
 
 ### Recovery: starting the mount step over
 
-If you mis-mounted something or activated swap twice, nothing is broken — you can cleanly reset the mount state and start over.
+If you mis-mounted something or activated swap twice, nothing is broken, you can cleanly reset the mount state and start over.
 
 ```bash
 swapoff /dev/nvme0n1p2     # ignore errors if swap isn't on
@@ -376,13 +376,13 @@ Here's what each package is for:
 | `base`              | Minimum set of utilities that make the system *Arch* (coreutils, glibc, bash, systemd, etc.). |
 | `linux`             | The actual Linux kernel image. |
 | `linux-firmware`    | Binary firmware blobs for Wi-Fi, GPU, Bluetooth, etc. Without this, your hardware may not work. |
-| `grub`              | GRUB 2 bootloader — selects the kernel and hands off control to it. |
+| `grub`              | GRUB 2 bootloader, selects the kernel and hands off control to it. |
 | `efibootmgr`        | CLI tool to manage UEFI boot entries. `grub-install` calls it under the hood. |
 | `networkmanager`    | Manages Wi-Fi/Ethernet from inside the installed system (we used `iwctl` only because the live USB doesn't ship NetworkManager). |
 | `sudo`              | Lets non-root users run privileged commands. |
 | `neovim`            | My editor of choice. Swap for `nano` or `vim` if that's your taste. |
 | `git`               | Needed for fetching dotfiles, AUR helpers, basically anything later. |
-| `base-devel`        | `make`, `gcc`, `pkgconf`, `fakeroot`, etc. — required for building AUR packages. |
+| `base-devel`        | `make`, `gcc`, `pkgconf`, `fakeroot`, etc., required for building AUR packages. |
 | `intel-ucode`       | Early CPU microcode updates for Intel chips. Use `amd-ucode` instead if your laptop has an AMD CPU. |
 
 </details>
@@ -396,7 +396,7 @@ arch-chroot /mnt
 
 `genfstab` scans the currently mounted partitions and writes their UUIDs into `/mnt/etc/fstab`. Using `-U` (UUIDs) instead of `-L` (labels) is the safer default — UUIDs survive disk renaming. The `>>` appends to the file; do *not* use `>` (it would overwrite anything already there).
 
-`arch-chroot /mnt` is a smarter `chroot` — it mounts `/proc`, `/sys`, `/dev`, and a few other API filesystems inside `/mnt` first, so things like `pacman` work normally from inside the new system. After this command, your shell prompt is "inside" the new Arch install.
+`arch-chroot /mnt` is a smarter `chroot`, it mounts `/proc`, `/sys`, `/dev`, and a few other API filesystems inside `/mnt` first, so things like `pacman` work normally from inside the new system. After this command, your shell prompt is "inside" the new Arch install.
 
 ---
 
@@ -470,11 +470,11 @@ passwd user
 
 Replace `user` with whatever your username should be. Flag-by-flag:
 
-- `-m` — create a home directory at `/home/user`.
-- `-g users` — primary group is `users`.
+- `-m`, create a home directory at `/home/user`.
+- `-g users`, primary group is `users`.
 - `-G wheel` — *also* add the user to the `wheel` group.
 
-The `wheel` group is a Unix convention going back to early BSD: it's the group of people allowed to become root. On Arch (and most modern distros), you grant `sudo` privileges by enabling sudo for everyone in `wheel` — not by listing each user individually.
+The `wheel` group is a Unix convention going back to early BSD: it's the group of people allowed to become root. On Arch (and most modern distros), you grant `sudo` privileges by enabling sudo for everyone in `wheel`, not by listing each user individually.
 
 ### 7. Enable sudo for the wheel group
 
@@ -510,12 +510,12 @@ pacman -Syu \
 
 | Package                  | Why |
 |--------------------------|-----|
-| `linux-headers`          | Kernel headers — required to build out-of-tree modules (DKMS, NVIDIA, ZFS, …). Skip only if you know you'll never build a module. |
-| `mtools`                 | Userspace utilities for manipulating FAT filesystems — handy when poking at the EFI partition. |
+| `linux-headers`          | Kernel headers, required to build out-of-tree modules (DKMS, NVIDIA, ZFS, …). Skip only if you know you'll never build a module. |
+| `mtools`                 | Userspace utilities for manipulating FAT filesystems, handy when poking at the EFI partition. |
 | `network-manager-applet` | Tray icon for switching networks from a desktop environment. Skip on headless systems. |
 | `openssh`                | SSH client *and* server (`ssh` and `sshd`). I want to SSH back in after reboot. |
 | `iptables-nft`           | nftables-backed iptables binary. Modern replacement for legacy `iptables`. |
-| `ipset`                  | Lets the firewall match against large IP sets efficiently. Useful even if you don't use it directly — many tools depend on it. |
+| `ipset`                  | Lets the firewall match against large IP sets efficiently. Useful even if you don't use it directly, many tools depend on it. |
 | `firewalld`              | Friendly firewall daemon with zones (home / work / public). Optional, but I prefer it over hand-writing nftables rules. |
 | `reflector`              | Same mirror-ranker we used from the live ISO; install it inside the system so it can refresh the mirror list on a timer. |
 
@@ -542,14 +542,14 @@ When `pacman` asks which JACK provider to use, pick `pipewire-jack`. When it ask
 
 | Package                                   | Why |
 |-------------------------------------------|-----|
-| `man-db man-pages texinfo`                | Man pages and info pages. Skip only if you genuinely never read documentation locally. |
+| `man-db man-pages texinfo`                | Man pages and info pages. Skip only if you never read documentation locally. |
 | `bluez bluez-utils bluez-deprecated-tools`| Bluetooth stack. Drop on a desktop without Bluetooth. |
 | `alsa-utils`                              | Low-level audio utilities (`alsamixer`, `aplay`). |
 | `pipewire pipewire-pulse`                 | Modern audio stack; `pipewire-pulse` provides drop-in PulseAudio compatibility. |
-| `sof-firmware`                            | Sound Open Firmware — needed by most modern Intel laptop audio codecs. |
+| `sof-firmware`                            | Sound Open Firmware, needed by most modern Intel laptop audio codecs. |
 | `ttf-iosevka-nerd`                        | My terminal font, patched with Nerd Font icons. |
 | `kitty`                                   | My terminal emulator. Pick `alacritty`, `wezterm`, or `foot` if you prefer. |
-| `firefox`                                 | Browser. Optional in the strict sense — you can install your browser of choice later. |
+| `firefox`                                 | Browser. Optional in the strict sense, you can install your browser of choice later. |
 
 </details>
 
@@ -601,7 +601,7 @@ systemctl enable fstrim.timer      # weekly SSD trim
 ::: {.callout-note}
 ## Why `.timer` units instead of cron
 
-`reflector.timer` and `fstrim.timer` are systemd timer units — the modern replacement for cron jobs. They run their corresponding `.service` unit on a schedule (`fstrim.timer` defaults to weekly), log into the journal, and depend on the right targets so they don't fire during boot or shutdown. You don't need to install cron unless you really want to.
+`reflector.timer` and `fstrim.timer` are systemd timer units, the modern replacement for cron jobs. They run their corresponding `.service` unit on a schedule (`fstrim.timer` defaults to weekly), log into the journal, and depend on the right targets so they don't fire during boot or shutdown. You don't need to install cron unless you really want to.
 :::
 
 ### 4. Exit, unmount, and reboot
@@ -630,7 +630,7 @@ From here, the rest of "making Arch *yours*" is a series of separate articles �
 
 ## What's next
 
-This was the deliberately boring first install. The next article is the opposite — my attempt to do all of this **plus** LUKS full-disk encryption, Btrfs subvolumes (`@`, `@home`, `@snapshots`), zram for everyday swap, and a dual-boot side-by-side with Ubuntu. It did not boot. It taught me a lot. That post-mortem is up next.
+This was the deliberately boring first install. The next article is the opposite, my attempt to do all of this **plus** LUKS full-disk encryption, Btrfs subvolumes (`@`, `@home`, `@snapshots`), zram for everyday swap, and a dual-boot side-by-side with Ubuntu. It did not boot. It taught me a lot. That post-mortem is up next.
 
 ---
 

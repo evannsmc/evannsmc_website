@@ -77,7 +77,7 @@ After a lot of experimentation, the setup I personally use is the boring one:
 
 There are ways around this. Tailscale exit nodes, especially the Mullvad add-on, provide a cleaner integration and can give you the benefits of both at once. But they also introduce tradeoffs in flexibility, and control.
 
-Rather than pretending there is a perfect solution, the guide walks through the tradeoffs and explains why I ultimately chose the setup I did. I also mention an untested idea suggested by friend more experienced in homelabbing — running the VPN at the router level instead of the device level — but I couldn't evaluate it on my own hardware because my router firmware doesn't support it.
+Rather than pretending there is a perfect solution, the guide walks through the tradeoffs and explains why I ultimately chose the setup I did. I also mention an untested idea suggested by friend more experienced in homelabbing, running the VPN at the router level instead of the device level, but I couldn't evaluate it on my own hardware because my router firmware doesn't support it.
 
 ## Why I wrote it this way
 
@@ -92,4 +92,4 @@ More than anything, the project became a way to learn how the pieces fit togethe
 
 If you've wanted a homelab but didn't want to expose anything to the public internet, this is the path I'd hand you.
 
-➡️ **[Beginner Homelab on a Raspberry Pi on GitHub](https://github.com/evannsmc/BeginnerHomelabGuide){target="_blank" rel="noopener"}** — per-chapter READMEs, standalone PDFs, and the complete whole-book PDF.
+➡️ **[Beginner Homelab on a Raspberry Pi on GitHub](https://github.com/evannsmc/BeginnerHomelabGuide){target="_blank" rel="noopener"}**, per-chapter READMEs, standalone PDFs, and the complete whole-book PDF.
