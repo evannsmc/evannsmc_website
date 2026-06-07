@@ -226,7 +226,7 @@ Dropping it reclaims 36 GiB for the two roots, removes one LUKS container, one k
 ::: {.callout-important}
 ## Why two separate LUKS containers instead of one shared LUKS with LVM inside
 
-You could legitimately do this differently: one LUKS2 container covering the entire post-ESP drive, then LVM inside it carving out logical volumes for Arch root, Ubuntu root, shared data, and swap. That gives you **one** passphrase prompt at boot.
+You could do this differently: one LUKS2 container covering the entire post-ESP drive, then LVM inside it carving out logical volumes for Arch root, Ubuntu root, shared data, and swap. That gives you **one** passphrase prompt at boot.
 
 | Approach                                | Pros                                                                 | Cons                                                                                                          |
 |-----------------------------------------|-----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
@@ -244,7 +244,7 @@ Partition with `cfdisk`:
 cfdisk /dev/nvme0n1
 ```
 
-Inside `cfdisk`:
+Inside `cfdisk`, move the highlight with `↑`/`↓` (or vim's `j` and `k`) and press `Enter` to choose. Every new partition starts as **Linux filesystem**; to set a different type, highlight it, press `t`, and pick from the list the same way:
 
 1. `d` on every existing partition until the table is empty.
 2. `n` → `1G`   → type **EFI System**      → `/dev/nvme0n1p1`.

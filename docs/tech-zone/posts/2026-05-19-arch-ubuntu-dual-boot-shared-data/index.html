@@ -753,7 +753,7 @@ Why two separate LUKS containers instead of one shared LUKS with LVM inside
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>You could legitimately do this differently: one LUKS2 container covering the entire post-ESP drive, then LVM inside it carving out logical volumes for Arch root, Ubuntu root, shared data, and swap. That gives you <strong>one</strong> passphrase prompt at boot.</p>
+<p>You could do this differently: one LUKS2 container covering the entire post-ESP drive, then LVM inside it carving out logical volumes for Arch root, Ubuntu root, shared data, and swap. That gives you <strong>one</strong> passphrase prompt at boot.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 18%">
@@ -786,7 +786,7 @@ Why two separate LUKS containers instead of one shared LUKS with LVM inside
 </div>
 <p>Partition with <code>cfdisk</code>:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Inside <code>cfdisk</code>:</p>
+<p>Inside <code>cfdisk</code>, move the highlight with <code>↑</code>/<code>↓</code> (or vim’s <code>j</code> and <code>k</code>) and press <code>Enter</code> to choose. Every new partition starts as <strong>Linux filesystem</strong>; to set a different type, highlight it, press <code>t</code>, and pick from the list the same way:</p>
 <ol type="1">
 <li><code>d</code> on every existing partition until the table is empty.</li>
 <li><code>n</code> → <code>1G</code> → type <strong>EFI System</strong> → <code>/dev/nvme0n1p1</code>.</li>

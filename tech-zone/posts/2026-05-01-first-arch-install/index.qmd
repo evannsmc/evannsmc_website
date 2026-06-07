@@ -247,7 +247,7 @@ The disk you want is the big one, usually `nvme0n1` on modern laptops (the `NVMe
 cfdisk /dev/nvme0n1
 ```
 
-Inside `cfdisk`:
+Inside `cfdisk`, move the highlight with `↑`/`↓` (or vim's `j` and `k`) and press `Enter` to choose. Every new partition starts as **Linux filesystem**; to set a different type, highlight it, press `t`, and pick from the list the same way:
 
 1. Press `d` on every existing partition to delete it. Nothing is committed until you press `w`, so this is your scratch space.
 2. Press `n` to create new partitions. Set each one's size and partition type:

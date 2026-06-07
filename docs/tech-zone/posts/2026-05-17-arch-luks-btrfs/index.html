@@ -575,7 +575,7 @@ Confirm what disk you’re about to wipe
 </table>
 <p>That’s it. No separate <code>/home</code> partition (Btrfs subvolumes give you the same isolation without the space-guessing problem). No separate swap partition (the swap file inside Btrfs replaces it). No shared data partition (single boot, so there’s nothing to share with).</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Inside <code>cfdisk</code>:</p>
+<p>Inside <code>cfdisk</code>, move the highlight with <code>↑</code>/<code>↓</code> (or vim’s <code>j</code> and <code>k</code>) and press <code>Enter</code> to choose. Every new partition starts as <strong>Linux filesystem</strong>; to set a different type, highlight it, press <code>t</code>, and pick from the list the same way:</p>
 <ol type="1">
 <li><code>d</code> on every existing partition until the table is empty.</li>
 <li><code>n</code> → 1 GiB → type <strong>EFI System</strong> → that’s <code>/dev/nvme0n1p1</code>.</li>
