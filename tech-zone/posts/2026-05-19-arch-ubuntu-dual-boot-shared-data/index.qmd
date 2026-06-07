@@ -44,7 +44,7 @@ My [first attempt at a dual-boot with LUKS, Btrfs, zram, and a shared partition]
 
 Adding Ubuntu introduces five concerns that single-boot didn't have:
 
-1. **Who owns GRUB?** Both distros want to install their own bootloader to the same ESP. We pick one as the menu driver (Ubuntu, because its installer wires up `os-prober` for you out of the box) and let it discover Arch automatically.
+1. **Who owns GRUB?** Both distros want to install their own bootloader to the same ESP. We pick one as the menu driver (Ubuntu) and let its `os-prober` discover Arch automatically.
 2. **How does the shared encrypted data partition get unlocked from both sides without prompting twice?** A LUKS container can hold up to 8 keyslots. We add the user's passphrase as slot 0 (for recovery from a live USB), then add a 4096-byte keyfile as slot 1, and store a copy of that keyfile inside each (already-unlocked) root, referenced from each distro's `/etc/crypttab`. Boot order: root unlock by passphrase → root mounts → crypttab reads keyfile → shared partition unlocks silently.
 3. **Resume-image collisions.** Two OSes hibernating to the same swap target would overwrite each other's resume image. We sidestep this entirely by giving each OS its own NoCOW Btrfs swap file inside its own LUKS root, plus zram for everyday compressed swap, exactly the [Article 03 pattern](../2026-05-17-arch-luks-btrfs/#chapter-7-the-hibernation-swap-file), applied twice. There's no shared swap partition at all: zram handles ~all everyday memory pressure on either OS, and hibernation never has to share state across the boundary.
 4. **UID/GID coordination for the shared partition.** If `user` is UID 1000 on Arch and UID 1001 on Ubuntu, every file on `/data` looks like it belongs to a different user depending on which OS you booted into. We pin UID 1000 on both sides during user creation.
@@ -192,7 +192,7 @@ This is the central design decision and the only place the dual-boot story reall
 | `p1`      | 1 GiB              | FAT32                       | none       | `/boot`    | Shared UEFI ESP (kernels, initramfs, GRUB)         |
 | `p2`      | 150 GiB            | Btrfs (inside LUKS2)        | LUKS2      | `/data`    | Shared data partition, keyfile-unlocked            |
 | `p3`      | (remaining ÷ 2)    | Btrfs (inside LUKS2)        | LUKS2      | `/`        | **Arch** root, passphrase-unlocked                 |
-| `p4`      | (remaining ÷ 2)    | Btrfs (inside LUKS2)        | LUKS2      | `/`        | **Ubuntu** root, passphrase-unlocked (installer)   |
+| `p4`      | (remaining ÷ 2)    | Btrfs (inside LUKS2)        | LUKS2      | `/`        | **Ubuntu** root, passphrase-unlocked   |
 
 ::: {.callout-note}
 ## Doing the math for your disk
@@ -265,7 +265,7 @@ You should see four children of `nvme0n1`, in order, with the sizes you typed.
 
 ## Chapter 2: Format the two Arch-side LUKS containers
 
-We format two LUKS containers now (p2 = shared data, p3 = Arch root) and leave p4 for Ubuntu's installer to format later. The reason: Ubuntu's "Custom layout" installer can unlock an existing LUKS2 container, but it's far more reliable to let it format the target partition itself, that way Ubuntu owns the container's metadata, keyslot policy, and `crypttab` UUID, with no inherited state from us.
+We format two LUKS containers now (p2 = shared data, p3 = Arch root) and leave p4 untouched for Ubuntu. We LUKS-format p4 by hand during the manual Ubuntu install in Part 4: 24.04's installer can't encrypt a partition you hand it, so we drive `cryptsetup` ourselves there, giving Ubuntu's root its own container, keyslots, and `crypttab` UUID, fully separate from Arch's.
 
 LUKS2 is the modern default in `cryptsetup`; there is no good reason to force LUKS1 in 2026.
 
@@ -296,7 +296,7 @@ cryptsetup open /dev/nvme0n1p2 crypt_shared
 cryptsetup open /dev/nvme0n1p3 crypt_arch
 ```
 
-The mapper names matter, they're the contract between this step, the kernel cmdline, `/etc/crypttab`, and `/etc/fstab`. Pick a naming convention and stick with it. I'm using `crypt_arch` for the Arch root and `crypt_shared` for the data partition (Article 03 calls the Arch root `cryptroot`; here it becomes `crypt_arch` so the name itself says *which* OS's root it is, now that more than one is in play). Ubuntu's root is the third piece of the scheme, conceptually `crypt_ubuntu`, but you don't get to pick it the same way: Ubuntu's guided installer auto-names the mapper after its partition, typically `crypt_ubuntu`, and that's the name that ends up in Ubuntu's own `/etc/crypttab` and `resume=` line. We use that installer name verbatim later in the article rather than fight it.
+The mapper names matter, they're the contract between this step, the kernel cmdline, `/etc/crypttab`, and `/etc/fstab`. Pick a naming convention and stick with it. I'm using `crypt_arch` for the Arch root and `crypt_shared` for the data partition (Article 03 calls the Arch root `cryptroot`; here it becomes `crypt_arch` so the name itself says *which* OS's root it is, now that more than one is in play). Ubuntu's root is the third piece of the scheme: `crypt_ubuntu`. Because we install Ubuntu by hand later in this article (24.04's installer can't encrypt a partition you hand it), its mapper name is ours to choose too, so we `cryptsetup open` it as `crypt_ubuntu`, exactly parallel to Arch's `crypt_arch`. That's the name that goes into Ubuntu's own `/etc/crypttab` and `resume=` line.
 
 Format the inside of each container:
 
@@ -432,7 +432,7 @@ The two distinct Btrfs UUIDs (Arch root vs. shared data) confirm `genfstab` saw 
 
 ## Chapter 6: Locale, time, hostname, user, with a pinned UID
 
-Identical to [Article 03's Chapter 6](../2026-05-17-arch-luks-btrfs/#chapter-6-locale-time-hostname-user) except for **one** dual-boot-specific change: we pin the user's UID and GID to `1000` explicitly. Ubuntu's installer assigns the first regular user UID 1000 by default, so if we also pin to 1000 here, files on `/data` will be owned by the same user-as-the-kernel-sees-it on both sides.
+Identical to [Article 03's Chapter 6](../2026-05-17-arch-luks-btrfs/#chapter-6-locale-time-hostname-user) except for **one** dual-boot-specific change: we pin the user's UID and GID to `1000` explicitly. We pin the Ubuntu user to 1000 the same way later (`useradd -u 1000 -g 1000`), so files on `/data` are owned by the same user-as-the-kernel-sees-it on both OSes. 1000 is the conventional first-user ID on both distros, but we set it by hand rather than assume it.
 
 ```bash
 # Editor + EDITOR var
@@ -772,7 +772,7 @@ grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-The `grub-install --bootloader-id=GRUB` writes a `GRUB` entry to the EFI NVRAM and copies the GRUB binaries to `/boot/EFI/GRUB/`. When Ubuntu's installer runs `grub-install` later, it writes a separate `Ubuntu` NVRAM entry and copies its own binaries to `/boot/EFI/Ubuntu/`. The ESP holds **both** sets simultaneously, firmware decides which to chainload based on NVRAM boot-order.
+The `grub-install --bootloader-id=GRUB` writes a `GRUB` entry to the EFI NVRAM and copies the GRUB binaries to `/boot/EFI/GRUB/`. When you run Ubuntu's `grub-install` later (inside the manual install's chroot), it writes a separate `Ubuntu` NVRAM entry and copies its own binaries to `/boot/EFI/Ubuntu/`. The ESP holds **both** sets simultaneously, firmware decides which to chainload based on NVRAM boot-order.
 
 ::: {.callout-note}
 ## We don't set `GRUB_ENABLE_CRYPTODISK=y`
@@ -963,7 +963,7 @@ Download the [Ubuntu 24.04 LTS Desktop ISO](https://ubuntu.com/download/desktop)
 ::: {.callout-warning}
 ## Ubuntu will overwrite the EFI NVRAM `BootOrder`
 
-When Ubuntu's installer runs `grub-install`, it writes an `Ubuntu` entry to NVRAM and **adjusts the boot order so Ubuntu's GRUB is tried first**. That's fine — Ubuntu's GRUB, with `os-prober` enabled, picks up Arch automatically and shows both in its menu. But if you'd rather Arch's GRUB own the menu, you'll restore the order with `efibootmgr` in Part 6.
+When you run Ubuntu's `grub-install`, it writes an `Ubuntu` entry to NVRAM and **adjusts the boot order so Ubuntu's GRUB is tried first**. That's fine — Ubuntu's GRUB, with `os-prober` enabled, picks up Arch automatically and shows both in its menu. But if you'd rather Arch's GRUB own the menu, you'll restore the order with `efibootmgr` in Part 6.
 
 If you want to be safe before continuing, dump the current NVRAM state so you can compare later:
 
@@ -971,7 +971,7 @@ If you want to be safe before continuing, dump the current NVRAM state so you ca
 efibootmgr -v > ~/efi-before-ubuntu.txt
 ```
 
-Run that from the *Arch* side, before booting the Ubuntu installer.
+Run that from the *Arch* side, before booting the Ubuntu live USB.
 :::
 
 ### Install Ubuntu by hand from the live session
@@ -1183,7 +1183,7 @@ Pull the Ubuntu USB as the laptop restarts.
 
 ## Chapter 15: Add the hibernation swap file on Ubuntu
 
-Ubuntu's installer doesn't create a hibernation swap file by default. We mirror Arch's Chapter 9 from inside the running Ubuntu system.
+A from-scratch Ubuntu install has no hibernation swap file. We mirror Arch's Chapter 9 from inside the running Ubuntu system.
 
 After the reboot, pick **Ubuntu** from the GRUB menu (or `Arch Linux` to flip back if you want to compare; we'll boot Ubuntu first to finish its config).
 
@@ -1193,7 +1193,7 @@ Log in as `user`. Open a terminal:
 # Find the Btrfs filesystem mounted at / — should be /dev/mapper/crypt_ubuntu
 findmnt /
 
-# Create the swap subvolume (Ubuntu's installer doesn't ship one)
+# Create the swap subvolume (a manual install doesn't ship one)
 sudo btrfs subvolume create /swap
 
 # Make a NoCOW swap file — same size logic as Arch (≥ RAM)
@@ -1384,7 +1384,7 @@ Fix the cmdline (Arch: `/etc/default/grub` → `grub-mkconfig`; Ubuntu: `/etc/de
 
 ### 5. File ownership on `/data` looks like `1001` from Ubuntu, `1000` from Arch
 
-The Ubuntu installer assigned the user UID 1001 because there was already a UID 1000 in some inherited config (rare, but possible). Fix from Ubuntu:
+If the Ubuntu user came out as UID 1001 (you skipped `-u 1000` on the `useradd`, or a UID 1000 already existed), fix it from Ubuntu:
 
 ```bash
 sudo usermod -u 1000 <USERNAME>
@@ -1394,20 +1394,6 @@ sudo find / -gid 1001 -not -path '/proc/*' -not -path '/sys/*' -exec chgrp 1000 
 ```
 
 Reboot Ubuntu. Now `id user` prints `uid=1000(user) gid=1000(user)`.
-
-### 6. Ubuntu installer can't see the Arch ESP
-
-Symptom: when you select `/dev/nvme0n1p1` in the installer, "Use as: EFI System Partition" is greyed out, or the installer wants to format it.
-
-Workaround: pre-mount it from the live ISO's terminal before re-launching the installer:
-
-```bash
-sudo mount /dev/nvme0n1p1 /mnt
-ls /mnt/EFI                 # should see GRUB/ from Arch's grub-install
-sudo umount /mnt
-```
-
-Then re-launch the installer, the partition type recognition usually settles after a clean mount-cycle.
 
 ---
 

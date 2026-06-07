@@ -511,7 +511,7 @@ What this is
 <p>My <a href="../2026-05-05-arch-luks-btrfs-lessons/">first attempt at a dual-boot with LUKS, Btrfs, zram, and a shared partition</a> (Article 01) tried to land everything in one swing and didn’t boot. The post-mortem isolated two <code>cryptdevice=</code> typos in the kernel command line and one missing <code>rootflags=subvol=@</code> parameter. After I fixed those in <a href="../2026-05-17-arch-luks-btrfs/">Article 03</a>, the single-boot version worked end-to-end.</p>
 <p>Adding Ubuntu introduces five concerns that single-boot didn’t have:</p>
 <ol type="1">
-<li><strong>Who owns GRUB?</strong> Both distros want to install their own bootloader to the same ESP. We pick one as the menu driver (Ubuntu, because its installer wires up <code>os-prober</code> for you out of the box) and let it discover Arch automatically.</li>
+<li><strong>Who owns GRUB?</strong> Both distros want to install their own bootloader to the same ESP. We pick one as the menu driver (Ubuntu) and let its <code>os-prober</code> discover Arch automatically.</li>
 <li><strong>How does the shared encrypted data partition get unlocked from both sides without prompting twice?</strong> A LUKS container can hold up to 8 keyslots. We add the user’s passphrase as slot 0 (for recovery from a live USB), then add a 4096-byte keyfile as slot 1, and store a copy of that keyfile inside each (already-unlocked) root, referenced from each distro’s <code>/etc/crypttab</code>. Boot order: root unlock by passphrase → root mounts → crypttab reads keyfile → shared partition unlocks silently.</li>
 <li><strong>Resume-image collisions.</strong> Two OSes hibernating to the same swap target would overwrite each other’s resume image. We sidestep this entirely by giving each OS its own NoCOW Btrfs swap file inside its own LUKS root, plus zram for everyday compressed swap, exactly the <a href="../2026-05-17-arch-luks-btrfs/#chapter-7-the-hibernation-swap-file">Article 03 pattern</a>, applied twice. There’s no shared swap partition at all: zram handles ~all everyday memory pressure on either OS, and hibernation never has to share state across the boundary.</li>
 <li><strong>UID/GID coordination for the shared partition.</strong> If <code>user</code> is UID 1000 on Arch and UID 1001 on Ubuntu, every file on <code>/data</code> looks like it belongs to a different user depending on which OS you booted into. We pin UID 1000 on both sides during user creation.</li>
@@ -700,7 +700,7 @@ Confirm what disk you’re about to wipe
 <td>Btrfs (inside LUKS2)</td>
 <td>LUKS2</td>
 <td><code>/</code></td>
-<td><strong>Ubuntu</strong> root, passphrase-unlocked (installer)</td>
+<td><strong>Ubuntu</strong> root, passphrase-unlocked</td>
 </tr>
 </tbody>
 </table>
@@ -802,7 +802,7 @@ Why two separate LUKS containers instead of one shared LUKS with LVM inside
 </section>
 <section id="chapter-2-format-the-two-arch-side-luks-containers" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-2-format-the-two-arch-side-luks-containers">Chapter 2: Format the two Arch-side LUKS containers</h2>
-<p>We format two LUKS containers now (p2 = shared data, p3 = Arch root) and leave p4 for Ubuntu’s installer to format later. The reason: Ubuntu’s “Custom layout” installer can unlock an existing LUKS2 container, but it’s far more reliable to let it format the target partition itself, that way Ubuntu owns the container’s metadata, keyslot policy, and <code>crypttab</code> UUID, with no inherited state from us.</p>
+<p>We format two LUKS containers now (p2 = shared data, p3 = Arch root) and leave p4 untouched for Ubuntu. We LUKS-format p4 by hand during the manual Ubuntu install in Part 4: 24.04’s installer can’t encrypt a partition you hand it, so we drive <code>cryptsetup</code> ourselves there, giving Ubuntu’s root its own container, keyslots, and <code>crypttab</code> UUID, fully separate from Arch’s.</p>
 <p>LUKS2 is the modern default in <code>cryptsetup</code>; there is no good reason to force LUKS1 in 2026.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> luksFormat <span class="at">--type</span> luks2 /dev/nvme0n1p2   <span class="co"># shared data</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> luksFormat <span class="at">--type</span> luks2 /dev/nvme0n1p3   <span class="co"># Arch root</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -829,7 +829,7 @@ Use different passphrases, or use the same one carefully
 <p>Now unlock both to their canonical mapper names:</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> open /dev/nvme0n1p2 crypt_shared</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> open /dev/nvme0n1p3 crypt_arch</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The mapper names matter, they’re the contract between this step, the kernel cmdline, <code>/etc/crypttab</code>, and <code>/etc/fstab</code>. Pick a naming convention and stick with it. I’m using <code>crypt_arch</code> for the Arch root and <code>crypt_shared</code> for the data partition (Article 03 calls the Arch root <code>cryptroot</code>; here it becomes <code>crypt_arch</code> so the name itself says <em>which</em> OS’s root it is, now that more than one is in play). Ubuntu’s root is the third piece of the scheme, conceptually <code>crypt_ubuntu</code>, but you don’t get to pick it the same way: Ubuntu’s guided installer auto-names the mapper after its partition, typically <code>crypt_ubuntu</code>, and that’s the name that ends up in Ubuntu’s own <code>/etc/crypttab</code> and <code>resume=</code> line. We use that installer name verbatim later in the article rather than fight it.</p>
+<p>The mapper names matter, they’re the contract between this step, the kernel cmdline, <code>/etc/crypttab</code>, and <code>/etc/fstab</code>. Pick a naming convention and stick with it. I’m using <code>crypt_arch</code> for the Arch root and <code>crypt_shared</code> for the data partition (Article 03 calls the Arch root <code>cryptroot</code>; here it becomes <code>crypt_arch</code> so the name itself says <em>which</em> OS’s root it is, now that more than one is in play). Ubuntu’s root is the third piece of the scheme: <code>crypt_ubuntu</code>. Because we install Ubuntu by hand later in this article (24.04’s installer can’t encrypt a partition you hand it), its mapper name is ours to choose too, so we <code>cryptsetup open</code> it as <code>crypt_ubuntu</code>, exactly parallel to Arch’s <code>crypt_arch</code>. That’s the name that goes into Ubuntu’s own <code>/etc/crypttab</code> and <code>resume=</code> line.</p>
 <p>Format the inside of each container:</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.fat</span> <span class="at">-F32</span> /dev/nvme0n1p1                  <span class="co"># ESP — outside LUKS, must stay unencrypted so GRUB can read it</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> shared /dev/mapper/crypt_shared</span>
@@ -980,7 +980,7 @@ Sanity-check the generated fstab
 <h1>Part 2 — Inside the chroot</h1>
 <section id="chapter-6-locale-time-hostname-user-with-a-pinned-uid" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-6-locale-time-hostname-user-with-a-pinned-uid">Chapter 6: Locale, time, hostname, user, with a pinned UID</h2>
-<p>Identical to <a href="../2026-05-17-arch-luks-btrfs/#chapter-6-locale-time-hostname-user">Article 03’s Chapter 6</a> except for <strong>one</strong> dual-boot-specific change: we pin the user’s UID and GID to <code>1000</code> explicitly. Ubuntu’s installer assigns the first regular user UID 1000 by default, so if we also pin to 1000 here, files on <code>/data</code> will be owned by the same user-as-the-kernel-sees-it on both sides.</p>
+<p>Identical to <a href="../2026-05-17-arch-luks-btrfs/#chapter-6-locale-time-hostname-user">Article 03’s Chapter 6</a> except for <strong>one</strong> dual-boot-specific change: we pin the user’s UID and GID to <code>1000</code> explicitly. We pin the Ubuntu user to 1000 the same way later (<code>useradd -u 1000 -g 1000</code>), so files on <code>/data</code> are owned by the same user-as-the-kernel-sees-it on both OSes. 1000 is the conventional first-user ID on both distros, but we set it by hand rather than assume it.</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Editor + EDITOR var</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/bin/nvim /usr/local/bin/vi</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'export EDITOR=nvim'</span> <span class="op">&gt;&gt;</span> /etc/profile</span>
@@ -1361,7 +1361,7 @@ Click to expand: every parameter
 <p>Install the bootloader and generate the GRUB config:</p>
 <div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The <code>grub-install --bootloader-id=GRUB</code> writes a <code>GRUB</code> entry to the EFI NVRAM and copies the GRUB binaries to <code>/boot/EFI/GRUB/</code>. When Ubuntu’s installer runs <code>grub-install</code> later, it writes a separate <code>Ubuntu</code> NVRAM entry and copies its own binaries to <code>/boot/EFI/Ubuntu/</code>. The ESP holds <strong>both</strong> sets simultaneously, firmware decides which to chainload based on NVRAM boot-order.</p>
+<p>The <code>grub-install --bootloader-id=GRUB</code> writes a <code>GRUB</code> entry to the EFI NVRAM and copies the GRUB binaries to <code>/boot/EFI/GRUB/</code>. When you run Ubuntu’s <code>grub-install</code> later (inside the manual install’s chroot), it writes a separate <code>Ubuntu</code> NVRAM entry and copies its own binaries to <code>/boot/EFI/Ubuntu/</code>. The ESP holds <strong>both</strong> sets simultaneously, firmware decides which to chainload based on NVRAM boot-order.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1530,10 +1530,10 @@ Ubuntu will overwrite the EFI NVRAM <code>BootOrder</code>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>When Ubuntu’s installer runs <code>grub-install</code>, it writes an <code>Ubuntu</code> entry to NVRAM and <strong>adjusts the boot order so Ubuntu’s GRUB is tried first</strong>. That’s fine — Ubuntu’s GRUB, with <code>os-prober</code> enabled, picks up Arch automatically and shows both in its menu. But if you’d rather Arch’s GRUB own the menu, you’ll restore the order with <code>efibootmgr</code> in Part 6.</p>
+<p>When you run Ubuntu’s <code>grub-install</code>, it writes an <code>Ubuntu</code> entry to NVRAM and <strong>adjusts the boot order so Ubuntu’s GRUB is tried first</strong>. That’s fine — Ubuntu’s GRUB, with <code>os-prober</code> enabled, picks up Arch automatically and shows both in its menu. But if you’d rather Arch’s GRUB own the menu, you’ll restore the order with <code>efibootmgr</code> in Part 6.</p>
 <p>If you want to be safe before continuing, dump the current NVRAM state so you can compare later:</p>
 <div class="sourceCode" id="cb57"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span> <span class="at">-v</span> <span class="op">&gt;</span> ~/efi-before-ubuntu.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Run that from the <em>Arch</em> side, before booting the Ubuntu installer.</p>
+<p>Run that from the <em>Arch</em> side, before booting the Ubuntu live USB.</p>
 </div>
 </div>
 <section id="install-ubuntu-by-hand-from-the-live-session" class="level3">
@@ -1697,13 +1697,13 @@ First: prove you’re actually <em>in</em> the chroot
 </section>
 <section id="chapter-15-add-the-hibernation-swap-file-on-ubuntu" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-15-add-the-hibernation-swap-file-on-ubuntu">Chapter 15: Add the hibernation swap file on Ubuntu</h2>
-<p>Ubuntu’s installer doesn’t create a hibernation swap file by default. We mirror Arch’s Chapter 9 from inside the running Ubuntu system.</p>
+<p>A from-scratch Ubuntu install has no hibernation swap file. We mirror Arch’s Chapter 9 from inside the running Ubuntu system.</p>
 <p>After the reboot, pick <strong>Ubuntu</strong> from the GRUB menu (or <code>Arch Linux</code> to flip back if you want to compare; we’ll boot Ubuntu first to finish its config).</p>
 <p>Log in as <code>user</code>. Open a terminal:</p>
 <div class="sourceCode" id="cb73"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the Btrfs filesystem mounted at / — should be /dev/mapper/crypt_ubuntu</span></span>
 <span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /</span>
 <span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the swap subvolume (Ubuntu's installer doesn't ship one)</span></span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the swap subvolume (a manual install doesn't ship one)</span></span>
 <span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs subvolume create /swap</span>
 <span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Make a NoCOW swap file — same size logic as Arch (≥ RAM)</span></span>
@@ -1856,21 +1856,12 @@ Why the explicit <code>/etc/initramfs-tools/conf.d/resume</code> file
 </section>
 <section id="file-ownership-on-data-looks-like-1001-from-ubuntu-1000-from-arch" class="level3">
 <h3 class="anchored" data-anchor-id="file-ownership-on-data-looks-like-1001-from-ubuntu-1000-from-arch">5. File ownership on <code>/data</code> looks like <code>1001</code> from Ubuntu, <code>1000</code> from Arch</h3>
-<p>The Ubuntu installer assigned the user UID 1001 because there was already a UID 1000 in some inherited config (rare, but possible). Fix from Ubuntu:</p>
+<p>If the Ubuntu user came out as UID 1001 (you skipped <code>-u 1000</code> on the <code>useradd</code>, or a UID 1000 already existed), fix it from Ubuntu:</p>
 <div class="sourceCode" id="cb85"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> usermod <span class="at">-u</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
 <span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> groupmod <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
 <span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find / <span class="at">-uid</span> 1001 <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/proc/*'</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/sys/*'</span> <span class="at">-exec</span> chown 1000 {} +</span>
 <span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find / <span class="at">-gid</span> 1001 <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/proc/*'</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/sys/*'</span> <span class="at">-exec</span> chgrp 1000 {} +</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Reboot Ubuntu. Now <code>id user</code> prints <code>uid=1000(user) gid=1000(user)</code>.</p>
-</section>
-<section id="ubuntu-installer-cant-see-the-arch-esp" class="level3">
-<h3 class="anchored" data-anchor-id="ubuntu-installer-cant-see-the-arch-esp">6. Ubuntu installer can’t see the Arch ESP</h3>
-<p>Symptom: when you select <code>/dev/nvme0n1p1</code> in the installer, “Use as: EFI System Partition” is greyed out, or the installer wants to format it.</p>
-<p>Workaround: pre-mount it from the live ISO’s terminal before re-launching the installer:</p>
-<div class="sourceCode" id="cb86"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> mount /dev/nvme0n1p1 /mnt</span>
-<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> /mnt/EFI                 <span class="co"># should see GRUB/ from Arch's grub-install</span></span>
-<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> umount /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Then re-launch the installer, the partition type recognition usually settles after a clean mount-cycle.</p>
 <hr>
 </section>
 </section>
