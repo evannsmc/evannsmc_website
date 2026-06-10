@@ -477,7 +477,7 @@ Activating the swap file from the *live USB's kernel* prevents clean unmounting 
 Persist the swap file in `/etc/fstab`:
 
 ```bash
-echo '/swap/swapfile none swap defaults 0 0' >> /etc/fstab
+echo '/swap/swapfile none swap defaults,pri=-2 0 0' >> /etc/fstab
 ```
 
 Find the resume offset, save the integer for Chapter 10:
@@ -624,7 +624,7 @@ UUID=<arch-btrfs>    /.snapshots  btrfs    rw,noatime,compress=zstd:3,subvol=/@s
 UUID=<arch-btrfs>    /var/log     btrfs    rw,noatime,compress=zstd:3,subvol=/@var_log    0 0
 UUID=<arch-btrfs>    /swap        btrfs    rw,noatime,subvol=/@swap                       0 0
 UUID=<shared-btrfs>  /data        btrfs    rw,noatime,compress=zstd:3,subvol=/@data,nofail,x-systemd.device-timeout=10s 0 0
-/swap/swapfile         none swap defaults 0 0
+/swap/swapfile         none swap defaults,pri=-2 0 0
 ```
 
 Note there's **no `HOOKS=… sd-encrypt …`**, no `/etc/crypttab`, and no keyfile to list, those are the lines the encrypted article had and this one doesn't.
@@ -931,11 +931,28 @@ sudo update-grub
 Ubuntu's `initramfs-tools` reads this file at build time and bakes the resume device into the initramfs so userspace's hibernation tooling agrees with the kernel cmdline. Without it, `update-initramfs` may pick an unintended device. Pinning to Ubuntu's *own* Btrfs filesystem guarantees Ubuntu always resumes from its own hibernation image, never Arch's.
 :::
 
-Confirm Ubuntu sees the shared partition and its own swap:
+### Set up zram on Ubuntu too
+
+Unlike Fedora, Ubuntu 24.04 does **not** enable zram out of the box, so a `debootstrap` install (even with `ubuntu-desktop-minimal`) comes up with only the hibernation swap file. Mirror Arch's Chapter 9 to get the same two-tier swap. Ubuntu ships the very same `systemd-zram-generator`, reading the very same config path:
+
+```bash
+sudo apt install -y systemd-zram-generator
+sudo tee /etc/systemd/zram-generator.conf >/dev/null <<'EOF'
+[zram0]
+zram-size = ram / 2
+compression-algorithm = zstd
+swap-priority = 100
+fs-type = swap
+EOF
+sudo systemctl daemon-reload
+sudo systemctl start systemd-zram-setup@zram0.service   # or just reboot
+```
+
+Confirm Ubuntu sees the shared partition and both swap tiers:
 
 ```bash
 findmnt /data                 # /dev/nvme0n1p2, subvol=@data
-swapon --show                 # zram (Ubuntu sets it up automatically) + /swap/swapfile
+swapon --show                 # zram0 (pri 100) + /swap/swapfile (pri -2)
 ls -l /data                   # files written from Arch should appear, owned by user
 sudo systemctl hibernate      # screen darkens; power button resumes into Ubuntu
 ```

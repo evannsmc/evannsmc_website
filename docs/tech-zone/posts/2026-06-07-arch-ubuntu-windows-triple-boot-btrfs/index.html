@@ -762,7 +762,7 @@ If the installer refuses <code>p3</code> (“can’t install to this disk”)
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Usually a firmware still in CSM/legacy mode, or a stray boot flag. Re-check that firmware is <strong>UEFI-only</strong> (Part 2). If the installer insists on its own partitioning, let it install to <code>p3</code> and create whatever MSR/recovery partitions it wants <em>inside the space we gave it</em>, but never let it touch <code>p1</code> (ESP) or the Linux partitions.</p>
+<p>Usually a firmware still in CSM/legacy mode, or a stray boot flag. Re-check that firmware is <strong>UEFI-only</strong> (Part 2). Because our <code>cfdisk</code> layout already fills the whole disk (no free space left over), Windows can’t carve a <em>separate</em> WinRE/recovery partition — it folds recovery into <code>p3</code> (C:) instead, which is fine and keeps the <code>p1…p7</code> numbering stable. Let it install to <code>p3</code>, but never let it delete or reformat <code>p1</code> (ESP) or the Linux partitions.</p>
 </div>
 </div>
 </section>
@@ -916,7 +916,7 @@ Why we fix the clock on the Windows side
 <section id="hibernation-swap-file-zram" class="level3">
 <h3 class="anchored" data-anchor-id="hibernation-swap-file-zram">Hibernation swap file + zram</h3>
 <div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> filesystem mkswapfile <span class="at">--size</span> 36g <span class="at">--uuid</span> clear /swap/swapfile     <span class="co"># size ≥ your RAM</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'/swap/swapfile none swap defaults 0 0'</span> <span class="op">&gt;&gt;</span> /etc/fstab</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'/swap/swapfile none swap defaults,pri=-2 0 0'</span> <span class="op">&gt;&gt;</span> /etc/fstab</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile                   <span class="co"># save the integer → &lt;RESUME_OFFSET&gt;</span></span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> /etc/systemd/zram-generator.conf <span class="op">&lt;&lt;'EOF'</span></span>
@@ -926,7 +926,7 @@ Why we fix the clock on the Windows side
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="st">swap-priority = 100</span></span>
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="st">fs-type = swap</span></span>
 <span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Don’t <code>swapon</code> from inside the chroot (it blocks clean unmounting). zram (priority 100) carries everyday swap; the swap file (priority -2) is for hibernation. <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-9-zram-for-everyday-compressed-swap">Two-tier swap rationale →</a></p>
+<p>Don’t <code>swapon</code> from inside the chroot (it blocks clean unmounting). zram (priority 100) carries everyday swap; the swap file (priority -2) is for hibernation. Rationale: <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-8-hibernation-swap-file-for-arch">the NoCOW hibernation swap file →</a> and <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-9-zram-for-everyday-compressed-swap">two-tier zram swap →</a>.</p>
 </section>
 <section id="mkinitcpio" class="level3">
 <h3 class="anchored" data-anchor-id="mkinitcpio">mkinitcpio</h3>

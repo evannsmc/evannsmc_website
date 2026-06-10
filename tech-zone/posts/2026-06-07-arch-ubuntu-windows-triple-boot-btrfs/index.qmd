@@ -201,7 +201,7 @@ Windows goes on now, into the partition (`p3`) we reserved, reusing our ESP.
 ::: {.callout-warning}
 ## If the installer refuses `p3` ("can't install to this disk")
 
-Usually a firmware still in CSM/legacy mode, or a stray boot flag. Re-check that firmware is **UEFI-only** (Part 2). If the installer insists on its own partitioning, let it install to `p3` and create whatever MSR/recovery partitions it wants *inside the space we gave it*, but never let it touch `p1` (ESP) or the Linux partitions.
+Usually a firmware still in CSM/legacy mode, or a stray boot flag. Re-check that firmware is **UEFI-only** (Part 2). Because our `cfdisk` layout already fills the whole disk (no free space left over), Windows can't carve a *separate* WinRE/recovery partition — it folds recovery into `p3` (C:) instead, which is fine and keeps the `p1…p7` numbering stable. Let it install to `p3`, but never let it delete or reformat `p1` (ESP) or the Linux partitions.
 :::
 
 ## Chapter 4: Tame Windows so it triple-boots cleanly
@@ -376,7 +376,7 @@ echo "UUID=$(blkid -s UUID -o value /dev/nvme0n1p4) /exchange exfat defaults,uid
 
 ```bash
 btrfs filesystem mkswapfile --size 36g --uuid clear /swap/swapfile     # size ≥ your RAM
-echo '/swap/swapfile none swap defaults 0 0' >> /etc/fstab
+echo '/swap/swapfile none swap defaults,pri=-2 0 0' >> /etc/fstab
 btrfs inspect-internal map-swapfile -r /swap/swapfile                   # save the integer → <RESUME_OFFSET>
 
 cat > /etc/systemd/zram-generator.conf <<'EOF'
@@ -388,7 +388,7 @@ fs-type = swap
 EOF
 ```
 
-Don't `swapon` from inside the chroot (it blocks clean unmounting). zram (priority 100) carries everyday swap; the swap file (priority -2) is for hibernation. [Two-tier swap rationale →](../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-9-zram-for-everyday-compressed-swap)
+Don't `swapon` from inside the chroot (it blocks clean unmounting). zram (priority 100) carries everyday swap; the swap file (priority -2) is for hibernation. Rationale: [the NoCOW hibernation swap file →](../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-8-hibernation-swap-file-for-arch) and [two-tier zram swap →](../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-9-zram-for-everyday-compressed-swap).
 
 ### mkinitcpio
 
