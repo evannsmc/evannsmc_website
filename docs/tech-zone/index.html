@@ -1510,7 +1510,7 @@ NAME           TYPE       SIZE PRIO
 
     <!-- CARD 11 — Dual-boot Arch + Ubuntu, plain Btrfs (no encryption) -->
     <a class="tz-card success" href="./posts/2026-06-07-arch-ubuntu-dual-boot-btrfs/" data-tags="arch linux ubuntu dual-boot btrfs no-encryption plain unencrypted snapper hibernation grub os-prober zram shared partition simpler no luks" aria-label="Read: Dual-Boot Arch + Ubuntu (Plain Btrfs, No Encryption) — With a Shared Data Partition">
-      </a><div class="tz-card-summary"><a class="tz-card success" href="./posts/2026-06-07-arch-ubuntu-dual-boot-btrfs/" data-tags="arch linux ubuntu dual-boot btrfs no-encryption plain unencrypted snapper hibernation grub os-prober zram shared partition simpler no luks" aria-label="Read: Dual-Boot Arch + Ubuntu (Plain Btrfs, No Encryption) — With a Shared Data Partition">
+      <div class="tz-card-summary">
         <div class="tz-card-tags">
           <span class="tz-tag">arch linux</span>
           <span class="tz-tag">ubuntu</span>
@@ -1531,8 +1531,8 @@ NAME           TYPE       SIZE PRIO
           <span class="tz-status-pill warn">reasoned, not yet executed</span>
         </div>
 
-        </a><p class="tz-card-preview-copy"><a class="tz-card success" href="./posts/2026-06-07-arch-ubuntu-dual-boot-btrfs/" data-tags="arch linux ubuntu dual-boot btrfs no-encryption plain unencrypted snapper hibernation grub os-prober zram shared partition simpler no luks" aria-label="Read: Dual-Boot Arch + Ubuntu (Plain Btrfs, No Encryption) — With a Shared Data Partition">
-          The no-encryption twin of </a><a href="./posts/2026-05-19-arch-ubuntu-dual-boot-shared-data/">#07</a>:
+        <p class="tz-card-preview-copy">
+          The no-encryption twin of <strong>#07</strong> (the LUKS+Btrfs dual-boot):
           same dual-boot layout — two plain <code>Btrfs</code> roots, one shared <code>150 GiB</code> Btrfs
           <code>/data</code> both distros mount, per-OS zram + NoCOW hibernation, pinned UID-1000 ownership —
           with <strong>every LUKS layer removed</strong>. No <code>cryptsetup</code>, no keyfile, no
@@ -1561,11 +1561,11 @@ TARGET SOURCE                 FSTYPE OPTIONS
 
         <span class="tz-card-cta">read the no-encryption dual-boot <span class="arrow">→</span></span>
       </div>
-    
+    </a>
 
     <!-- CARD 12 — Triple-boot Arch + Ubuntu + Windows, plain Btrfs (no encryption) -->
     <a class="tz-card success" href="./posts/2026-06-07-arch-ubuntu-windows-triple-boot-btrfs/" data-tags="arch linux ubuntu windows triple-boot btrfs no-encryption plain unencrypted exfat esp os-prober bitlocker secure boot shared partition exchange simpler no luks" aria-label="Read: Triple-Boot Arch + Ubuntu + Windows (Plain Btrfs, No Encryption)">
-      </a><div class="tz-card-summary"><a class="tz-card success" href="./posts/2026-06-07-arch-ubuntu-windows-triple-boot-btrfs/" data-tags="arch linux ubuntu windows triple-boot btrfs no-encryption plain unencrypted exfat esp os-prober bitlocker secure boot shared partition exchange simpler no luks" aria-label="Read: Triple-Boot Arch + Ubuntu + Windows (Plain Btrfs, No Encryption)">
+      <div class="tz-card-summary">
         <div class="tz-card-tags">
           <span class="tz-tag">arch linux</span>
           <span class="tz-tag">ubuntu</span>
@@ -1586,8 +1586,8 @@ TARGET SOURCE                 FSTYPE OPTIONS
           <span class="tz-status-pill warn">reasoned, not yet executed</span>
         </div>
 
-        </a><p class="tz-card-preview-copy"><a class="tz-card success" href="./posts/2026-06-07-arch-ubuntu-windows-triple-boot-btrfs/" data-tags="arch linux ubuntu windows triple-boot btrfs no-encryption plain unencrypted exfat esp os-prober bitlocker secure boot shared partition exchange simpler no luks" aria-label="Read: Triple-Boot Arch + Ubuntu + Windows (Plain Btrfs, No Encryption)">
-          The no-encryption twin of </a><a href="./posts/2026-06-05-arch-ubuntu-windows-triple-boot/">#10</a>:
+        <p class="tz-card-preview-copy">
+          The no-encryption twin of <strong>#10</strong> (the LUKS+Btrfs triple-boot):
           one NVMe drive booting <code>Windows 11</code>, <code>Arch</code>, and <code>Ubuntu 24 LTS</code>,
           with both Linux roots on <strong>plain Btrfs</strong> and a shared plain-Btrfs <code>/data</code>.
           Windows still goes <strong>first</strong>, still hands files to Linux through a plain
@@ -1617,7 +1617,7 @@ GRUB  Microsoft  Ubuntu   <span class="mute"># one unencrypted ESP, three boot p
 
         <span class="tz-card-cta">read the no-encryption triple-boot <span class="arrow">→</span></span>
       </div>
-    
+    </a>
 
   </div>
 

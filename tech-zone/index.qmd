@@ -1168,7 +1168,7 @@ NAME           TYPE       SIZE PRIO
         </div>
 
         <p class="tz-card-preview-copy">
-          The no-encryption twin of <a href="./posts/2026-05-19-arch-ubuntu-dual-boot-shared-data/">#07</a>:
+          The no-encryption twin of <strong>#07</strong> (the LUKS+Btrfs dual-boot):
           same dual-boot layout — two plain <code>Btrfs</code> roots, one shared <code>150 GiB</code> Btrfs
           <code>/data</code> both distros mount, per-OS zram + NoCOW hibernation, pinned UID-1000 ownership —
           with <strong>every LUKS layer removed</strong>. No <code>cryptsetup</code>, no keyfile, no
@@ -1225,7 +1225,7 @@ TARGET SOURCE                 FSTYPE OPTIONS
         </div>
 
         <p class="tz-card-preview-copy">
-          The no-encryption twin of <a href="./posts/2026-06-05-arch-ubuntu-windows-triple-boot/">#10</a>:
+          The no-encryption twin of <strong>#10</strong> (the LUKS+Btrfs triple-boot):
           one NVMe drive booting <code>Windows 11</code>, <code>Arch</code>, and <code>Ubuntu 24 LTS</code>,
           with both Linux roots on <strong>plain Btrfs</strong> and a shared plain-Btrfs <code>/data</code>.
           Windows still goes <strong>first</strong>, still hands files to Linux through a plain
