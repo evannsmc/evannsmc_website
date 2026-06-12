@@ -8,7 +8,7 @@
 
 <meta name="author" content="Evanns Morales">
 <meta name="dcterms.date" content="2026-06-07">
-<meta name="description" content="The no-encryption sibling of the triple-boot finale: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔Linux exchange uses a plain exFAT partition all three OSes read. Same Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub> / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.">
+<meta name="description" content="One NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔Linux exchange uses a plain exFAT partition all three OSes read. Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub> / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.">
 
 <title>Triple-Boot Arch + Ubuntu + Windows (Plain Btrfs, No Encryption) – evannsmc</title>
 <style>
@@ -167,12 +167,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <link rel="stylesheet" href="../../../styles.css">
 <meta property="og:title" content="Triple-Boot Arch + Ubuntu + Windows (Plain Btrfs, No Encryption) – evannsmc">
-<meta property="og:description" content="The no-encryption sibling of the triple-boot finale: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Same Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub> / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.">
+<meta property="og:description" content="One NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub> / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.">
 <meta property="og:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
 <meta property="og:site_name" content="evannsmc">
 <meta property="og:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:title" content="Triple-Boot Arch + Ubuntu + Windows (Plain Btrfs, No Encryption) – evannsmc">
-<meta name="twitter:description" content="The no-encryption sibling of the triple-boot finale: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Same Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub> / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.">
+<meta name="twitter:description" content="One NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub> / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.">
 <meta name="twitter:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
 <meta name="twitter:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:card" content="summary_large_image">
@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <div>
   <div class="description">
-    The no-encryption sibling of the triple-boot finale: one NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Same Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub&gt; / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.
+    One NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub&gt; / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.
   </div>
 </div>
 
@@ -473,11 +473,11 @@ document.addEventListener('DOMContentLoaded', function () {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Disclaimer: this is the reasoned no-encryption variant, not yet a live-tested run
+Disclaimer: a reasoned no-encryption build, not yet a live-tested run
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The plain-Btrfs twin of the <a href="../2026-06-05-arch-ubuntu-windows-triple-boot/">LUKS+Btrfs triple-boot (Article 10)</a>, built by removing every encryption layer from that design. It’s a reasoned blueprint, not a command-by-command log I’ve executed end-to-end (yet). Dropping LUKS also drops the parts of the encrypted article that bit hardest in practice, the encrypted-<code>/boot</code> GRUB setup that can land you at a bare <code>grub&gt;</code> prompt, the Argon2id-keyslot trap, the keyfile/<code>crypttab</code> dance, and the double passphrase prompt. The Windows-integration parts (install order, ESP sharing, the exFAT exchange, the RTC clock fix, Secure Boot / BitLocker) are unchanged, none of those depend on Linux encryption.</p>
+<p>A no-encryption triple-boot blueprint: Windows 11, Arch, and Ubuntu on one drive, with both Linux roots on plain Btrfs and a shared Btrfs <code>/data</code>, no LUKS anywhere. It’s a carefully-reasoned procedure, not a command-by-command log I’ve executed end-to-end (yet). Because the disk is unencrypted, <code>/boot</code> sits on a plain ESP that GRUB reads directly — none of the <code>grub&gt;</code>-prompt, Argon2id-keyslot, or keyfile/<code>crypttab</code> failure modes that come with an encrypted <code>/boot</code> can happen here. The Windows-integration parts (install order, ESP sharing, the exFAT exchange, the RTC clock fix, Secure Boot / BitLocker) are pure Windows concerns — encryption never touches them.</p>
 <p>Canonical sources to re-read as you go:</p>
 <ul>
 <li><a href="https://wiki.archlinux.org/title/Dual_boot_with_Windows" target="_blank" rel="noopener">Arch wiki: Dual boot with Windows</a> — ESP sharing, <code>os-prober</code>, the localtime/UTC clock fix</li>
@@ -497,10 +497,10 @@ What this is
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The same triple-boot as <a href="../2026-06-05-arch-ubuntu-windows-triple-boot/">Article 10</a>, minus encryption:</p>
+<p>The layout, with no encryption on the Linux side:</p>
 <ul>
 <li><strong>Windows 11</strong>, installed <strong>first</strong>, on its own NTFS partition, so it can’t clobber a bootloader that isn’t there yet.</li>
-<li><strong>Arch Linux</strong> and <strong>Ubuntu 24 LTS</strong>, each on its <strong>own plain Btrfs root</strong> (no LUKS) with the usual subvolumes (<code>@</code>, <code>@home</code>, <code>@snapshots</code>, <code>@var_log</code>, <code>@swap</code>), exactly the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/">plain-Btrfs dual-boot</a>, unchanged.</li>
+<li><strong>Arch Linux</strong> and <strong>Ubuntu 24 LTS</strong>, each on its <strong>own plain Btrfs root</strong> (no LUKS) with the usual subvolumes (<code>@</code>, <code>@home</code>, <code>@snapshots</code>, <code>@var_log</code>, <code>@swap</code>) — the same root layout as the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/">plain-Btrfs dual-boot</a>.</li>
 <li><strong>One shared 150 GiB plain Btrfs <code>/data</code> partition</strong> the two <strong>Linux</strong> distros mount read-write. Windows stays out of it (it can’t read Btrfs natively).</li>
 <li><strong>One plain exFAT exchange partition</strong> that <em>all three</em> OSes read and write, for the Windows handoff.</li>
 <li><strong>Per-OS zram</strong> for everyday swap and <strong>per-OS NoCOW Btrfs hibernation</strong> inside each Linux root, no cross-OS resume collisions.</li>
@@ -512,7 +512,7 @@ What this is
 </div>
 <section id="why-a-no-encryption-triple-boot" class="level2">
 <h2 class="anchored" data-anchor-id="why-a-no-encryption-triple-boot">Why a no-encryption triple-boot</h2>
-<p>Same reasoning as the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#why-a-no-encryption-version-at-all">plain-Btrfs dual-boot</a>: for a desktop that never leaves the house, an auto-rebooting box, or a first attempt where you want the multi-boot working before adding crypto, full-disk encryption is friction without much payoff. If you want encryption, use <a href="../2026-06-05-arch-ubuntu-windows-triple-boot/">Article 10</a> instead. This article is for when you’ve decided you don’t.</p>
+<p>Same reasoning as the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#why-a-no-encryption-version-at-all">plain-Btrfs dual-boot</a>: for a desktop that never leaves the house, an auto-rebooting box, or a first attempt where you want the multi-boot working before adding crypto, full-disk encryption is friction without much payoff. If you want encryption, you’d wrap each Linux root and the shared <code>/data</code> in LUKS2 — a more involved build, out of scope here. This article is for when you’ve decided you don’t.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -523,10 +523,10 @@ What you give up by dropping encryption
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>With no LUKS on the Linux roots or the shared <code>/data</code>, anyone who can boot a USB stick (or pull the SSD) reads everything on the Linux side, home directories, the shared <code>/data</code>, saved credentials. (Windows’ own files may still be protected if you <em>keep</em> its device encryption, but this article turns BitLocker <strong>off</strong> to keep the boot path simple, so treat the whole disk as readable-at-rest.) A lost or stolen machine is a data breach, not just a hardware loss. If that’s unacceptable for what lives here, use the encrypted article.</p>
+<p>With no LUKS on the Linux roots or the shared <code>/data</code>, anyone who can boot a USB stick (or pull the SSD) reads everything on the Linux side, home directories, the shared <code>/data</code>, saved credentials. (Windows’ own files may still be protected if you <em>keep</em> its device encryption, but this article turns BitLocker <strong>off</strong> to keep the boot path simple, so treat the whole disk as readable-at-rest.) A lost or stolen machine is a data breach, not just a hardware loss. If that’s unacceptable for what lives here, build it with full-disk encryption (LUKS) instead.</p>
 </div>
 </div>
-<p>Adding Windows introduces five concerns the dual-boot didn’t have, all unchanged from the encrypted version (they’re about Windows, not LUKS):</p>
+<p>Adding Windows introduces five concerns a Linux-only dual-boot doesn’t have — all about Windows, not about encryption:</p>
 <ol type="1">
 <li><strong>Windows is a bad bootloader citizen.</strong> It writes its boot manager to the ESP and reorders NVRAM to put itself first. So Windows goes <strong>first</strong>, and GRUB (installed after) becomes the menu that chainloads it.</li>
 <li><strong>Windows can’t read Btrfs.</strong> The shared <code>/data</code> is Linux-only; Windows↔︎Linux exchange uses a <strong>separate plain exFAT partition</strong>.</li>
@@ -551,7 +551,7 @@ How to read the commands in this guide
 </section>
 <section id="part-1-the-disk-layout" class="level1">
 <h1>Part 1 — The disk layout</h1>
-<p>Seven partitions on one drive, the same shape as the encrypted triple-boot minus the LUKS column:</p>
+<p>Seven partitions on one drive:</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 9%">
@@ -692,7 +692,7 @@ Turn off Secure Boot now, while you’re in firmware
 <p>Before leaving firmware setup, <strong>disable Secure Boot</strong> — our GRUB isn’t signed with a key your firmware trusts. While you’re there, set the firmware to <strong>UEFI-only</strong> (disable CSM/legacy boot) so Windows installs in UEFI/GPT mode, matching Linux.</p>
 </div>
 </div>
-<p>If you want to SSH in from another machine for comfort, it’s the same <code>iwctl</code> → <code>systemctl enable --now sshd</code> → <code>passwd</code> dance as the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-0-verify-the-iso-boot-the-live-usb-get-online">dual-boot Chapter 0</a>.</p>
+<p>If you want to SSH in from another machine for comfort: bring up Wi-Fi with <code>iwctl</code> (or plug in Ethernet), then <code>systemctl enable --now sshd</code>, set a root password with <code>passwd</code>, and connect with <code>ssh root@&lt;ip&gt;</code>.</p>
 </section>
 <section id="chapter-1-lay-down-the-partition-table" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-1-lay-down-the-partition-table">Chapter 1: Lay down the partition table</h2>
@@ -808,7 +808,7 @@ Why we fix the clock on the Windows side
 </section>
 <section id="part-4-install-arch-into-p6-plain-btrfs" class="level1">
 <h1>Part 4 — Install Arch into p6 (plain Btrfs)</h1>
-<p>Boot the Arch live USB again. From here, the Arch install is <strong>identical to the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/">plain-Btrfs dual-boot</a></strong>, same Btrfs subvolumes, same shared <code>/data</code>, same per-OS hibernation, with one difference: the partitions already exist and Windows is present, so we <strong>don’t</strong> repartition. Every command is inline; for the deep <em>why</em>, the dual-boot article’s matching chapter is linked.</p>
+<p>Boot the Arch live USB again. From here the Arch install is the standard plain-Btrfs build — the same Btrfs subvolumes, the shared <code>/data</code>, per-OS hibernation — with one difference: the partitions already exist and Windows is present, so we <strong>don’t</strong> repartition. Every command is inline below.</p>
 <section id="chapter-5-format-the-two-arch-side-btrfs-filesystems" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-5-format-the-two-arch-side-btrfs-filesystems">Chapter 5: Format the two Arch-side Btrfs filesystems</h2>
 <p><code>p5</code> is the shared data partition; <code>p6</code> is the Arch root. Leave <code>p7</code> for Ubuntu. No <code>cryptsetup</code>, we <code>mkfs.btrfs</code> straight onto the partitions:</p>
@@ -828,7 +828,7 @@ Why we fix the clock on the Windows side
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p5 /mnt</span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@data</span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-3-create-the-btrfs-subvolumes-on-the-arch-root">Subvolume rationale →</a></p>
+<p>Five subvolumes on the Arch root, one on the shared partition. <code>@</code> and <code>@home</code> are split so a system rollback never reverts your home directory; <code>@snapshots</code> is where Snapper writes; <code>@var_log</code> keeps noisy logs out of root snapshots; <code>@swap</code> is isolated for the NoCOW hibernation swap file. <code>@data</code> is the single subvolume on the shared partition.</p>
 </section>
 <section id="chapter-7-mount-everything-including-the-exchange-partition" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-7-mount-everything-including-the-exchange-partition">Chapter 7: Mount everything (including the exchange partition)</h2>
@@ -842,11 +842,11 @@ Why we fix the clock on the Windows side
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot</span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@data /dev/nvme0n1p5 /mnt/data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><code>@swap</code> mounts <strong>without</strong> compression. We mount <code>/data</code> now so <code>genfstab</code> captures it, but <strong>don’t</strong> add the exFAT exchange to <code>genfstab</code>’s view, we’ll hand-write its <code>fstab</code> line in Chapter 9 (exFAT needs ownership options Btrfs doesn’t). <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-4-mount-everything-for-pacstrap">Mount-option rationale →</a></p>
+<p><code>@swap</code> mounts <strong>without</strong> compression — a swap file must never sit on a compressed mount. We mount <code>/data</code> now so <code>genfstab</code> captures it automatically in the next step, but we <strong>don’t</strong> mount the exFAT exchange: exFAT needs ownership options Btrfs doesn’t, so we hand-write its <code>fstab</code> line in Chapter 9 instead.</p>
 </section>
 <section id="chapter-8-pacstrap-fstab-chroot" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-8-pacstrap-fstab-chroot">Chapter 8: Pacstrap, fstab, chroot</h2>
-<p>Same package set as the dual-boot (note: <strong>no <code>cryptsetup</code></strong>), plus <strong><code>exfatprogs</code></strong> for the exchange partition:</p>
+<p>The package set — note there’s <strong>no <code>cryptsetup</code></strong> (nothing here manages a LUKS container), plus <strong><code>exfatprogs</code></strong> for the exchange partition:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">reflector</span> <span class="at">--country</span> <span class="st">'United States'</span> <span class="at">--protocol</span> https <span class="at">--latest</span> 20 <span class="at">--age</span> 12 <span class="dt">\</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">--sort</span> rate <span class="at">--save</span> /etc/pacman.d/mirrorlist</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -861,11 +861,11 @@ Why we fix the clock on the Windows side
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span>
 <span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Use <code>amd-ucode</code> on AMD hardware. The two additions vs.&nbsp;a single-boot install are <strong><code>os-prober</code></strong> (so GRUB discovers Windows <em>and</em> Ubuntu) and <strong><code>exfatprogs</code></strong> (so Arch can mount the exchange). <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-5-pacstrap-fstab-chroot">fstab sanity check →</a></p>
+<p>Use <code>amd-ucode</code> on AMD hardware. The two additions over a single-boot install are <strong><code>os-prober</code></strong> (so GRUB discovers Windows <em>and</em> Ubuntu) and <strong><code>exfatprogs</code></strong> (so Arch can mount the exchange). After <code>genfstab</code>, <code>cat /etc/fstab</code> should show five Arch-root subvolume lines (the same UUID, different <code>subvol=</code>), one line for <code>/data</code> on the shared filesystem’s UUID, and the FAT32 <code>/boot</code> line.</p>
 </section>
 <section id="chapter-9-configure-the-system-inside-the-chroot" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-9-configure-the-system-inside-the-chroot">Chapter 9: Configure the system inside the chroot</h2>
-<p>This folds together the dual-boot’s Chapters 6–10, locale/user (pinned UID), the <code>/data</code> hardening, hibernation, zram, the exchange-partition <code>fstab</code> line, and <code>mkinitcpio</code>. Each block is the same as the dual-boot; run them in order.</p>
+<p>This chapter covers locale/user (with the pinned UID), the <code>/data</code> hardening, the hibernation swap file, zram, the exchange-partition <code>fstab</code> line, and <code>mkinitcpio</code>. Run the blocks in order.</p>
 <section id="locale-time-hostname-user-with-a-pinned-uid-1000" class="level3">
 <h3 class="anchored" data-anchor-id="locale-time-hostname-user-with-a-pinned-uid-1000">Locale, time, hostname, user, with a pinned UID 1000</h3>
 <div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/bin/nvim /usr/local/bin/vi</span>
@@ -893,7 +893,7 @@ Why we fix the clock on the Windows side
 <span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
 <span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/'</span> /etc/sudoers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The <strong>pinned UID/GID 1000</strong> is what makes file ownership on the shared <code>/data</code> match between Arch and Ubuntu. Use the <strong>same username and UID</strong> when you create the Ubuntu user later. <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-6-locale-time-hostname-user-with-a-pinned-uid">Why the pinned UID is load-bearing →</a></p>
+<p>The <strong>pinned UID/GID 1000</strong> is what makes file ownership on the shared <code>/data</code> match between Arch and Ubuntu. Linux stores ownership as integers, not names: if the same person is UID 1000 on Arch but 1001 on Ubuntu, <code>/data</code> ownership can’t line up in both directions. Pin 1000 on both sides — use the <strong>same username and <code>-u 1000 -g 1000</code></strong> when you create the Ubuntu user later.</p>
 </section>
 <section id="harden-the-shared-data-and-hand-it-to-your-user" class="level3">
 <h3 class="anchored" data-anchor-id="harden-the-shared-data-and-hand-it-to-your-user">Harden the shared <code>/data</code> and hand it to your user</h3>
@@ -904,7 +904,7 @@ Why we fix the clock on the Windows side
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Hand the shared @data subvolume to your UID-1000 user — a fresh Btrfs subvolume is root-owned,</span></span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># so without this the first-boot probe (echo … &gt; /data/probe-arch.txt as your user) is Permission denied.</span></span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">chown</span> 1000:1000 /data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Ownership is stored in the filesystem, so Ubuntu (also UID 1000) will see these files as its own user automatically, no second <code>chown</code> from Ubuntu. <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-7-harden-the-data-fstab-line-and-hand-it-to-your-user">Full <code>/data</code> reasoning →</a></p>
+<p>Ownership is stored in the filesystem, so Ubuntu (also UID 1000) will see these files as its own user automatically — no second <code>chown</code> needed from Ubuntu. The numeric <code>1000:1000</code> (not a username) is deliberate: it’s the integer ownership that has to match across both OSes, and it works even though Ubuntu’s user doesn’t exist yet.</p>
 </section>
 <section id="the-exchange-partitions-fstab-line" class="level3">
 <h3 class="anchored" data-anchor-id="the-exchange-partitions-fstab-line">The exchange partition’s fstab line</h3>
@@ -926,30 +926,37 @@ Why we fix the clock on the Windows side
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="st">swap-priority = 100</span></span>
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="st">fs-type = swap</span></span>
 <span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Don’t <code>swapon</code> from inside the chroot (it blocks clean unmounting). zram (priority 100) carries everyday swap; the swap file (priority -2) is for hibernation. Rationale: <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-8-hibernation-swap-file-for-arch">the NoCOW hibernation swap file →</a> and <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-9-zram-for-everyday-compressed-swap">two-tier zram swap →</a>.</p>
+<p>Don’t <code>swapon</code> from inside the chroot — activating the swap file from the live USB’s kernel blocks clean unmounting later, and <code>/etc/fstab</code> picks it up on first boot anyway. The two-tier arrangement: <strong>zram</strong> (priority 100) is compressed swap living in RAM, so it absorbs nearly all everyday memory pressure with zero SSD writes; the <strong>NoCOW Btrfs swap file</strong> (priority -2) is touched only on hibernation, when the kernel writes the full RAM image out to disk. <code>mkswapfile</code> creates it NoCOW and unfragmented, which is what makes a single, stable resume offset possible.</p>
 </section>
 <section id="mkinitcpio" class="level3">
 <h3 class="anchored" data-anchor-id="mkinitcpio">mkinitcpio</h3>
-<p>Edit <code>/etc/mkinitcpio.conf</code>, note the <code>HOOKS</code> line has <strong>no <code>sd-encrypt</code></strong> (there’s no LUKS root to unlock):</p>
+<p>Open the mkinitcpio config:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvim</span> /etc/mkinitcpio.conf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Set these two lines:</p>
 <pre class="text"><code>MODULES=(btrfs)
 HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)</code></pre>
-<p>Rebuild:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkinitcpio</span> <span class="at">-P</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>No <code>/etc/crypttab.initramfs</code> to write, the root mounts directly from <code>p6</code>. <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-10-mkinitcpio-and-the-grub-cmdline">mkinitcpio reasoning →</a></p>
+<p><code>MODULES=(btrfs)</code> lets the initramfs read a Btrfs root. The <code>HOOKS</code> line is the standard <code>systemd</code> set with <strong>no <code>sd-encrypt</code></strong> — that hook exists only to unlock a LUKS root from the initramfs, and there’s no encrypted root here. The root mounts directly from <code>p6</code>, so there’s also no <code>/etc/crypttab.initramfs</code> to write. Save, then rebuild:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkinitcpio</span> <span class="at">-P</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 </section>
 <section id="chapter-10-grub-cmdline-os-prober-install" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-10-grub-cmdline-os-prober-install">Chapter 10: GRUB, cmdline, os-prober, install</h2>
-<p>Get the <strong>Arch root Btrfs filesystem’s UUID</strong> (<code>p6</code>):</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p6</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Edit <code>/etc/default/grub</code>. Without LUKS there’s no <code>rd.luks.name=</code> and no <code>/dev/mapper/…</code> root, <code>grub-mkconfig</code> auto-detects the root and <code>subvol=@</code>, so we only add the hibernation resume target (substitute real values, <strong>no angle brackets in the file</strong>):</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="va">GRUB_CMDLINE_LINUX_DEFAULT</span><span class="op">=</span><span class="st">"loglevel=3 quiet zswap.enabled=0 resume=UUID=&lt;ARCH_BTRFS_UUID&gt; resume_offset=&lt;RESUME_OFFSET&gt;"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The cmdline needs two machine-specific values: the <strong>Arch root Btrfs filesystem UUID</strong> (<code>p6</code>) and the <strong>swap-file resume offset</strong>. Print both now so you can paste them straight in without scrolling back.</p>
+<p>Arch root Btrfs filesystem UUID (<code>p6</code>):</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p6</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Resume offset — the byte offset (in pages) of the swap file’s first extent, the same integer you saved when you created the swap file earlier in this part. Re-print it here; the swap file already exists, so this is just a read:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now open the GRUB defaults file:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvim</span> /etc/default/grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Set the <code>GRUB_CMDLINE_LINUX_DEFAULT</code> line, pasting in the two values you just printed (<strong>no angle brackets in the file</strong>):</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="va">GRUB_CMDLINE_LINUX_DEFAULT</span><span class="op">=</span><span class="st">"loglevel=3 quiet zswap.enabled=0 resume=UUID=&lt;ARCH_BTRFS_UUID&gt; resume_offset=&lt;RESUME_OFFSET&gt;"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The resume target is the only thing you add by hand. <code>grub-mkconfig</code> auto-detects the root partition and <code>subvol=@</code>, and with no LUKS there’s no <code>rd.luks.name=</code> or <code>/dev/mapper/…</code> root to specify.</p>
 <p>Enable <code>os-prober</code>, the key triple-boot setting, because this is what makes GRUB discover <strong>both</strong> Windows and Ubuntu:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/'</span> /etc/default/grub</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_DISABLE_OS_PROBER='</span> /etc/default/grub      <span class="co"># GRUB_DISABLE_OS_PROBER=false</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/'</span> /etc/default/grub</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_DISABLE_OS_PROBER='</span> /etc/default/grub      <span class="co"># GRUB_DISABLE_OS_PROBER=false</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Install GRUB to the shared ESP and generate the config:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><code>os-prober</code> already has something to find, <strong>Windows</strong>:</p>
 <pre class="text"><code>Found Windows Boot Manager on /dev/nvme0n1p1@/EFI/Microsoft/Boot/bootmgfw.efi</code></pre>
 <p>…and <code>grub.cfg</code> will contain an Arch entry plus a <strong>Windows Boot Manager</strong> entry that chainloads <code>bootmgfw.efi</code>. Ubuntu doesn’t exist yet.</p>
@@ -963,25 +970,25 @@ No <code>GRUB_ENABLE_CRYPTODISK</code>, no <code>--modules</code>, no <code>grub
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>This <code>grub-install</code> is a plain one, no crypto modules to embed, no <code>GRUB_ENABLE_CRYPTODISK=y</code>. <code>/boot</code> is the unencrypted FAT32 ESP, so GRUB reads kernels and <code>grub.cfg</code> directly. The entire “GRUB drops to <code>grub&gt;</code> because it can’t unlock encrypted <code>/boot</code>” failure class from the encrypted article cannot occur here. <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#chapter-10-mkinitcpio-and-the-grub-cmdline">Why no cryptodisk →</a></p>
+<p>This is a plain <code>grub-install</code>: no crypto modules to embed, no <code>GRUB_ENABLE_CRYPTODISK=y</code>. Because <code>/boot</code> is the unencrypted FAT32 ESP, GRUB reads its kernels and <code>grub.cfg</code> directly — the “GRUB drops to <code>grub&gt;</code> because it can’t unlock an encrypted <code>/boot</code>” failure class needs an encrypted <code>/boot</code> to happen, and there isn’t one here.</p>
 </div>
 </div>
 </section>
 <section id="chapter-11-enable-services-sanity-check-reboot" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-11-enable-services-sanity-check-reboot">Chapter 11: Enable services, sanity-check, reboot</h2>
-<div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager sshd fstrim.timer reflector.timer <span class="dt">\</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>                 snapper-timeline.timer snapper-cleanup.timer grub-btrfsd.service</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># quick sanity pass</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^MODULES='</span>                    /etc/mkinitcpio.conf</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^HOOKS='</span>                      /etc/mkinitcpio.conf</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_CMDLINE_LINUX_DEFAULT='</span> /etc/default/grub</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_DISABLE_OS_PROBER='</span>     /etc/default/grub</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /etc/fstab <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">'subvol=|swap|/data|exchange'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager sshd fstrim.timer reflector.timer <span class="dt">\</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>                 snapper-timeline.timer snapper-cleanup.timer grub-btrfsd.service</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># quick sanity pass</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^MODULES='</span>                    /etc/mkinitcpio.conf</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^HOOKS='</span>                      /etc/mkinitcpio.conf</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_CMDLINE_LINUX_DEFAULT='</span> /etc/default/grub</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_DISABLE_OS_PROBER='</span>     /etc/default/grub</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /etc/fstab <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">'subvol=|swap|/data|exchange'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>There’s no <code>/etc/crypttab</code> to check and no keyfile to list. Leave the chroot and reboot:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> <span class="at">-R</span> /mnt</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> <span class="at">-R</span> /mnt</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>No <code>cryptsetup close</code>, nothing’s open. Pull the USB. Expected first boot: firmware → <strong>GRUB menu</strong> (listing <em>Arch Linux</em> and <em>Windows Boot Manager</em>) → pick Arch → kernel/initramfs → <strong>no passphrase prompt</strong> → <code>@</code> mounts as <code>/</code> → <code>/data</code> and <code>/exchange</code> mount, zram comes up → login. If you drop into emergency mode, jump to the <a href="#emergency-failure-modes">🚨 emergency section</a>.</p>
 <hr>
 </section>
@@ -989,44 +996,44 @@ No <code>GRUB_ENABLE_CRYPTODISK</code>, no <code>--modules</code>, no <code>grub
 <section id="part-5-arch-first-boot-verify-all-three-partitions-snapper-hibernation" class="level1">
 <h1>Part 5 — Arch first boot: verify all three partitions, snapper, hibernation</h1>
 <p>Log in as your user:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /            <span class="co"># subvol=/@, on /dev/nvme0n1p6</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /home        <span class="co"># subvol=/@home</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data        <span class="co"># subvol=/@data, on /dev/nvme0n1p5</span></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /exchange    <span class="co"># exfat, on /dev/nvme0n1p4</span></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>        <span class="co"># zram0 (pri 100) + /swap/swapfile (pri -2)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /            <span class="co"># subvol=/@, on /dev/nvme0n1p6</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /home        <span class="co"># subvol=/@home</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data        <span class="co"># subvol=/@data, on /dev/nvme0n1p5</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /exchange    <span class="co"># exfat, on /dev/nvme0n1p4</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>        <span class="co"># zram0 (pri 100) + /swap/swapfile (pri -2)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Reconnect Wi-Fi, re-enable NTP, verify the timezone:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> radio wifi on</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> device wifi connect <span class="st">"&lt;SSID&gt;"</span> password <span class="st">"&lt;WIFI_PASSWORD&gt;"</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 3 ping.archlinux.org</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> timedatectl set-ntp true</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> status      <span class="co"># correct Time zone, "System clock synchronized: yes", "RTC in local TZ: no"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> radio wifi on</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> device wifi connect <span class="st">"&lt;SSID&gt;"</span> password <span class="st">"&lt;WIFI_PASSWORD&gt;"</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 3 ping.archlinux.org</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> timedatectl set-ntp true</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> status      <span class="co"># correct Time zone, "System clock synchronized: yes", "RTC in local TZ: no"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <section id="verify-the-exchange-is-shared-and-the-data-partition-is-owned-by-you" class="level3">
 <h3 class="anchored" data-anchor-id="verify-the-exchange-is-shared-and-the-data-partition-is-owned-by-you">Verify the exchange is shared and the data partition is owned by you</h3>
-<div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"hello from arch"</span> <span class="op">&gt;</span> /exchange/from-arch.txt      <span class="co"># Windows will be able to read this</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /exchange/from-arch.txt                          <span class="co"># owned by user (uid=1000 from the mount options)</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"from arch"</span> <span class="op">&gt;</span> /data/probe-arch.txt                <span class="co"># Linux-only (Windows can't read Btrfs)</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g'</span> /data/probe-arch.txt                   <span class="co"># 1000 1000 — confirms the pinned UID</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"hello from arch"</span> <span class="op">&gt;</span> /exchange/from-arch.txt      <span class="co"># Windows will be able to read this</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /exchange/from-arch.txt                          <span class="co"># owned by user (uid=1000 from the mount options)</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"from arch"</span> <span class="op">&gt;</span> /data/probe-arch.txt                <span class="co"># Linux-only (Windows can't read Btrfs)</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g'</span> /data/probe-arch.txt                   <span class="co"># 1000 1000 — confirms the pinned UID</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="configure-snapper-for" class="level3">
 <h3 class="anchored" data-anchor-id="configure-snapper-for">Configure snapper for <code>/</code></h3>
 <p>A plain <code>create-config</code> collides with the <code>@snapshots</code> we already mounted; the Arch-recommended dance avoids it:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> umount /.snapshots</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> rm <span class="at">-rf</span> /.snapshots</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root create-config /</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs subvolume delete /.snapshots</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> mkdir /.snapshots</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod 750 /.snapshots</span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> mount <span class="at">-a</span></span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root set-config <span class="dt">\</span></span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    TIMELINE_LIMIT_HOURLY=5 TIMELINE_LIMIT_DAILY=7 <span class="dt">\</span></span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    TIMELINE_LIMIT_WEEKLY=2 TIMELINE_LIMIT_MONTHLY=1 TIMELINE_LIMIT_YEARLY=0</span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root list      <span class="co"># at least one row</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> umount /.snapshots</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> rm <span class="at">-rf</span> /.snapshots</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root create-config /</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs subvolume delete /.snapshots</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> mkdir /.snapshots</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod 750 /.snapshots</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> mount <span class="at">-a</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root set-config <span class="dt">\</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    TIMELINE_LIMIT_HOURLY=5 TIMELINE_LIMIT_DAILY=7 <span class="dt">\</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>    TIMELINE_LIMIT_WEEKLY=2 TIMELINE_LIMIT_MONTHLY=1 TIMELINE_LIMIT_YEARLY=0</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root list      <span class="co"># at least one row</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="test-hibernation-before-installing-ubuntu" class="level3">
 <h3 class="anchored" data-anchor-id="test-hibernation-before-installing-ubuntu">Test hibernation before installing Ubuntu</h3>
-<div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Press power to resume; expect your exact session restored (no passphrase prompt). If it boots fresh, re-check <code>resume=</code>/<code>resume_offset=</code> and re-run <code>mkinitcpio -P &amp;&amp; grub-mkconfig -o /boot/grub/grub.cfg</code>.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1046,10 +1053,10 @@ Verify hibernation <strong>now</strong>, while only Arch + Windows exist
 </section>
 <section id="part-6-install-ubuntu-24-lts-into-p7" class="level1">
 <h1>Part 6 — Install Ubuntu 24 LTS into p7</h1>
-<p>Identical to the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#part-4-install-ubuntu-24-lts-alongside">plain-Btrfs dual-boot Part 4</a>, with Windows already present (which changes nothing about the Ubuntu steps, Ubuntu’s <code>os-prober</code> will simply find both Arch <em>and</em> Windows).</p>
+<p>We build Ubuntu’s root by hand with <code>debootstrap</code>, into <code>p7</code>. Windows being present changes nothing about the Ubuntu steps — Ubuntu’s <code>os-prober</code> will simply find both Arch <em>and</em> Windows when GRUB is regenerated.</p>
 <p>From the Arch side, snapshot the current NVRAM so you can compare after Ubuntu reorders it:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span> <span class="at">-v</span> <span class="op">&gt;</span> ~/efi-before-ubuntu.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Boot a verified Ubuntu 24.04 LTS Desktop USB and pick <strong>“Try Ubuntu”</strong>. We build Ubuntu’s root by hand from the live session with <code>debootstrap</code>, exactly as in the dual-boot, with <strong>p7</strong> as Ubuntu’s root.</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span> <span class="at">-v</span> <span class="op">&gt;</span> ~/efi-before-ubuntu.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Boot a verified Ubuntu 24.04 LTS Desktop USB and pick <strong>“Try Ubuntu”</strong>, then build Ubuntu’s root by hand from the live session with <code>debootstrap</code>, using <strong>p7</strong> as Ubuntu’s root.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1060,47 +1067,47 @@ Driving it remotely over SSH?
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The Ubuntu Desktop live image has no SSH server and logs you in as a passwordless <code>ubuntu</code> user, so it needs a few setup commands first, do it exactly as in the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#install-ubuntu-by-hand-from-the-live-session">dual-boot SSH-in callout</a> (<code>apt install openssh-server</code>, <code>passwd ubuntu</code>, <code>systemctl enable --now ssh</code>, then <code>ssh ubuntu@&lt;ip&gt;</code> + <code>sudo -i</code>).</p>
+<p>The Ubuntu Desktop live image has no SSH server and logs you in as a passwordless <code>ubuntu</code> user, so set it up first: <code>sudo apt install -y openssh-server</code>, <code>passwd ubuntu</code> (give the live user a password), <code>sudo systemctl enable --now ssh</code>, then from the other machine <code>ssh ubuntu@&lt;ip&gt;</code> and <code>sudo -i</code> to become root.</p>
 </div>
 </div>
 <p>Open a terminal, <code>sudo -i</code>, <code>apt update &amp;&amp; apt install -y debootstrap</code> (no <code>cryptsetup-bin</code> needed), then:</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 — format p7 as Btrfs + subvolumes (no LUKS)</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> ubuntu /dev/nvme0n1p7</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p7 /mnt</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@ <span class="kw">&amp;&amp;</span> <span class="ex">btrfs</span> subvolume create /mnt/@home <span class="kw">&amp;&amp;</span> <span class="fu">umount</span> /mnt</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2 — mount target + shared ESP</span></span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@ /dev/nvme0n1p7 /mnt</span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/home /mnt/boot/efi</span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@home /dev/nvme0n1p7 /mnt/home</span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot/efi                   <span class="co"># shared ESP — do not reformat</span></span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 3 — bootstrap + fstab (root, home, ESP, shared /data — all plain, no crypttab)</span></span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="ex">debootstrap</span> <span class="at">--arch</span> amd64 noble /mnt http://archive.ubuntu.com/ubuntu</span>
-<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="va">UB</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p7<span class="va">)</span></span>
-<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="va">ESP</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p1<span class="va">)</span></span>
-<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a><span class="va">SHARED</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p5<span class="va">)</span></span>
-<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'UUID=%s / btrfs noatime,compress=zstd:3,subvol=@ 0 0\nUUID=%s /home btrfs noatime,compress=zstd:3,subvol=@home 0 0\nUUID=%s /boot/efi vfat umask=0077 0 1\nUUID=%s /data btrfs rw,noatime,compress=zstd:3,subvol=@data,nofail,x-systemd.device-timeout=10s 0 0\n'</span> <span class="st">"</span><span class="va">$UB</span><span class="st">"</span> <span class="st">"</span><span class="va">$UB</span><span class="st">"</span> <span class="st">"</span><span class="va">$ESP</span><span class="st">"</span> <span class="st">"</span><span class="va">$SHARED</span><span class="st">"</span> <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span>
-<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/data</span>
-<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 4 — chroot</span></span>
-<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> /etc/resolv.conf /mnt/etc/resolv.conf</span>
-<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> dev dev/pts proc sys run<span class="kw">;</span> <span class="cf">do</span> <span class="fu">mount</span> <span class="at">--rbind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span> <span class="dv">2</span><span class="op">&gt;</span>/dev/null <span class="kw">||</span> <span class="fu">mount</span> <span class="at">--bind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span><span class="kw">;</span> <span class="cf">done</span></span>
-<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a><span class="fu">chroot</span> /mnt /bin/bash</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Inside the chroot, widen the sources list, install the system (note: <strong>no <code>cryptsetup</code>/<code>cryptsetup-initramfs</code></strong>, and a plain <code>grub-install</code>), and create the UID-1000 user, <strong>identical to <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#install-ubuntu-by-hand-from-the-live-session">dual-boot Part 4 step 5</a></strong> (root device here is <code>/dev/nvme0n1p7</code>):</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> /etc/apt/sources.list <span class="op">&lt;&lt;EOF</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://archive.ubuntu.com/ubuntu  noble           main restricted universe multiverse</span></span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://archive.ubuntu.com/ubuntu  noble-updates   main restricted universe multiverse</span></span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://security.ubuntu.com/ubuntu noble-security  main restricted universe multiverse</span></span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> update</span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-standard linux-image-generic grub-efi-amd64 os-prober btrfs-progs network-manager sudo locales tzdata exfatprogs</span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"GRUB_DISABLE_OS_PROBER=false"</span> <span class="op">&gt;&gt;</span> /etc/default/grub   <span class="co"># 24.04 disables os-prober by default</span></span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="ex">update-initramfs</span> <span class="at">-u</span> <span class="at">-k</span> all</span>
-<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot/efi <span class="at">--bootloader-id</span><span class="op">=</span>Ubuntu <span class="at">--recheck</span></span>
-<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span>                                          <span class="co"># os-prober finds Windows AND Arch</span></span>
-<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span><span class="kw">;</span> <span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-s</span> /bin/bash <span class="at">-G</span> sudo,adm,cdrom,dip,plugdev <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span> <span class="kw">&amp;&amp;</span> <span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
-<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-desktop-minimal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 — format p7 as Btrfs + subvolumes (no LUKS)</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> ubuntu /dev/nvme0n1p7</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p7 /mnt</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@ <span class="kw">&amp;&amp;</span> <span class="ex">btrfs</span> subvolume create /mnt/@home <span class="kw">&amp;&amp;</span> <span class="fu">umount</span> /mnt</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2 — mount target + shared ESP</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@ /dev/nvme0n1p7 /mnt</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/home /mnt/boot/efi</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@home /dev/nvme0n1p7 /mnt/home</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot/efi                   <span class="co"># shared ESP — do not reformat</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 3 — bootstrap + fstab (root, home, ESP, shared /data — all plain, no crypttab)</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="ex">debootstrap</span> <span class="at">--arch</span> amd64 noble /mnt http://archive.ubuntu.com/ubuntu</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a><span class="va">UB</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p7<span class="va">)</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="va">ESP</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p1<span class="va">)</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a><span class="va">SHARED</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p5<span class="va">)</span></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'UUID=%s / btrfs noatime,compress=zstd:3,subvol=@ 0 0\nUUID=%s /home btrfs noatime,compress=zstd:3,subvol=@home 0 0\nUUID=%s /boot/efi vfat umask=0077 0 1\nUUID=%s /data btrfs rw,noatime,compress=zstd:3,subvol=@data,nofail,x-systemd.device-timeout=10s 0 0\n'</span> <span class="st">"</span><span class="va">$UB</span><span class="st">"</span> <span class="st">"</span><span class="va">$UB</span><span class="st">"</span> <span class="st">"</span><span class="va">$ESP</span><span class="st">"</span> <span class="st">"</span><span class="va">$SHARED</span><span class="st">"</span> <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/data</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 4 — chroot</span></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> /etc/resolv.conf /mnt/etc/resolv.conf</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> dev dev/pts proc sys run<span class="kw">;</span> <span class="cf">do</span> <span class="fu">mount</span> <span class="at">--rbind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span> <span class="dv">2</span><span class="op">&gt;</span>/dev/null <span class="kw">||</span> <span class="fu">mount</span> <span class="at">--bind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span><span class="kw">;</span> <span class="cf">done</span></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a><span class="fu">chroot</span> /mnt /bin/bash</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Inside the chroot, widen the sources list, install the system (note: <strong>no <code>cryptsetup</code>/<code>cryptsetup-initramfs</code></strong>, and a plain <code>grub-install</code> — there’s no encrypted <code>/boot</code> to teach GRUB to unlock), and create the UID-1000 user (root device here is <code>/dev/nvme0n1p7</code>):</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> /etc/apt/sources.list <span class="op">&lt;&lt;EOF</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://archive.ubuntu.com/ubuntu  noble           main restricted universe multiverse</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://archive.ubuntu.com/ubuntu  noble-updates   main restricted universe multiverse</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://security.ubuntu.com/ubuntu noble-security  main restricted universe multiverse</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> update</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-standard linux-image-generic grub-efi-amd64 os-prober btrfs-progs network-manager sudo locales tzdata exfatprogs</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"GRUB_DISABLE_OS_PROBER=false"</span> <span class="op">&gt;&gt;</span> /etc/default/grub   <span class="co"># 24.04 disables os-prober by default</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="ex">update-initramfs</span> <span class="at">-u</span> <span class="at">-k</span> all</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot/efi <span class="at">--bootloader-id</span><span class="op">=</span>Ubuntu <span class="at">--recheck</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span>                                          <span class="co"># os-prober finds Windows AND Arch</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span><span class="kw">;</span> <span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-s</span> /bin/bash <span class="at">-G</span> sudo,adm,cdrom,dip,plugdev <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span> <span class="kw">&amp;&amp;</span> <span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-desktop-minimal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1111,16 +1118,16 @@ Notice the plain <code>grub-install</code>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>No <code>GRUB_ENABLE_CRYPTODISK=y</code>, no <code>--modules="part_gpt cryptodisk luks2 …"</code>, no root <code>crypttab</code> entry. Ubuntu’s <code>/boot/efi</code> is the shared unencrypted ESP and its kernel lives on a plain Btrfs root GRUB reaches normally. The <code>grub&gt;</code> prompt the encrypted article’s <code>--modules</code> step exists to prevent simply can’t happen here.</p>
+<p>No <code>GRUB_ENABLE_CRYPTODISK=y</code>, no <code>--modules="part_gpt cryptodisk luks2 …"</code>, no root <code>crypttab</code> entry. Ubuntu’s <code>/boot/efi</code> is the shared unencrypted ESP, and its kernel lives on a plain Btrfs root GRUB reaches normally. A bare <code>grub-install</code> is correct and complete — the crypto-module embedding exists only to let GRUB read an encrypted <code>/boot</code>, which this layout doesn’t have.</p>
 </div>
 </div>
 <p>Add the exchange-partition <code>fstab</code> line (the shared <code>/data</code> line is already in <code>fstab</code> from step 3), then exit and reboot:</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"UUID=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p4<span class="va">)</span><span class="st"> /exchange exfat defaults,uid=1000,gid=1000,umask=022,nofail 0 0"</span> <span class="op">&gt;&gt;</span> /etc/fstab</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /exchange</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sync</span></span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"UUID=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p4<span class="va">)</span><span class="st"> /exchange exfat defaults,uid=1000,gid=1000,umask=022,nofail 0 0"</span> <span class="op">&gt;&gt;</span> /etc/fstab</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /exchange</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sync</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1150,37 +1157,39 @@ Ubuntu reorders NVRAM to boot its own GRUB first
 <section id="chapter-12-add-ubuntus-hibernation-swap-file" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-12-add-ubuntus-hibernation-swap-file">Chapter 12: Add Ubuntu’s hibernation swap file</h2>
 <p>Boot <strong>Ubuntu</strong> from the GRUB menu, log in, and mirror Arch’s per-OS hibernation:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /                                                    <span class="co"># /dev/nvme0n1p7</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs subvolume create /swap</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs filesystem mkswapfile <span class="at">--size</span> 36g <span class="at">--uuid</span> clear /swap/swapfile</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'/swap/swapfile none swap defaults,pri=-2 0 0'</span> <span class="kw">|</span> <span class="fu">sudo</span> tee <span class="at">-a</span> /etc/fstab</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile   <span class="co"># save → &lt;UBUNTU_RESUME_OFFSET&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Point Ubuntu’s cmdline and initramfs at its <em>own</em> Btrfs filesystem (never Arch’s):</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> blkid <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p7    <span class="co"># &lt;UBUNTU_BTRFS_UUID&gt;</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="ex">sudoedit</span> /etc/default/grub</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="co"># GRUB_CMDLINE_LINUX_DEFAULT="quiet splash resume=UUID=&lt;UBUNTU_BTRFS_UUID&gt; resume_offset=&lt;UBUNTU_RESUME_OFFSET&gt;"</span></span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"RESUME=UUID=&lt;UBUNTU_BTRFS_UUID&gt;"</span> <span class="kw">|</span> <span class="fu">sudo</span> tee /etc/initramfs-tools/conf.d/resume</span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-initramfs <span class="at">-u</span> <span class="at">-k</span> all</span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /                                                    <span class="co"># /dev/nvme0n1p7</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs subvolume create /swap</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs filesystem mkswapfile <span class="at">--size</span> 36g <span class="at">--uuid</span> clear /swap/swapfile</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'/swap/swapfile none swap defaults,pri=-2 0 0'</span> <span class="kw">|</span> <span class="fu">sudo</span> tee <span class="at">-a</span> /etc/fstab</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile   <span class="co"># save → &lt;UBUNTU_RESUME_OFFSET&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Point Ubuntu’s cmdline and initramfs at its <em>own</em> Btrfs filesystem (never Arch’s). The resume offset is the integer you printed just above with <code>map-swapfile</code>; print the Ubuntu root UUID too:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> blkid <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p7    <span class="co"># this is &lt;UBUNTU_BTRFS_UUID&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Open the GRUB defaults file (<code>sudoedit</code> opens it as root in your <code>$EDITOR</code>, which is <code>nvim</code>):</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sudoedit</span> /etc/default/grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Ubuntu’s <code>GRUB_CMDLINE_LINUX_DEFAULT</code> typically reads <code>quiet splash</code>. Add <code>resume=</code> and <code>resume_offset=</code>, pasting in the two values (no angle brackets in the file):</p>
+<pre class="text"><code>GRUB_CMDLINE_LINUX_DEFAULT="quiet splash resume=UUID=&lt;UBUNTU_BTRFS_UUID&gt; resume_offset=&lt;UBUNTU_RESUME_OFFSET&gt;"</code></pre>
+<p>Tell Ubuntu’s initramfs about the resume device, then rebuild both the initramfs and GRUB:</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"RESUME=UUID=&lt;UBUNTU_BTRFS_UUID&gt;"</span> <span class="kw">|</span> <span class="fu">sudo</span> tee /etc/initramfs-tools/conf.d/resume</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-initramfs <span class="at">-u</span> <span class="at">-k</span> all</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Confirm Ubuntu sees the shared and exchange partitions, then test hibernation:</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data /exchange</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                    <span class="co"># zram + /swap/swapfile</span></span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data /exchange            <span class="co"># files written from Arch appear, owned by user</span></span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate         <span class="co"># resumes into Ubuntu, separate from Arch's image</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data /exchange</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                    <span class="co"># zram + /swap/swapfile</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data /exchange            <span class="co"># files written from Arch appear, owned by user</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate         <span class="co"># resumes into Ubuntu, separate from Arch's image</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
 </section>
 </section>
 <section id="part-7-finalize-the-grub-menu-from-arch" class="level1">
 <h1>Part 7 — Finalize the GRUB menu from Arch</h1>
 <p>Reboot, pick <strong>Arch Linux</strong>, and re-run <code>grub-mkconfig</code> now that all three OSes exist:</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> grub-mkconfig <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> grub-mkconfig <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Expected <code>os-prober</code> output:</p>
 <pre class="text"><code>Found Windows Boot Manager on /dev/nvme0n1p1@/EFI/Microsoft/Boot/bootmgfw.efi
 Found Ubuntu 24.04 LTS (24.04) on /dev/nvme0n1p7</code></pre>
 <p><code>grub.cfg</code> now lists <strong>Arch, Ubuntu, and Windows.</strong> Optionally make Arch’s GRUB primary via NVRAM order:</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span>                                  <span class="co"># find the BootNNNN for "GRUB", "Ubuntu", "Windows Boot Manager"</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> GRUB_NUM,UBUNTU_NUM      <span class="co"># Arch's GRUB first; Windows reachable via the GRUB menu either way</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span>                                  <span class="co"># find the BootNNNN for "GRUB", "Ubuntu", "Windows Boot Manager"</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> GRUB_NUM,UBUNTU_NUM      <span class="co"># Arch's GRUB first; Windows reachable via the GRUB menu either way</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
 </section>
 <section id="part-8-final-sanity-checks-across-three-oses" class="level1">
@@ -1199,11 +1208,11 @@ The pass condition
 </div>
 </div>
 <p><strong>From Arch / Ubuntu</strong> (run on each):</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> / /home /data /exchange</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                       <span class="co"># zram + that OS's own /swap/swapfile</span></span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate            <span class="co"># resumes into the same OS</span></span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>          <span class="co"># all 1000 — pinned-UID parity</span></span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /exchange                     <span class="co"># files from all three OSes</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> / /home /data /exchange</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                       <span class="co"># zram + that OS's own /swap/swapfile</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate            <span class="co"># resumes into the same OS</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>          <span class="co"># all 1000 — pinned-UID parity</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /exchange                     <span class="co"># files from all three OSes</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>From Windows</strong>: confirm the clock is correct after switching from Linux (proves the <code>RealTimeIsUniversal</code> fix), and that File Explorer → the <strong>EXCHANGE</strong> volume shows the files Linux wrote. Drop a file there and confirm Linux sees it on the next boot.</p>
 <hr>
 <p><span id="emergency-failure-modes"></span></p>
@@ -1217,7 +1226,13 @@ The pass condition
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>If Part 8 passed, skip this. The plain-Btrfs dual-boot’s <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/#emergency-failure-modes">emergency section</a> covers the Btrfs/<code>/data</code>/hibernation failures; the ones below are the Windows-specific additions.</p>
+<p>If Part 8 passed, skip this. A few Linux-side issues can bite either distro:</p>
+<ul>
+<li><strong><code>/data</code> doesn’t mount</strong> (you still reach a normal login thanks to <code>nofail</code>; <code>findmnt /data</code> prints nothing): the UUID in <code>/etc/fstab</code> doesn’t match the partition — <code>blkid /dev/nvme0n1p5</code> and compare, then <code>sudo mount /data</code>.</li>
+<li><strong>Boot drops to emergency mode</strong>: usually a typo on a <em>non</em>-<code>nofail</code> fstab line (<code>/</code> or <code>/home</code>). Boot the Arch USB, <code>mount -o subvol=@ /dev/nvme0n1p6 /mnt</code>, <code>mount /dev/nvme0n1p1 /mnt/boot</code>, <code>arch-chroot /mnt</code>, fix <code>/etc/fstab</code>, reboot.</li>
+<li><strong>Hibernation resumes into the <em>other</em> OS</strong>: each OS’s <code>resume=</code> must point at its <strong>own</strong> Btrfs filesystem UUID (Arch = <code>p6</code>, Ubuntu = <code>p7</code>), never the other’s.</li>
+</ul>
+<p>The Windows-specific failures are below.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -1230,7 +1245,7 @@ No <code>grub&gt;</code> prompt to recover from
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Because both Linux distros keep <code>/boot</code> on the plain FAT32 ESP, the bare-<code>grub&gt;</code> failure that the <em>encrypted</em> triple-boot could hit (GRUB unable to unlock the encrypted <code>/boot</code>) <strong>cannot happen here.</strong> GRUB always reads its config and kernels normally.</p>
+<p>Because both Linux distros keep <code>/boot</code> on the plain FAT32 ESP, the bare-<code>grub&gt;</code> failure that comes with an encrypted <code>/boot</code> (GRUB unable to unlock it before it can read the kernel) <strong>cannot happen here.</strong> GRUB always reads its config and kernels normally.</p>
 </div>
 </div>
 <section id="grub-menu-has-no-windows-entry" class="level3">
@@ -1244,8 +1259,8 @@ No <code>grub&gt;</code> prompt to recover from
 <section id="a-windows-update-stole-the-boot-order-boots-straight-to-windows" class="level3">
 <h3 class="anchored" data-anchor-id="a-windows-update-stole-the-boot-order-boots-straight-to-windows">2. A Windows update stole the boot order (boots straight to Windows)</h3>
 <p>Boot Linux (force the firmware boot menu once), then:</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr                                  <span class="co"># note the GRUB and Windows BootNNNN numbers</span></span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> <span class="op">&lt;</span>GRUB_NUM<span class="op">&gt;</span>,<span class="op">&lt;</span>WINDOWS_NUM<span class="op">&gt;</span>      <span class="co"># put GRUB first again</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr                                  <span class="co"># note the GRUB and Windows BootNNNN numbers</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> <span class="op">&lt;</span>GRUB_NUM<span class="op">&gt;</span>,<span class="op">&lt;</span>WINDOWS_NUM<span class="op">&gt;</span>      <span class="co"># put GRUB first again</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Nothing was lost, only the <em>order</em> changed. GRUB still chainloads Windows fine.</p>
 </section>
 <section id="clock-is-wrong-after-switching-os" class="level3">
@@ -1268,7 +1283,7 @@ No <code>grub&gt;</code> prompt to recover from
 <section id="part-9-closing-the-loop" class="level1">
 <h1>Part 9 — Closing the loop</h1>
 <p>You now have a single drive that boots <strong>Windows, Arch, and Ubuntu</strong>, with two plain-Btrfs Linux roots, a shared <code>/data</code> the two Linux distros mount as one home for documents, a plain exFAT exchange partition for the Windows handoff, per-OS hibernation that never collides, and one GRUB menu, all without a single passphrase prompt or a single byte of LUKS to go wrong at boot.</p>
-<p>The tradeoff you made is the one Part 1 spelled out: <strong>nothing on this disk is encrypted at rest.</strong> That’s the right call for a stationary, physically-secured machine and the wrong one for a laptop. If the machine’s role changes, the <a href="../2026-06-05-arch-ubuntu-windows-triple-boot/">encrypted triple-boot (Article 10)</a> is the same layout with LUKS2 around each Linux root and the shared <code>/data</code>, and the hardening this no-encryption build let you skip (the <code>--modules</code> EFI-core surgery, the <code>--pbkdf pbkdf2</code> keyslot discipline, the <code>grub&gt;</code> recovery) is exactly what that article now documents in full.</p>
+<p>The tradeoff you made is the one Part 1 spelled out: <strong>nothing on this disk is encrypted at rest.</strong> That’s the right call for a stationary, physically-secured machine and the wrong one for a laptop. If the machine’s role changes, adding encryption means rebuilding on LUKS2 — the same layout, but with a LUKS2 container around each Linux root and the shared <code>/data</code>. That brings back the hardening this build let you skip: the <code>--modules</code> EFI-core surgery so GRUB can read an encrypted <code>/boot</code>, the <code>--pbkdf pbkdf2</code> keyslot discipline, and a <code>grub&gt;</code> recovery path. There’s no in-place way to add it; decide up front.</p>
 <p>The desktop layer for the Arch side is still a separate choice, a custom Hyprland is the direction I’m taking (upcoming), and it doesn’t touch any of the multi-boot machinery below it.</p>
 <hr>
 <div class="callout callout-style-default callout-note callout-titled">

@@ -1,6 +1,6 @@
 ---
 title: "Dual-Boot Arch + Ubuntu (Plain Btrfs, No Encryption) — With a Shared Data Partition"
-description: "The no-encryption sibling of the LUKS+Btrfs dual-boot: one NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root (no LUKS), plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. Same Btrfs subvolume layout (`@`, `@home`, `@snapshots`, `@var_log`, `@swap`), same per-OS zram + NoCOW Btrfs hibernation, same pinned-UID shared `/data`, but with every cryptsetup, keyfile, crypttab, and GRUB-cryptodisk step removed. No passphrase prompts, no encrypted `/boot`, and none of the `grub>` failure modes that come with GRUB unlocking LUKS. GRUB on the single shared ESP, with os-prober enabled."
+description: "One NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root (no LUKS), plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. A Btrfs subvolume layout (`@`, `@home`, `@snapshots`, `@var_log`, `@swap`), per-OS zram + NoCOW Btrfs hibernation, and a pinned-UID shared `/data` — with no cryptsetup, keyfile, crypttab, or GRUB-cryptodisk anywhere. No passphrase prompts, no encrypted `/boot`, and none of the `grub>` failure modes that come with GRUB unlocking LUKS. GRUB on the single shared ESP, with os-prober enabled."
 author: "Evanns Morales"
 date: "2026-06-07"
 categories: [arch linux, ubuntu, linux, installation, dual-boot, btrfs, snapper, hibernation, grub, os-prober, mkinitcpio, zram, shared partition, no encryption]
@@ -10,9 +10,9 @@ draft: false
 ---
 
 ::: {.callout-warning}
-## Disclaimer: this is the reasoned no-encryption variant, not yet a live-tested run
+## Disclaimer: a reasoned no-encryption build, not yet a live-tested run
 
-This is the plain-Btrfs twin of the [LUKS+Btrfs dual-boot (Article 07)](../2026-05-19-arch-ubuntu-dual-boot-shared-data/), built by taking that working design and **removing every encryption layer**. It's a reasoned blueprint, not a command-by-command log I've executed end-to-end (yet). The upside of dropping LUKS is that it also drops the parts of Article 07 that bit hardest in practice: the encrypted-`/boot` GRUB setup that can land you at a bare `grub>` prompt, the Argon2id-keyslot trap, the keyfile/`crypttab` dance, and the double passphrase prompt. What's left is the boring, dependable shape, and "boring and dependable" is exactly what you want from a bootloader.
+This is a no-encryption dual-boot blueprint: two plain Btrfs roots and a shared Btrfs `/data`, with no LUKS anywhere on the disk. It's a carefully-reasoned procedure, not a command-by-command log I've executed end-to-end (yet). Because the disk is unencrypted, `/boot` sits on a plain ESP and GRUB reads its config and kernels directly — none of the `grub>`-prompt, Argon2id-keyslot, or keyfile/`crypttab` failure modes that come with an encrypted `/boot` can happen here. What's left is the boring, dependable shape, and "boring and dependable" is exactly what you want from a bootloader.
 
 Canonical sources to re-read as you go:
 
@@ -27,14 +27,14 @@ Treat this as a blueprint for the *pattern*, not a substitute for re-reading the
 ::: {.callout-note}
 ## What this is
 
-The same dual-boot layout as [Article 07](../2026-05-19-arch-ubuntu-dual-boot-shared-data/), minus encryption:
+The layout, with no encryption anywhere on the disk:
 
 - **Two plain Btrfs root partitions** — Arch in its own Btrfs partition, Ubuntu in its own, each carrying the usual subvolumes (`@`, `@home`, …). No LUKS container around either.
 - **One shared 150 GiB plain Btrfs data partition**, mounted at `/data` on both distros, owned by your user on both sides. Just an `fstab` UUID line on each OS, no keyfile, no `crypttab`, no auto-unlock machinery.
 - **Per-OS everyday swap via zram** (compressed RAM, no SSD writes) and **per-OS hibernation** to a NoCOW Btrfs swap file inside each distro's own root, no shared swap partition, no cross-OS resume-image collisions.
 - **One GRUB** on the shared ESP, with `os-prober` enabled so either distro's `grub-mkconfig`/`update-grub` regenerates a menu listing both.
 
-It stops on the console for the Arch side; the desktop layer is your choice, exactly like the encrypted articles. Ubuntu's GNOME comes up out of the box.
+It stops on the console for the Arch side; the desktop layer is your choice. Ubuntu's GNOME comes up out of the box.
 :::
 
 ## Why a no-encryption version at all
@@ -45,7 +45,7 @@ Full-disk encryption is the right default for a laptop that leaves the house. Bu
 - **Headless / auto-rebooting machines.** Anything that has to come back up unattended after a power blip can't sit at a passphrase prompt. (TPM-bound unlock exists, but that's *more* complexity than this article, not less.)
 - **Learning the layout first.** The encryption is the part most likely to break a first attempt. Getting the dual-boot, the shared `/data`, snapper, and hibernation working *without* LUKS in the way is a clean way to build the model before adding crypto back.
 
-If you want encryption, use [Article 07](../2026-05-19-arch-ubuntu-dual-boot-shared-data/) instead, it's the same design with LUKS2 around each root and the shared partition. This article is for when you've decided you don't.
+If you want encryption, you'd wrap each root and the shared partition in LUKS2 — a different, more involved build, and out of scope here. This article is for when you've decided you don't.
 
 ::: {.callout-important}
 ## What you give up by dropping encryption
@@ -56,7 +56,7 @@ Be honest with yourself about the threat model. With no LUKS:
 - **A lost or stolen machine is a data breach**, not just a hardware loss.
 - The shared `/data` here is plain Btrfs; "shared" no longer implies "encrypted at rest."
 
-If any of that is unacceptable for what lives on this machine, stop and use the encrypted article. Everything below assumes you've consciously chosen an unencrypted disk.
+If any of that is unacceptable for what lives on this machine, stop and build it with full-disk encryption (LUKS) instead. Everything below assumes you've consciously chosen an unencrypted disk.
 :::
 
 What adding Ubuntu still introduces (encryption or not):
@@ -189,7 +189,7 @@ NVMe will show `TRAN=nvme`. Every command below uses `/dev/nvme0n1` as a placeho
 
 ## Chapter 1: The four-partition layout
 
-This is the central design decision. Four partitions on one drive, the same shape as the encrypted article minus the LUKS column:
+This is the central design decision. Four partitions on one drive:
 
 | Partition | Size               | Filesystem | Mounted on | Purpose                                            |
 |-----------|-------------------:|------------|------------|----------------------------------------------------|
@@ -256,13 +256,13 @@ mkfs.btrfs -L shared /dev/nvme0n1p2     # shared data
 mkfs.btrfs -L arch   /dev/nvme0n1p3     # Arch root
 ```
 
-In the encrypted article this step ran `mkfs.btrfs` against a `/dev/mapper/...` device (the unlocked LUKS container); here it runs against the **raw partition**, because there's no LUKS layer in between. Simpler, and one fewer place to get the device name wrong.
+Each `mkfs.btrfs` runs directly on the **raw partition** — with no LUKS layer in between, the device name is simply the partition itself. The `-L` labels (`shared`, `arch`) are cosmetic, but they make later `lsblk -f` and `blkid` output easy to read at a glance.
 
 ---
 
 ## Chapter 3: Create the Btrfs subvolumes on the Arch root
 
-Same five-subvolume layout as the encrypted article, the kernel doesn't care about the names, but snapper does:
+Create the five subvolumes on the Arch root. The kernel doesn't care about the names, but snapper does:
 
 ```bash
 mount /dev/nvme0n1p3 /mnt
@@ -330,7 +330,7 @@ The `@swap` subvolume mounts **without** compression, a swap file must not be co
 
 ## Chapter 5: Pacstrap, fstab, chroot
 
-Note what's **not** in this package list versus the encrypted article: **no `cryptsetup`**. Nothing here manages a LUKS container, so the tool isn't needed.
+There's deliberately **no `cryptsetup`** in this package list — nothing here manages a LUKS container, so the tool isn't needed.
 
 ```bash
 reflector --country 'United States' --protocol https --latest 20 --age 12 \
@@ -370,7 +370,7 @@ You should see:
 - One Btrfs line for `/data` using the **shared Btrfs filesystem's UUID**.
 - One FAT32 line for `/boot`.
 
-The two distinct Btrfs UUIDs (Arch root vs. shared data) confirm `genfstab` saw them as separate filesystems. If you see only one Btrfs UUID, you skipped a mount somewhere; re-run Chapter 4. (In this unencrypted layout, these UUIDs are the *partitions'* own Btrfs UUIDs, there's no LUKS UUID to keep separate, one fewer identifier to track than in Article 07.)
+The two distinct Btrfs UUIDs (Arch root vs. shared data) confirm `genfstab` saw them as separate filesystems. If you see only one Btrfs UUID, you skipped a mount somewhere; re-run Chapter 4. These UUIDs are the partitions' own Btrfs filesystem UUIDs — that's the only kind of UUID in this layout, so there's nothing else to keep them straight against.
 :::
 
 ---
@@ -432,7 +432,7 @@ If you forget to pin during Ubuntu install and the user ends up as UID 1001, the
 
 ## Chapter 7: Harden the `/data` fstab line and hand it to your user
 
-This is where the encrypted article had three chapters (keyfile, `crypttab`, `crypttab.initramfs`). With no encryption, **all of that collapses into two small edits to a partition that's already in `fstab`.** There's no container to unlock, so there's nothing to unlock it *with*, the shared partition is just a Btrfs filesystem `genfstab` already recorded.
+Sharing `/data` between the two distros is **two small edits to a line that's already in `fstab`.** There's no container to unlock and nothing to unlock it *with* — the shared partition is a plain Btrfs filesystem that `genfstab` already recorded when you generated the file back in Chapter 5.
 
 First, harden the generated `/data` line. `genfstab` wrote it as a **hard mount**; a hard mount of a device that's briefly missing fails `local-fs.target` → emergency mode. Add `nofail` (boot continues even if `/data` can't mount) and a short device timeout (don't hang 90 s waiting):
 
@@ -445,7 +445,7 @@ grep ' /data ' /etc/fstab
 ::: {.callout-tip}
 ## `nofail` is cheap insurance even without encryption
 
-In Article 07, `nofail` was the fix for "my keyfile-unlocked partition dropped me to emergency mode." There's no keyfile here, but the principle still applies to *any* secondary mount: if the shared partition is ever absent (a future repartition, a failing drive, a typo'd UUID), you want a normal login you can debug from, not an emergency shell. `nofail` buys exactly that for one word.
+`nofail` matters for *any* secondary mount: if the shared partition is ever absent (a future repartition, a failing drive, a typo'd UUID), a plain `fstab` line would fail `local-fs.target` and drop you to an emergency shell at boot. With `nofail`, the boot continues and you get a normal login you can debug from. One word of cheap insurance.
 :::
 
 Now hand `/data` to your user. A freshly-`mkfs`'d Btrfs subvolume is owned by `root:root`, so as things stand only root can write to `/data`. Hand the `@data` subvolume to the user you pinned to **UID 1000** in Chapter 6, do it now, inside the chroot, while `/data` is mounted:
@@ -490,7 +490,7 @@ btrfs inspect-internal map-swapfile -r /swap/swapfile
 ::: {.callout-note}
 ## The resume device is simpler without LUKS
 
-In the encrypted article, `resume=` pointed at `/dev/mapper/crypt_arch` (the unlocked container). Here the swap file lives directly on the Arch Btrfs filesystem, so the resume device is just that filesystem, addressed by its UUID. We'll write `resume=UUID=<arch-btrfs-uuid>` in the cmdline, no mapper indirection.
+The swap file lives directly on the Arch Btrfs filesystem, so the resume device *is* that filesystem, addressed by its UUID. We'll write `resume=UUID=<arch-btrfs-uuid>` in the GRUB cmdline (Chapter 10) — no `/dev/mapper` indirection, because there's no container in the path. The kernel finds the hibernation image from two values: the filesystem UUID (`resume=`) and the byte offset of the swap file's first extent (`resume_offset=`, the integer you just saved).
 :::
 
 ---
@@ -520,14 +520,20 @@ Two-tier swap arrangement:
 
 ### mkinitcpio
 
-Here's a concrete simplification from dropping encryption. Open `/etc/mkinitcpio.conf` and set:
+Open the mkinitcpio config in an editor:
+
+```bash
+nvim /etc/mkinitcpio.conf
+```
+
+Set these two lines:
 
 ```text
 MODULES=(btrfs)
 HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)
 ```
 
-The encrypted article's `HOOKS` line included **`sd-encrypt`**, the hook that prompts for the LUKS passphrase and unlocks the root from the initramfs. **We remove it** — there's no container to unlock, so the root is mounted directly from the partition. That also means no `/etc/crypttab.initramfs` to write. Regenerate the initramfs:
+`MODULES=(btrfs)` makes sure the initramfs can read a Btrfs root. The `HOOKS` line is the standard `systemd`-based set with **no `sd-encrypt`** in it — that hook exists only to prompt for a LUKS passphrase and unlock an encrypted root from the initramfs, and there's no encrypted root here. The root mounts directly from the partition, which also means there's no `/etc/crypttab.initramfs` to write. Save, then regenerate the initramfs:
 
 ```bash
 mkinitcpio -P
@@ -537,19 +543,33 @@ A successful run ends with `Image generation successful` for each preset.
 
 ### GRUB cmdline
 
-Open `/etc/default/grub` and set the `GRUB_CMDLINE_LINUX_DEFAULT` line. Without LUKS there's no `rd.luks.name=…` and no `/dev/mapper/…` root, `grub-mkconfig` auto-detects the root partition and `subvol=@` for you, so the only thing we *must* add by hand is the hibernation resume target:
+The cmdline needs two machine-specific values: the **Arch Btrfs filesystem UUID** and the **swap-file resume offset**. Print both now so you can paste them straight in without scrolling back to earlier chapters.
 
-```bash
-GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet zswap.enabled=0 resume=UUID=<ARCH_BTRFS_UUID> resume_offset=<RESUME_OFFSET>"
-```
-
-Get `<ARCH_BTRFS_UUID>` (the **Btrfs filesystem** UUID of the Arch root, the same one `genfstab` used, *not* a partition or LUKS UUID):
+`<ARCH_BTRFS_UUID>` is the Btrfs **filesystem** UUID of the Arch root — the same one `genfstab` wrote for `/`, *not* a partition UUID. Print it:
 
 ```bash
 blkid -s UUID -o value /dev/nvme0n1p3
 ```
 
-Replace `<ARCH_BTRFS_UUID>` and `<RESUME_OFFSET>` with the real values. **Do not include the angle brackets in the file.**
+`<RESUME_OFFSET>` is the byte offset (in pages) of the swap file's first extent — the integer you saved back in Chapter 8. Re-print it here so you don't have to scroll up; the swap file already exists, so this is just a read:
+
+```bash
+btrfs inspect-internal map-swapfile -r /swap/swapfile
+```
+
+Now open the GRUB defaults file in an editor:
+
+```bash
+nvim /etc/default/grub
+```
+
+Find the `GRUB_CMDLINE_LINUX_DEFAULT` line and set it, pasting in the two values you just printed. **Do not include the angle brackets in the file:**
+
+```bash
+GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet zswap.enabled=0 resume=UUID=<ARCH_BTRFS_UUID> resume_offset=<RESUME_OFFSET>"
+```
+
+The resume target is the only thing you must add by hand. `grub-mkconfig` auto-detects the root partition and `subvol=@` for you, and with no LUKS there's no `rd.luks.name=…` and no `/dev/mapper/…` root to specify.
 
 <details>
 <summary>Click to expand: every parameter</summary>
@@ -562,7 +582,7 @@ Replace `<ARCH_BTRFS_UUID>` and `<RESUME_OFFSET>` with the real values. **Do not
 | `resume=UUID=<ARCH_BTRFS_UUID>`    | Resume hibernation from the Arch Btrfs filesystem (where the swap file lives). |
 | `resume_offset=<RESUME_OFFSET>`    | Byte offset (in pages) of the swap file's first extent.                 |
 
-Note what's *gone* compared to Article 07: no `rd.luks.name=`, no `root=/dev/mapper/…`. GRUB's generated `linux` line carries `root=UUID=…` and `rootflags=subvol=@` automatically because it reads them off the mounted root at `grub-mkconfig` time.
+GRUB's generated `linux` line carries `root=UUID=…` and `rootflags=subvol=@` automatically, because `grub-mkconfig` reads them off the mounted root when it generates the config. There's no `rd.luks.name=` and no `root=/dev/mapper/…` to add — those exist only when the root sits inside a LUKS container.
 
 </details>
 
@@ -586,9 +606,9 @@ grub-mkconfig -o /boot/grub/grub.cfg
 ::: {.callout-note}
 ## No `--modules`, no `GRUB_ENABLE_CRYPTODISK`, no `grub>` trap
 
-This is the single biggest reliability win of the unencrypted layout. In the encrypted article, Ubuntu's `/boot` lived *inside* a LUKS container, so GRUB had to unlock it to read the kernel, which meant `GRUB_ENABLE_CRYPTODISK=y` and embedding `cryptodisk`/`luks2`/cipher modules into the EFI core image with `grub-install --modules="…"`. Get that wrong (or let a paste split the line) and you land at a bare `grub>` prompt with no menu.
+This is the single biggest reliability win of the unencrypted layout. When `/boot` lives inside a LUKS container, GRUB has to unlock it before it can even read the kernel — which forces `GRUB_ENABLE_CRYPTODISK=y` and embedding `cryptodisk`/`luks2`/cipher modules into the EFI core image with `grub-install --modules="…"`. Get that line wrong (or let a paste split it) and you land at a bare `grub>` prompt with no menu.
 
-Here, **both** distros keep `/boot` on the unencrypted FAT32 ESP, exactly the standard arrangement GRUB is designed for. GRUB reads the kernel and `grub.cfg` directly, no crypto modules, no core-image surgery, no Argon2id keyslot to poison the header. The entire `grub>` failure class from Article 07 simply cannot occur.
+Here, **both** distros keep `/boot` on the unencrypted FAT32 ESP — exactly the standard arrangement GRUB is designed for. A plain `grub-install` is all you need: GRUB reads the kernel and `grub.cfg` directly, with no crypto modules, no core-image surgery, and no Argon2id keyslot to poison the header. That entire `grub>` failure class simply cannot occur on this layout.
 :::
 
 ---
@@ -627,7 +647,7 @@ UUID=<shared-btrfs>  /data        btrfs    rw,noatime,compress=zstd:3,subvol=/@d
 /swap/swapfile         none swap defaults,pri=-2 0 0
 ```
 
-Note there's **no `HOOKS=… sd-encrypt …`**, no `/etc/crypttab`, and no keyfile to list, those are the lines the encrypted article had and this one doesn't.
+Note there's **no `sd-encrypt` in `HOOKS`**, no `/etc/crypttab`, and no keyfile anywhere — an unencrypted system simply has no such lines to carry.
 
 Leave the chroot and reboot:
 
@@ -740,7 +760,7 @@ Download the [Ubuntu 24.04 LTS Desktop ISO](https://ubuntu.com/download/desktop)
 ::: {.callout-note}
 ## Could you use Ubuntu's graphical installer here? Sometimes, but we don't
 
-The reason Article 07 builds Ubuntu by hand is that 24.04's rewritten installer **dropped on-partition encryption**. Without encryption, that objection goes away, and the GUI installer's manual ("Something else") mode *can* format `p4` as Btrfs and mount it at `/`. But it won't reliably create the `@`/`@home` subvolume layout we want, and it likes to reorder things on the ESP. So we keep the **same by-hand `debootstrap` install** as the encrypted article (minus the crypto): it gives an exact-parity subvolume layout, uses the same tooling you already know, and never surprises you. If you genuinely don't care about subvolume parity, the GUI manual mode is a legitimate shortcut here, just point it at `p4`, choose Btrfs and mount point `/`, and reuse (don't reformat) the existing ESP at `/boot/efi`.
+Ubuntu's GUI installer's manual ("Something else") mode *can* format `p4` as Btrfs and mount it at `/`. But it won't reliably create the `@`/`@home` subvolume layout we want, and it likes to reorder things on the ESP. So we install Ubuntu by hand with **`debootstrap`** instead: it produces the exact same subvolume layout as the Arch side, uses tooling you already know from Part 1, and never surprises you. If you genuinely don't care about subvolume layout, the GUI manual mode is a legitimate shortcut — just point it at `p4`, choose Btrfs and mount point `/`, and reuse (don't reformat) the existing ESP at `/boot/efi`.
 :::
 
 ::: {.callout-warning}
@@ -863,7 +883,7 @@ apt install -y ubuntu-desktop-minimal               # the graphical layer (skip 
 ::: {.callout-note}
 ## Notice what this `grub-install` *doesn't* need
 
-Compare this line to the encrypted article's: there's **no `GRUB_ENABLE_CRYPTODISK=y`**, **no `--modules="part_gpt cryptodisk luks2 …"`**, and **no `crypttab` entry for the root**. Ubuntu's `/boot/efi` is the shared unencrypted ESP and its kernel/initramfs live on a plain Btrfs root GRUB reaches normally. A bare `grub-install` is correct and complete, the chicken-and-egg "GRUB can't read its own config off the encrypted `/boot`" problem doesn't exist here, so neither does the `grub>` prompt it caused.
+There's **no `GRUB_ENABLE_CRYPTODISK=y`**, **no `--modules="part_gpt cryptodisk luks2 …"`**, and **no `crypttab` entry for the root**. Ubuntu's `/boot/efi` is the shared unencrypted ESP, and its kernel and initramfs live on a plain Btrfs root that GRUB reaches normally. A bare `grub-install` is correct and complete here — the chicken-and-egg "GRUB can't read its own config off the encrypted `/boot`" problem only exists with an encrypted `/boot`, so neither it nor the `grub>` prompt it causes can happen.
 :::
 
 Exit the chroot and reboot. Everything's written; `reboot` flushes and unmounts on the way down:
@@ -904,14 +924,19 @@ sudo btrfs inspect-internal map-swapfile -r /swap/swapfile
 # Save the integer — Ubuntu calls it RESUME_OFFSET too.
 ```
 
-Edit `/etc/default/grub`. Ubuntu's `GRUB_CMDLINE_LINUX_DEFAULT` typically reads `quiet splash`. Add `resume=` and `resume_offset=`, using the **Ubuntu Btrfs filesystem's** UUID (`p4`) and the offset from the previous step:
+The cmdline needs two machine-specific values for Ubuntu's root (`p4`). The resume offset is the integer you printed just above with `map-swapfile`; print the Ubuntu Btrfs filesystem UUID too:
 
 ```bash
-sudo blkid -s UUID -o value /dev/nvme0n1p4     # save this as <UBUNTU_BTRFS_UUID>
+sudo blkid -s UUID -o value /dev/nvme0n1p4     # this is <UBUNTU_BTRFS_UUID>
+```
+
+Open the GRUB defaults file (`sudoedit` opens it as root in your `$EDITOR`, which is `nvim`):
+
+```bash
 sudoedit /etc/default/grub
 ```
 
-Set:
+Ubuntu's `GRUB_CMDLINE_LINUX_DEFAULT` typically reads `quiet splash`. Add `resume=` and `resume_offset=`, pasting in the two values you just printed (no angle brackets in the file):
 
 ```text
 GRUB_CMDLINE_LINUX_DEFAULT="quiet splash resume=UUID=<UBUNTU_BTRFS_UUID> resume_offset=<UBUNTU_RESUME_OFFSET>"
@@ -1033,7 +1058,7 @@ For when something has gone visibly wrong. If the Part 6 sanity check passed, sk
 ::: {.callout-tip}
 ## The good news: no `grub>` prompt to recover from
 
-The most painful failure of the *encrypted* dual-boot, GRUB dropping to a bare `grub>` prompt because it couldn't unlock the encrypted `/boot`, **cannot happen here.** Both distros' `/boot` is the plain FAT32 ESP, so GRUB always reads its config and kernels normally. If you came here from Article 07's troubleshooting, that entire section doesn't apply to this layout.
+The classic painful multi-boot failure — GRUB dropping to a bare `grub>` prompt because it couldn't unlock an encrypted `/boot` — **cannot happen here.** Both distros' `/boot` is the plain FAT32 ESP, so GRUB always reads its config and kernels normally. That whole failure class is simply off the table on an unencrypted layout.
 :::
 
 ### 1. Arch boots to a login, but `/data` doesn't mount
@@ -1087,7 +1112,7 @@ You have two snapshot-able OSes sharing one ESP and one data partition, with hib
 ::: {.callout-tip}
 ## Want encryption after all?
 
-If this machine's role changes (it becomes a laptop, it starts holding sensitive data), the upgrade path is the [encrypted dual-boot (Article 07)](../2026-05-19-arch-ubuntu-dual-boot-shared-data/), same subvolume layout, same shared-`/data` idea, with LUKS2 around each root and the data partition. There's no in-place "add encryption" shortcut on Linux; it means backing up, re-formatting the roots inside LUKS containers, and restoring. Better to decide up front, which is exactly why this article spells out the tradeoff in Part 1.
+If this machine's role changes (it becomes a laptop, it starts holding sensitive data), adding encryption means rebuilding on LUKS2: the same subvolume layout and the same shared-`/data` idea, but with a LUKS2 container wrapped around each root and the data partition. There's no in-place "add encryption" shortcut on Linux — it means backing up, re-formatting the roots inside LUKS containers, and restoring. Better to decide up front, which is exactly why this article spells out the tradeoff in Part 1.
 :::
 
 ::: {.callout-tip}

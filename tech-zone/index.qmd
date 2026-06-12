@@ -631,7 +631,7 @@ main.content.column-page {
       autocomplete="off"
     />
     <span class="tz-filter-count" aria-live="polite">
-      showing <strong id="tz-count-shown">12</strong> of <strong>12</strong>
+      showing <strong id="tz-count-shown">10</strong> of <strong>10</strong>
     </span>
   </div>
 
@@ -642,13 +642,12 @@ main.content.column-page {
   <!-- Display order: most-recent / highest-numbered at top.
        Article number assignment is narrative-order, not a contiguous sequence:
        ambitious failure #01, basic install #02, working LUKS+Btrfs install #03,
-       pacman/AUR reference #04, three-variant install compilation #06,
-       dual-boot Arch + Ubuntu with shared data partition #07 (reasoned, not yet
-       executed), beginner Raspberry Pi homelab (tested on my own Pi) #08, and
-       triple-boot Arch + Ubuntu + Windows #10 (reasoned, not yet executed —
-       promoted from planned 2026-06-05; sits at the top as the most recent).
-       #05 (Caelestia desktop) was retired 2026-06-05; #09 (Mac mini) is still
-       planned, so both numbers are intentionally absent from the published grid. -->
+       pacman/AUR reference #04, three-variant install compilation #06, and
+       beginner Raspberry Pi homelab (tested on my own Pi) #08.
+       The plain-Btrfs dual/triple-boot articles (#11, #12) live in the in-progress grid below.
+       #05 (Caelestia desktop) was retired 2026-06-05; #07 (encrypted dual-boot) and
+       #10 (encrypted triple-boot) were retired 2026-06-12; #09 (Mac mini) is still
+       planned, so those numbers are intentionally absent from the grids. -->
   <div class="tz-card-grid" id="tz-card-grid">
 
 
@@ -1005,142 +1004,16 @@ control  arch  <span class="mute">…</span><span class="u">_</span></div>
   <p class="tz-section-kicker warn">in progress · reasoned, not yet executed</p>
   <h3 class="tz-section-title" id="tz-in-progress">Articles in Progress</h3>
   <p class="tz-section-blurb">
-    These four are fully written and readable, but I haven’t yet run them end-to-end on real hardware — so
-    treat the procedures as carefully-reasoned drafts, not battle-tested runbooks. They come as two pairs:
-    the <strong>encrypted</strong> dual/triple-boot (LUKS2 + Btrfs) and their <strong>plain-Btrfs,
-    no-encryption</strong> siblings. The encrypted ones now fold in every fix from a live install attempt —
-    the <code>grub&gt;</code> recovery, the <code>--modules</code> EFI-core embed, the <code>--pbkdf pbkdf2</code>
-    keyslot discipline; the no-encryption ones sidestep that whole class of boot failures by keeping
-    <code>/boot</code> unencrypted. The cards are clickable — just expect rough edges until the amber status
-    pill flips to done.
+    These two are fully written and readable, but I haven’t yet run them end-to-end on real hardware — so
+    treat the procedures as carefully-reasoned drafts, not battle-tested runbooks. Both keep the disk on
+    <strong>plain Btrfs with no encryption</strong>: two Btrfs roots plus a shared Btrfs <code>/data</code>,
+    <code>/boot</code> on an unencrypted ESP, zram for everyday swap, and a Btrfs swap file for hibernation.
+    Keeping <code>/boot</code> unencrypted sidesteps the whole class of <code>grub&gt;</code> boot failures that
+    comes with GRUB unlocking an encrypted disk. The cards are clickable — just expect rough edges until the
+    amber status pill flips to done.
   </p>
 
   <div class="tz-card-grid" id="tz-progress-grid">
-
-    <!-- CARD 10 — Triple-boot Arch + Ubuntu + Windows (promoted from planned 2026-06-05) -->
-    <a class="tz-card success" href="./posts/2026-06-05-arch-ubuntu-windows-triple-boot/"
-       data-tags="arch linux ubuntu windows triple-boot luks btrfs snapper hibernation grub os-prober exfat esp bitlocker secure boot shared partition exchange culmination"
-       aria-label="Read: Triple-Boot Arch + Ubuntu + Windows — Closing the Loop on Article 01">
-      <div class="tz-card-summary">
-        <div class="tz-card-tags">
-          <span class="tz-tag">arch linux</span>
-          <span class="tz-tag">ubuntu</span>
-          <span class="tz-tag">windows</span>
-          <span class="tz-tag">triple-boot</span>
-          <span class="tz-tag">luks</span>
-          <span class="tz-tag">exfat</span>
-          <span class="tz-tag">os-prober</span>
-        </div>
-
-        <div class="tz-card-name-row">
-          <span class="tz-card-number">10</span>
-          <h3 class="tz-card-name">Triple-Boot Arch + Ubuntu + Windows — Closing the Loop on Article 01</h3>
-        </div>
-
-        <div class="tz-card-meta">
-          <span class="tz-card-date">2026-06-05</span>
-          <span class="tz-status-pill warn">reasoned, not yet executed</span>
-        </div>
-
-        <p class="tz-card-preview-copy">
-          The full-circle finale: one NVMe drive booting <code>Windows 11</code>, <code>Arch</code>, and
-          <code>Ubuntu 24 LTS</code>. Windows goes on <strong>first</strong> (so it can't stomp the bootloader)
-          into its own NTFS partition, reusing a <code>1 GiB</code> ESP we pre-create; Arch and Ubuntu layer on
-          exactly as in the dual-boot — two LUKS2+Btrfs roots, one shared encrypted <code>/data</code> the two
-          Linux distros mount, per-OS zram + NoCOW hibernation. Windows stays out of the encrypted pool
-          entirely; cross-OS exchange runs through a plain <code>exFAT</code> partition all three read. One GRUB
-          with <code>os-prober</code> chainloads the Windows boot manager. Secure Boot off, BitLocker off, with
-          every lesson from Articles 01–07 underneath. The full reasoned procedure — updated in place once I run
-          it end-to-end.
-        </p>
-
-        <div class="tz-screen" aria-hidden="true">
-          <div class="tz-screen-bar">
-            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-            <span class="label">one GRUB menu — three operating systems</span>
-            <span class="badge ok">triple-boot</span>
-          </div>
-          <div class="tz-screen-body"><span class="p">[user@arch-triple ~]$</span> <span class="c">sudo grub-mkconfig -o /boot/grub/grub.cfg 2&gt;&amp;1 | grep Found</span>
-<span class="ok">Found Windows Boot Manager on /dev/nvme0n1p1@/EFI/Microsoft/Boot/bootmgfw.efi</span>
-<span class="ok">Found Ubuntu 24.04 LTS (24.04) on /dev/nvme0n1p7</span>
-
-<span class="p">[user@arch-triple ~]$</span> <span class="c">findmnt /data /exchange -o TARGET,SOURCE,FSTYPE</span>
-/data      /dev/mapper/<span class="ok">crypt_shared</span>  btrfs   <span class="mute"># Arch + Ubuntu only, encrypted</span>
-/exchange  /dev/nvme0n1p4         exfat   <span class="mute"># all three OSes, plain</span>
-
-<span class="p">[user@arch-triple ~]$</span> <span class="c">swapon --show</span>
-NAME           TYPE       SIZE PRIO
-/dev/zram0     partition  18G  <span class="ok">100</span>
-/swap/swapfile file       36G  <span class="mute">-2</span><span class="u">_</span></div>
-        </div>
-
-        <span class="tz-card-cta">read the triple-boot finale <span class="arrow">→</span></span>
-      </div>
-    </a>
-
-    <!-- CARD 07 — Dual-boot Arch + Ubuntu with shared data partition -->
-    <a class="tz-card success" href="./posts/2026-05-19-arch-ubuntu-dual-boot-shared-data/"
-       data-tags="arch linux ubuntu dual-boot luks btrfs snapper hibernation grub os-prober keyfile shared partition crypttab sd-encrypt zram"
-       aria-label="Read: Dual-Boot Arch + Ubuntu — With a Shared Data Partition">
-      <div class="tz-card-summary">
-        <div class="tz-card-tags">
-          <span class="tz-tag">arch linux</span>
-          <span class="tz-tag">ubuntu</span>
-          <span class="tz-tag">dual-boot</span>
-          <span class="tz-tag">luks</span>
-          <span class="tz-tag">btrfs</span>
-          <span class="tz-tag">shared partition</span>
-          <span class="tz-tag">os-prober</span>
-        </div>
-
-        <div class="tz-card-name-row">
-          <span class="tz-card-number">07</span>
-          <h3 class="tz-card-name">Dual-Boot Arch + Ubuntu — With a Shared Data Partition</h3>
-        </div>
-
-        <div class="tz-card-meta">
-          <span class="tz-card-date">2026-05-19</span>
-          <span class="tz-status-pill warn">reasoned, not yet executed</span>
-        </div>
-
-        <p class="tz-card-preview-copy">
-          Bolts Ubuntu 24 LTS alongside the working LUKS+Btrfs single-boot from Article 03 — two
-          independently encrypted root partitions, one shared <code>150 GiB</code> Btrfs data partition
-          both distros mount read-write (LUKS-encrypted, keyfile-unlocked from each root), and a
-          <code>1 GiB</code> shared ESP. Everyday swap via zram on each OS; hibernation to per-OS NoCOW
-          Btrfs swap files inside each encrypted root — no shared swap partition, no cross-OS
-          resume-image collisions. One GRUB on the shared ESP with <code>os-prober</code> enabled.
-          The full reasoned procedure; I'll update in place once I've run it end-to-end on the next
-          workstation install.
-        </p>
-
-        <div class="tz-screen" aria-hidden="true">
-          <div class="tz-screen-bar">
-            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-            <span class="label">first boot — both OSes mount /data</span>
-            <span class="badge ok">dual-boot</span>
-          </div>
-          <div class="tz-screen-body"><span class="p">[user@arch-dual ~]$</span> <span class="c">findmnt /data</span>
-TARGET SOURCE                     FSTYPE OPTIONS
-/data  /dev/mapper/<span class="ok">crypt_shared</span>[/@data] btrfs  rw,noatime,compress=zstd:3
-
-<span class="p">[user@arch-dual ~]$</span> <span class="c">sudo cryptsetup status crypt_shared</span>
-  type:    LUKS2
-  cipher:  aes-xts-plain64
-  keyfile: <span class="ok">/etc/cryptsetup-keys.d/shared.key</span>
-
-<span class="p">[user@arch-dual ~]$</span> <span class="c">swapon --show</span>
-NAME           TYPE       SIZE PRIO
-/dev/zram0     partition  16G  <span class="ok">100</span>
-/swap/swapfile file       36G  <span class="mute">-2</span>
-
-<span class="p">[user@arch-dual ~]$</span> <span class="c">sudo grub-mkconfig -o /boot/grub/grub.cfg 2&gt;&amp;1 | grep Found</span>
-<span class="ok">Found Ubuntu 24.04 LTS (24.04) on /dev/nvme0n1p4</span><span class="u">_</span></div>
-        </div>
-
-        <span class="tz-card-cta">read the dual-boot plan <span class="arrow">→</span></span>
-      </div>
-    </a>
 
     <!-- CARD 11 — Dual-boot Arch + Ubuntu, plain Btrfs (no encryption) -->
     <a class="tz-card success" href="./posts/2026-06-07-arch-ubuntu-dual-boot-btrfs/"
@@ -1168,14 +1041,13 @@ NAME           TYPE       SIZE PRIO
         </div>
 
         <p class="tz-card-preview-copy">
-          The no-encryption twin of <strong>#07</strong> (the LUKS+Btrfs dual-boot):
-          same dual-boot layout — two plain <code>Btrfs</code> roots, one shared <code>150 GiB</code> Btrfs
-          <code>/data</code> both distros mount, per-OS zram + NoCOW hibernation, pinned UID-1000 ownership —
-          with <strong>every LUKS layer removed</strong>. No <code>cryptsetup</code>, no keyfile, no
-          <code>crypttab</code>, no <code>GRUB_ENABLE_CRYPTODISK</code>. The payoff: no passphrase prompts, and
-          none of the <code>grub&gt;</code>/Argon2 boot failures that come with GRUB unlocking an encrypted
-          <code>/boot</code>. For a stationary, physically-secured box where FDE is friction, not protection —
-          the tradeoff (nothing encrypted at rest) is spelled out up front.
+          Ubuntu 24 LTS alongside Arch on one drive, no encryption anywhere:
+          two plain <code>Btrfs</code> roots, one shared <code>150 GiB</code> Btrfs <code>/data</code> both distros
+          mount read-write, per-OS zram + NoCOW hibernation, pinned UID-1000 ownership, one GRUB on a shared
+          unencrypted ESP with <code>os-prober</code>. No <code>cryptsetup</code>, no keyfile, no passphrase
+          prompts, and none of the <code>grub&gt;</code> boot failures that come with GRUB unlocking an encrypted
+          <code>/boot</code>. For a stationary, physically-secured box where full-disk encryption is friction,
+          not protection — the tradeoff (nothing encrypted at rest) is spelled out up front.
         </p>
 
         <div class="tz-screen" aria-hidden="true">
@@ -1225,14 +1097,13 @@ TARGET SOURCE                 FSTYPE OPTIONS
         </div>
 
         <p class="tz-card-preview-copy">
-          The no-encryption twin of <strong>#10</strong> (the LUKS+Btrfs triple-boot):
-          one NVMe drive booting <code>Windows 11</code>, <code>Arch</code>, and <code>Ubuntu 24 LTS</code>,
+          One NVMe drive booting <code>Windows 11</code>, <code>Arch</code>, and <code>Ubuntu 24 LTS</code>,
           with both Linux roots on <strong>plain Btrfs</strong> and a shared plain-Btrfs <code>/data</code>.
-          Windows still goes <strong>first</strong>, still hands files to Linux through a plain
-          <code>exFAT</code> exchange, still gets the UTC-clock / Fast-Startup / BitLocker fixes — none of which
-          depend on LUKS. What's gone is the encrypted-<code>/boot</code> GRUB surgery (<code>--modules</code>,
-          <code>--pbkdf pbkdf2</code>, the <code>grub&gt;</code> recovery). Secure Boot off, BitLocker off; the
-          tradeoff (unencrypted at rest) stated plainly.
+          Windows goes <strong>first</strong> (so it can't stomp the bootloader), hands files to Linux through a
+          plain <code>exFAT</code> exchange, and gets the UTC-clock / Fast-Startup / BitLocker fixes. One GRUB
+          with <code>os-prober</code> chainloads all three. No encrypted <code>/boot</code>, so no
+          <code>--modules</code> EFI surgery and no <code>grub&gt;</code> recovery to learn. Secure Boot off,
+          BitLocker off; the tradeoff (unencrypted at rest) stated plainly.
         </p>
 
         <div class="tz-screen" aria-hidden="true">
@@ -1359,10 +1230,10 @@ GRUB  Microsoft  Ubuntu   <span class="mute"># one unencrypted ESP, three boot p
     <!-- CARDs 04/05/06 (LUKS-only / Btrfs-only / LUKS+Btrfs) retired —
          their content is now compiled into the published "Three Single-Boot
          Arch Variants" article (CARD 06 in the published grid above).
-         CARD 09 (old planned: Dual-Boot Arch + Ubuntu — Shared Data Partition)
-         was promoted to published CARD 07 on 2026-05-19.
-         CARD 10 (Triple-Boot Arch + Ubuntu + Windows) was promoted to the
-         published grid on 2026-06-05 and now sits at the top of it.
+         CARD 07 (encrypted Dual-Boot Arch + Ubuntu) and CARD 10 (encrypted
+         Triple-Boot Arch + Ubuntu + Windows) were retired on 2026-06-12 — the
+         multi-boot guides now ship plain-Btrfs only (CARDs 11 + 12 in the
+         in-progress grid above).
          CARD 05 (Caelestia Hyprland Desktop) was retired on 2026-06-05; the
          desktop layer is now covered only by the Custom Hyprland card above. -->
 
