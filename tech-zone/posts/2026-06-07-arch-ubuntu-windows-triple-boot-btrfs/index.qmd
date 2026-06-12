@@ -661,7 +661,7 @@ Point Ubuntu's cmdline and initramfs at its *own* Btrfs filesystem (never Arch's
 sudo blkid -s UUID -o value /dev/nvme0n1p7    # this is <UBUNTU_BTRFS_UUID>
 ```
 
-Open the GRUB defaults file (`sudoedit` opens it as root in your `$EDITOR`, which is `nvim`):
+Open the GRUB defaults file as root. `sudoedit` uses your `$EDITOR`, and a fresh Ubuntu hasn't set one — so it opens **nano** (edit, then `Ctrl-O`, `Enter` to save and `Ctrl-X` to exit). Prefer nvim? Run `sudo apt install -y neovim && export EDITOR=nvim` first.
 
 ```bash
 sudoedit /etc/default/grub
