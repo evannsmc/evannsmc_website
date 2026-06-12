@@ -934,10 +934,19 @@ sudo update-initramfs -u -k all
 sudo update-grub
 ```
 
-::: {.callout-note}
-## Why the explicit `/etc/initramfs-tools/conf.d/resume` file
+::: {.callout-important}
+## Expected: `update-initramfs` warns "no matching swap device is available"
 
-Ubuntu's `initramfs-tools` reads this file at build time and bakes the resume device into the initramfs so userspace's hibernation tooling agrees with the kernel cmdline. Without it, `update-initramfs` may pick an unintended device. Pinning to Ubuntu's *own* Btrfs filesystem guarantees Ubuntu always resumes from its own hibernation image, never Arch's.
+You'll see this, and it's **harmless** with a swap *file*:
+
+```text
+W: initramfs-tools configuration sets RESUME=UUID=<uuid>
+W: but no matching swap device is available.
+```
+
+`initramfs-tools` validates `RESUME=` by looking for a swap *partition* whose UUID matches. Your swap is a *file inside* the Btrfs filesystem `<uuid>`, not a separate swap device — so there's nothing for it to match, and it warns and moves on. What actually performs the resume is the kernel cmdline `resume=UUID=… resume_offset=…` you set in `/etc/default/grub`: the kernel resolves the UUID to the device and seeks to the offset. The `RESUME` file just keeps Ubuntu's userspace pinned to its *own* filesystem, never Arch's.
+
+Don't trust the absence of the warning as proof; the real test is to actually hibernate (below). The warning also shows up partly because the swap file isn't active in this just-created session yet, `fstab` activates it on the next boot.
 :::
 
 ### Set up zram on Ubuntu too
