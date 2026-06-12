@@ -8,7 +8,7 @@
 
 <meta name="author" content="Evanns Morales">
 <meta name="dcterms.date" content="2026-06-07">
-<meta name="description" content="One NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root (no LUKS), plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. A Btrfs subvolume layout (@, @home, @snapshots, @var_log, @swap), per-OS zram + NoCOW Btrfs hibernation, and a pinned-UID shared /data — with no cryptsetup, keyfile, crypttab, or GRUB-cryptodisk anywhere. No passphrase prompts, no encrypted /boot, and none of the grub> failure modes that come with GRUB unlocking LUKS. GRUB on the single shared ESP, with os-prober enabled.">
+<meta name="description" content="One NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root, plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. A Btrfs subvolume layout (@, @home, @snapshots, @var_log, @swap), per-OS zram + NoCOW Btrfs hibernation, a pinned-UID shared /data, and one GRUB on the shared ESP with os-prober. No passphrase prompts — boot goes straight from GRUB to login.">
 
 <title>Dual-Boot Arch + Ubuntu (Plain Btrfs, No Encryption) — With a Shared Data Partition – evannsmc</title>
 <style>
@@ -167,12 +167,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <link rel="stylesheet" href="../../../styles.css">
 <meta property="og:title" content="Dual-Boot Arch + Ubuntu (Plain Btrfs, No Encryption) — With a Shared Data Partition – evannsmc">
-<meta property="og:description" content="One NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root (no LUKS), plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. A Btrfs subvolume layout (@, @home, @snapshots, @var_log, @swap), per-OS zram + NoCOW Btrfs hibernation, and a pinned-UID shared /data — with no cryptsetup, keyfile, crypttab, or GRUB-cryptodisk anywhere. No passphrase prompts, no encrypted /boot, and none of the grub> failure modes that come with GRUB unlocking LUKS. GRUB on the single shared ESP, with os-prober enabled.">
+<meta property="og:description" content="One NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root, plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. A Btrfs subvolume layout (@, @home, @snapshots, @var_log, @swap), per-OS zram + NoCOW Btrfs hibernation, a pinned-UID shared /data, and one GRUB on the shared ESP with os-prober. No passphrase prompts — boot goes straight from GRUB to login.">
 <meta property="og:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
 <meta property="og:site_name" content="evannsmc">
 <meta property="og:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:title" content="Dual-Boot Arch + Ubuntu (Plain Btrfs, No Encryption) — With a Shared Data Partition – evannsmc">
-<meta name="twitter:description" content="One NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root (no LUKS), plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. A Btrfs subvolume layout (@, @home, @snapshots, @var_log, @swap), per-OS zram + NoCOW Btrfs hibernation, and a pinned-UID shared /data — with no cryptsetup, keyfile, crypttab, or GRUB-cryptodisk anywhere. No passphrase prompts, no encrypted /boot, and none of the grub> failure modes that come with GRUB unlocking LUKS. GRUB on the single shared ESP, with os-prober enabled.">
+<meta name="twitter:description" content="One NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root, plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. A Btrfs subvolume layout (@, @home, @snapshots, @var_log, @swap), per-OS zram + NoCOW Btrfs hibernation, a pinned-UID shared /data, and one GRUB on the shared ESP with os-prober. No passphrase prompts — boot goes straight from GRUB to login.">
 <meta name="twitter:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
 <meta name="twitter:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:card" content="summary_large_image">
@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <div>
   <div class="description">
-    One NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root (no LUKS), plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. A Btrfs subvolume layout (<code>@</code>, <code>@home</code>, <code>@snapshots</code>, <code>@var_log</code>, <code>@swap</code>), per-OS zram + NoCOW Btrfs hibernation, and a pinned-UID shared <code>/data</code> — with no cryptsetup, keyfile, crypttab, or GRUB-cryptodisk anywhere. No passphrase prompts, no encrypted <code>/boot</code>, and none of the <code>grub&gt;</code> failure modes that come with GRUB unlocking LUKS. GRUB on the single shared ESP, with os-prober enabled.
+    One NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root, plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. A Btrfs subvolume layout (<code>@</code>, <code>@home</code>, <code>@snapshots</code>, <code>@var_log</code>, <code>@swap</code>), per-OS zram + NoCOW Btrfs hibernation, a pinned-UID shared <code>/data</code>, and one GRUB on the shared ESP with os-prober. No passphrase prompts — boot goes straight from GRUB to login.
   </div>
 </div>
 
@@ -472,7 +472,7 @@ Disclaimer: a reasoned no-encryption build, not yet a live-tested run
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>This is a no-encryption dual-boot blueprint: two plain Btrfs roots and a shared Btrfs <code>/data</code>, with no LUKS anywhere on the disk. It’s a carefully-reasoned procedure, not a command-by-command log I’ve executed end-to-end (yet). Because the disk is unencrypted, <code>/boot</code> sits on a plain ESP and GRUB reads its config and kernels directly — none of the <code>grub&gt;</code>-prompt, Argon2id-keyslot, or keyfile/<code>crypttab</code> failure modes that come with an encrypted <code>/boot</code> can happen here. What’s left is the boring, dependable shape, and “boring and dependable” is exactly what you want from a bootloader.</p>
+<p>This is a no-encryption dual-boot blueprint: two plain Btrfs roots and a shared Btrfs <code>/data</code>. It’s a carefully-reasoned procedure, not a command-by-command log I’ve executed end-to-end (yet). The boot path is about as simple as multi-boot gets — <code>/boot</code> sits on a plain ESP, and GRUB reads its config and kernels directly off it. The result is the boring, dependable shape, and “boring and dependable” is exactly what you want from a bootloader.</p>
 <p>Canonical sources to re-read as you go:</p>
 <ul>
 <li><a href="https://man.archlinux.org/man/btrfs.8" target="_blank" rel="noopener"><code>btrfs</code></a> — subvolumes, swap files, mount options</li>
@@ -495,8 +495,8 @@ What this is
 <div class="callout-body-container callout-body">
 <p>The layout, with no encryption anywhere on the disk:</p>
 <ul>
-<li><strong>Two plain Btrfs root partitions</strong> — Arch in its own Btrfs partition, Ubuntu in its own, each carrying the usual subvolumes (<code>@</code>, <code>@home</code>, …). No LUKS container around either.</li>
-<li><strong>One shared 150 GiB plain Btrfs data partition</strong>, mounted at <code>/data</code> on both distros, owned by your user on both sides. Just an <code>fstab</code> UUID line on each OS, no keyfile, no <code>crypttab</code>, no auto-unlock machinery.</li>
+<li><strong>Two plain Btrfs root partitions</strong> — Arch in its own Btrfs partition, Ubuntu in its own, each carrying the usual subvolumes (<code>@</code>, <code>@home</code>, …).</li>
+<li><strong>One shared 150 GiB plain Btrfs data partition</strong>, mounted at <code>/data</code> on both distros, owned by your user on both sides. Just an <code>fstab</code> UUID line on each OS.</li>
 <li><strong>Per-OS everyday swap via zram</strong> (compressed RAM, no SSD writes) and <strong>per-OS hibernation</strong> to a NoCOW Btrfs swap file inside each distro’s own root, no shared swap partition, no cross-OS resume-image collisions.</li>
 <li><strong>One GRUB</strong> on the shared ESP, with <code>os-prober</code> enabled so either distro’s <code>grub-mkconfig</code>/<code>update-grub</code> regenerates a menu listing both.</li>
 </ul>
@@ -531,7 +531,7 @@ What you give up by dropping encryption
 <p>If any of that is unacceptable for what lives on this machine, stop and build it with full-disk encryption (LUKS) instead. Everything below assumes you’ve consciously chosen an unencrypted disk.</p>
 </div>
 </div>
-<p>What adding Ubuntu still introduces (encryption or not):</p>
+<p>What adding Ubuntu introduces:</p>
 <ol type="1">
 <li><strong>Who owns GRUB?</strong> Both distros want their own bootloader on the same ESP. We pick one as the menu driver (Ubuntu) and let its <code>os-prober</code> discover Arch automatically.</li>
 <li><strong>UID/GID coordination for the shared partition.</strong> If <code>user</code> is UID 1000 on Arch and UID 1001 on Ubuntu, every file on <code>/data</code> looks like it belongs to a different user depending on which OS you booted. We pin UID 1000 on both sides.</li>
@@ -751,11 +751,11 @@ Why no swap partition?
 </section>
 <section id="chapter-2-format-the-partitions" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-2-format-the-partitions">Chapter 2: Format the partitions</h2>
-<p>No <code>cryptsetup</code> step here, that’s the whole point. We format the Btrfs filesystems directly on the partitions. Format the ESP, the shared data partition, and the Arch root now; leave <code>p4</code> for the Ubuntu install in Part 4.</p>
+<p>We format the Btrfs filesystems directly on the partitions. Format the ESP, the shared data partition, and the Arch root now; leave <code>p4</code> for the Ubuntu install in Part 4.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.fat</span> <span class="at">-F32</span> /dev/nvme0n1p1            <span class="co"># ESP — must be FAT32 so UEFI/GRUB can read it</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> shared /dev/nvme0n1p2     <span class="co"># shared data</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> arch   /dev/nvme0n1p3     <span class="co"># Arch root</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Each <code>mkfs.btrfs</code> runs directly on the <strong>raw partition</strong> — with no LUKS layer in between, the device name is simply the partition itself. The <code>-L</code> labels (<code>shared</code>, <code>arch</code>) are cosmetic, but they make later <code>lsblk -f</code> and <code>blkid</code> output easy to read at a glance.</p>
+<p>Each <code>mkfs.btrfs</code> runs directly on the <strong>raw partition</strong>, so the device name is simply the partition itself. The <code>-L</code> labels (<code>shared</code>, <code>arch</code>) are cosmetic, but they make later <code>lsblk -f</code> and <code>blkid</code> output easy to read at a glance.</p>
 <hr>
 </section>
 <section id="chapter-3-create-the-btrfs-subvolumes-on-the-arch-root" class="level2">
@@ -849,12 +849,12 @@ Why subvolumes give you “separate root and home” without separate partitions
 <span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot</span>
 <span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@data /dev/nvme0n1p2 /mnt/data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The <code>@swap</code> subvolume mounts <strong>without</strong> compression, a swap file must not be compressed. We mount <code>/mnt/data</code> <em>now</em> so <code>genfstab -U /mnt</code> in the next chapter captures the shared partition automatically, and since there’s no <code>crypttab</code> to write, that’s the <em>only</em> thing we have to do for <code>/data</code> on the Arch side (plus a one-line <code>fstab</code> hardening and a <code>chown</code>, Chapter 7).</p>
+<p>The <code>@swap</code> subvolume mounts <strong>without</strong> compression, a swap file must not be compressed. We mount <code>/mnt/data</code> <em>now</em> so <code>genfstab -U /mnt</code> in the next chapter captures the shared partition automatically — that’s the only <code>/data</code> setup needed on the Arch side here (plus a one-line <code>fstab</code> hardening and a <code>chown</code> in Chapter 7).</p>
 <hr>
 </section>
 <section id="chapter-5-pacstrap-fstab-chroot" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-5-pacstrap-fstab-chroot">Chapter 5: Pacstrap, fstab, chroot</h2>
-<p>There’s deliberately <strong>no <code>cryptsetup</code></strong> in this package list — nothing here manages a LUKS container, so the tool isn’t needed.</p>
+<p>Refresh the mirror list, then pacstrap the base system and the dual-boot tooling:</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">reflector</span> <span class="at">--country</span> <span class="st">'United States'</span> <span class="at">--protocol</span> https <span class="at">--latest</span> 20 <span class="at">--age</span> 12 <span class="dt">\</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">--sort</span> rate <span class="at">--save</span> /etc/pacman.d/mirrorlist</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -953,7 +953,7 @@ The pinned UID is the load-bearing part of “shared data partition”
 </section>
 <section id="chapter-7-harden-the-data-fstab-line-and-hand-it-to-your-user" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-7-harden-the-data-fstab-line-and-hand-it-to-your-user">Chapter 7: Harden the <code>/data</code> fstab line and hand it to your user</h2>
-<p>Sharing <code>/data</code> between the two distros is <strong>two small edits to a line that’s already in <code>fstab</code>.</strong> There’s no container to unlock and nothing to unlock it <em>with</em> — the shared partition is a plain Btrfs filesystem that <code>genfstab</code> already recorded when you generated the file back in Chapter 5.</p>
+<p>Sharing <code>/data</code> between the two distros is <strong>two small edits to a line that’s already in <code>fstab</code></strong> — the shared partition is a plain Btrfs filesystem that <code>genfstab</code> recorded when you generated the file back in Chapter 5.</p>
 <p>First, harden the generated <code>/data</code> line. <code>genfstab</code> wrote it as a <strong>hard mount</strong>; a hard mount of a device that’s briefly missing fails <code>local-fs.target</code> → emergency mode. Add <code>nofail</code> (boot continues even if <code>/data</code> can’t mount) and a short device timeout (don’t hang 90 s waiting):</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s#subvol=/@data#subvol=/@data,nofail,x-systemd.device-timeout=10s#'</span> /etc/fstab</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">' /data '</span> /etc/fstab</span>
@@ -964,7 +964,7 @@ The pinned UID is the load-bearing part of “shared data partition”
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<code>nofail</code> is cheap insurance even without encryption
+<code>nofail</code> is cheap insurance
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1009,7 +1009,7 @@ The resume device is simpler without LUKS
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The swap file lives directly on the Arch Btrfs filesystem, so the resume device <em>is</em> that filesystem, addressed by its UUID. We’ll write <code>resume=UUID=&lt;arch-btrfs-uuid&gt;</code> in the GRUB cmdline (Chapter 10) — no <code>/dev/mapper</code> indirection, because there’s no container in the path. The kernel finds the hibernation image from two values: the filesystem UUID (<code>resume=</code>) and the byte offset of the swap file’s first extent (<code>resume_offset=</code>, the integer you just saved).</p>
+<p>The swap file lives directly on the Arch Btrfs filesystem, so the resume device <em>is</em> that filesystem, addressed by its UUID. We’ll write <code>resume=UUID=&lt;arch-btrfs-uuid&gt;</code> in the GRUB cmdline (Chapter 10), pointing straight at it. The kernel finds the hibernation image from two values: the filesystem UUID (<code>resume=</code>) and the byte offset of the swap file’s first extent (<code>resume_offset=</code>, the integer you just saved).</p>
 </div>
 </div>
 <hr>
@@ -1065,7 +1065,7 @@ The resume device is simpler without LUKS
 <p>Set these two lines:</p>
 <pre class="text"><code>MODULES=(btrfs)
 HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)</code></pre>
-<p><code>MODULES=(btrfs)</code> makes sure the initramfs can read a Btrfs root. The <code>HOOKS</code> line is the standard <code>systemd</code>-based set with <strong>no <code>sd-encrypt</code></strong> in it — that hook exists only to prompt for a LUKS passphrase and unlock an encrypted root from the initramfs, and there’s no encrypted root here. The root mounts directly from the partition, which also means there’s no <code>/etc/crypttab.initramfs</code> to write. Save, then regenerate the initramfs:</p>
+<p><code>MODULES=(btrfs)</code> makes sure the initramfs can read a Btrfs root. The <code>HOOKS</code> line is the standard <code>systemd</code>-based set; the root mounts directly from the partition at boot. Save, then regenerate the initramfs:</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkinitcpio</span> <span class="at">-P</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>A successful run ends with <code>Image generation successful</code> for each preset.</p>
 </section>
@@ -1080,7 +1080,7 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 <div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvim</span> /etc/default/grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Find the <code>GRUB_CMDLINE_LINUX_DEFAULT</code> line and set it, pasting in the two values you just printed. <strong>Do not include the angle brackets in the file:</strong></p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="va">GRUB_CMDLINE_LINUX_DEFAULT</span><span class="op">=</span><span class="st">"loglevel=3 quiet zswap.enabled=0 resume=UUID=&lt;ARCH_BTRFS_UUID&gt; resume_offset=&lt;RESUME_OFFSET&gt;"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The resume target is the only thing you must add by hand. <code>grub-mkconfig</code> auto-detects the root partition and <code>subvol=@</code> for you, and with no LUKS there’s no <code>rd.luks.name=…</code> and no <code>/dev/mapper/…</code> root to specify.</p>
+<p>The resume target is the only thing you must add by hand — <code>grub-mkconfig</code> auto-detects the root partition and <code>subvol=@</code> for you.</p>
 <details>
 <summary>
 Click to expand: every parameter
@@ -1119,7 +1119,7 @@ Click to expand: every parameter
 </tr>
 </tbody>
 </table>
-<p>GRUB’s generated <code>linux</code> line carries <code>root=UUID=…</code> and <code>rootflags=subvol=@</code> automatically, because <code>grub-mkconfig</code> reads them off the mounted root when it generates the config. There’s no <code>rd.luks.name=</code> and no <code>root=/dev/mapper/…</code> to add — those exist only when the root sits inside a LUKS container.</p>
+<p>GRUB’s generated <code>linux</code> line carries <code>root=UUID=…</code> and <code>rootflags=subvol=@</code> automatically, because <code>grub-mkconfig</code> reads them off the mounted root when it generates the config.</p>
 </details>
 <p>Now enable <code>os-prober</code>, the key dual-boot setting. Find the commented <code>#GRUB_DISABLE_OS_PROBER=false</code> and uncomment it:</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/'</span> /etc/default/grub</span>
@@ -1129,20 +1129,7 @@ Click to expand: every parameter
 <p>Install the bootloader and generate the config:</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-No <code>--modules</code>, no <code>GRUB_ENABLE_CRYPTODISK</code>, no <code>grub&gt;</code> trap
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>This is the single biggest reliability win of the unencrypted layout. When <code>/boot</code> lives inside a LUKS container, GRUB has to unlock it before it can even read the kernel — which forces <code>GRUB_ENABLE_CRYPTODISK=y</code> and embedding <code>cryptodisk</code>/<code>luks2</code>/cipher modules into the EFI core image with <code>grub-install --modules="…"</code>. Get that line wrong (or let a paste split it) and you land at a bare <code>grub&gt;</code> prompt with no menu.</p>
-<p>Here, <strong>both</strong> distros keep <code>/boot</code> on the unencrypted FAT32 ESP — exactly the standard arrangement GRUB is designed for. A plain <code>grub-install</code> is all you need: GRUB reads the kernel and <code>grub.cfg</code> directly, with no crypto modules, no core-image surgery, and no Argon2id keyslot to poison the header. That entire <code>grub&gt;</code> failure class simply cannot occur on this layout.</p>
-</div>
-</div>
+<p>Both distros keep <code>/boot</code> on the FAT32 ESP, the standard arrangement GRUB expects, so a plain <code>grub-install</code> is all that’s needed: GRUB reads the kernel and <code>grub.cfg</code> directly off the ESP.</p>
 <hr>
 </section>
 </section>
@@ -1169,16 +1156,15 @@ UUID=&lt;arch-btrfs&gt;    /var/log     btrfs    rw,noatime,compress=zstd:3,subv
 UUID=&lt;arch-btrfs&gt;    /swap        btrfs    rw,noatime,subvol=/@swap                       0 0
 UUID=&lt;shared-btrfs&gt;  /data        btrfs    rw,noatime,compress=zstd:3,subvol=/@data,nofail,x-systemd.device-timeout=10s 0 0
 /swap/swapfile         none swap defaults,pri=-2 0 0</code></pre>
-<p>Note there’s <strong>no <code>sd-encrypt</code> in <code>HOOKS</code></strong>, no <code>/etc/crypttab</code>, and no keyfile anywhere — an unencrypted system simply has no such lines to carry.</p>
 <p>Leave the chroot and reboot:</p>
 <div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> <span class="at">-R</span> /mnt</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>There’s no <code>cryptsetup close</code> step, there are no open containers. Pull the USB. Expected first-boot sequence:</p>
+<p>Pull the USB. Expected first-boot sequence:</p>
 <ol type="1">
 <li>Firmware → GRUB menu (just <code>Arch Linux</code> for now).</li>
 <li>Kernel + initramfs.</li>
-<li><strong>No passphrase prompt</strong>, the root mounts directly. (This is the visible payoff of dropping encryption: boot goes straight from GRUB to login.)</li>
+<li>The root mounts directly and you go straight from GRUB to login.</li>
 <li>systemd starts; <code>/data</code> mounts; <code>/swap/swapfile</code> activates; zram comes up.</li>
 <li>Login prompt.</li>
 </ol>
@@ -1308,8 +1294,7 @@ Ubuntu will overwrite the EFI NVRAM <code>BootOrder</code>
 </div>
 <div class="sourceCode" id="cb50"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-i</span></span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> update <span class="kw">&amp;&amp;</span> <span class="ex">apt</span> install <span class="at">-y</span> debootstrap</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Note we <strong>don’t</strong> install <code>cryptsetup-bin</code>, there’s nothing to encrypt.</p>
-<p><strong>1 — Format p4 as Btrfs and create the subvolumes.</strong> No <code>cryptsetup luksFormat</code>, no <code>cryptsetup open</code>, we <code>mkfs.btrfs</code> straight onto the partition:</p>
+<p><strong>1 — Format p4 as Btrfs and create the subvolumes.</strong> We <code>mkfs.btrfs</code> straight onto the partition:</p>
 <div class="sourceCode" id="cb51"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> ubuntu /dev/nvme0n1p4</span>
 <span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p4 /mnt</span>
@@ -1321,7 +1306,7 @@ Ubuntu will overwrite the EFI NVRAM <code>BootOrder</code>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/home /mnt/boot/efi</span>
 <span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@home /dev/nvme0n1p4 /mnt/home</span>
 <span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot/efi                   <span class="co"># the shared ESP — never reformat it</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>3 — Bootstrap a minimal Ubuntu 24.04 (<code>noble</code>) and write its <code>fstab</code></strong> (including the shared <code>/data</code> line, which on the Ubuntu side is <em>just</em> an <code>fstab</code> entry, no <code>crypttab</code>):</p>
+<p><strong>3 — Bootstrap a minimal Ubuntu 24.04 (<code>noble</code>) and write its <code>fstab</code></strong> (including the shared <code>/data</code> line, which on the Ubuntu side is <em>just</em> an <code>fstab</code> entry):</p>
 <div class="sourceCode" id="cb53"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="ex">debootstrap</span> <span class="at">--arch</span> amd64 noble /mnt http://archive.ubuntu.com/ubuntu</span>
 <span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="va">UB</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p4<span class="va">)</span></span>
@@ -1351,7 +1336,7 @@ The shared <code>/data</code> needs no <code>chown</code> from Ubuntu
 <div class="sourceCode" id="cb54"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> /etc/resolv.conf /mnt/etc/resolv.conf</span>
 <span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> dev dev/pts proc sys run<span class="kw">;</span> <span class="cf">do</span> <span class="fu">mount</span> <span class="at">--rbind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span> <span class="dv">2</span><span class="op">&gt;</span>/dev/null <span class="kw">||</span> <span class="fu">mount</span> <span class="at">--bind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span><span class="kw">;</span> <span class="cf">done</span></span>
 <span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="fu">chroot</span> /mnt /bin/bash</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>5 — Inside the chroot: sources, kernel, GRUB, user, desktop.</strong> Widen the <code>debootstrap</code> <code>main</code>-only sources list so <code>ubuntu-desktop</code> resolves, then install. Note the package list: <strong>no <code>cryptsetup</code>, no <code>cryptsetup-initramfs</code></strong> — neither is needed:</p>
+<p><strong>5 — Inside the chroot: sources, kernel, GRUB, user, desktop.</strong> Widen the <code>debootstrap</code> <code>main</code>-only sources list so <code>ubuntu-desktop</code> resolves, then install:</p>
 <div class="sourceCode" id="cb55"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> /etc/apt/sources.list <span class="op">&lt;&lt;EOF</span></span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://archive.ubuntu.com/ubuntu        noble           main restricted universe multiverse</span></span>
 <span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://archive.ubuntu.com/ubuntu        noble-updates   main restricted universe multiverse</span></span>
@@ -1377,19 +1362,6 @@ The shared <code>/data</code> needs no <code>chown</code> from Ubuntu
 <span id="cb55-23"><a href="#cb55-23" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
 <span id="cb55-24"><a href="#cb55-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb55-25"><a href="#cb55-25" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-desktop-minimal               <span class="co"># the graphical layer (skip for a server box)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Notice what this <code>grub-install</code> <em>doesn’t</em> need
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>There’s <strong>no <code>GRUB_ENABLE_CRYPTODISK=y</code></strong>, <strong>no <code>--modules="part_gpt cryptodisk luks2 …"</code></strong>, and <strong>no <code>crypttab</code> entry for the root</strong>. Ubuntu’s <code>/boot/efi</code> is the shared unencrypted ESP, and its kernel and initramfs live on a plain Btrfs root that GRUB reaches normally. A bare <code>grub-install</code> is correct and complete here — the chicken-and-egg “GRUB can’t read its own config off the encrypted <code>/boot</code>” problem only exists with an encrypted <code>/boot</code>, so neither it nor the <code>grub&gt;</code> prompt it causes can happen.</p>
-</div>
-</div>
 <p>Exit the chroot and reboot. Everything’s written; <code>reboot</code> flushes and unmounts on the way down:</p>
 <div class="sourceCode" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
 <span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sync</span></span>
@@ -1528,19 +1500,6 @@ Why the explicit <code>/etc/initramfs-tools/conf.d/resume</code> file
 <p>For when something has gone visibly wrong. If the Part 6 sanity check passed, skip the rest.</p>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-The good news: no <code>grub&gt;</code> prompt to recover from
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The classic painful multi-boot failure — GRUB dropping to a bare <code>grub&gt;</code> prompt because it couldn’t unlock an encrypted <code>/boot</code> — <strong>cannot happen here.</strong> Both distros’ <code>/boot</code> is the plain FAT32 ESP, so GRUB always reads its config and kernels normally. That whole failure class is simply off the table on an unencrypted layout.</p>
-</div>
-</div>
 </section>
 <section id="arch-boots-to-a-login-but-data-doesnt-mount" class="level3">
 <h3 class="anchored" data-anchor-id="arch-boots-to-a-login-but-data-doesnt-mount">1. Arch boots to a login, but <code>/data</code> doesn’t mount</h3>
@@ -1554,7 +1513,7 @@ The good news: no <code>grub&gt;</code> prompt to recover from
 </section>
 <section id="boot-drops-into-emergency-mode" class="level3">
 <h3 class="anchored" data-anchor-id="boot-drops-into-emergency-mode">2. Boot drops into emergency mode</h3>
-<p>With no LUKS, the usual causes narrow to:</p>
+<p>The usual causes:</p>
 <ol type="1">
 <li>A typo in <code>/etc/fstab</code> (a bad UUID on a <em>non</em>-<code>nofail</code> line, like <code>/</code> or <code>/home</code>). Boot the Arch USB, <code>mount -o subvol=@ /dev/nvme0n1p3 /mnt</code>, <code>mount /dev/nvme0n1p1 /mnt/boot</code>, <code>arch-chroot /mnt</code>, fix <code>/etc/fstab</code>, reboot.</li>
 <li><code>resume=</code>/<code>resume_offset=</code> left as literal <code>&lt;…&gt;</code> text in <code>/etc/default/grub</code>. Same chroot recovery, then <code>grub-mkconfig -o /boot/grub/grub.cfg</code>.</li>

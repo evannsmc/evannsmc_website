@@ -8,7 +8,7 @@
 
 <meta name="author" content="Evanns Morales">
 <meta name="dcterms.date" content="2026-06-07">
-<meta name="description" content="One NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔Linux exchange uses a plain exFAT partition all three OSes read. Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub> / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.">
+<meta name="description" content="One NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔Linux exchange uses a plain exFAT partition all three OSes read. Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts at boot. Secure Boot off, BitLocker off.">
 
 <title>Triple-Boot Arch + Ubuntu + Windows (Plain Btrfs, No Encryption) – evannsmc</title>
 <style>
@@ -167,12 +167,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <link rel="stylesheet" href="../../../styles.css">
 <meta property="og:title" content="Triple-Boot Arch + Ubuntu + Windows (Plain Btrfs, No Encryption) – evannsmc">
-<meta property="og:description" content="One NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub> / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.">
+<meta property="og:description" content="One NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts at boot. Secure Boot off, BitLocker off.">
 <meta property="og:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
 <meta property="og:site_name" content="evannsmc">
 <meta property="og:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:title" content="Triple-Boot Arch + Ubuntu + Windows (Plain Btrfs, No Encryption) – evannsmc">
-<meta name="twitter:description" content="One NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub> / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.">
+<meta name="twitter:description" content="One NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts at boot. Secure Boot off, BitLocker off.">
 <meta name="twitter:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
 <meta name="twitter:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
 <meta name="twitter:card" content="summary_large_image">
@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <div>
   <div class="description">
-    One NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs (no LUKS) and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts, no encrypted /boot, none of the grub&gt; / Argon2 failure modes that come with GRUB unlocking LUKS. Secure Boot off, BitLocker off.
+    One NVMe drive booting Windows 11, Arch Linux, and Ubuntu 24 LTS, with both Linux roots on plain Btrfs and one shared plain Btrfs /data partition the two Linux distros mount read-write. Windows goes on first so it can’t stomp the bootloader; Windows↔︎Linux exchange uses a plain exFAT partition all three OSes read. Btrfs subvolumes, per-OS zram + NoCOW hibernation, one GRUB on the shared ESP with os-prober chainloading Windows. No passphrase prompts at boot. Secure Boot off, BitLocker off.
   </div>
 </div>
 
@@ -477,7 +477,7 @@ Disclaimer: a reasoned no-encryption build, not yet a live-tested run
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A no-encryption triple-boot blueprint: Windows 11, Arch, and Ubuntu on one drive, with both Linux roots on plain Btrfs and a shared Btrfs <code>/data</code>, no LUKS anywhere. It’s a carefully-reasoned procedure, not a command-by-command log I’ve executed end-to-end (yet). Because the disk is unencrypted, <code>/boot</code> sits on a plain ESP that GRUB reads directly — none of the <code>grub&gt;</code>-prompt, Argon2id-keyslot, or keyfile/<code>crypttab</code> failure modes that come with an encrypted <code>/boot</code> can happen here. The Windows-integration parts (install order, ESP sharing, the exFAT exchange, the RTC clock fix, Secure Boot / BitLocker) are pure Windows concerns — encryption never touches them.</p>
+<p>A no-encryption triple-boot blueprint: Windows 11, Arch, and Ubuntu on one drive, with both Linux roots on plain Btrfs and a shared Btrfs <code>/data</code>. It’s a carefully-reasoned procedure, not a command-by-command log I’ve executed end-to-end (yet). The Linux boot path is about as simple as multi-boot gets — <code>/boot</code> sits on a plain ESP that GRUB reads directly. The parts that need the most care are the Windows-integration ones: install order, ESP sharing, the exFAT exchange, the RTC clock fix, and Secure Boot / BitLocker.</p>
 <p>Canonical sources to re-read as you go:</p>
 <ul>
 <li><a href="https://wiki.archlinux.org/title/Dual_boot_with_Windows" target="_blank" rel="noopener">Arch wiki: Dual boot with Windows</a> — ESP sharing, <code>os-prober</code>, the localtime/UTC clock fix</li>
@@ -500,7 +500,7 @@ What this is
 <p>The layout, with no encryption on the Linux side:</p>
 <ul>
 <li><strong>Windows 11</strong>, installed <strong>first</strong>, on its own NTFS partition, so it can’t clobber a bootloader that isn’t there yet.</li>
-<li><strong>Arch Linux</strong> and <strong>Ubuntu 24 LTS</strong>, each on its <strong>own plain Btrfs root</strong> (no LUKS) with the usual subvolumes (<code>@</code>, <code>@home</code>, <code>@snapshots</code>, <code>@var_log</code>, <code>@swap</code>) — the same root layout as the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/">plain-Btrfs dual-boot</a>.</li>
+<li><strong>Arch Linux</strong> and <strong>Ubuntu 24 LTS</strong>, each on its <strong>own plain Btrfs root</strong> with the usual subvolumes (<code>@</code>, <code>@home</code>, <code>@snapshots</code>, <code>@var_log</code>, <code>@swap</code>) — the same root layout as the <a href="../2026-06-07-arch-ubuntu-dual-boot-btrfs/">plain-Btrfs dual-boot</a>.</li>
 <li><strong>One shared 150 GiB plain Btrfs <code>/data</code> partition</strong> the two <strong>Linux</strong> distros mount read-write. Windows stays out of it (it can’t read Btrfs natively).</li>
 <li><strong>One plain exFAT exchange partition</strong> that <em>all three</em> OSes read and write, for the Windows handoff.</li>
 <li><strong>Per-OS zram</strong> for everyday swap and <strong>per-OS NoCOW Btrfs hibernation</strong> inside each Linux root, no cross-OS resume collisions.</li>
@@ -526,7 +526,7 @@ What you give up by dropping encryption
 <p>With no LUKS on the Linux roots or the shared <code>/data</code>, anyone who can boot a USB stick (or pull the SSD) reads everything on the Linux side, home directories, the shared <code>/data</code>, saved credentials. (Windows’ own files may still be protected if you <em>keep</em> its device encryption, but this article turns BitLocker <strong>off</strong> to keep the boot path simple, so treat the whole disk as readable-at-rest.) A lost or stolen machine is a data breach, not just a hardware loss. If that’s unacceptable for what lives here, build it with full-disk encryption (LUKS) instead.</p>
 </div>
 </div>
-<p>Adding Windows introduces five concerns a Linux-only dual-boot doesn’t have — all about Windows, not about encryption:</p>
+<p>Adding Windows introduces five concerns a Linux-only dual-boot doesn’t have:</p>
 <ol type="1">
 <li><strong>Windows is a bad bootloader citizen.</strong> It writes its boot manager to the ESP and reorders NVRAM to put itself first. So Windows goes <strong>first</strong>, and GRUB (installed after) becomes the menu that chainloads it.</li>
 <li><strong>Windows can’t read Btrfs.</strong> The shared <code>/data</code> is Linux-only; Windows↔︎Linux exchange uses a <strong>separate plain exFAT partition</strong>.</li>
@@ -644,7 +644,7 @@ Why a 1 GiB ESP we create ourselves, not the 100 MiB one Windows makes
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Let the Windows installer own a blank disk and it creates a <strong>100 MiB</strong> ESP, fine for Windows alone, far too small to also hold two Linux distros’ kernels + initramfs in <code>/boot</code>. The whole series puts <code>/boot</code> <em>on the ESP</em> (and here, with no encryption, that’s the natural and <em>only</em> place it needs to be). So we <strong>pre-create the partition table from the Arch live USB first</strong>, including a generous 1 GiB ESP, then point the Windows installer at the partition we made. Windows happily <em>reuses</em> an existing ESP of adequate size. This is the single most important ordering trick in the article.</p>
+<p>Let the Windows installer own a blank disk and it creates a <strong>100 MiB</strong> ESP, fine for Windows alone, far too small to also hold two Linux distros’ kernels + initramfs in <code>/boot</code>. The whole series puts <code>/boot</code> <em>on the ESP</em>, the natural place for it. So we <strong>pre-create the partition table from the Arch live USB first</strong>, including a generous 1 GiB ESP, then point the Windows installer at the partition we made. Windows happily <em>reuses</em> an existing ESP of adequate size. This is the single most important ordering trick in the article.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -811,7 +811,7 @@ Why we fix the clock on the Windows side
 <p>Boot the Arch live USB again. From here the Arch install is the standard plain-Btrfs build — the same Btrfs subvolumes, the shared <code>/data</code>, per-OS hibernation — with one difference: the partitions already exist and Windows is present, so we <strong>don’t</strong> repartition. Every command is inline below.</p>
 <section id="chapter-5-format-the-two-arch-side-btrfs-filesystems" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-5-format-the-two-arch-side-btrfs-filesystems">Chapter 5: Format the two Arch-side Btrfs filesystems</h2>
-<p><code>p5</code> is the shared data partition; <code>p6</code> is the Arch root. Leave <code>p7</code> for Ubuntu. No <code>cryptsetup</code>, we <code>mkfs.btrfs</code> straight onto the partitions:</p>
+<p><code>p5</code> is the shared data partition; <code>p6</code> is the Arch root. Leave <code>p7</code> for Ubuntu. We <code>mkfs.btrfs</code> straight onto the partitions:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> shared /dev/nvme0n1p5     <span class="co"># shared data</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> arch   /dev/nvme0n1p6     <span class="co"># Arch root</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
@@ -846,7 +846,7 @@ Why we fix the clock on the Windows side
 </section>
 <section id="chapter-8-pacstrap-fstab-chroot" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-8-pacstrap-fstab-chroot">Chapter 8: Pacstrap, fstab, chroot</h2>
-<p>The package set — note there’s <strong>no <code>cryptsetup</code></strong> (nothing here manages a LUKS container), plus <strong><code>exfatprogs</code></strong> for the exchange partition:</p>
+<p>The package set, plus <strong><code>exfatprogs</code></strong> for the exchange partition:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">reflector</span> <span class="at">--country</span> <span class="st">'United States'</span> <span class="at">--protocol</span> https <span class="at">--latest</span> 20 <span class="at">--age</span> 12 <span class="dt">\</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">--sort</span> rate <span class="at">--save</span> /etc/pacman.d/mirrorlist</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -897,7 +897,7 @@ Why we fix the clock on the Windows side
 </section>
 <section id="harden-the-shared-data-and-hand-it-to-your-user" class="level3">
 <h3 class="anchored" data-anchor-id="harden-the-shared-data-and-hand-it-to-your-user">Harden the shared <code>/data</code> and hand it to your user</h3>
-<p>No keyfile, no <code>crypttab</code>, the shared partition is plain Btrfs <code>genfstab</code> already recorded. Just soft-fail the mount and fix ownership:</p>
+<p>The shared partition is plain Btrfs that <code>genfstab</code> already recorded. Soft-fail the mount and fix ownership:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Soft-fail the /data mount (boot continues even if it's briefly missing)</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s#subvol=/@data#subvol=/@data,nofail,x-systemd.device-timeout=10s#'</span> /etc/fstab</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -935,7 +935,7 @@ Why we fix the clock on the Windows side
 <p>Set these two lines:</p>
 <pre class="text"><code>MODULES=(btrfs)
 HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)</code></pre>
-<p><code>MODULES=(btrfs)</code> lets the initramfs read a Btrfs root. The <code>HOOKS</code> line is the standard <code>systemd</code> set with <strong>no <code>sd-encrypt</code></strong> — that hook exists only to unlock a LUKS root from the initramfs, and there’s no encrypted root here. The root mounts directly from <code>p6</code>, so there’s also no <code>/etc/crypttab.initramfs</code> to write. Save, then rebuild:</p>
+<p><code>MODULES=(btrfs)</code> lets the initramfs read a Btrfs root. The <code>HOOKS</code> line is the standard <code>systemd</code> set; the root mounts directly from <code>p6</code> at boot. Save, then rebuild:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkinitcpio</span> <span class="at">-P</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 </section>
@@ -950,7 +950,7 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 <div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvim</span> /etc/default/grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Set the <code>GRUB_CMDLINE_LINUX_DEFAULT</code> line, pasting in the two values you just printed (<strong>no angle brackets in the file</strong>):</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="va">GRUB_CMDLINE_LINUX_DEFAULT</span><span class="op">=</span><span class="st">"loglevel=3 quiet zswap.enabled=0 resume=UUID=&lt;ARCH_BTRFS_UUID&gt; resume_offset=&lt;RESUME_OFFSET&gt;"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The resume target is the only thing you add by hand. <code>grub-mkconfig</code> auto-detects the root partition and <code>subvol=@</code>, and with no LUKS there’s no <code>rd.luks.name=</code> or <code>/dev/mapper/…</code> root to specify.</p>
+<p>The resume target is the only thing you add by hand — <code>grub-mkconfig</code> auto-detects the root partition and <code>subvol=@</code> for you.</p>
 <p>Enable <code>os-prober</code>, the key triple-boot setting, because this is what makes GRUB discover <strong>both</strong> Windows and Ubuntu:</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/'</span> /etc/default/grub</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_DISABLE_OS_PROBER='</span> /etc/default/grub      <span class="co"># GRUB_DISABLE_OS_PROBER=false</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -960,19 +960,6 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 <p><code>os-prober</code> already has something to find, <strong>Windows</strong>:</p>
 <pre class="text"><code>Found Windows Boot Manager on /dev/nvme0n1p1@/EFI/Microsoft/Boot/bootmgfw.efi</code></pre>
 <p>…and <code>grub.cfg</code> will contain an Arch entry plus a <strong>Windows Boot Manager</strong> entry that chainloads <code>bootmgfw.efi</code>. Ubuntu doesn’t exist yet.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-No <code>GRUB_ENABLE_CRYPTODISK</code>, no <code>--modules</code>, no <code>grub&gt;</code> trap
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>This is a plain <code>grub-install</code>: no crypto modules to embed, no <code>GRUB_ENABLE_CRYPTODISK=y</code>. Because <code>/boot</code> is the unencrypted FAT32 ESP, GRUB reads its kernels and <code>grub.cfg</code> directly — the “GRUB drops to <code>grub&gt;</code> because it can’t unlock an encrypted <code>/boot</code>” failure class needs an encrypted <code>/boot</code> to happen, and there isn’t one here.</p>
-</div>
-</div>
 </section>
 <section id="chapter-11-enable-services-sanity-check-reboot" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-11-enable-services-sanity-check-reboot">Chapter 11: Enable services, sanity-check, reboot</h2>
@@ -985,11 +972,11 @@ No <code>GRUB_ENABLE_CRYPTODISK</code>, no <code>--modules</code>, no <code>grub
 <span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_CMDLINE_LINUX_DEFAULT='</span> /etc/default/grub</span>
 <span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_DISABLE_OS_PROBER='</span>     /etc/default/grub</span>
 <span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /etc/fstab <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">'subvol=|swap|/data|exchange'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>There’s no <code>/etc/crypttab</code> to check and no keyfile to list. Leave the chroot and reboot:</p>
+<p>Leave the chroot and reboot:</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> <span class="at">-R</span> /mnt</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>No <code>cryptsetup close</code>, nothing’s open. Pull the USB. Expected first boot: firmware → <strong>GRUB menu</strong> (listing <em>Arch Linux</em> and <em>Windows Boot Manager</em>) → pick Arch → kernel/initramfs → <strong>no passphrase prompt</strong> → <code>@</code> mounts as <code>/</code> → <code>/data</code> and <code>/exchange</code> mount, zram comes up → login. If you drop into emergency mode, jump to the <a href="#emergency-failure-modes">🚨 emergency section</a>.</p>
+<p>Pull the USB. Expected first boot: firmware → <strong>GRUB menu</strong> (listing <em>Arch Linux</em> and <em>Windows Boot Manager</em>) → pick Arch → kernel/initramfs → <code>@</code> mounts as <code>/</code> → <code>/data</code> and <code>/exchange</code> mount, zram comes up → login. If you drop into emergency mode, jump to the <a href="#emergency-failure-modes">🚨 emergency section</a>.</p>
 <hr>
 </section>
 </section>
@@ -1070,8 +1057,8 @@ Driving it remotely over SSH?
 <p>The Ubuntu Desktop live image has no SSH server and logs you in as a passwordless <code>ubuntu</code> user, so set it up first: <code>sudo apt install -y openssh-server</code>, <code>passwd ubuntu</code> (give the live user a password), <code>sudo systemctl enable --now ssh</code>, then from the other machine <code>ssh ubuntu@&lt;ip&gt;</code> and <code>sudo -i</code> to become root.</p>
 </div>
 </div>
-<p>Open a terminal, <code>sudo -i</code>, <code>apt update &amp;&amp; apt install -y debootstrap</code> (no <code>cryptsetup-bin</code> needed), then:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 — format p7 as Btrfs + subvolumes (no LUKS)</span></span>
+<p>Open a terminal, <code>sudo -i</code>, <code>apt update &amp;&amp; apt install -y debootstrap</code>, then:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 — format p7 as Btrfs + subvolumes</span></span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> ubuntu /dev/nvme0n1p7</span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p7 /mnt</span>
 <span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@ <span class="kw">&amp;&amp;</span> <span class="ex">btrfs</span> subvolume create /mnt/@home <span class="kw">&amp;&amp;</span> <span class="fu">umount</span> /mnt</span>
@@ -1082,7 +1069,7 @@ Driving it remotely over SSH?
 <span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@home /dev/nvme0n1p7 /mnt/home</span>
 <span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot/efi                   <span class="co"># shared ESP — do not reformat</span></span>
 <span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 3 — bootstrap + fstab (root, home, ESP, shared /data — all plain, no crypttab)</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 3 — bootstrap + fstab (root, home, ESP, shared /data)</span></span>
 <span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="ex">debootstrap</span> <span class="at">--arch</span> amd64 noble /mnt http://archive.ubuntu.com/ubuntu</span>
 <span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a><span class="va">UB</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p7<span class="va">)</span></span>
 <span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="va">ESP</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p1<span class="va">)</span></span>
@@ -1094,7 +1081,7 @@ Driving it remotely over SSH?
 <span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> /etc/resolv.conf /mnt/etc/resolv.conf</span>
 <span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> dev dev/pts proc sys run<span class="kw">;</span> <span class="cf">do</span> <span class="fu">mount</span> <span class="at">--rbind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span> <span class="dv">2</span><span class="op">&gt;</span>/dev/null <span class="kw">||</span> <span class="fu">mount</span> <span class="at">--bind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span><span class="kw">;</span> <span class="cf">done</span></span>
 <span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a><span class="fu">chroot</span> /mnt /bin/bash</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Inside the chroot, widen the sources list, install the system (note: <strong>no <code>cryptsetup</code>/<code>cryptsetup-initramfs</code></strong>, and a plain <code>grub-install</code> — there’s no encrypted <code>/boot</code> to teach GRUB to unlock), and create the UID-1000 user (root device here is <code>/dev/nvme0n1p7</code>):</p>
+<p>Inside the chroot, widen the sources list, install the system (a plain <code>grub-install</code> onto the shared ESP), and create the UID-1000 user (root device here is <code>/dev/nvme0n1p7</code>):</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> /etc/apt/sources.list <span class="op">&lt;&lt;EOF</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://archive.ubuntu.com/ubuntu  noble           main restricted universe multiverse</span></span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://archive.ubuntu.com/ubuntu  noble-updates   main restricted universe multiverse</span></span>
@@ -1108,19 +1095,6 @@ Driving it remotely over SSH?
 <span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span>                                          <span class="co"># os-prober finds Windows AND Arch</span></span>
 <span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span><span class="kw">;</span> <span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-s</span> /bin/bash <span class="at">-G</span> sudo,adm,cdrom,dip,plugdev <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span> <span class="kw">&amp;&amp;</span> <span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
 <span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-desktop-minimal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Notice the plain <code>grub-install</code>
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>No <code>GRUB_ENABLE_CRYPTODISK=y</code>, no <code>--modules="part_gpt cryptodisk luks2 …"</code>, no root <code>crypttab</code> entry. Ubuntu’s <code>/boot/efi</code> is the shared unencrypted ESP, and its kernel lives on a plain Btrfs root GRUB reaches normally. A bare <code>grub-install</code> is correct and complete — the crypto-module embedding exists only to let GRUB read an encrypted <code>/boot</code>, which this layout doesn’t have.</p>
-</div>
-</div>
 <p>Add the exchange-partition <code>fstab</code> line (the shared <code>/data</code> line is already in <code>fstab</code> from step 3), then exit and reboot:</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"UUID=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p4<span class="va">)</span><span class="st"> /exchange exfat defaults,uid=1000,gid=1000,umask=022,nofail 0 0"</span> <span class="op">&gt;&gt;</span> /etc/fstab</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /exchange</span>
@@ -1235,19 +1209,6 @@ The pass condition
 <p>The Windows-specific failures are below.</p>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-No <code>grub&gt;</code> prompt to recover from
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Because both Linux distros keep <code>/boot</code> on the plain FAT32 ESP, the bare-<code>grub&gt;</code> failure that comes with an encrypted <code>/boot</code> (GRUB unable to unlock it before it can read the kernel) <strong>cannot happen here.</strong> GRUB always reads its config and kernels normally.</p>
-</div>
-</div>
 <section id="grub-menu-has-no-windows-entry" class="level3">
 <h3 class="anchored" data-anchor-id="grub-menu-has-no-windows-entry">1. GRUB menu has no Windows entry</h3>
 <ul>
@@ -1283,7 +1244,7 @@ No <code>grub&gt;</code> prompt to recover from
 <section id="part-9-closing-the-loop" class="level1">
 <h1>Part 9 — Closing the loop</h1>
 <p>You now have a single drive that boots <strong>Windows, Arch, and Ubuntu</strong>, with two plain-Btrfs Linux roots, a shared <code>/data</code> the two Linux distros mount as one home for documents, a plain exFAT exchange partition for the Windows handoff, per-OS hibernation that never collides, and one GRUB menu, all without a single passphrase prompt or a single byte of LUKS to go wrong at boot.</p>
-<p>The tradeoff you made is the one Part 1 spelled out: <strong>nothing on this disk is encrypted at rest.</strong> That’s the right call for a stationary, physically-secured machine and the wrong one for a laptop. If the machine’s role changes, adding encryption means rebuilding on LUKS2 — the same layout, but with a LUKS2 container around each Linux root and the shared <code>/data</code>. That brings back the hardening this build let you skip: the <code>--modules</code> EFI-core surgery so GRUB can read an encrypted <code>/boot</code>, the <code>--pbkdf pbkdf2</code> keyslot discipline, and a <code>grub&gt;</code> recovery path. There’s no in-place way to add it; decide up front.</p>
+<p>The tradeoff you made is the one Part 1 spelled out: <strong>nothing on this disk is encrypted at rest.</strong> That’s the right call for a stationary, physically-secured machine and the wrong one for a laptop. If the machine’s role changes, adding encryption means rebuilding on LUKS2 — the same layout, but with a LUKS2 container around each Linux root and the shared <code>/data</code>, plus the extra boot-path setup an encrypted disk needs. There’s no in-place way to add it; decide up front.</p>
 <p>The desktop layer for the Arch side is still a separate choice, a custom Hyprland is the direction I’m taking (upcoming), and it doesn’t touch any of the multi-boot machinery below it.</p>
 <hr>
 <div class="callout callout-style-default callout-note callout-titled">
