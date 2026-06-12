@@ -33,7 +33,7 @@ The layout, with no encryption on the Linux side:
 - **One shared 150 GiB plain Btrfs `/data` partition** the two **Linux** distros mount read-write. Windows stays out of it (it can't read Btrfs natively).
 - **One plain exFAT exchange partition** that *all three* OSes read and write, for the Windows handoff.
 - **Per-OS zram** for everyday swap and **per-OS NoCOW Btrfs hibernation** inside each Linux root, no cross-OS resume collisions.
-- **One GRUB** on the shared 1 GiB ESP, `os-prober` enabled, chainloading the **Windows boot manager**.
+- **One GRUB menu** on the shared 1 GiB ESP — Arch's GRUB, set as the EFI default. `os-prober` picks up the **Windows boot manager** automatically; Ubuntu gets a hand-written chainload entry (os-prober can't see its Btrfs `@`-subvolume root).
 - **Secure Boot off, BitLocker off**, the simplest configuration that boots all three reliably.
 
 It stops on the console for the Arch side; Windows and Ubuntu come up graphical out of the box.
@@ -308,7 +308,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt
 ```
 
-Use `amd-ucode` on AMD hardware. The two additions over a single-boot install are **`os-prober`** (so GRUB discovers Windows *and* Ubuntu) and **`exfatprogs`** (so Arch can mount the exchange). After `genfstab`, `cat /etc/fstab` should show five Arch-root subvolume lines (the same UUID, different `subvol=`), one line for `/data` on the shared filesystem's UUID, and the FAT32 `/boot` line.
+Use `amd-ucode` on AMD hardware. The two additions over a single-boot install are **`os-prober`** (so GRUB discovers **Windows**; Ubuntu gets a manual chainload entry in Part 7) and **`exfatprogs`** (so Arch can mount the exchange). After `genfstab`, `cat /etc/fstab` should show five Arch-root subvolume lines (the same UUID, different `subvol=`), one line for `/data` on the shared filesystem's UUID, and the FAT32 `/boot` line.
 
 ## Chapter 9: Configure the system inside the chroot
 
@@ -441,7 +441,7 @@ GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet zswap.enabled=0 resume=UUID=<ARCH_B
 
 The resume target is the only thing you add by hand — `grub-mkconfig` auto-detects the root partition and `subvol=@` for you.
 
-Enable `os-prober`, the key triple-boot setting, because this is what makes GRUB discover **both** Windows and Ubuntu:
+Enable `os-prober` so GRUB discovers **Windows** — its boot manager is reliably detected on the ESP. (Ubuntu doesn't exist yet; when it does, its Btrfs root won't auto-detect, so it gets a chainload entry in Part 7.)
 
 ```bash
 sed -i 's/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' /etc/default/grub
@@ -558,7 +558,7 @@ Fixing hibernation after Ubuntu has rewritten parts of the boot path is meaningf
 
 # Part 6 — Install Ubuntu 24 LTS into p7
 
-We build Ubuntu's root by hand with `debootstrap`, into `p7`. Windows being present changes nothing about the Ubuntu steps — Ubuntu's `os-prober` will simply find both Arch *and* Windows when GRUB is regenerated.
+We build Ubuntu's root by hand with `debootstrap`, into `p7`. Windows being present changes nothing about the Ubuntu steps; the unified menu gets built from Arch's GRUB in Part 7.
 
 From the Arch side, snapshot the current NVRAM so you can compare after Ubuntu reorders it:
 
@@ -611,11 +611,10 @@ deb http://archive.ubuntu.com/ubuntu  noble-updates   main restricted universe m
 deb http://security.ubuntu.com/ubuntu noble-security  main restricted universe multiverse
 EOF
 apt update
-apt install -y ubuntu-standard linux-image-generic grub-efi-amd64 os-prober btrfs-progs network-manager sudo locales tzdata exfatprogs
-echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub   # 24.04 disables os-prober by default
+apt install -y ubuntu-standard linux-image-generic grub-efi-amd64 btrfs-progs network-manager sudo locales tzdata exfatprogs
 update-initramfs -u -k all
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Ubuntu --recheck
-update-grub                                          # os-prober finds Windows AND Arch
+update-grub                                          # builds Ubuntu's own GRUB menu
 groupadd -g 1000 <USERNAME>; useradd -m -u 1000 -g 1000 -s /bin/bash -G sudo,adm,cdrom,dip,plugdev <USERNAME> && passwd <USERNAME>
 apt install -y ubuntu-desktop-minimal
 ```
@@ -640,7 +639,7 @@ The `mount --rbind /run /mnt/run` from entering the chroot is *recursive*, it pu
 ::: {.callout-warning}
 ## Ubuntu reorders NVRAM to boot its own GRUB first
 
-That's fine, Ubuntu's GRUB has `os-prober` on and will list Windows and Arch. If you'd rather Arch's GRUB own the menu, restore the order with `efibootmgr` in Part 7.
+We undo that in Part 7 — booting Arch via the firmware menu, then setting Arch's GRUB first with `efibootmgr` — because Arch's GRUB is the one that gets the unified menu.
 :::
 
 ## Chapter 12: Add Ubuntu's hibernation swap file
@@ -705,27 +704,60 @@ sudo systemctl hibernate         # resumes into Ubuntu, separate from Arch's ima
 
 ---
 
-# Part 7 — Finalize the GRUB menu from Arch
+# Part 7 — Build the unified GRUB menu from Arch
 
-Reboot, pick **Arch Linux**, and re-run `grub-mkconfig` now that all three OSes exist:
+All three OSes now exist, but Ubuntu's install made *its* GRUB the EFI default — and neither distro's `os-prober` reliably auto-detects the *other Linux* (a Btrfs `@`-subvolume root isn't seen on a bare mount). **Windows, though, is detected reliably.** So we drive the menu from **Arch's** GRUB: os-prober supplies the Windows entry, and we add a chainload entry for Ubuntu by hand.
+
+**1 — Boot Arch.** Ubuntu's menu won't list Arch, so reach Arch's bootloader directly: at power-on, open the firmware one-time boot menu (`F12`/`Esc`, vendor-dependent) and pick the **GRUB** entry (Arch's; Ubuntu's is **ubuntu**, Windows' is **Windows Boot Manager**).
+
+**2 — Add the Ubuntu chainload entry:**
+
+```bash
+ESP_UUID=$(blkid -s UUID -o value /dev/nvme0n1p1)
+echo "$ESP_UUID"        # sanity: a short FAT id like 7F6E-D6AA
+
+sudo tee /etc/grub.d/40_custom >/dev/null <<EOF
+#!/bin/sh
+exec tail -n +3 \$0
+menuentry "Ubuntu 24.04 LTS" {
+    insmod part_gpt
+    insmod fat
+    insmod chain
+    search --no-floppy --fs-uuid --set=root $ESP_UUID
+    chainloader /EFI/Ubuntu/grubx64.efi
+}
+EOF
+sudo chmod +x /etc/grub.d/40_custom
+```
+
+`cat /etc/grub.d/40_custom` to confirm the `search …` line ends with your UUID on one line and the block closes with `}` (a wrapped paste is the one thing that breaks it), then regenerate so os-prober also picks up Windows:
 
 ```bash
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-Expected `os-prober` output:
+You should see os-prober report Windows:
 
 ```text
 Found Windows Boot Manager on /dev/nvme0n1p1@/EFI/Microsoft/Boot/bootmgfw.efi
-Found Ubuntu 24.04 LTS (24.04) on /dev/nvme0n1p7
 ```
 
-`grub.cfg` now lists **Arch, Ubuntu, and Windows.** Optionally make Arch's GRUB primary via NVRAM order:
+`grub.cfg` now lists **Arch** (direct), **Windows Boot Manager** (os-prober), and **Ubuntu 24.04 LTS** (your chainload entry). There's no "Found Ubuntu" line, and that's expected — Ubuntu comes from `40_custom`, not os-prober.
+
+**3 — Make Arch's GRUB the EFI default:**
 
 ```bash
-efibootmgr                                  # find the BootNNNN for "GRUB", "Ubuntu", "Windows Boot Manager"
-sudo efibootmgr -o GRUB_NUM,UBUNTU_NUM      # Arch's GRUB first; Windows reachable via the GRUB menu either way
+sudo efibootmgr                            # find the BootNNNN for "GRUB", "Ubuntu", "Windows Boot Manager"
+sudo efibootmgr -o <GRUB_NUM>,<UBUNTU_NUM> # Arch's GRUB first; Windows stays reachable via the GRUB menu
 ```
+
+Reboot. Arch's GRUB lists all three: Arch boots directly, Ubuntu chainloads its own GRUB, Windows chainloads its boot manager.
+
+::: {.callout-note}
+## Why Ubuntu is a chainload but Windows isn't
+
+`os-prober` finds Windows fine — its boot manager sits on the FAT ESP where os-prober looks. But it detects another *Linux* by mounting that partition bare and looking for an OS root, and a Btrfs `@`-subvolume root isn't there on a bare mount (you get a folder of `@`, `@home`, … instead). So Ubuntu gets a hand-written chainload entry, which also never goes stale on a Ubuntu kernel update. To make selecting Ubuntu boot straight through (skip its second GRUB), set `GRUB_TIMEOUT=0` + `GRUB_TIMEOUT_STYLE=hidden` in Ubuntu's `/etc/default/grub`, then `sudo update-grub`.
+:::
 
 ---
 
@@ -765,11 +797,15 @@ If Part 8 passed, skip this. A few Linux-side issues can bite either distro:
 The Windows-specific failures are below.
 :::
 
-### 1. GRUB menu has no Windows entry
+### 1. GRUB menu is missing Windows or Ubuntu
 
-- **`os-prober` installed and enabled?** `grep ^GRUB_DISABLE_OS_PROBER= /etc/default/grub` → `false`; `pacman -S os-prober` (Arch) / `apt install os-prober` (Ubuntu).
+**No Windows entry** (Windows comes from os-prober):
+
+- **`os-prober` installed and enabled?** `grep ^GRUB_DISABLE_OS_PROBER= /etc/default/grub` → `false`; `pacman -S os-prober`.
 - **ESP mounted at `/boot` when you ran `grub-mkconfig`?** `os-prober` finds `bootmgfw.efi` on the ESP. `findmnt /boot`, then re-run.
 - **Windows installed in UEFI mode?** Confirm `\EFI\Microsoft\Boot\bootmgfw.efi` exists: `ls /boot/EFI/Microsoft/Boot/`.
+
+**No Ubuntu entry** (Ubuntu comes from your `40_custom` chainload, not os-prober): `cat /etc/grub.d/40_custom` and confirm the `search …` line ends with the **ESP** UUID (`blkid -s UUID -o value /dev/nvme0n1p1`) on one line and the block closes with `}`; make it executable (`sudo chmod +x /etc/grub.d/40_custom`), then `sudo grub-mkconfig -o /boot/grub/grub.cfg`. If selecting Ubuntu lands at `grub>`, Secure Boot is blocking the unsigned chainload (disable it in firmware), or the path is wrong: `ls /boot/EFI/Ubuntu/grubx64.efi`.
 
 ### 2. A Windows update stole the boot order (boots straight to Windows)
 

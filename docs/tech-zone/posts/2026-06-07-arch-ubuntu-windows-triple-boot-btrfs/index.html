@@ -504,7 +504,7 @@ What this is
 <li><strong>One shared 150 GiB plain Btrfs <code>/data</code> partition</strong> the two <strong>Linux</strong> distros mount read-write. Windows stays out of it (it can’t read Btrfs natively).</li>
 <li><strong>One plain exFAT exchange partition</strong> that <em>all three</em> OSes read and write, for the Windows handoff.</li>
 <li><strong>Per-OS zram</strong> for everyday swap and <strong>per-OS NoCOW Btrfs hibernation</strong> inside each Linux root, no cross-OS resume collisions.</li>
-<li><strong>One GRUB</strong> on the shared 1 GiB ESP, <code>os-prober</code> enabled, chainloading the <strong>Windows boot manager</strong>.</li>
+<li><strong>One GRUB menu</strong> on the shared 1 GiB ESP — Arch’s GRUB, set as the EFI default. <code>os-prober</code> picks up the <strong>Windows boot manager</strong> automatically; Ubuntu gets a hand-written chainload entry (os-prober can’t see its Btrfs <code>@</code>-subvolume root).</li>
 <li><strong>Secure Boot off, BitLocker off</strong>, the simplest configuration that boots all three reliably.</li>
 </ul>
 <p>It stops on the console for the Arch side; Windows and Ubuntu come up graphical out of the box.</p>
@@ -861,7 +861,7 @@ Why we fix the clock on the Windows side
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span>
 <span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Use <code>amd-ucode</code> on AMD hardware. The two additions over a single-boot install are <strong><code>os-prober</code></strong> (so GRUB discovers Windows <em>and</em> Ubuntu) and <strong><code>exfatprogs</code></strong> (so Arch can mount the exchange). After <code>genfstab</code>, <code>cat /etc/fstab</code> should show five Arch-root subvolume lines (the same UUID, different <code>subvol=</code>), one line for <code>/data</code> on the shared filesystem’s UUID, and the FAT32 <code>/boot</code> line.</p>
+<p>Use <code>amd-ucode</code> on AMD hardware. The two additions over a single-boot install are <strong><code>os-prober</code></strong> (so GRUB discovers <strong>Windows</strong>; Ubuntu gets a manual chainload entry in Part 7) and <strong><code>exfatprogs</code></strong> (so Arch can mount the exchange). After <code>genfstab</code>, <code>cat /etc/fstab</code> should show five Arch-root subvolume lines (the same UUID, different <code>subvol=</code>), one line for <code>/data</code> on the shared filesystem’s UUID, and the FAT32 <code>/boot</code> line.</p>
 </section>
 <section id="chapter-9-configure-the-system-inside-the-chroot" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-9-configure-the-system-inside-the-chroot">Chapter 9: Configure the system inside the chroot</h2>
@@ -951,7 +951,7 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 <p>Set the <code>GRUB_CMDLINE_LINUX_DEFAULT</code> line, pasting in the two values you just printed (<strong>no angle brackets in the file</strong>):</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="va">GRUB_CMDLINE_LINUX_DEFAULT</span><span class="op">=</span><span class="st">"loglevel=3 quiet zswap.enabled=0 resume=UUID=&lt;ARCH_BTRFS_UUID&gt; resume_offset=&lt;RESUME_OFFSET&gt;"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The resume target is the only thing you add by hand — <code>grub-mkconfig</code> auto-detects the root partition and <code>subvol=@</code> for you.</p>
-<p>Enable <code>os-prober</code>, the key triple-boot setting, because this is what makes GRUB discover <strong>both</strong> Windows and Ubuntu:</p>
+<p>Enable <code>os-prober</code> so GRUB discovers <strong>Windows</strong> — its boot manager is reliably detected on the ESP. (Ubuntu doesn’t exist yet; when it does, its Btrfs root won’t auto-detect, so it gets a chainload entry in Part 7.)</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/'</span> /etc/default/grub</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_DISABLE_OS_PROBER='</span> /etc/default/grub      <span class="co"># GRUB_DISABLE_OS_PROBER=false</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Install GRUB to the shared ESP and generate the config:</p>
@@ -1040,7 +1040,7 @@ Verify hibernation <strong>now</strong>, while only Arch + Windows exist
 </section>
 <section id="part-6-install-ubuntu-24-lts-into-p7" class="level1">
 <h1>Part 6 — Install Ubuntu 24 LTS into p7</h1>
-<p>We build Ubuntu’s root by hand with <code>debootstrap</code>, into <code>p7</code>. Windows being present changes nothing about the Ubuntu steps — Ubuntu’s <code>os-prober</code> will simply find both Arch <em>and</em> Windows when GRUB is regenerated.</p>
+<p>We build Ubuntu’s root by hand with <code>debootstrap</code>, into <code>p7</code>. Windows being present changes nothing about the Ubuntu steps; the unified menu gets built from Arch’s GRUB in Part 7.</p>
 <p>From the Arch side, snapshot the current NVRAM so you can compare after Ubuntu reorders it:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span> <span class="at">-v</span> <span class="op">&gt;</span> ~/efi-before-ubuntu.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Boot a verified Ubuntu 24.04 LTS Desktop USB and pick <strong>“Try Ubuntu”</strong>, then build Ubuntu’s root by hand from the live session with <code>debootstrap</code>, using <strong>p7</strong> as Ubuntu’s root.</p>
@@ -1088,13 +1088,12 @@ Driving it remotely over SSH?
 <span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://security.ubuntu.com/ubuntu noble-security  main restricted universe multiverse</span></span>
 <span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
 <span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> update</span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-standard linux-image-generic grub-efi-amd64 os-prober btrfs-progs network-manager sudo locales tzdata exfatprogs</span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"GRUB_DISABLE_OS_PROBER=false"</span> <span class="op">&gt;&gt;</span> /etc/default/grub   <span class="co"># 24.04 disables os-prober by default</span></span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="ex">update-initramfs</span> <span class="at">-u</span> <span class="at">-k</span> all</span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot/efi <span class="at">--bootloader-id</span><span class="op">=</span>Ubuntu <span class="at">--recheck</span></span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span>                                          <span class="co"># os-prober finds Windows AND Arch</span></span>
-<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span><span class="kw">;</span> <span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-s</span> /bin/bash <span class="at">-G</span> sudo,adm,cdrom,dip,plugdev <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span> <span class="kw">&amp;&amp;</span> <span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
-<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-desktop-minimal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-standard linux-image-generic grub-efi-amd64 btrfs-progs network-manager sudo locales tzdata exfatprogs</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="ex">update-initramfs</span> <span class="at">-u</span> <span class="at">-k</span> all</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot/efi <span class="at">--bootloader-id</span><span class="op">=</span>Ubuntu <span class="at">--recheck</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span>                                          <span class="co"># builds Ubuntu's own GRUB menu</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span><span class="kw">;</span> <span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-s</span> /bin/bash <span class="at">-G</span> sudo,adm,cdrom,dip,plugdev <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span> <span class="kw">&amp;&amp;</span> <span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-desktop-minimal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Add the exchange-partition <code>fstab</code> line (the shared <code>/data</code> line is already in <code>fstab</code> from step 3), then exit and reboot:</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"UUID=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p4<span class="va">)</span><span class="st"> /exchange exfat defaults,uid=1000,gid=1000,umask=022,nofail 0 0"</span> <span class="op">&gt;&gt;</span> /etc/fstab</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /exchange</span>
@@ -1125,7 +1124,7 @@ Ubuntu reorders NVRAM to boot its own GRUB first
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>That’s fine, Ubuntu’s GRUB has <code>os-prober</code> on and will list Windows and Arch. If you’d rather Arch’s GRUB own the menu, restore the order with <code>efibootmgr</code> in Part 7.</p>
+<p>We undo that in Part 7 — booting Arch via the firmware menu, then setting Arch’s GRUB first with <code>efibootmgr</code> — because Arch’s GRUB is the one that gets the unified menu.</p>
 </div>
 </div>
 <section id="chapter-12-add-ubuntus-hibernation-swap-file" class="level2">
@@ -1170,16 +1169,48 @@ W: but no matching swap device is available.</code></pre>
 <hr>
 </section>
 </section>
-<section id="part-7-finalize-the-grub-menu-from-arch" class="level1">
-<h1>Part 7 — Finalize the GRUB menu from Arch</h1>
-<p>Reboot, pick <strong>Arch Linux</strong>, and re-run <code>grub-mkconfig</code> now that all three OSes exist:</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> grub-mkconfig <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Expected <code>os-prober</code> output:</p>
-<pre class="text"><code>Found Windows Boot Manager on /dev/nvme0n1p1@/EFI/Microsoft/Boot/bootmgfw.efi
-Found Ubuntu 24.04 LTS (24.04) on /dev/nvme0n1p7</code></pre>
-<p><code>grub.cfg</code> now lists <strong>Arch, Ubuntu, and Windows.</strong> Optionally make Arch’s GRUB primary via NVRAM order:</p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span>                                  <span class="co"># find the BootNNNN for "GRUB", "Ubuntu", "Windows Boot Manager"</span></span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> GRUB_NUM,UBUNTU_NUM      <span class="co"># Arch's GRUB first; Windows reachable via the GRUB menu either way</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="part-7-build-the-unified-grub-menu-from-arch" class="level1">
+<h1>Part 7 — Build the unified GRUB menu from Arch</h1>
+<p>All three OSes now exist, but Ubuntu’s install made <em>its</em> GRUB the EFI default — and neither distro’s <code>os-prober</code> reliably auto-detects the <em>other Linux</em> (a Btrfs <code>@</code>-subvolume root isn’t seen on a bare mount). <strong>Windows, though, is detected reliably.</strong> So we drive the menu from <strong>Arch’s</strong> GRUB: os-prober supplies the Windows entry, and we add a chainload entry for Ubuntu by hand.</p>
+<p><strong>1 — Boot Arch.</strong> Ubuntu’s menu won’t list Arch, so reach Arch’s bootloader directly: at power-on, open the firmware one-time boot menu (<code>F12</code>/<code>Esc</code>, vendor-dependent) and pick the <strong>GRUB</strong> entry (Arch’s; Ubuntu’s is <strong>ubuntu</strong>, Windows’ is <strong>Windows Boot Manager</strong>).</p>
+<p><strong>2 — Add the Ubuntu chainload entry:</strong></p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="va">ESP_UUID</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value /dev/nvme0n1p1<span class="va">)</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"</span><span class="va">$ESP_UUID</span><span class="st">"</span>        <span class="co"># sanity: a short FAT id like 7F6E-D6AA</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tee /etc/grub.d/40_custom <span class="op">&gt;</span>/dev/null <span class="op">&lt;&lt;EOF</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="st">#!/bin/sh</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a><span class="st">exec tail -n +3 </span><span class="dt">\$</span><span class="st">0</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a><span class="st">menuentry "Ubuntu 24.04 LTS" {</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a><span class="st">    insmod part_gpt</span></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a><span class="st">    insmod fat</span></span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a><span class="st">    insmod chain</span></span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a><span class="st">    search --no-floppy --fs-uuid --set=root </span><span class="va">$ESP_UUID</span></span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a><span class="st">    chainloader /EFI/Ubuntu/grubx64.efi</span></span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod +x /etc/grub.d/40_custom</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>cat /etc/grub.d/40_custom</code> to confirm the <code>search …</code> line ends with your UUID on one line and the block closes with <code>}</code> (a wrapped paste is the one thing that breaks it), then regenerate so os-prober also picks up Windows:</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> grub-mkconfig <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You should see os-prober report Windows:</p>
+<pre class="text"><code>Found Windows Boot Manager on /dev/nvme0n1p1@/EFI/Microsoft/Boot/bootmgfw.efi</code></pre>
+<p><code>grub.cfg</code> now lists <strong>Arch</strong> (direct), <strong>Windows Boot Manager</strong> (os-prober), and <strong>Ubuntu 24.04 LTS</strong> (your chainload entry). There’s no “Found Ubuntu” line, and that’s expected — Ubuntu comes from <code>40_custom</code>, not os-prober.</p>
+<p><strong>3 — Make Arch’s GRUB the EFI default:</strong></p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr                            <span class="co"># find the BootNNNN for "GRUB", "Ubuntu", "Windows Boot Manager"</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> <span class="op">&lt;</span>GRUB_NUM<span class="op">&gt;</span>,<span class="op">&lt;</span>UBUNTU_NUM<span class="op">&gt;</span> <span class="co"># Arch's GRUB first; Windows stays reachable via the GRUB menu</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Reboot. Arch’s GRUB lists all three: Arch boots directly, Ubuntu chainloads its own GRUB, Windows chainloads its boot manager.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why Ubuntu is a chainload but Windows isn’t
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>os-prober</code> finds Windows fine — its boot manager sits on the FAT ESP where os-prober looks. But it detects another <em>Linux</em> by mounting that partition bare and looking for an OS root, and a Btrfs <code>@</code>-subvolume root isn’t there on a bare mount (you get a folder of <code>@</code>, <code>@home</code>, … instead). So Ubuntu gets a hand-written chainload entry, which also never goes stale on a Ubuntu kernel update. To make selecting Ubuntu boot straight through (skip its second GRUB), set <code>GRUB_TIMEOUT=0</code> + <code>GRUB_TIMEOUT_STYLE=hidden</code> in Ubuntu’s <code>/etc/default/grub</code>, then <code>sudo update-grub</code>.</p>
+</div>
+</div>
 <hr>
 </section>
 <section id="part-8-final-sanity-checks-across-three-oses" class="level1">
@@ -1198,11 +1229,11 @@ The pass condition
 </div>
 </div>
 <p><strong>From Arch / Ubuntu</strong> (run on each):</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> / /home /data /exchange</span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                       <span class="co"># zram + that OS's own /swap/swapfile</span></span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate            <span class="co"># resumes into the same OS</span></span>
-<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>          <span class="co"># all 1000 — pinned-UID parity</span></span>
-<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /exchange                     <span class="co"># files from all three OSes</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> / /home /data /exchange</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                       <span class="co"># zram + that OS's own /swap/swapfile</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate            <span class="co"># resumes into the same OS</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>          <span class="co"># all 1000 — pinned-UID parity</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /exchange                     <span class="co"># files from all three OSes</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>From Windows</strong>: confirm the clock is correct after switching from Linux (proves the <code>RealTimeIsUniversal</code> fix), and that File Explorer → the <strong>EXCHANGE</strong> volume shows the files Linux wrote. Drop a file there and confirm Linux sees it on the next boot.</p>
 <hr>
 <p><span id="emergency-failure-modes"></span></p>
@@ -1225,19 +1256,21 @@ The pass condition
 <p>The Windows-specific failures are below.</p>
 </div>
 </div>
-<section id="grub-menu-has-no-windows-entry" class="level3">
-<h3 class="anchored" data-anchor-id="grub-menu-has-no-windows-entry">1. GRUB menu has no Windows entry</h3>
+<section id="grub-menu-is-missing-windows-or-ubuntu" class="level3">
+<h3 class="anchored" data-anchor-id="grub-menu-is-missing-windows-or-ubuntu">1. GRUB menu is missing Windows or Ubuntu</h3>
+<p><strong>No Windows entry</strong> (Windows comes from os-prober):</p>
 <ul>
-<li><strong><code>os-prober</code> installed and enabled?</strong> <code>grep ^GRUB_DISABLE_OS_PROBER= /etc/default/grub</code> → <code>false</code>; <code>pacman -S os-prober</code> (Arch) / <code>apt install os-prober</code> (Ubuntu).</li>
+<li><strong><code>os-prober</code> installed and enabled?</strong> <code>grep ^GRUB_DISABLE_OS_PROBER= /etc/default/grub</code> → <code>false</code>; <code>pacman -S os-prober</code>.</li>
 <li><strong>ESP mounted at <code>/boot</code> when you ran <code>grub-mkconfig</code>?</strong> <code>os-prober</code> finds <code>bootmgfw.efi</code> on the ESP. <code>findmnt /boot</code>, then re-run.</li>
 <li><strong>Windows installed in UEFI mode?</strong> Confirm <code>\EFI\Microsoft\Boot\bootmgfw.efi</code> exists: <code>ls /boot/EFI/Microsoft/Boot/</code>.</li>
 </ul>
+<p><strong>No Ubuntu entry</strong> (Ubuntu comes from your <code>40_custom</code> chainload, not os-prober): <code>cat /etc/grub.d/40_custom</code> and confirm the <code>search …</code> line ends with the <strong>ESP</strong> UUID (<code>blkid -s UUID -o value /dev/nvme0n1p1</code>) on one line and the block closes with <code>}</code>; make it executable (<code>sudo chmod +x /etc/grub.d/40_custom</code>), then <code>sudo grub-mkconfig -o /boot/grub/grub.cfg</code>. If selecting Ubuntu lands at <code>grub&gt;</code>, Secure Boot is blocking the unsigned chainload (disable it in firmware), or the path is wrong: <code>ls /boot/EFI/Ubuntu/grubx64.efi</code>.</p>
 </section>
 <section id="a-windows-update-stole-the-boot-order-boots-straight-to-windows" class="level3">
 <h3 class="anchored" data-anchor-id="a-windows-update-stole-the-boot-order-boots-straight-to-windows">2. A Windows update stole the boot order (boots straight to Windows)</h3>
 <p>Boot Linux (force the firmware boot menu once), then:</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr                                  <span class="co"># note the GRUB and Windows BootNNNN numbers</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> <span class="op">&lt;</span>GRUB_NUM<span class="op">&gt;</span>,<span class="op">&lt;</span>WINDOWS_NUM<span class="op">&gt;</span>      <span class="co"># put GRUB first again</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr                                  <span class="co"># note the GRUB and Windows BootNNNN numbers</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> <span class="op">&lt;</span>GRUB_NUM<span class="op">&gt;</span>,<span class="op">&lt;</span>WINDOWS_NUM<span class="op">&gt;</span>      <span class="co"># put GRUB first again</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Nothing was lost, only the <em>order</em> changed. GRUB still chainloads Windows fine.</p>
 </section>
 <section id="clock-is-wrong-after-switching-os" class="level3">

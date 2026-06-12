@@ -1,6 +1,6 @@
 ---
 title: "Dual-Boot Arch + Ubuntu (Plain Btrfs, No Encryption) — With a Shared Data Partition"
-description: "One NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root, plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. A Btrfs subvolume layout (`@`, `@home`, `@snapshots`, `@var_log`, `@swap`), per-OS zram + NoCOW Btrfs hibernation, a pinned-UID shared `/data`, and one GRUB on the shared ESP with os-prober. No passphrase prompts — boot goes straight from GRUB to login."
+description: "One NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root, plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. A Btrfs subvolume layout (`@`, `@home`, `@snapshots`, `@var_log`, `@swap`), per-OS zram + NoCOW Btrfs hibernation, a pinned-UID shared `/data`, and one GRUB menu on the shared ESP (Arch's GRUB chainloads Ubuntu). No passphrase prompts — boot goes straight from GRUB to login."
 author: "Evanns Morales"
 date: "2026-06-07"
 categories: [arch linux, ubuntu, linux, installation, dual-boot, btrfs, snapper, hibernation, grub, os-prober, mkinitcpio, zram, shared partition, no encryption]
@@ -32,7 +32,7 @@ The layout, with no encryption anywhere on the disk:
 - **Two plain Btrfs root partitions** — Arch in its own Btrfs partition, Ubuntu in its own, each carrying the usual subvolumes (`@`, `@home`, …).
 - **One shared 150 GiB plain Btrfs data partition**, mounted at `/data` on both distros, owned by your user on both sides. Just an `fstab` UUID line on each OS.
 - **Per-OS everyday swap via zram** (compressed RAM, no SSD writes) and **per-OS hibernation** to a NoCOW Btrfs swap file inside each distro's own root, no shared swap partition, no cross-OS resume-image collisions.
-- **One GRUB** on the shared ESP, with `os-prober` enabled so either distro's `grub-mkconfig`/`update-grub` regenerates a menu listing both.
+- **One GRUB menu** on the shared ESP. Arch's GRUB is the primary chooser (set as the EFI default), listing Arch directly plus a hand-written **chainload entry** that boots Ubuntu's GRUB. We don't lean on `os-prober` to auto-detect the other Linux — it doesn't reliably see a Btrfs `@`-subvolume root, so the cross-entry is wired by hand (Part 5).
 
 It stops on the console for the Arch side; the desktop layer is your choice. Ubuntu's GNOME comes up out of the box.
 :::
@@ -61,10 +61,10 @@ If any of that is unacceptable for what lives on this machine, stop and build it
 
 What adding Ubuntu introduces:
 
-1. **Who owns GRUB?** Both distros want their own bootloader on the same ESP. We pick one as the menu driver (Ubuntu) and let its `os-prober` discover Arch automatically.
+1. **Who owns GRUB?** Both distros install their own bootloader to the same ESP. We make **Arch's GRUB** the primary menu (via EFI boot order) and give it a manual chainload entry that hands off to Ubuntu's GRUB. `os-prober` auto-detection is unreliable here — a Btrfs `@`-subvolume root often isn't seen — so we wire the cross-entry by hand.
 2. **UID/GID coordination for the shared partition.** If `user` is UID 1000 on Arch and UID 1001 on Ubuntu, every file on `/data` looks like it belongs to a different user depending on which OS you booted. We pin UID 1000 on both sides.
 3. **Resume-image collisions.** Two OSes hibernating to the same swap target would overwrite each other's image. We give each OS its own NoCOW Btrfs swap file inside its own root, plus zram for everyday swap.
-4. **`os-prober` is off by default on Arch.** We flip it for both distros so a re-run of `grub-mkconfig` from either side regenerates a complete menu.
+4. **Reaching Arch after Ubuntu installs.** Ubuntu's installer makes its own GRUB the EFI default and won't list Arch. So you boot Arch once via the firmware boot menu, build the unified menu there, and set Arch's GRUB first in the EFI order (Part 5).
 
 ---
 
@@ -339,7 +339,7 @@ reflector --country 'United States' --protocol https --latest 20 --age 12 \
 pacstrap -K /mnt \
     base linux linux-firmware linux-headers intel-ucode \
     btrfs-progs \
-    grub efibootmgr grub-btrfs os-prober \
+    grub efibootmgr grub-btrfs \
     snapper snap-pac \
     networkmanager openssh sudo \
     neovim git base-devel \
@@ -348,7 +348,7 @@ pacstrap -K /mnt \
     reflector
 ```
 
-Use `amd-ucode` instead of `intel-ucode` on AMD hardware. **`os-prober`** is the script GRUB runs to discover other operating systems on the same disk, without it, `grub-mkconfig` would only ever see Arch.
+Use `amd-ucode` instead of `intel-ucode` on AMD hardware. `grub-btrfs` is what lets GRUB boot directly into Btrfs snapshots later.
 
 Generate `fstab` and enter the new system:
 
@@ -586,15 +586,7 @@ GRUB's generated `linux` line carries `root=UUID=…` and `rootflags=subvol=@` a
 
 </details>
 
-Now enable `os-prober`, the key dual-boot setting. Find the commented `#GRUB_DISABLE_OS_PROBER=false` and uncomment it:
-
-```bash
-sed -i 's/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' /etc/default/grub
-grep '^GRUB_DISABLE_OS_PROBER=' /etc/default/grub
-# Should print: GRUB_DISABLE_OS_PROBER=false
-```
-
-`os-prober` will find nothing yet (Ubuntu isn't installed), but we want the flag flipped so re-running `grub-mkconfig` from Arch *after* Ubuntu exists picks it up.
+Ubuntu doesn't exist yet, so for now Arch's GRUB menu lists only Arch. Once Ubuntu is installed (Part 4), you'll add a chainload entry for it and regenerate this config from Arch (Part 5) — that's what produces the single menu listing both OSes.
 
 Install the bootloader and generate the config:
 
@@ -758,7 +750,7 @@ Ubuntu's GUI installer's manual ("Something else") mode *can* format `p4` as Btr
 ::: {.callout-warning}
 ## Ubuntu will overwrite the EFI NVRAM `BootOrder`
 
-When you run Ubuntu's `grub-install`, it writes an `Ubuntu` NVRAM entry and adjusts the boot order so Ubuntu's GRUB is tried first. That's fine, Ubuntu's GRUB, with `os-prober` enabled, picks up Arch automatically. If you'd rather Arch's GRUB own the menu, restore the order with `efibootmgr` in Part 5. To compare later, dump the current state from the **Arch** side before booting the Ubuntu USB:
+When you run Ubuntu's `grub-install`, it writes an `Ubuntu` NVRAM entry and adjusts the boot order so Ubuntu's GRUB is tried first. We undo that in Part 5 — booting Arch via the firmware menu, then setting Arch's GRUB first with `efibootmgr` — because Arch's GRUB is the one that gets the unified menu. To compare before/after, dump the current state from the **Arch** side before booting the Ubuntu USB:
 
 ```bash
 efibootmgr -v > ~/efi-before-ubuntu.txt
@@ -849,15 +841,12 @@ deb http://archive.ubuntu.com/ubuntu        noble-updates   main restricted univ
 deb http://security.ubuntu.com/ubuntu       noble-security  main restricted universe multiverse
 EOF
 apt update
-apt install -y ubuntu-standard linux-image-generic grub-efi-amd64 os-prober \
+apt install -y ubuntu-standard linux-image-generic grub-efi-amd64 \
     btrfs-progs network-manager sudo locales tzdata
-
-# os-prober is disabled by default on 24.04 — turn it on so Ubuntu's GRUB lists Arch
-echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub
 
 update-initramfs -u -k all
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Ubuntu --recheck
-update-grub                                          # os-prober finds Arch on p3
+update-grub                                          # builds Ubuntu's own GRUB menu
 
 # locale, timezone, a hostname distinct from Arch's
 locale-gen en_US.UTF-8 && update-locale LANG=en_US.UTF-8
@@ -979,33 +968,60 @@ If hibernation resumes into a fresh boot instead, re-check `RESUME=` and re-run 
 
 ---
 
-# Part 5 — Finalize the GRUB menu from Arch
+# Part 5 — Build the unified GRUB menu from Arch
 
-Reboot, pick **Arch Linux**, and re-run `grub-mkconfig` now that Ubuntu exists:
+Ubuntu's install made *its* GRUB the EFI default, and Ubuntu's GRUB can't reliably auto-detect Arch — `os-prober` doesn't see a Btrfs `@`-subvolume root. So we drive the menu from **Arch's** GRUB and give it a chainload entry that boots Ubuntu.
+
+**1 — Boot Arch.** Ubuntu's menu won't list Arch, so reach Arch's bootloader directly: at power-on, open the firmware one-time boot menu (commonly `F12`, sometimes `F9`/`Esc`, depends on the vendor) and pick the **GRUB** entry (that's Arch's; Ubuntu's is **ubuntu**).
+
+**2 — Add a chainload entry for Ubuntu.** Get the ESP's UUID, then write a custom menu entry that hands off to Ubuntu's own GRUB:
+
+```bash
+ESP_UUID=$(blkid -s UUID -o value /dev/nvme0n1p1)
+echo "$ESP_UUID"        # sanity: a short FAT id like 7F6E-D6AA
+
+sudo tee /etc/grub.d/40_custom >/dev/null <<EOF
+#!/bin/sh
+exec tail -n +3 \$0
+menuentry "Ubuntu 24.04 LTS" {
+    insmod part_gpt
+    insmod fat
+    insmod chain
+    search --no-floppy --fs-uuid --set=root $ESP_UUID
+    chainloader /EFI/Ubuntu/grubx64.efi
+}
+EOF
+sudo chmod +x /etc/grub.d/40_custom
+```
+
+Before regenerating, **`cat /etc/grub.d/40_custom`** and check the `search …` line ends with your UUID on the *same line* and the block closes with `}` — a wrapped paste is the one thing that breaks this. Then:
 
 ```bash
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-You should see:
+It should finish with `done` and no syntax errors. (You won't see a "Found Ubuntu" line; that's `os-prober`, which we're deliberately not relying on — your Ubuntu entry comes from `40_custom`.)
 
-```text
-Found Ubuntu 24.04 LTS (24.04) on /dev/nvme0n1p4
-```
-
-…and `grub.cfg` now contains entries for Arch *and* Ubuntu. Either GRUB (Arch's or Ubuntu's) can boot either OS.
-
-### Optional: choose which GRUB owns the menu via NVRAM order
-
-If you'd rather Arch's GRUB be primary:
+**3 — Make Arch's GRUB the EFI default:**
 
 ```bash
-efibootmgr                                 # list current EFI entries
-# Find the BootNNNN number for "GRUB" (Arch) and for "Ubuntu".
-sudo efibootmgr -o GRUB_NUM,UBUNTU_NUM     # substitute the BootNNNN numbers, comma-separated
+sudo efibootmgr                            # find the BootNNNN for "GRUB" (Arch) and "Ubuntu"
+sudo efibootmgr -o <GRUB_NUM>,<UBUNTU_NUM> # Arch's GRUB first; comma-separated, no spaces
 ```
 
-This reorders NVRAM so Arch's GRUB is tried first. Ubuntu's GRUB stays installed and reachable. The choice is cosmetic + ergonomic, not functional, leave NVRAM alone to keep Ubuntu's GRUB primary (it re-runs `update-grub` on Ubuntu kernel updates automatically).
+Reboot. Arch's GRUB now lists **Arch Linux** and **Ubuntu 24.04 LTS**; selecting Ubuntu chainloads its GRUB and boots Ubuntu.
+
+::: {.callout-note}
+## Why a chainload entry instead of `os-prober`
+
+`os-prober` detects another Linux by mounting its partition *bare* and looking for an OS root. With a Btrfs `@`-subvolume layout, a bare mount lands in the top-level subvolume (a folder containing `@`, `@home`, …), not the OS root, so os-prober finds nothing and `grub-mkconfig` prints no Ubuntu entry. The chainload sidesteps detection entirely: it just runs Ubuntu's bootloader, which always knows its own current kernels — so it never goes stale on a Ubuntu kernel update (an os-prober entry hard-codes a kernel path and does). If you ever *do* want os-prober to work, set Ubuntu's Btrfs default subvolume to `@` (`sudo btrfs subvolume set-default <id-of-@> <mountpoint>`), which is what the distro installers do — but the chainload is the reliable path here.
+:::
+
+::: {.callout-tip}
+## Skip the second GRUB menu (optional)
+
+Selecting Ubuntu briefly shows Ubuntu's *own* GRUB before it boots — the chainload working as designed. To boot straight through, set in Ubuntu's `/etc/default/grub`: `GRUB_TIMEOUT=0` and `GRUB_TIMEOUT_STYLE=hidden`, then `sudo update-grub`. Hold `Shift`/`Esc` during the hop if you ever need Ubuntu's recovery entries.
+:::
 
 ---
 
@@ -1066,12 +1082,13 @@ The usual causes:
 2. `resume=`/`resume_offset=` left as literal `<…>` text in `/etc/default/grub`. Same chroot recovery, then `grub-mkconfig -o /boot/grub/grub.cfg`.
 3. The initramfs wasn't regenerated after editing `mkinitcpio.conf`. In the chroot: `mkinitcpio -P`.
 
-### 3. GRUB menu shows only one OS
+### 3. Arch's GRUB menu shows only Arch (no Ubuntu entry)
 
-- **`os-prober` not enabled.** `grep ^GRUB_DISABLE_OS_PROBER= /etc/default/grub` must print `GRUB_DISABLE_OS_PROBER=false`.
-- **`os-prober` not installed.** Arch: `pacman -S os-prober`. Ubuntu: `apt install os-prober`.
+The chainload entry didn't make it into `grub.cfg`. Check it:
 
-After fixing, re-run `grub-mkconfig -o /boot/grub/grub.cfg` (Arch) or `update-grub` (Ubuntu). You should see `Found Ubuntu …` / `Found Arch …` in the output.
+- **`cat /etc/grub.d/40_custom`** — confirm the `search …` line ends with the **ESP** UUID (`blkid -s UUID -o value /dev/nvme0n1p1`) on one line, and the block closes with `}`. A paste that wrapped the UUID onto its own line is the usual culprit; rewrite the file and re-run `grub-mkconfig`.
+- **`40_custom` not executable.** `sudo chmod +x /etc/grub.d/40_custom`, then `sudo grub-mkconfig -o /boot/grub/grub.cfg`.
+- **Selecting Ubuntu lands at `grub>` or "file not found":** Secure Boot is on, blocking the unsigned chainload — disable it in firmware. Or the path is wrong: `ls /boot/EFI/Ubuntu/grubx64.efi` from Arch (the ESP is mounted at `/boot`) to confirm where Ubuntu's bootloader actually is.
 
 ### 4. Hibernation from one OS resumes into the *other*
 
