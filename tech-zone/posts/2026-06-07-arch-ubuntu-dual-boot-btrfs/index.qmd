@@ -2,26 +2,26 @@
 title: "Dual-Boot Arch + Ubuntu (Plain Btrfs, No Encryption) — With a Shared Data Partition"
 description: "One NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root, plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. A Btrfs subvolume layout (`@`, `@home`, `@snapshots`, `@var_log`, `@swap`), per-OS zram + NoCOW Btrfs hibernation, a pinned-UID shared `/data`, and one GRUB menu on the shared ESP (Arch's GRUB chainloads Ubuntu). No passphrase prompts — boot goes straight from GRUB to login."
 author: "Evanns Morales"
-date: "2026-06-07"
+date: "2026-06-12"
 categories: [arch linux, ubuntu, linux, installation, dual-boot, btrfs, snapper, hibernation, grub, os-prober, mkinitcpio, zram, shared partition, no encryption]
 image: ../../../files/tech-zone/arch-logo-dark.svg
 image-alt: "The Arch Linux logo, official wordmark from archlinux.org."
 draft: false
 ---
 
-::: {.callout-warning}
-## Disclaimer: a reasoned no-encryption build, not yet a live-tested run
+::: {.callout-note}
+## Tested: I built this end-to-end on 2026-06-12, and it works
 
-This is a no-encryption dual-boot blueprint: two plain Btrfs roots and a shared Btrfs `/data`. It's a carefully-reasoned procedure, not a command-by-command log I've executed end-to-end (yet). The boot path is about as simple as multi-boot gets — `/boot` sits on a plain ESP, and GRUB reads its config and kernels directly off it. The result is the boring, dependable shape, and "boring and dependable" is exactly what you want from a bootloader.
+This is a no-encryption dual-boot: two plain Btrfs roots and a shared Btrfs `/data`. I set it up on real hardware on **2026-06-12** — Arch and Ubuntu 24.04 sharing one ESP and a Btrfs `/data`, a single GRUB menu, per-OS hibernation, no encryption anywhere — and the steps below are the ones that actually worked. They fold in everything the live install surfaced: the chainload GRUB menu (os-prober can't see a Btrfs `@`-subvolume root), the Ubuntu swap-file resume warning, the `recordfail` tweak for a seamless menu, and the `nano`-not-`nvim` editor note. The boot path stays about as simple as multi-boot gets: `/boot` sits on a plain ESP, and GRUB reads its config and kernels directly off it.
 
-Canonical sources to re-read as you go:
+Canonical sources to keep handy as you go:
 
 - [`btrfs`](https://man.archlinux.org/man/btrfs.8){target="_blank" rel="noopener"} — subvolumes, swap files, mount options
 - [Arch wiki: GRUB#Dual booting](https://wiki.archlinux.org/title/GRUB#Dual_booting){target="_blank" rel="noopener"} and [`os-prober`](https://wiki.archlinux.org/title/GRUB#Detecting_other_operating_systems){target="_blank" rel="noopener"}
 - [Arch wiki: Btrfs](https://wiki.archlinux.org/title/Btrfs){target="_blank" rel="noopener"} and [Snapper](https://wiki.archlinux.org/title/Snapper){target="_blank" rel="noopener"}
 - [Ubuntu wiki: Installation/FromUSBStick](https://help.ubuntu.com/community/Installation/FromUSBStick){target="_blank" rel="noopener"}
 
-Treat this as a blueprint for the *pattern*, not a substitute for re-reading the tool docs as you go.
+Your hardware, device names, and partition sizes will differ from mine, so read the tool docs alongside as you go.
 :::
 
 ::: {.callout-note}
@@ -1020,7 +1020,15 @@ Reboot. Arch's GRUB now lists **Arch Linux** and **Ubuntu 24.04 LTS**; selecting
 ::: {.callout-tip}
 ## Skip the second GRUB menu (optional)
 
-Selecting Ubuntu briefly shows Ubuntu's *own* GRUB before it boots — the chainload working as designed. To boot straight through, set in Ubuntu's `/etc/default/grub`: `GRUB_TIMEOUT=0` and `GRUB_TIMEOUT_STYLE=hidden`, then `sudo update-grub`. Hold `Shift`/`Esc` during the hop if you ever need Ubuntu's recovery entries.
+Selecting Ubuntu briefly shows Ubuntu's *own* GRUB before it boots — the chainload working as designed. To boot straight through, set **three** values in Ubuntu's `/etc/default/grub`, then `sudo update-grub`:
+
+```text
+GRUB_TIMEOUT=0
+GRUB_TIMEOUT_STYLE=hidden
+GRUB_RECORDFAIL_TIMEOUT=0
+```
+
+The third one is the Btrfs catch: GRUB can't write `grubenv` on a Btrfs root, so Ubuntu's `recordfail` flag never clears, and that branch of Ubuntu's `grub.cfg` forces the menu open regardless of `GRUB_TIMEOUT`. `GRUB_RECORDFAIL_TIMEOUT=0` makes that branch boot immediately too. (Trade-off: GRUB won't pause to show the menu after a genuinely failed boot — hold `Shift`/`Esc` during the chainload to force it, or set the value to `2`–`3` for a short safety pause.)
 :::
 
 ---

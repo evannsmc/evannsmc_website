@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Evanns Morales">
-<meta name="dcterms.date" content="2026-06-07">
+<meta name="dcterms.date" content="2026-06-12">
 <meta name="description" content="One NVMe drive booting Arch Linux and Ubuntu 24 LTS, each on its own plain Btrfs root, plus one shared 150 GiB plain Btrfs data partition both distros mount read-write. A Btrfs subvolume layout (@, @home, @snapshots, @var_log, @swap), per-OS zram + NoCOW Btrfs hibernation, a pinned-UID shared /data, and one GRUB menu on the shared ESP (Arch’s GRUB chainloads Ubuntu). No passphrase prompts — boot goes straight from GRUB to login.">
 
 <title>Dual-Boot Arch + Ubuntu (Plain Btrfs, No Encryption) — With a Shared Data Partition – evannsmc</title>
@@ -450,7 +450,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 7, 2026</p>
+      <p class="date">June 12, 2026</p>
     </div>
   </div>
   
@@ -462,25 +462,25 @@ document.addEventListener('DOMContentLoaded', function () {
 </header>
 
 
-<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Disclaimer: a reasoned no-encryption build, not yet a live-tested run
+Tested: I built this end-to-end on 2026-06-12, and it works
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>This is a no-encryption dual-boot blueprint: two plain Btrfs roots and a shared Btrfs <code>/data</code>. It’s a carefully-reasoned procedure, not a command-by-command log I’ve executed end-to-end (yet). The boot path is about as simple as multi-boot gets — <code>/boot</code> sits on a plain ESP, and GRUB reads its config and kernels directly off it. The result is the boring, dependable shape, and “boring and dependable” is exactly what you want from a bootloader.</p>
-<p>Canonical sources to re-read as you go:</p>
+<p>This is a no-encryption dual-boot: two plain Btrfs roots and a shared Btrfs <code>/data</code>. I set it up on real hardware on <strong>2026-06-12</strong> — Arch and Ubuntu 24.04 sharing one ESP and a Btrfs <code>/data</code>, a single GRUB menu, per-OS hibernation, no encryption anywhere — and the steps below are the ones that actually worked. They fold in everything the live install surfaced: the chainload GRUB menu (os-prober can’t see a Btrfs <code>@</code>-subvolume root), the Ubuntu swap-file resume warning, the <code>recordfail</code> tweak for a seamless menu, and the <code>nano</code>-not-<code>nvim</code> editor note. The boot path stays about as simple as multi-boot gets: <code>/boot</code> sits on a plain ESP, and GRUB reads its config and kernels directly off it.</p>
+<p>Canonical sources to keep handy as you go:</p>
 <ul>
 <li><a href="https://man.archlinux.org/man/btrfs.8" target="_blank" rel="noopener"><code>btrfs</code></a> — subvolumes, swap files, mount options</li>
 <li><a href="https://wiki.archlinux.org/title/GRUB#Dual_booting" target="_blank" rel="noopener">Arch wiki: GRUB#Dual booting</a> and <a href="https://wiki.archlinux.org/title/GRUB#Detecting_other_operating_systems" target="_blank" rel="noopener"><code>os-prober</code></a></li>
 <li><a href="https://wiki.archlinux.org/title/Btrfs" target="_blank" rel="noopener">Arch wiki: Btrfs</a> and <a href="https://wiki.archlinux.org/title/Snapper" target="_blank" rel="noopener">Snapper</a></li>
 <li><a href="https://help.ubuntu.com/community/Installation/FromUSBStick" target="_blank" rel="noopener">Ubuntu wiki: Installation/FromUSBStick</a></li>
 </ul>
-<p>Treat this as a blueprint for the <em>pattern</em>, not a substitute for re-reading the tool docs as you go.</p>
+<p>Your hardware, device names, and partition sizes will differ from mine, so read the tool docs alongside as you go.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -1492,7 +1492,11 @@ Skip the second GRUB menu (optional)
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Selecting Ubuntu briefly shows Ubuntu’s <em>own</em> GRUB before it boots — the chainload working as designed. To boot straight through, set in Ubuntu’s <code>/etc/default/grub</code>: <code>GRUB_TIMEOUT=0</code> and <code>GRUB_TIMEOUT_STYLE=hidden</code>, then <code>sudo update-grub</code>. Hold <code>Shift</code>/<code>Esc</code> during the hop if you ever need Ubuntu’s recovery entries.</p>
+<p>Selecting Ubuntu briefly shows Ubuntu’s <em>own</em> GRUB before it boots — the chainload working as designed. To boot straight through, set <strong>three</strong> values in Ubuntu’s <code>/etc/default/grub</code>, then <code>sudo update-grub</code>:</p>
+<pre class="text"><code>GRUB_TIMEOUT=0
+GRUB_TIMEOUT_STYLE=hidden
+GRUB_RECORDFAIL_TIMEOUT=0</code></pre>
+<p>The third one is the Btrfs catch: GRUB can’t write <code>grubenv</code> on a Btrfs root, so Ubuntu’s <code>recordfail</code> flag never clears, and that branch of Ubuntu’s <code>grub.cfg</code> forces the menu open regardless of <code>GRUB_TIMEOUT</code>. <code>GRUB_RECORDFAIL_TIMEOUT=0</code> makes that branch boot immediately too. (Trade-off: GRUB won’t pause to show the menu after a genuinely failed boot — hold <code>Shift</code>/<code>Esc</code> during the chainload to force it, or set the value to <code>2</code>–<code>3</code> for a short safety pause.)</p>
 </div>
 </div>
 <hr>
@@ -1501,24 +1505,24 @@ Skip the second GRUB menu (optional)
 <h1>Part 6 — Final sanity checks across both OSes</h1>
 <section id="from-arch" class="level3">
 <h3 class="anchored" data-anchor-id="from-arch">From Arch</h3>
-<div class="sourceCode" id="cb67"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /                       <span class="co"># subvol=/@, on /dev/nvme0n1p3</span></span>
-<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /home                   <span class="co"># subvol=/@home</span></span>
-<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data                   <span class="co"># subvol=/@data, on /dev/nvme0n1p2</span></span>
-<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                   <span class="co"># zram0 (pri 100) + /swap/swapfile (pri -2)</span></span>
-<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root list       <span class="co"># at least one snapshot</span></span>
-<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate        <span class="co"># works, resumes into Arch</span></span>
-<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                     <span class="co"># files from Arch + files written from Ubuntu</span></span>
-<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>      <span class="co"># all UIDs/GIDs == 1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /                       <span class="co"># subvol=/@, on /dev/nvme0n1p3</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /home                   <span class="co"># subvol=/@home</span></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data                   <span class="co"># subvol=/@data, on /dev/nvme0n1p2</span></span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                   <span class="co"># zram0 (pri 100) + /swap/swapfile (pri -2)</span></span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root list       <span class="co"># at least one snapshot</span></span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate        <span class="co"># works, resumes into Arch</span></span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                     <span class="co"># files from Arch + files written from Ubuntu</span></span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>      <span class="co"># all UIDs/GIDs == 1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="from-ubuntu-reboot-pick-ubuntu" class="level3">
 <h3 class="anchored" data-anchor-id="from-ubuntu-reboot-pick-ubuntu">From Ubuntu (reboot, pick Ubuntu)</h3>
-<div class="sourceCode" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /                       <span class="co"># subvol=/@, on /dev/nvme0n1p4</span></span>
-<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /home                   <span class="co"># subvol=/@home</span></span>
-<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data                   <span class="co"># subvol=/@data, on /dev/nvme0n1p2 (same UUID as Arch sees)</span></span>
-<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                   <span class="co"># zram + /swap/swapfile (Ubuntu's own)</span></span>
-<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate        <span class="co"># works, resumes into Ubuntu (separate from Arch's)</span></span>
-<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                     <span class="co"># same files as Arch sees, owned by user</span></span>
-<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>      <span class="co"># all UIDs/GIDs == 1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /                       <span class="co"># subvol=/@, on /dev/nvme0n1p4</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /home                   <span class="co"># subvol=/@home</span></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data                   <span class="co"># subvol=/@data, on /dev/nvme0n1p2 (same UUID as Arch sees)</span></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                   <span class="co"># zram + /swap/swapfile (Ubuntu's own)</span></span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate        <span class="co"># works, resumes into Ubuntu (separate from Arch's)</span></span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                     <span class="co"># same files as Arch sees, owned by user</span></span>
+<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>      <span class="co"># all UIDs/GIDs == 1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>What pass looks like:</strong> each OS hibernates and resumes into itself, both mount <code>/data</code> with identical file ownership, both see exactly two swap devices, and the GRUB menu lists both OSes regardless of which side regenerated it last.</p>
 <hr>
 <p><span id="emergency-failure-modes"></span></p>
@@ -1571,10 +1575,10 @@ Skip the second GRUB menu (optional)
 <section id="file-ownership-on-data-looks-like-1001-from-ubuntu-1000-from-arch" class="level3">
 <h3 class="anchored" data-anchor-id="file-ownership-on-data-looks-like-1001-from-ubuntu-1000-from-arch">5. File ownership on <code>/data</code> looks like <code>1001</code> from Ubuntu, <code>1000</code> from Arch</h3>
 <p>The Ubuntu user came out as UID 1001 (you skipped <code>-u 1000</code>, or a UID 1000 already existed). Fix from Ubuntu:</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> usermod <span class="at">-u</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
-<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> groupmod <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
-<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find / <span class="at">-uid</span> 1001 <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/proc/*'</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/sys/*'</span> <span class="at">-exec</span> chown 1000 {} +</span>
-<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find / <span class="at">-gid</span> 1001 <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/proc/*'</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/sys/*'</span> <span class="at">-exec</span> chgrp 1000 {} +</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb70"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> usermod <span class="at">-u</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> groupmod <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find / <span class="at">-uid</span> 1001 <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/proc/*'</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/sys/*'</span> <span class="at">-exec</span> chown 1000 {} +</span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find / <span class="at">-gid</span> 1001 <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/proc/*'</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">'/sys/*'</span> <span class="at">-exec</span> chgrp 1000 {} +</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Reboot Ubuntu. Now <code>id &lt;USERNAME&gt;</code> prints <code>uid=1000 gid=1000</code>.</p>
 <hr>
 </section>
