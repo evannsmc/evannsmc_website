@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1010 360" font-family="Source Sans Pro, system-ui, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#003057"/>
+    </marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.14"/>
+    </filter>
+    <style>
+      .name    { font-size: 15px; font-weight: 700; fill: #003057; }
+      .hdr     { font-size: 11px; font-weight: 700; fill: #fff; letter-spacing: 1.2px; }
+      .lbl     { font-size: 12px; fill: #003057; }
+      .lbl-it  { font-size: 12px; fill: #003057; font-style: italic; }
+      .sel-lbl { font-size: 11px; fill: #2980b9; font-style: italic; }
+    </style>
+  </defs>
+
+  <!-- ====== Monitor (blue, left) ====== -->
+  <g filter="url(#sh)">
+    <rect x="30" y="130" width="200" height="90" rx="10" fill="#fff" stroke="#2980b9" stroke-width="2.5"/>
+  </g>
+  <rect x="30" y="130" width="200" height="24" rx="10" fill="#2980b9"/>
+  <text x="130" y="147" text-anchor="middle" class="hdr">MONITOR</text>
+  <text x="130" y="182" text-anchor="middle" class="name">STL Robustness</text>
+  <text x="130" y="205" text-anchor="middle" class="lbl-it">
+    <tspan>&#961;</tspan><tspan dy="3" font-size="9px">&#966;</tspan><tspan dy="-3">(x)</tspan>
+  </text>
+
+  <!-- ====== Circuit-style SPDT switch ====== -->
+  <!-- pole: short line coming in from Monitor side -->
+  <line x1="230" y1="175" x2="285" y2="175" stroke="#003057" stroke-width="2.5"/>
+  <circle cx="285" cy="175" r="4" fill="#003057"/>
+  <!-- two throws -->
+  <circle cx="360" cy="130" r="4" fill="#003057"/>
+  <line x1="360" y1="130" x2="415" y2="130" stroke="#003057" stroke-width="2.5"/>
+  <circle cx="360" cy="220" r="4" fill="#003057"/>
+  <line x1="360" y1="220" x2="415" y2="220" stroke="#003057" stroke-width="2.5"/>
+  <!-- switch arm currently connecting pole -> top throw (default / fast path) -->
+  <line x1="285" y1="175" x2="358" y2="132" stroke="#003057" stroke-width="3" stroke-linecap="round"/>
+  <!-- label over the switch -->
+  <text x="320" y="112" text-anchor="middle" class="lbl-it">
+    <tspan>&#961;</tspan><tspan dy="3" font-size="9px">&#966;</tspan><tspan dy="-3"> &#8805; </tspan><tspan>&#961;</tspan><tspan dy="3" font-size="9px">min</tspan>
+  </text>
+
+  <!-- arrow from Monitor (right edge) to switch pole -->
+  <path d="M 230 175 L 281 175" stroke="#003057" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+
+  <!-- arrows from throws to controllers -->
+  <path d="M 415 130 L 455 130" stroke="#003057" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+  <path d="M 415 220 L 455 220" stroke="#003057" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+
+  <!-- ====== RL-STL (green, top throw) ====== -->
+  <g filter="url(#sh)">
+    <rect x="460" y="90" width="200" height="78" rx="10" fill="#fff" stroke="#27ae60" stroke-width="2.5"/>
+  </g>
+  <rect x="460" y="90" width="200" height="24" rx="10" fill="#27ae60"/>
+  <text x="560" y="107" text-anchor="middle" class="hdr">DEFAULT &#183; FAST</text>
+  <text x="560" y="140" text-anchor="middle" class="name">RL-STL</text>
+  <text x="560" y="160" text-anchor="middle" class="lbl-it">
+    <tspan>&#960;</tspan><tspan dy="3" font-size="9px">&#952;</tspan><tspan dy="-3">(x)</tspan>
+  </text>
+
+  <!-- ====== MILP (red, bottom throw) ====== -->
+  <g filter="url(#sh)">
+    <rect x="460" y="180" width="200" height="78" rx="10" fill="#fff" stroke="#c0392b" stroke-width="2.5"/>
+  </g>
+  <rect x="460" y="180" width="200" height="24" rx="10" fill="#c0392b"/>
+  <text x="560" y="197" text-anchor="middle" class="hdr">FALLBACK &#183; SLOW</text>
+  <text x="560" y="230" text-anchor="middle" class="name">MILP Solver</text>
+  <text x="560" y="250" text-anchor="middle" class="lbl-it">re-solve</text>
+
+  <!-- ====== Plant ====== -->
+  <g filter="url(#sh)">
+    <rect x="760" y="130" width="200" height="90" rx="10" fill="#e8edf2" stroke="#7a8894" stroke-width="2.5"/>
+  </g>
+  <text x="860" y="160" text-anchor="middle" class="name">PLANT</text>
+  <text x="860" y="184" text-anchor="middle" class="lbl">Quadrotor</text>
+  <text x="860" y="206" text-anchor="middle" class="lbl-it">&#7819; = f(x, u, w)</text>
+
+  <!-- arrows: RL-STL -> Plant and MILP -> Plant (merge at 705, then single long u(t) arrow into Plant) -->
+  <path d="M 660 129 L 705 129 L 705 175" stroke="#003057" stroke-width="2" fill="none"/>
+  <path d="M 660 219 L 705 219 L 705 175" stroke="#003057" stroke-width="2" fill="none"/>
+  <path d="M 705 175 L 758 175" stroke="#003057" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+  <text x="732" y="166" text-anchor="middle" class="lbl-it">u(t)</text>
+
+  <!-- Plant -> feedback to Monitor (exits RIGHT side, loops around to Monitor) -->
+  <path d="M 960 200 L 985 200 L 985 320 L 130 320 L 130 220"
+        stroke="#003057" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+  <text x="558" y="314" text-anchor="middle" class="lbl-it">x(t)</text>
+</svg>

@@ -1,0 +1,4 @@
+method,goal_reached,collided,n_steps,n_repaired_steps,mean_repair_iters,mean_wall_time_per_step_s
+heuristic,False,True,2,1,11.00,0.0206
+autograd_sym,False,False,10,2,7.00,4.6831
+autograd_dir,False,False,10,2,7.00,4.2282

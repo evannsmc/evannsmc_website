@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 80 1200 705" font-family="Source Sans Pro, system-ui, sans-serif">
+  <defs>
+    <marker id="arrNeutral" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#516470"/>
+    </marker>
+    <marker id="arrChevron" viewBox="0 0 14 14" refX="12" refY="7" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L14,7 L0,14 L5,7 Z" fill="#2980b9"/>
+    </marker>
+    <filter id="sh" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <!-- cyclic arrows (clockwise) -->
+  <g fill="none" stroke="#516470" stroke-width="2.5" marker-end="url(#arrNeutral)">
+    <path d="M 692 209 A 240 240 0 0 1 821 338"/>
+    <path d="M 821 522 A 240 240 0 0 1 692 651"/>
+    <path d="M 508 651 A 240 240 0 0 1 379 522"/>
+    <path d="M 379 338 A 240 240 0 0 1 508 209"/>
+  </g>
+
+  <!-- signal labels OUTSIDE the track, hugging the arcs -->
+  <g font-size="12" font-style="italic" fill="#516470">
+    <text x="790" y="244" text-anchor="start">planning data</text>
+    <text x="790" y="620" text-anchor="start">safe reference</text>
+    <text x="410" y="620" text-anchor="end">control input</text>
+    <text x="410" y="244" text-anchor="end">new state</text>
+  </g>
+
+  <!-- double-headed supervision links hub ↔ each station (slim T3 blue) -->
+  <g stroke="#2980b9" stroke-width="1.8" stroke-linecap="round" fill="none"
+     marker-start="url(#arrChevron)" marker-end="url(#arrChevron)">
+    <line x1="600" y1="325" x2="600" y2="285"/>
+    <line x1="705" y1="430" x2="745" y2="430"/>
+    <line x1="600" y1="535" x2="600" y2="575"/>
+    <line x1="495" y1="430" x2="455" y2="430"/>
+  </g>
+
+  <!-- N : OBSERVE (navy-filled accent) -->
+  <g filter="url(#sh)">
+    <circle cx="600" cy="190" r="95" fill="#003057"/>
+  </g>
+  <text x="600" y="167" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" letter-spacing="2" opacity="0.75">① OBSERVE</text>
+  <text x="600" y="190" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Sense &amp; Perceive</text>
+  <text x="600" y="210" text-anchor="middle" font-size="11" fill="#fff" opacity="0.9">IMU · GPS · vision</text>
+  <text x="600" y="226" text-anchor="middle" font-size="11" fill="#fff" opacity="0.9">obstacles · disturbances</text>
+
+  <!-- E : PLAN (T2 green) -->
+  <g filter="url(#sh)">
+    <circle cx="840" cy="430" r="95" fill="#27ae60"/>
+  </g>
+  <text x="840" y="407" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" letter-spacing="2" opacity="0.9">② PLAN · THRUST 2</text>
+  <text x="840" y="432" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Safe Planning</text>
+  <text x="840" y="454" text-anchor="middle" font-size="12" fill="#fff" opacity="0.92">RTD-RAX</text>
+  <text x="840" y="472" text-anchor="middle" font-size="12" fill="#fff" opacity="0.92">RL-STL</text>
+
+  <!-- S : CONTROL (T1 red) -->
+  <g filter="url(#sh)">
+    <circle cx="600" cy="670" r="95" fill="#c0392b"/>
+  </g>
+  <text x="600" y="647" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" letter-spacing="2" opacity="0.9">③ CONTROL · THRUST 1</text>
+  <text x="600" y="672" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Low-Level Controller</text>
+  <text x="600" y="694" text-anchor="middle" font-size="12" fill="#fff" opacity="0.92">Newton–Raphson</text>
+  <text x="600" y="712" text-anchor="middle" font-size="12" fill="#fff" opacity="0.92">Contraction NN</text>
+
+  <!-- W : ACT / PLANT (neutral grey) -->
+  <g filter="url(#sh)">
+    <circle cx="360" cy="430" r="95" fill="#e8edf2" stroke="#7a8894" stroke-width="3"/>
+  </g>
+  <text x="360" y="407" text-anchor="middle" font-size="11" font-weight="700" fill="#5a6670" letter-spacing="2">④ ACT</text>
+  <text x="360" y="430" text-anchor="middle" font-size="17" font-weight="700" fill="#003057">Plant</text>
+  <text x="360" y="452" text-anchor="middle" font-size="11" fill="#516470">quadrotor · blimp · GTernal</text>
+  <text x="360" y="470" text-anchor="middle" font-size="11" fill="#7a8894" font-style="italic">ẋ = f(x, u, w)</text>
+
+  <!-- CENTER HUB : T3 SUPERVISOR (flat blue, r=105 to make room for the 4 supervision links) -->
+  <g filter="url(#sh)">
+    <circle cx="600" cy="430" r="105" fill="#2980b9" stroke="#1f6a98" stroke-width="3"/>
+  </g>
+  <text x="600" y="397" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" letter-spacing="2" opacity="0.92">SECURITY · THRUST 3</text>
+  <text x="600" y="422" text-anchor="middle" font-size="17" font-weight="800" fill="#fff">Cyber-Secure</text>
+  <text x="600" y="443" text-anchor="middle" font-size="17" font-weight="800" fill="#fff">Supervisor</text>
+  <text x="600" y="475" text-anchor="middle" font-size="12" fill="#fff" font-weight="600" opacity="0.95">Diagnose · Recover · Inoculate</text>
+</svg>

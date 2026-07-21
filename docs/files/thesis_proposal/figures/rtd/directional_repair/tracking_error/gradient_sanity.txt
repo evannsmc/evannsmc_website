@@ -1,0 +1,7 @@
+Sanity check: JAX autograd vs finite-difference gradient
+Scenario       : tracking_error
+Test point k   : [0.3  0.85]
+JAX gradient   : [0.03315235 0.14236224]
+FD  gradient   : [0.03311783 0.14244765]
+Relative error : 6.299e-04
+Verdict        : PASS (threshold 1e-2)

@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.34">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Evanns Morales">
+<meta name="dcterms.date" content="2026-05-01">
+<meta name="description" content="A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop, verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install.">
+
+<title>My First Arch Linux Install: A Basic Setup on an Old Laptop – evannsmc</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../files/site_icon/favicon.png" rel="icon" type="image/png">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-befe23ebd2f54d8af2c8a89d1a1611f1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-71d377fd5de2ab829bf86f8ce9e65e3a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link rel="apple-touch-icon" sizes="180x180" href="files/site_icon/apple-touch-icon.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://evannsmc.com/#person",
+      "name": "Evanns Morales-Cuadrado",
+      "alternateName": "evannsmc",
+      "url": "https://evannsmc.com",
+      "jobTitle": "Ph.D Student in Robotics and ECE",
+      "affiliation": {
+        "@type": "CollegeOrUniversity",
+        "name": "Georgia Institute of Technology",
+        "url": "https://www.gatech.edu"
+      },
+      "description": "Robotics and ECE Ph.D student at Georgia Tech researching safe autonomy, nonlinear control, and quadrotor UAVs.",
+      "sameAs": [
+        "https://github.com/evannsmc",
+        "https://www.linkedin.com/in/evanns-morales/",
+        "https://scholar.google.com/citations?user=FY9tS9oAAAAJ",
+        "https://orcid.org/0009-0000-3928-6243"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://evannsmc.com/#website",
+      "name": "evannsmc",
+      "url": "https://evannsmc.com",
+      "description": "The personal research website of Evanns Morales-Cuadrado",
+      "author": {
+        "@id": "https://evannsmc.com/#person"
+      }
+    }
+  ]
+}
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var path = window.location.pathname.replace(/\/index\.html$/, '/');
+  document.querySelectorAll('.navbar .nav-link').forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href) return;
+    var linkPath = new URL(href, window.location.origin).pathname.replace(/\/index\.html$/, '/');
+    if (path === linkPath || (linkPath !== '/' && path.startsWith(linkPath))) {
+      link.classList.add('active');
+      link.setAttribute('aria-current', 'page');
+    }
+  });
+});
+</script>
+<script data-goatcounter="https://evannsmc.goatcounter.com/count" async="" src="//gc.zgo.at/count.js"></script>
+
+
+<link rel="stylesheet" href="../../../styles.css">
+<meta property="og:title" content="My First Arch Linux Install: A Basic Setup on an Old Laptop – evannsmc">
+<meta property="og:description" content="A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop, verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install.">
+<meta property="og:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
+<meta property="og:site_name" content="evannsmc">
+<meta property="og:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
+<meta name="twitter:title" content="My First Arch Linux Install: A Basic Setup on an Old Laptop – evannsmc">
+<meta name="twitter:description" content="A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop, verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install.">
+<meta name="twitter:image" content="https://evannsmc.com/files/tech-zone/arch-logo-dark.svg">
+<meta name="twitter:image:alt" content="The Arch Linux logo, official wordmark from archlinux.org.">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed fullcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo">
+    </a>
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">evannsmc</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../cv"> 
+<span class="menu-text">CV &amp; Résumé</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../publications"> 
+<span class="menu-text">Publications</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../projects"> 
+<span class="menu-text">Projects</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../blog"> 
+<span class="menu-text">Research Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../tech-zone"> 
+<span class="menu-text">The Tech Zone</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../about"> 
+<span class="menu-text">About Me</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../journey"> 
+<span class="menu-text">Journey</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<a class="skip-to-content" href="#quarto-content">Skip to main content</a>
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">My First Arch Linux Install: A Basic Setup on an Old Laptop</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">arch linux</div>
+    <div class="quarto-category">linux</div>
+    <div class="quarto-category">installation</div>
+    <div class="quarto-category">dotfiles</div>
+    <div class="quarto-category">bootloader</div>
+    <div class="quarto-category">grub</div>
+    <div class="quarto-category">systemd</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    A from-scratch, copy-pasteable walkthrough of installing Arch Linux 2026.05.01 on an old test laptop, verifying the ISO, booting the live environment, partitioning, pacstrapping the base system, configuring locale and users, and installing GRUB. No BTRFS, no LUKS, no zram. Just a clean, opinionated first install.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Evanns Morales </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 1, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What this is
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is a personal install log: the <strong>basic</strong> Arch Linux install I did on an old laptop as my entry point into the distribution. I deliberately kept it simple, no Btrfs subvolumes, no full-disk encryption, no zram. Just <code>ext4</code>, a swap partition (so I can play with hibernation later), and separate <code>/</code> and <code>/home</code> partitions. The more ambitious dual-boot, encrypted, snapshot-able workstation is the <em>next</em> article in this Tech Zone.</p>
+</div>
+</div>
+<section id="why-an-old-laptop-and-why-basic" class="level2">
+<h2 class="anchored" data-anchor-id="why-an-old-laptop-and-why-basic">Why an old laptop, and why basic?</h2>
+<p>I’m planning to migrate my main laptop and my desktop to a dual-boot <strong>Ubuntu + Arch</strong> setup with Btrfs subvolumes, LUKS full-disk encryption, zram for everyday swap, and a dedicated encrypted swap partition for hibernation. That is the long-term goal.</p>
+<p>But I have never installed Arch before. Doing a maximalist install on the machines I work from every day is how you end up unable to write your dissertation chapter on Monday morning. So this article walks through the <strong>boring, dependable, first-time install</strong> on an old laptop I don’t care about bricking. Once I have the basic mental model — <code>pacstrap</code>, <code>chroot</code>, <code>mkinitcpio</code>, <code>grub-install</code>, the systemd service ecosystem, the next round can layer Btrfs, LUKS, and zram on top with confidence.</p>
+<p>The ISO I’m using is <code>archlinux-2026.05.01-x86_64.iso</code>, the May 2026 monthly snapshot. Anything in this guide that depends on a specific kernel version or package set should still work on later snapshots, but commands like <code>cfdisk</code> and <code>pacstrap</code> are the same across releases — Arch is rolling, so the install media just bootstraps you to a current state.</p>
+<p>I borrow structure and a handful of phrasings from Radley Lewis’s excellent <a href="https://www.radleylewis.com/lab/guides/arch-installation-guide/" target="_blank" rel="noopener">Arch installation guide</a> — go read it if you want a second voice on the same material. The commentary, choices, and mistakes here are mine.</p>
+<hr>
+</section>
+<section id="part-1-system-setup-and-arch-install" class="level1">
+<h1>Part 1 — System Setup and Arch Install</h1>
+<section id="chapter-0-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-0-preparation">Chapter 0: Preparation</h2>
+<p>Before you touch the laptop, get your ISO and verify it on a machine you trust.</p>
+<ol type="1">
+<li>Visit the <a href="https://archlinux.org/download/" target="_blank" rel="noopener">Arch Linux download page</a>.</li>
+<li>Make a working directory so you can keep everything in one place — I used <code>~/Downloads/Arch</code>.</li>
+<li>Grab three files from one of the mirrors (I scrolled to the first US mirror — <code>adectra</code>):
+<ul>
+<li>the ISO (<code>archlinux-2026.05.01-x86_64.iso</code>, about 1.4 GiB),</li>
+<li>its signature (<code>archlinux-2026.05.01-x86_64.iso.sig</code>),</li>
+<li>the <code>sha256sums.txt</code> checksum file.</li>
+</ul></li>
+</ol>
+<section id="verify-the-checksum" class="level3">
+<h3 class="anchored" data-anchor-id="verify-the-checksum">Verify the checksum</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Downloads/Arch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> <span class="at">-c</span> sha256sums.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You should see:</p>
+<pre class="text"><code>archlinux-2026.05.01-x86_64.iso: OK</code></pre>
+<p>This confirms the file you have on disk byte-for-byte matches the one published in the checksum file. A bad mirror or a corrupted download would fail here.</p>
+</section>
+<section id="verify-the-signature" class="level3">
+<h3 class="anchored" data-anchor-id="verify-the-signature">Verify the signature</h3>
+<p>A checksum tells you the file matches what the mirror serves. A signature tells you it was actually published by the Arch Linux release engineer (Pierre Schmitz at the time of writing). Both are worth checking.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--auto-key-locate</span> clear,wkd <span class="at">-v</span> <span class="at">--locate-external-key</span> pierre@archlinux.org</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--verify</span> archlinux-2026.05.01-x86_64.iso.sig archlinux-2026.05.01-x86_64.iso</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You should see:</p>
+<pre class="text"><code>gpg: Good signature from "Pierre Schmitz &lt;pierre@archlinux.org&gt;" [unknown]</code></pre>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+About the “key is not certified” warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You will also see:</p>
+<pre class="text"><code>gpg: WARNING: The key's User ID is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.</code></pre>
+<p>This is expected. It means you haven’t personally signed Pierre’s key as part of your local web of trust. The signature itself is still valid — <code>gpg</code> just can’t <em>prove</em> the key belongs to who it claims to. For a one-off install on a personal laptop, this is fine.</p>
+</div>
+</div>
+</section>
+<section id="burn-the-iso-to-a-usb-drive" class="level3">
+<h3 class="anchored" data-anchor-id="burn-the-iso-to-a-usb-drive">Burn the ISO to a USB drive</h3>
+<p>I used <a href="https://etcher.balena.io/#download-etcher" target="_blank" rel="noopener">balenaEtcher</a>: download the Linux x86 zip, unzip, run the executable, follow three steps (pick image, pick drive, flash). Done.</p>
+<p>If you prefer the command line, <code>dd</code> works too, just be very careful with <code>of=</code>.</p>
+<hr>
+</section>
+</section>
+<section id="chapter-1-booting-the-install-media" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-1-booting-the-install-media">Chapter 1: Booting the Install Media</h2>
+<ol type="1">
+<li>Plug the USB into the target laptop.</li>
+<li>Interrupt the normal boot process and select the USB. On most systems this is <code>F2</code>, <code>F10</code>, <code>F12</code>, or <code>Esc</code>, or you set the USB first in the UEFI boot order.</li>
+<li>From the Arch ISO boot menu, pick the default “Arch Linux install medium” entry.</li>
+</ol>
+<p>Once you land at the root shell, verify you booted in <strong>UEFI</strong> mode (everything below assumes UEFI, not legacy BIOS):</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /sys/firmware/efi/fw_platform_size</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You should see <code>64</code> (or <code>32</code> on very old hardware). If the file does not exist at all, you booted in BIOS mode and you’ll need to fix your firmware settings before continuing.</p>
+<p>If your console font is too small to read comfortably on a high-DPI display, bump it up:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setfont</span> ter-132b</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+<section id="chapter-2-optional-ssh-in-from-another-computer" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-2-optional-ssh-in-from-another-computer">Chapter 2 (Optional): SSH In From Another Computer</h2>
+<p>I do this every time. My old test laptop’s keyboard is partly broken and I’d rather not type a full install through it. SSHing in from my newer machine also means I can keep the install guide open on one monitor while running commands on the other.</p>
+<section id="get-on-wi-fi-with-iwctl" class="level3">
+<h3 class="anchored" data-anchor-id="get-on-wi-fi-with-iwctl">Get on Wi-Fi with <code>iwctl</code></h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">iwctl</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Inside the interactive prompt:</p>
+<pre class="text"><code>device list
+station wlan0 scan
+station wlan0 get-networks
+station wlan0 connect "My SSID Name"</code></pre>
+<p>Use quotes around any SSID with spaces. Replace <code>wlan0</code> with whatever your card is actually called from <code>device list</code>. Then <code>exit</code> to leave <code>iwctl</code>.</p>
+<p>Confirm you have a connection:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 5 ping.archlinux.org</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="find-your-ip" class="level3">
+<h3 class="anchored" data-anchor-id="find-your-ip">Find your IP</h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ip</span> addr show</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Look at the <code>wlan0</code> block for an <code>inet xxx.xxx.xxx.xxx/yy</code> line. That’s the address you’ll SSH into.</p>
+</section>
+<section id="make-sure-the-ssh-daemon-is-running" class="level3">
+<h3 class="anchored" data-anchor-id="make-sure-the-ssh-daemon-is-running">Make sure the SSH daemon is running</h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> status sshd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If it isn’t already running:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable <span class="at">--now</span> sshd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+openssh vs.&nbsp;ssh vs.&nbsp;sshd
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A trio that confused me at first.</p>
+<ul>
+<li><strong><code>openssh</code></strong> is the <em>package</em>, the upstream project that ships both the client and the server.</li>
+<li><strong><code>ssh</code></strong> is the <em>client</em> binary you run on your laptop to connect into something.</li>
+<li><strong><code>sshd</code></strong> is the <em>server</em> daemon that listens for incoming connections.</li>
+</ul>
+<p>In the Arch live environment, <code>openssh</code> is already installed, the <code>ssh</code> client is available, and <code>sshd</code> is the systemd unit that needs to be enabled before you can SSH <em>into</em> the live USB from another machine.</p>
+</div>
+</div>
+</section>
+<section id="set-a-root-password-and-connect-from-your-other-machine" class="level3">
+<h3 class="anchored" data-anchor-id="set-a-root-password-and-connect-from-your-other-machine">Set a root password and connect from your other machine</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This is only for the live environment, you’ll set a separate password for the installed system later. Then from any other computer on the same network:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> root@<span class="op">&lt;</span>ip-address-from-earlier<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The rest of this guide is much more comfortable from a real keyboard.</p>
+<hr>
+</section>
+</section>
+<section id="chapter-3-keyboard-timezone-and-time-sync" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-3-keyboard-timezone-and-time-sync">Chapter 3: Keyboard, Timezone, and Time Sync</h2>
+<section id="keymap" class="level3">
+<h3 class="anchored" data-anchor-id="keymap">Keymap</h3>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">localectl</span> list-keymaps    <span class="co"># see all available layouts</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">loadkeys</span> us               <span class="co"># I use a US layout</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="timezone" class="level3">
+<h3 class="anchored" data-anchor-id="timezone">Timezone</h3>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> list-timezones <span class="kw">|</span> <span class="fu">grep</span> America</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-timezone America/New_York</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="enable-ntp" class="level3">
+<h3 class="anchored" data-anchor-id="enable-ntp">Enable NTP</h3>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-ntp true</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What <code>set-ntp true</code> actually does
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>timedatectl set-ntp true</code> tells <code>systemd-timesyncd</code> to sync the system clock against network time servers (NTP). Without it, the live environment’s clock drifts based on whatever the hardware clock says, which can cause TLS handshakes and <code>pacman</code> operations to fail with mysterious certificate errors if the clock is far enough off. Turning it on is essentially free, so always do it.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="chapter-4-partitioning" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-4-partitioning">Chapter 4: Partitioning</h2>
+<p>For this basic install I’m using four partitions on one NVMe SSD:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 43%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Partition</th>
+<th style="text-align: right;">Size</th>
+<th>Filesystem</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>EFI System</td>
+<td style="text-align: right;">1 GiB</td>
+<td>FAT32</td>
+<td>UEFI bootloader (GRUB lives here)</td>
+</tr>
+<tr class="even">
+<td>Swap</td>
+<td style="text-align: right;">35 GiB</td>
+<td>swap</td>
+<td>Suspend-to-disk / hibernation</td>
+</tr>
+<tr class="odd">
+<td>Root (<code>/</code>)</td>
+<td style="text-align: right;">200 GiB</td>
+<td>ext4</td>
+<td>OS and applications</td>
+</tr>
+<tr class="even">
+<td>Home (<code>/home</code>)</td>
+<td style="text-align: right;">remainder</td>
+<td>ext4</td>
+<td>User data</td>
+</tr>
+</tbody>
+</table>
+<p>Separate <code>/</code> and <code>/home</code> partitions mean I can reinstall Arch later without nuking my home directory. Not strictly necessary, but it’s the kind of habit that pays off the first time you want to wipe and try again.</p>
+<section id="find-the-ssd" class="level3">
+<h3 class="anchored" data-anchor-id="find-the-ssd">Find the SSD</h3>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fdisk</span> <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The disk you want is the big one, usually <code>nvme0n1</code> on modern laptops (the <code>NVMe</code> naming reflects how SSDs talk to the motherboard over PCIe). Note its full path: <code>/dev/nvme0n1</code>.</p>
+</section>
+<section id="edit-the-partition-table" class="level3">
+<h3 class="anchored" data-anchor-id="edit-the-partition-table">Edit the partition table</h3>
+<p><code>cfdisk</code> is a TUI tool that makes partitioning much less painful than raw <code>fdisk</code>:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Inside <code>cfdisk</code>, move the highlight with <code>↑</code>/<code>↓</code> (or vim’s <code>j</code> and <code>k</code>) and press <code>Enter</code> to choose. Every new partition starts as <strong>Linux filesystem</strong>; to set a different type, highlight it, press <code>t</code>, and pick from the list the same way:</p>
+<ol type="1">
+<li>Press <code>d</code> on every existing partition to delete it. Nothing is committed until you press <code>w</code>, so this is your scratch space.</li>
+<li>Press <code>n</code> to create new partitions. Set each one’s size and partition type:
+<ul>
+<li>1 GiB, then <code>t</code> → <strong>EFI System</strong></li>
+<li>35 GiB, then <code>t</code> → <strong>Linux swap</strong></li>
+<li>200 GiB, leave as <strong>Linux filesystem</strong> (the default)</li>
+<li>remainder, leave as <strong>Linux filesystem</strong></li>
+</ul></li>
+<li>Press <code>w</code> to write, type <code>yes</code> to confirm.</li>
+</ol>
+<p>Verify the new layout:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">fdisk</span> <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You should see <code>nvme0n1p1</code> … <code>nvme0n1p4</code> with the sizes you set.</p>
+<hr>
+</section>
+</section>
+<section id="chapter-5-format-and-mount-the-partitions" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-5-format-and-mount-the-partitions">Chapter 5: Format and Mount the Partitions</h2>
+<p>The partition table tells the disk <em>which bytes belong to which slice</em>. The filesystem tells the kernel <em>how to read and write files inside that slice</em>. Two different things, two separate commands.</p>
+<section id="format" class="level3">
+<h3 class="anchored" data-anchor-id="format">Format</h3>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.fat</span> <span class="at">-F32</span> /dev/nvme0n1p1    <span class="co"># EFI System Partition (FAT32 — required by UEFI spec)</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkswap</span>        /dev/nvme0n1p2    <span class="co"># Swap area</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.ext4</span>     /dev/nvme0n1p3    <span class="co"># Root filesystem</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.ext4</span>     /dev/nvme0n1p4    <span class="co"># Home filesystem</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The EFI partition <em>must</em> be FAT32, the UEFI specification mandates it. Everything else is your choice; I’m going with <code>ext4</code> because it is rock-solid, well-understood, and has no exotic features I’ll need before I rebuild with Btrfs in the next article.</p>
+</section>
+<section id="mount" class="level3">
+<h3 class="anchored" data-anchor-id="mount">Mount</h3>
+<p>Mounting is how you attach a partition to a directory tree so the OS can actually use it. The Arch install lives in <code>/mnt</code> from the live environment’s point of view, that becomes <code>/</code> from the installed system’s point of view after reboot.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p3 /mnt              <span class="co"># mount root first</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/<span class="dt">{boot</span><span class="op">,</span><span class="dt">home}</span>              <span class="co"># create mount points inside the new root</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot         <span class="co"># EFI partition at /boot</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p4 /mnt/home         <span class="co"># /home</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> /dev/nvme0n1p2                  <span class="co"># activate swap</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Order matters
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You must mount <code>/mnt</code> <em>before</em> creating <code>/mnt/boot</code> and <code>/mnt/home</code>, because those directories need to live inside the new root partition (otherwise they would exist only in the live USB’s tmpfs and disappear after reboot).</p>
+</div>
+</div>
+</section>
+<section id="verify" class="level3">
+<h3 class="anchored" data-anchor-id="verify">Verify</h3>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="kw">|</span> <span class="fu">grep</span> /mnt</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You should see all three partitions mounted under <code>/mnt</code> and the swap device active.</p>
+</section>
+<section id="recovery-starting-the-mount-step-over" class="level3">
+<h3 class="anchored" data-anchor-id="recovery-starting-the-mount-step-over">Recovery: starting the mount step over</h3>
+<p>If you mis-mounted something or activated swap twice, nothing is broken, you can cleanly reset the mount state and start over.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">swapoff</span> /dev/nvme0n1p2     <span class="co"># ignore errors if swap isn't on</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> <span class="at">-R</span> /mnt             <span class="co"># recursively unmount everything under /mnt</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="kw">|</span> <span class="fu">grep</span> /mnt          <span class="co"># should print nothing</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Remount cleanly</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p3 /mnt</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/<span class="dt">{boot</span><span class="op">,</span><span class="dt">home}</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p4 /mnt/home</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> /dev/nvme0n1p2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+</section>
+<section id="chapter-6-install-the-base-system" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-6-install-the-base-system">Chapter 6: Install the Base System</h2>
+<p>This is the moment Arch stops being a USB stick and starts being a real OS on your disk.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why this order matters
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>pacstrap</code> creates <code>/mnt/etc</code>, <code>/mnt/bin</code>, <code>/mnt/usr</code>, and the rest of the standard Linux directory layout. <code>genfstab</code> needs <code>/mnt/etc</code> to already exist before it can write <code>fstab</code> into it, and <code>arch-chroot</code> needs a complete system inside <code>/mnt</code> (kernel, libc, <code>bash</code>) to chroot into. So: <strong>pacstrap first, then fstab, then chroot.</strong></p>
+</div>
+</div>
+<section id="refresh-the-mirror-list" class="level3">
+<h3 class="anchored" data-anchor-id="refresh-the-mirror-list">1. Refresh the mirror list</h3>
+<p><code>pacman</code> downloads packages from mirrors. The default mirror list is geographically random — <code>reflector</code> ranks them by speed and recency so your installs are fast.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">reflector</span> <span class="dt">\</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--country</span> <span class="st">'United States'</span> <span class="dt">\</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--protocol</span> https <span class="dt">\</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--latest</span> 20 <span class="dt">\</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--age</span> 12 <span class="dt">\</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--sort</span> rate <span class="dt">\</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--save</span> /etc/pacman.d/mirrorlist</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You can preview the current list first with <code>less /etc/pacman.d/mirrorlist</code>.</p>
+</section>
+<section id="bootstrap-the-base-system" class="level3">
+<h3 class="anchored" data-anchor-id="bootstrap-the-base-system">2. Bootstrap the base system</h3>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacstrap</span> <span class="at">-K</span> /mnt base linux linux-firmware <span class="dt">\</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    grub efibootmgr networkmanager sudo neovim <span class="dt">\</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    git base-devel intel-ucode</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The <code>-K</code> flag initializes a fresh pacman keyring inside <code>/mnt</code>. Without it, <code>pacman</code> running inside the chroot later would inherit the live ISO’s keyring, which can cause confusing key-trust errors during your first <code>pacman -Syu</code>.</p>
+<p>Here’s what each package is for:</p>
+<details>
+<summary>
+Click to expand: what each package does
+</summary>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 58%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Why it’s here</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>base</code></td>
+<td>Minimum set of utilities that make the system <em>Arch</em> (coreutils, glibc, bash, systemd, etc.).</td>
+</tr>
+<tr class="even">
+<td><code>linux</code></td>
+<td>The actual Linux kernel image.</td>
+</tr>
+<tr class="odd">
+<td><code>linux-firmware</code></td>
+<td>Binary firmware blobs for Wi-Fi, GPU, Bluetooth, etc. Without this, your hardware may not work.</td>
+</tr>
+<tr class="even">
+<td><code>grub</code></td>
+<td>GRUB 2 bootloader, selects the kernel and hands off control to it.</td>
+</tr>
+<tr class="odd">
+<td><code>efibootmgr</code></td>
+<td>CLI tool to manage UEFI boot entries. <code>grub-install</code> calls it under the hood.</td>
+</tr>
+<tr class="even">
+<td><code>networkmanager</code></td>
+<td>Manages Wi-Fi/Ethernet from inside the installed system (we used <code>iwctl</code> only because the live USB doesn’t ship NetworkManager).</td>
+</tr>
+<tr class="odd">
+<td><code>sudo</code></td>
+<td>Lets non-root users run privileged commands.</td>
+</tr>
+<tr class="even">
+<td><code>neovim</code></td>
+<td>My editor of choice. Swap for <code>nano</code> or <code>vim</code> if that’s your taste.</td>
+</tr>
+<tr class="odd">
+<td><code>git</code></td>
+<td>Needed for fetching dotfiles, AUR helpers, basically anything later.</td>
+</tr>
+<tr class="even">
+<td><code>base-devel</code></td>
+<td><code>make</code>, <code>gcc</code>, <code>pkgconf</code>, <code>fakeroot</code>, etc., required for building AUR packages.</td>
+</tr>
+<tr class="odd">
+<td><code>intel-ucode</code></td>
+<td>Early CPU microcode updates for Intel chips. Use <code>amd-ucode</code> instead if your laptop has an AMD CPU.</td>
+</tr>
+</tbody>
+</table>
+</details>
+</section>
+<section id="generate-fstab-and-chroot-in" class="level3">
+<h3 class="anchored" data-anchor-id="generate-fstab-and-chroot-in">3. Generate <code>fstab</code> and chroot in</h3>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>genfstab</code> scans the currently mounted partitions and writes their UUIDs into <code>/mnt/etc/fstab</code>. Using <code>-U</code> (UUIDs) instead of <code>-L</code> (labels) is the safer default — UUIDs survive disk renaming. The <code>&gt;&gt;</code> appends to the file; do <em>not</em> use <code>&gt;</code> (it would overwrite anything already there).</p>
+<p><code>arch-chroot /mnt</code> is a smarter <code>chroot</code>, it mounts <code>/proc</code>, <code>/sys</code>, <code>/dev</code>, and a few other API filesystems inside <code>/mnt</code> first, so things like <code>pacman</code> work normally from inside the new system. After this command, your shell prompt is “inside” the new Arch install.</p>
+<hr>
+</section>
+</section>
+<section id="chapter-7-inside-arch-part-1" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-7-inside-arch-part-1">Chapter 7: Inside Arch (Part 1)</h2>
+<p>This chapter is the configuration walk-through that runs <em>inside</em> the chroot: setting the editor, locale, timezone, hostname, root password, user account, and a second wave of useful packages. Each step writes to a config file in <code>/etc/</code> or runs a one-shot command that takes effect after reboot.</p>
+<section id="make-neovim-the-default-editor" class="level3">
+<h3 class="anchored" data-anchor-id="make-neovim-the-default-editor">0. Make Neovim the default editor</h3>
+<div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'export EDITOR=nvim'</span> <span class="op">&gt;&gt;</span> ~/.bashrc</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> ~/.bashrc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This applies inside the chroot session. For my user account I’ll set it again later.</p>
+</section>
+<section id="timezone-and-hardware-clock" class="level3">
+<h3 class="anchored" data-anchor-id="timezone-and-hardware-clock">1. Timezone and hardware clock</h3>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/America/New_York /etc/localtime</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="ex">hwclock</span> <span class="at">--systohc</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>The <code>ln -sf</code> creates a symlink from <code>/etc/localtime</code> to the zoneinfo file that describes how to interpret your local time (UTC offsets, DST transitions). Programs read this to display “wall clock” time.</li>
+<li><code>hwclock --systohc</code> writes the <em>current</em> system time back to the motherboard’s hardware (RTC) clock. The hardware clock is what the system reads on power-up before NTP kicks in, so syncing it now means the first few seconds of every boot show roughly correct time.</li>
+</ul>
+</section>
+<section id="locale" class="level3">
+<h3 class="anchored" data-anchor-id="locale">2. Locale</h3>
+<div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvim</span> /etc/locale.gen</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Inside <code>locale.gen</code>, find and uncomment the two <code>en_US.UTF-8</code> lines (or whichever locale you want). Save and exit, then:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">locale-gen</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"LANG=en_US.UTF-8"</span> <span class="op">&gt;</span> /etc/locale.conf</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"KEYMAP=us"</span> <span class="op">&gt;</span> /etc/vconsole.conf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>locale-gen</code> compiles the uncommented locales into binary form. <code>locale.conf</code> sets the system-wide language; <code>vconsole.conf</code> sets the keymap that the virtual console uses before any graphical session starts.</p>
+</section>
+<section id="hostname" class="level3">
+<h3 class="anchored" data-anchor-id="hostname">3. Hostname</h3>
+<div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"your-hostname-here"</span> <span class="op">&gt;</span> /etc/hostname</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This is the machine’s name on your network (<code>hostname</code> reads it, NetworkManager publishes it via mDNS if you have <code>avahi</code> running later).</p>
+</section>
+<section id="enable-networkmanager-at-boot" class="level3">
+<h3 class="anchored" data-anchor-id="enable-networkmanager-at-boot">4. Enable NetworkManager at boot</h3>
+<div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Without this, the installed system will reboot into a state with no Wi-Fi or Ethernet manager running.</p>
+</section>
+<section id="set-the-root-password" class="level3">
+<h3 class="anchored" data-anchor-id="set-the-root-password">5. Set the root password</h3>
+<div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="create-your-user-account" class="level3">
+<h3 class="anchored" data-anchor-id="create-your-user-account">6. Create your user account</h3>
+<div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-g</span> users <span class="at">-G</span> wheel user</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> user</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Replace <code>user</code> with whatever your username should be. Flag-by-flag:</p>
+<ul>
+<li><code>-m</code>, create a home directory at <code>/home/user</code>.</li>
+<li><code>-g users</code>, primary group is <code>users</code>.</li>
+<li><code>-G wheel</code> — <em>also</em> add the user to the <code>wheel</code> group.</li>
+</ul>
+<p>The <code>wheel</code> group is a Unix convention going back to early BSD: it’s the group of people allowed to become root. On Arch (and most modern distros), you grant <code>sudo</code> privileges by enabling sudo for everyone in <code>wheel</code>, not by listing each user individually.</p>
+</section>
+<section id="enable-sudo-for-the-wheel-group" class="level3">
+<h3 class="anchored" data-anchor-id="enable-sudo-for-the-wheel-group">7. Enable sudo for the wheel group</h3>
+<div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">visudo</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Find this commented-out line:</p>
+<pre class="text"><code>## Uncomment to allow members of group wheel to execute any command
+# %wheel ALL=(ALL:ALL) ALL</code></pre>
+<p>Remove the leading <code>#</code> on the <code>%wheel</code> line, save, and exit. From now on, any user in the <code>wheel</code> group can run <code>sudo</code>.</p>
+</section>
+<section id="install-more-core-packages" class="level3">
+<h3 class="anchored" data-anchor-id="install-more-core-packages">8. Install more core packages</h3>
+<div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacman</span> <span class="at">-Syu</span> <span class="dt">\</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  linux-headers <span class="dt">\</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  mtools <span class="dt">\</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>  network-manager-applet <span class="dt">\</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>  openssh <span class="dt">\</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  iptables-nft <span class="dt">\</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>  ipset <span class="dt">\</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>  firewalld <span class="dt">\</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>  reflector</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details>
+<summary>
+Click to expand: what each package does
+</summary>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 83%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>linux-headers</code></td>
+<td>Kernel headers, required to build out-of-tree modules (DKMS, NVIDIA, ZFS, …). Skip only if you know you’ll never build a module.</td>
+</tr>
+<tr class="even">
+<td><code>mtools</code></td>
+<td>Userspace utilities for manipulating FAT filesystems, handy when poking at the EFI partition.</td>
+</tr>
+<tr class="odd">
+<td><code>network-manager-applet</code></td>
+<td>Tray icon for switching networks from a desktop environment. Skip on headless systems.</td>
+</tr>
+<tr class="even">
+<td><code>openssh</code></td>
+<td>SSH client <em>and</em> server (<code>ssh</code> and <code>sshd</code>). I want to SSH back in after reboot.</td>
+</tr>
+<tr class="odd">
+<td><code>iptables-nft</code></td>
+<td>nftables-backed iptables binary. Modern replacement for legacy <code>iptables</code>.</td>
+</tr>
+<tr class="even">
+<td><code>ipset</code></td>
+<td>Lets the firewall match against large IP sets efficiently. Useful even if you don’t use it directly, many tools depend on it.</td>
+</tr>
+<tr class="odd">
+<td><code>firewalld</code></td>
+<td>Friendly firewall daemon with zones (home / work / public). Optional, but I prefer it over hand-writing nftables rules.</td>
+</tr>
+<tr class="even">
+<td><code>reflector</code></td>
+<td>Same mirror-ranker we used from the live ISO; install it inside the system so it can refresh the mirror list on a timer.</td>
+</tr>
+</tbody>
+</table>
+</details>
+</section>
+<section id="install-more-useful-packages" class="level3">
+<h3 class="anchored" data-anchor-id="install-more-useful-packages">9. Install more useful packages</h3>
+<div class="sourceCode" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacman</span> <span class="at">-Syu</span> <span class="dt">\</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  man-db man-pages texinfo <span class="dt">\</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  bluez bluez-utils bluez-deprecated-tools <span class="dt">\</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  alsa-utils <span class="dt">\</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  pipewire pipewire-pulse <span class="dt">\</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  sof-firmware <span class="dt">\</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  ttf-iosevka-nerd <span class="dt">\</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  kitty <span class="dt">\</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  firefox</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>When <code>pacman</code> asks which JACK provider to use, pick <code>pipewire-jack</code>. When it asks which font provider for emoji, pick <code>noto-fonts</code>.</p>
+<details>
+<summary>
+Click to expand: what each package does
+</summary>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 89%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>man-db man-pages texinfo</code></td>
+<td>Man pages and info pages. Skip only if you never read documentation locally.</td>
+</tr>
+<tr class="even">
+<td><code>bluez bluez-utils bluez-deprecated-tools</code></td>
+<td>Bluetooth stack. Drop on a desktop without Bluetooth.</td>
+</tr>
+<tr class="odd">
+<td><code>alsa-utils</code></td>
+<td>Low-level audio utilities (<code>alsamixer</code>, <code>aplay</code>).</td>
+</tr>
+<tr class="even">
+<td><code>pipewire pipewire-pulse</code></td>
+<td>Modern audio stack; <code>pipewire-pulse</code> provides drop-in PulseAudio compatibility.</td>
+</tr>
+<tr class="odd">
+<td><code>sof-firmware</code></td>
+<td>Sound Open Firmware, needed by most modern Intel laptop audio codecs.</td>
+</tr>
+<tr class="even">
+<td><code>ttf-iosevka-nerd</code></td>
+<td>My terminal font, patched with Nerd Font icons.</td>
+</tr>
+<tr class="odd">
+<td><code>kitty</code></td>
+<td>My terminal emulator. Pick <code>alacritty</code>, <code>wezterm</code>, or <code>foot</code> if you prefer.</td>
+</tr>
+<tr class="even">
+<td><code>firefox</code></td>
+<td>Browser. Optional in the strict sense, you can install your browser of choice later.</td>
+</tr>
+</tbody>
+</table>
+</details>
+<hr>
+</section>
+</section>
+<section id="chapter-8-inside-arch-part-2-bootloader-and-services" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-8-inside-arch-part-2-bootloader-and-services">Chapter 8: Inside Arch (Part 2) — Bootloader and Services</h2>
+<p>This is the home stretch: install GRUB so the machine can actually boot the kernel from disk, and enable the systemd services that should come up on every boot.</p>
+<section id="install-grub-to-the-efi-partition" class="level3">
+<h3 class="anchored" data-anchor-id="install-grub-to-the-efi-partition">1. Install GRUB to the EFI partition</h3>
+<div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This writes the GRUB EFI binary into <code>/boot/EFI/GRUB/</code>, registers it with the firmware via <code>efibootmgr</code>, and sets up <code>/boot/grub/</code> for the runtime config.</p>
+<p>You can confirm everything landed:</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> /boot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Expected (something close to):</p>
+<pre class="text"><code>EFI  grub  initramfs-linux.img  intel-ucode.img  vmlinuz-linux</code></pre>
+</section>
+<section id="generate-the-grub-configuration" class="level3">
+<h3 class="anchored" data-anchor-id="generate-the-grub-configuration">2. Generate the GRUB configuration</h3>
+<div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>grub-mkconfig</code> scans your kernels (<code>/boot/vmlinuz-*</code>), microcode images, and <code>/etc/default/grub</code> and writes a complete boot menu config to <code>/boot/grub/grub.cfg</code>. The output you see should end with <code>done</code>.</p>
+</section>
+<section id="enable-services-at-boot" class="level3">
+<h3 class="anchored" data-anchor-id="enable-services-at-boot">3. Enable services at boot</h3>
+<div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager    <span class="co"># network management</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable bluetooth         <span class="co"># Bluetooth</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable sshd              <span class="co"># SSH server</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable firewalld         <span class="co"># firewall</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable reflector.timer   <span class="co"># weekly mirror re-rank</span></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable fstrim.timer      <span class="co"># weekly SSD trim</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why <code>.timer</code> units instead of cron
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>reflector.timer</code> and <code>fstrim.timer</code> are systemd timer units, the modern replacement for cron jobs. They run their corresponding <code>.service</code> unit on a schedule (<code>fstrim.timer</code> defaults to weekly), log into the journal, and depend on the right targets so they don’t fire during boot or shutdown. You don’t need to install cron unless you really want to.</p>
+</div>
+</div>
+</section>
+<section id="exit-unmount-and-reboot" class="level3">
+<h3 class="anchored" data-anchor-id="exit-unmount-and-reboot">4. Exit, unmount, and reboot</h3>
+<div class="sourceCode" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span>              <span class="co"># leave the chroot</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> <span class="at">-R</span> /mnt    <span class="co"># unmount everything</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Pull the USB drive out as the laptop reboots, and the firmware should hand off to GRUB, GRUB should hand off to the kernel, and the kernel should hand off to systemd. If everything went well, you’ll get a login prompt for your new user.</p>
+<hr>
+</section>
+</section>
+</section>
+<section id="part-2-running-arch" class="level1">
+<h1>Part 2 — Running Arch</h1>
+<p>Once you’re logged in, the first thing I do is reconnect to Wi-Fi from NetworkManager (<code>nmcli device wifi connect &lt;SSID&gt; password &lt;pw&gt;</code> works well via SSH), then install a small set of build tools so I can start playing:</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> pacman <span class="at">-Syu</span> git wget curl gcc make cmake</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>From here, the rest of “making Arch <em>yours</em>” is a series of separate articles — Neovim from scratch, picking a tiling or scrolling window manager, dotfiles management, audio routing, fonts. Those will land in this Tech Zone as I go.</p>
+<hr>
+<section id="whats-next" class="level2">
+<h2 class="anchored" data-anchor-id="whats-next">What’s next</h2>
+<p>This was the deliberately boring first install. The next article is the opposite, my attempt to do all of this <strong>plus</strong> LUKS full-disk encryption, Btrfs subvolumes (<code>@</code>, <code>@home</code>, <code>@snapshots</code>), zram for everyday swap, and a dual-boot side-by-side with Ubuntu. It did not boot. It taught me a lot. That post-mortem is up next.</p>
+<hr>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Attribution
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The Arch Linux logo is a trademark of the Arch Linux project and is used here under <a href="https://archlinux.org/art/" target="_blank" rel="noopener">Arch Linux’s branding terms</a> for editorial purposes only.</p>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/evannsmc\.com");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="https://github.com/evannsmc" target="_blank" rel="noopener">GitHub</a> · <a href="https://www.linkedin.com/in/evanns-morales/" target="_blank" rel="noopener">LinkedIn</a> · <a href="https://scholar.google.com/citations?user=kuWXwJsAAAAJ&amp;hl=en&amp;oi=ao" target="_blank" rel="noopener">Scholar</a> · <a href="https://orcid.org/0009-0000-3928-6243" target="_blank" rel="noopener">ORCID</a> <br>© 2026 evannsmc · Evanns Morales-Cuadrado · All rights reserved</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

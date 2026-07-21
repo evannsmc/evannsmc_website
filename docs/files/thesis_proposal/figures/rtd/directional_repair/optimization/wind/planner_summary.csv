@@ -1,0 +1,4 @@
+planner,success,n_iter,k1,k2,final_cost,hard_margin_dir,hard_margin_sym,verifier_would_reject,wall_time_s
+goal_only,True,6,+1.0000,+0.2821,+2.40348,-0.03198,-0.03198,YES,0.0032
+mmr_sym,False,106,-1.0000,-1.0000,+2.56000,+0.16715,+0.11490,no,17.9095
+mmr_dir,True,4,-0.8489,-1.0000,+2.56000,+0.14516,+0.08889,no,14.0634

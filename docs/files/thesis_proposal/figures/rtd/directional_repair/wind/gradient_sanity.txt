@@ -1,0 +1,7 @@
+Sanity check: JAX autograd vs finite-difference gradient
+Scenario       : wind
+Test point k   : [-0.12  0.85]
+JAX gradient   : [-0.17617469 -0.00535527]
+FD  gradient   : [-0.1764074  -0.00536442]
+Relative error : 1.320e-03
+Verdict        : PASS (threshold 1e-2)

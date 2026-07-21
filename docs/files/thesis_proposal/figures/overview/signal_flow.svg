@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 95 1200 315" font-family="Source Sans Pro, system-ui, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#003057"/>
+    </marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.14"/>
+    </filter>
+  </defs>
+
+  <!-- ====== T3 OUTER ENVELOPE (monitors everything) ====== -->
+  <rect x="70" y="110" width="1060" height="285" rx="22" fill="rgba(41,128,185,0.08)" stroke="#2980b9" stroke-width="3"/>
+  <rect x="70" y="110" width="1060" height="42" rx="22" fill="#2980b9"/>
+  <text x="600" y="138" text-anchor="middle" font-size="15" font-weight="700" fill="#fff" letter-spacing="1.5">THRUST 3 · CYBER-SECURE SUPERVISOR · DIAGNOSE, RECOVER, INOCULATE</text>
+
+  <!-- ====== T2: PLANNER (green) ====== -->
+  <g filter="url(#sh)">
+    <rect x="120" y="210" width="280" height="150" rx="12" fill="#fff" stroke="#27ae60" stroke-width="3"/>
+  </g>
+  <rect x="120" y="210" width="280" height="32" rx="12" fill="#27ae60"/>
+  <text x="260" y="232" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" letter-spacing="1.5">THRUST 2 · SAFE PLANNING</text>
+  <text x="260" y="278" text-anchor="middle" font-size="17" font-weight="700" fill="#003057">Trajectory Planner</text>
+  <text x="260" y="308" text-anchor="middle" font-size="13" fill="#516470">RTD-RAX</text>
+  <text x="260" y="330" text-anchor="middle" font-size="13" fill="#516470">RL-STL</text>
+
+  <!-- arrow T2 → T1 -->
+  <path d="M 400 285 L 480 285" stroke="#003057" stroke-width="2.5" fill="none" marker-end="url(#arr)"/>
+  <text x="440" y="275" text-anchor="middle" font-size="12" font-style="italic" fill="#003057">r(t)</text>
+
+  <!-- ====== T1: LLC (red) ====== -->
+  <g filter="url(#sh)">
+    <rect x="485" y="210" width="280" height="150" rx="12" fill="#fff" stroke="#c0392b" stroke-width="3"/>
+  </g>
+  <rect x="485" y="210" width="280" height="32" rx="12" fill="#c0392b"/>
+  <text x="625" y="232" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" letter-spacing="1.5">THRUST 1 · EFFICIENT CONTROL</text>
+  <text x="625" y="278" text-anchor="middle" font-size="17" font-weight="700" fill="#003057">Low-Level Controller</text>
+  <text x="625" y="308" text-anchor="middle" font-size="13" fill="#516470">Newton–Raphson</text>
+  <text x="625" y="330" text-anchor="middle" font-size="13" fill="#516470">Contraction NN</text>
+
+  <!-- arrow T1 → Plant -->
+  <path d="M 765 285 L 845 285" stroke="#003057" stroke-width="2.5" fill="none" marker-end="url(#arr)"/>
+  <text x="805" y="275" text-anchor="middle" font-size="12" font-style="italic" fill="#003057">u(t)</text>
+
+  <!-- ====== PLANT (neutral grey) ====== -->
+  <g filter="url(#sh)">
+    <rect x="850" y="210" width="230" height="150" rx="12" fill="#e8edf2" stroke="#7a8894" stroke-width="2.5"/>
+  </g>
+  <text x="965" y="258" text-anchor="middle" font-size="17" font-weight="700" fill="#003057">PLANT</text>
+  <text x="965" y="286" text-anchor="middle" font-size="13" fill="#516470">Quadrotor · Blimp · GTernal</text>
+  <text x="965" y="322" text-anchor="middle" font-size="15" font-style="italic" fill="#7a8894">ẋ = f(x, u, w)</text>
+
+</svg>

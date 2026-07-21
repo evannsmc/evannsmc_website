@@ -1,0 +1,353 @@
+/* ─────────────────────────────────────────────────────────
+   Research-blog paper theme — applied to every individual
+   post in blog/posts/ so an article reads as the same
+   parchment publication as the blog landing page.
+   Loaded via blog/posts/_metadata.yml.
+   ───────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');
+
+:root {
+  /* Article body matches the blog index page bg — the lighter cream
+     (#fefdf6) is the unified publication color across both the index
+     and inside each article. */
+  --rb-paper-bg:    #fefdf6;
+  --rb-paper-ink:   #1f2937;
+  --rb-paper-rule:  #d6cfb5;
+  --rb-accent-blog: #2563eb;
+  --rb-serif: "Crimson Pro", "Source Serif Pro", Georgia, "Times New Roman", serif;
+}
+
+body.quarto-dark {
+  --rb-paper-bg:    #1c2230;
+  --rb-paper-ink:   #e5e7eb;
+  --rb-paper-rule:  rgba(148, 163, 184, 0.35);
+  --rb-accent-blog: #60a5fa;
+}
+
+/* Cover every Quarto wrapper so the paper bg extends edge to edge.
+   The `body.quarto-light` selectors match the site-wide styles.css
+   specificity so this !important rule actually wins over the site's
+   "side margins" gray + white content background. */
+html, body,
+body.quarto-light,
+body.quarto-light #quarto-content,
+body.quarto-light .footer,
+body.quarto-dark,
+body.quarto-dark #quarto-content,
+body.quarto-dark .footer,
+main, main.content, main.column-page,
+#quarto-content, #quarto-document-content,
+.page-columns, .quarto-page,
+#quarto-margin-sidebar,
+.column-page, .column-page-left, .column-page-right,
+.page-footer, footer.footer, .nav-footer {
+  background: var(--rb-paper-bg) !important;
+}
+
+/* Strip the site's max-width: 2200px gutter constraint so the article
+   really takes the full viewport. */
+body.quarto-light #quarto-content,
+body.quarto-light .footer,
+body.quarto-dark #quarto-content,
+body.quarto-dark .footer,
+#quarto-content, .footer {
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.page-footer, footer.footer, .nav-footer { border-top: none !important; }
+
+/* Article title + section headings in the paper-aesthetic serif. */
+.quarto-title h1.title,
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--rb-serif);
+  color: var(--rb-paper-ink);
+}
+
+.quarto-title h1.title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Article body text in serif — matches the masthead/abstract styling. */
+main.content p,
+main.content li,
+main.content blockquote {
+  font-family: var(--rb-serif);
+  color: var(--rb-paper-ink);
+}
+
+/* Subtle warm tint on inline code + code blocks so they don't fight the
+   parchment palette. */
+main.content :not(pre) > code {
+  background: rgba(124, 87, 22, 0.06);
+  color: var(--rb-paper-ink);
+  padding: 0.05em 0.35em;
+  border-radius: 0.25rem;
+}
+
+main.content pre {
+  background: rgba(124, 87, 22, 0.05);
+  border: 1px solid var(--rb-paper-rule);
+}
+
+body.quarto-dark main.content pre {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--rb-paper-rule);
+}
+
+/* Blockquotes get a paper-themed left rule. */
+main.content blockquote {
+  border-left: 3px solid var(--rb-paper-rule);
+  padding-left: 1rem;
+  color: var(--rb-paper-ink);
+  opacity: 0.85;
+}
+
+/* Callouts keep their semantics but pick up the warm border. */
+.callout {
+  background: color-mix(in oklab, var(--rb-paper-bg), #000 3%);
+  border-color: var(--rb-paper-rule) !important;
+}
+
+/* Tweak the title block byline / dateline to feel like a paper byline. */
+.quarto-title-meta {
+  font-family: var(--rb-serif);
+  color: var(--rb-paper-ink);
+  opacity: 0.85;
+}
+
+/* Hide the auto-generated Quarto category pills (we don't show them on
+   the blog index either). */
+.quarto-title .quarto-categories { display: none; }
+
+
+/* ─────────────────────────────────────────────────────────
+   Paper-page article styling — gives each post the look of
+   an arXiv tear-sheet (without being too solemn): preprint
+   strip, centered title, italic byline, "Abstract." block,
+   constrained reading column, justified body, paper-style
+   section headings, drop cap, italic figure captions.
+   ───────────────────────────────────────────────────────── */
+
+/* Drop Quarto's narrow body column and let the article take the full
+   page width minus a small screen-edge gutter. */
+.page-columns {
+  grid-template-columns: [screen-start] 1.5rem [screen-start-inset] 0 [page-start] 0 [page-start-inset] 0 [body-start-outset] 0 [body-start] 0 [body-content-start] 1fr [body-content-end] 0 [body-end] 0 [body-end-outset] 0 [page-end-inset] 0 [page-end] 0 [screen-end-inset] 1.5rem [screen-end] !important;
+}
+main.content.column-page,
+main.content.column-body,
+main.content {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 1.5rem clamp(1.5rem, 4vw, 5rem) 4rem !important;
+}
+
+/* Re-order the title block so meta (author / published) sits ABOVE the
+   abstract instead of below it. Use flex order on the title block's
+   direct children. */
+.quarto-title-block {
+  display: flex !important;
+  flex-direction: column;
+}
+.quarto-title-block .quarto-title       { order: 1; }
+.quarto-title-block .quarto-title-meta  { order: 2; }
+.quarto-title-block > div:has(> .description) { order: 3; }
+
+/* Little preprint masthead-strip above the title — small mono caps,
+   blue accent line, matches the journal feel of the blog index. */
+.quarto-title-block::before {
+  content: "evannsmc · research blog · preprint";
+  display: block;
+  font-family: "Iosevka", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--rb-accent-blog);
+  margin: 0 0 1rem;
+  padding: 0 0 0.7rem;
+  border-bottom: 1.5px solid var(--rb-paper-ink);
+}
+
+/* Title — large centered serif, like an academic title block. */
+.quarto-title h1.title {
+  text-align: center;
+  font-family: var(--rb-serif);
+  font-size: clamp(1.85rem, 3.4vw, 2.6rem);
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 auto 0.8rem;
+  max-width: 48rem;
+}
+
+/* Author / date in a compact two-column block above the abstract.
+   Each item stacks: small mono label on top, italic serif value below. */
+.quarto-title-meta {
+  display: flex !important;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 2.4rem;
+  text-align: center;
+  margin: 0.4rem auto 1rem;
+  border: none;
+  padding: 0;
+}
+
+.quarto-title-meta > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.quarto-title-meta .quarto-title-meta-heading {
+  font-family: "Iosevka", "JetBrains Mono", ui-monospace, monospace;
+  font-style: normal;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rb-accent-blog);
+  opacity: 0.85;
+  line-height: 1;
+}
+
+.quarto-title-meta .quarto-title-meta-contents,
+.quarto-title-meta .quarto-title-meta-contents p,
+.quarto-title-meta .quarto-title-meta-contents .date {
+  display: block;
+  margin: 0;
+  font-family: var(--rb-serif);
+  font-style: italic;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  color: var(--rb-paper-ink);
+}
+
+/* Description sits between top/bottom rules as the article's Abstract. */
+.quarto-title-block .description,
+.quarto-title-block .quarto-description,
+.quarto-title-block p.quarto-title-description {
+  max-width: 46rem;
+  margin: 1.4rem auto 1.8rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--rb-paper-rule);
+  border-bottom: 1px solid var(--rb-paper-rule);
+  font-family: var(--rb-serif);
+  font-size: 0.98rem;
+  line-height: 1.7;
+  text-align: justify;
+  hyphens: auto;
+  color: var(--rb-paper-ink);
+}
+
+.quarto-title-block .description::before,
+.quarto-title-block .quarto-description::before,
+.quarto-title-block p.quarto-title-description::before {
+  content: "Abstract. ";
+  font-family: var(--rb-serif);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  font-style: normal;
+}
+
+/* Article body — justified + hyphenated paragraphs for paper-column feel. */
+main.content p {
+  text-align: justify;
+  hyphens: auto;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  margin-bottom: 1rem;
+}
+
+/* Section headings in paper style — h2 gets a subtle bottom rule. */
+main.content h2 {
+  font-family: var(--rb-serif);
+  font-size: 1.55rem;
+  font-weight: 700;
+  margin: 2.4rem 0 0.85rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--rb-paper-rule);
+}
+
+main.content h3 {
+  font-family: var(--rb-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 1.8rem 0 0.6rem;
+}
+
+main.content h4 {
+  font-family: var(--rb-serif);
+  font-style: italic;
+  font-size: 1.08rem;
+  font-weight: 600;
+  margin: 1.4rem 0 0.5rem;
+}
+
+/* Small drop cap on the very first paragraph — subtle, not commanding. */
+main.content > p:first-of-type::first-letter,
+main.content > section:first-of-type > p:first-of-type::first-letter,
+main.content > div:first-of-type > p:first-of-type::first-letter {
+  font-family: var(--rb-serif);
+  font-size: 2em;
+  font-weight: 600;
+  float: left;
+  line-height: 0.95;
+  margin: 0.1em 0.12em 0 0;
+  color: var(--rb-paper-ink);
+}
+
+/* Figure captions in paper style — italic serif with a "Figure n." leader. */
+figure {
+  margin: 2rem auto;
+  text-align: center;
+}
+
+figure > img, figure > a > img {
+  max-width: 100%;
+  height: auto;
+}
+
+figure figcaption,
+.figure-caption,
+.quarto-figure figcaption {
+  font-family: var(--rb-serif);
+  font-size: 0.88rem;
+  font-style: italic;
+  color: var(--rb-paper-ink);
+  opacity: 0.88;
+  margin-top: 0.55rem;
+  line-height: 1.5;
+}
+
+/* References / bibliography section feels like an arXiv reference list. */
+#refs, .references, .csl-bib-body {
+  font-family: var(--rb-serif);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rb-paper-rule);
+}
+
+/* Constrain TOC sidebar so it doesn't break the paper-column feel. */
+#TOC, nav#TOC {
+  font-family: var(--rb-serif);
+  font-size: 0.92rem;
+}
+nav#TOC a { color: var(--rb-paper-ink); }
+nav#TOC a:hover { color: var(--rb-accent-blog); }
+
+/* Slim the navbar's "back to blog" links to the paper palette. */
+main.content a {
+  color: var(--rb-accent-blog);
+  text-decoration-color: color-mix(in srgb, var(--rb-accent-blog) 35%, transparent);
+  text-underline-offset: 0.18em;
+}

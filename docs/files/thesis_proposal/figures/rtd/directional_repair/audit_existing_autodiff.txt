@@ -1,0 +1,60 @@
+Audit of disturbance_case_study_utils run_episode autodiff path
+================================================================
+Upstream margin     : differentiable_safety_margin (immrax_verify.py:573)
+Disturbance treatment: hardcoded d_center=0; d_radius = scen.disturbance_bound
+JAX version          : 0.6.2
+
+## (A) Gradient correctness — JAX vs finite difference
+k                           |g_jax|     |g_fd|    rel err   verdict
+[-0.12  0.85]               0.15010    0.15001   7.02e-04      PASS
+[0.3 0.5]                   0.18910    0.18907   6.34e-04      PASS
+[-0.5  0.1]                 0.26450    0.26419   1.21e-03      PASS
+[ 0.   -0.25]               0.42890    0.42848   9.77e-04      PASS
+[-0.8   0.95]               0.14565    0.14583   1.29e-03      PASS
+
+>> (A) PASS: max rel err 1.29e-03 (threshold 1e-2)
+
+## (B) Sign self-consistency: surrogate vs hard worst-case min
+(positive surrogate + negative hard min would be a real bug)
+k                            smooth       hard         verdict
+[-0.12  0.85]               -0.1775    -0.0166consistent (unsafe)
+[0.3 0.5]                   -0.2316    -0.0771consistent (unsafe)
+[-0.5  0.1]                 -0.1427    +0.0247consistent (gap)
+[ 0.   -0.25]               -0.2953    -0.1517consistent (unsafe)
+[-0.8   0.95]               -0.1165    +0.0435consistent (gap)
+
+>> (B) PASS
+
+## (C) Upstream gradient-ascent step monotonically improves surrogate
+ step       k1       k2    surrogate
+    0   +0.200   +0.850      -0.1765
+    1   +0.206   +0.900      -0.1691
+    2   +0.213   +0.949      -0.1620
+    3   +0.219   +0.999      -0.1552
+    4   +0.226   +1.000      -0.1549
+    5   +0.233   +1.000      -0.1547
+    6   +0.241   +1.000      -0.1546
+    7   +0.249   +1.000      -0.1544
+    8   +0.257   +1.000      -0.1542
+
+>> (C) PASS (surrogate non-decreasing across steps; tolerance 1e-3)
+
+## (D) Gradient correctness — directional margin (NEW)
+Same FD-vs-autograd test on differentiable_safety_margin_directional,
+with d_center = +0.06, d_radius = 0.01 on x; zero on other axes.
+k                           |g_jax|     |g_fd|    rel err   verdict
+[-0.12  0.85]               0.17626    0.17649   1.32e-03      PASS
+[0.3 0.5]                   0.17307    0.17281   1.81e-03      PASS
+[-0.5  0.1]                 0.20076    0.20049   1.37e-03      PASS
+[ 0.   -0.25]               0.36147    0.36104   1.20e-03      PASS
+[-0.8   0.95]               0.16778    0.16796   1.07e-03      PASS
+
+>> (D) PASS: max rel err 1.81e-03 (threshold 1e-2)
+
+================================================================
+Overall verdict: PASS
+
+Both upstream symmetric path AND new directional path math is correct.
+The user note "may not be done properly" referred to integration concerns
+(hardcoded zero disturbance centre); the directional case study fills that
+integration gap. The audit covers the entire autograd surface used by P2.1.

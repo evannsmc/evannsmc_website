@@ -1,0 +1,4 @@
+estimator,regime,mean_tracking_err_x,rms_tracking_err_x,mean_sigma_x,coverage
+TVGPR,A,-0.00042,0.00912,0.00986,1.0000
+TVGPR,B,+0.00030,0.00970,0.00875,0.9900
+TVGPR,C,+0.00033,0.00956,0.00966,1.0000

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Proposal overview SVGs</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 1400px; margin: 2em auto; padding: 0 2em; color: #003057; }
+  h1 { font-size: 22px; border-bottom: 2px solid #003057; padding-bottom: 6px; }
+  h2 { font-size: 16px; margin-top: 2em; color: #516470; }
+  .caption { font-size: 13px; color: #7a8894; margin-bottom: 10px; }
+  object, img { width: 100%; max-width: 1400px; border: 1px solid #e0e6eb; border-radius: 6px; background: #fff; }
+</style>
+</head>
+<body>
+  <h1>Proposal-overview SVG options</h1>
+
+  <h2>Option 1 · Triad Orbit (conceptual / title-slide)</h2>
+  <div class="caption">Three thrusts as colored satellites orbiting the plant. Abstract, memorable, good for a cover slide.</div>
+  <object data="triad_orbit.svg" type="image/svg+xml"></object>
+
+  <h2>Option 2 · Runtime-Assurance Stack (architectural / methods-overview slide)</h2>
+  <div class="caption">Nested envelopes: performance inside safety inside security. Reads outside-in. Good for the "how it all fits" slide.</div>
+  <object data="rta_stack.svg" type="image/svg+xml"></object>
+
+  <h2>Option 3 · Hierarchical Signal Flow <em>(rewired)</em></h2>
+  <div class="caption">Mission / obstacles / disturbances → T2 planner → T1 LLC → plant; T3 is a tall supervisory block on the right that taps all signals and can override to a verified backup.</div>
+  <object data="signal_flow.svg" type="image/svg+xml"></object>
+
+  <h2>Option 4 · Continuous Autonomy Cycle (OODA-style, with gradients)</h2>
+  <div class="caption">Observe → Plan (T2) → Control (T1) → Act (plant) → Observe … with T3 as the always-on central supervisor radiating monitor lines to every station. All five circles get matching radial gradients ("lit from within") for a polished look.</div>
+  <object data="ooda_cycle.svg" type="image/svg+xml"></object>
+
+  <h2>Option 5 · Continuous Autonomy Cycle (flat colors, no gradients)</h2>
+  <div class="caption">Identical to Option 4 in layout, content, and arrows — the only difference is that every circle uses a flat color fill (no radial gradients anywhere). Better if you want a cleaner, more printable / slide-friendly look, or if Option 4's gradients feel too glossy.</div>
+  <object data="ooda_cycle_flat.svg" type="image/svg+xml"></object>
+</body>
+</html>
