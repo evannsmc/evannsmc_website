@@ -13,7 +13,7 @@ project:
     - "projects/**/*.qmd"
     - "publications/*.qmd"
     - "tech-zone/**/*.qmd"
-    - "fuq/u/index.qmd"
+    - "nice/try/index.qmd"
     - "!Agents.md"
     - "!plan.md"
   post-render: bash fix-listing-urls.sh
