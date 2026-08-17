@@ -223,7 +223,7 @@ Skip to main content
 <h2 class="anchored" data-anchor-id="code-examples">Code Examples</h2>
 <p>The NRF technique defines the derivative of the control input, <img src="https://latex.codecogs.com/png.latex?%5Cdot%7Bu%7D(t)">. This rate <img src="https://latex.codecogs.com/png.latex?%5Cdot%7Bu%7D(t)"> must be integrated over time to yield the final control output <img src="https://latex.codecogs.com/png.latex?u(t+%5CDelta%20t)">. In a real implementation loop, <img src="https://latex.codecogs.com/png.latex?u(t+dt)%20=%20u(t)%20+%20%5Cdot%7Bu%7D%20%5Ccdot%20%5CDelta%20t">.</p>
 <p>We note that the difficulty in implementation for real-world system comes from implementing the output predictor <img src="https://latex.codecogs.com/png.latex?%5Crho">, its jacobian, and balancing stability of the closed-loop system and prediction accuraty via the lookahead <img src="https://latex.codecogs.com/png.latex?T">, and the speedup factor <img src="https://latex.codecogs.com/png.latex?%5Calpha">.</p>
-<div id="4a5dc420" class="cell" data-execution_count="1">
+<div id="b3b7018e" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;

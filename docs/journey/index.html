@@ -744,6 +744,22 @@ body.quarto-dark .journey-map-photo {
   line-height: 1.45;
 }
 
+/* Secondary detail sitting under a stop's main date line (e.g. an on-site
+   stint inside a longer ongoing engagement). Rendered as <p> with a CSS marker
+   rather than a <ul>, since a list is not valid phrasing content inside these
+   <button> stops. The marker picks up the stop's own colour via --stop-color. */
+.timeline-year-note {
+  padding-left: 0.72rem;
+  text-indent: -0.72rem;
+  font-size: 0.72rem;
+  opacity: 0.85;
+}
+
+.timeline-year-note::before {
+  content: "• ";
+  color: var(--stop-color, currentColor);
+}
+
 .map-country,
 .map-state,
 .route-line {
@@ -939,7 +955,9 @@ body.quarto-dark .journey-map-photo {
             </div>
           </div>
           <p class="timeline-label">Sandia National Laboratories</p>
-          <p class="timeline-year">On-site May - August 2026 · remote since</p>
+          <p class="timeline-year">May 2026 - Present</p>
+          <p class="timeline-year timeline-year-note">Onsite: May - August 2026</p>
+          <p class="timeline-year timeline-year-note">Remote: August 2026 - Present</p>
         </button>
 
         <button type="button" class="timeline-stop" data-stop="phx" style="--stop-color:#ea580c; --stop-tint:rgba(234, 88, 12, 0.1);">
@@ -1065,7 +1083,7 @@ document.addEventListener('DOMContentLoaded', function () {
       stateName: 'New Mexico',
       coordinates: [-106.6504, 35.0844],
       zoom: { center: [-106.6504, 35.0844], scale: 1800 },
-      year: 'On-site May - August 2026',
+      year: 'May 2026 - Present (on-site for Summer 2026)',
       role: 'Graduate research intern at Sandia National Laboratories',
       description: 'I was on-site in Albuquerque, New Mexico from May to August 2026 for a graduate research internship at Sandia National Laboratories, working on AI for Autonomy. I have continued with the team remotely since.',
       color: '#0f766e',
@@ -1091,6 +1109,7 @@ document.addEventListener('DOMContentLoaded', function () {
       highlightFill: 'rgba(234, 88, 12, 0.18)',
       emoji: '📄',
       upcoming: true,
+      image: '../files/journey/stops/mecc2026.jpg',
       overviewLabel: { anchor: 'end', x: -16, emojiY: -10, labelY: 5 }
     }
   ];
