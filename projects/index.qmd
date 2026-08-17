@@ -799,9 +799,9 @@ body.quarto-dark .project-action.paper:focus {
                 <p class="project-cta-hint">Tap anywhere on this panel to open the project page.</p>
               </div>
               <div class="project-preview-panel clip-preview">
-                <video src="../projects/nr-flow/nr_loop.mp4"
+                <video src="../projects/mocap4px4/mocap_loop.mp4"
                        autoplay muted loop playsinline preload="metadata"
-                       aria-label="Newton-Raphson Flow controller flying a quadrotor helix in Georgia Tech's Indoor Flight Lab"></video>
+                       aria-label="Overhead view of a quadrotor tracking a trajectory inside the flight volume"></video>
               </div>
             </div>
           </summary>
@@ -863,9 +863,9 @@ body.quarto-dark .project-action.paper:focus {
                 <p class="project-cta-hint">Tap anywhere on this panel to open the project page.</p>
               </div>
               <div class="project-preview-panel clip-preview">
-                <video src="../projects/mocap4px4/mocap_loop.mp4"
+                <video src="../projects/nr-flow/nr_loop.mp4"
                        autoplay muted loop playsinline preload="metadata"
-                       aria-label="Overhead motion-capture view of a quadrotor flying inside the tracked volume"></video>
+                       aria-label="Quadrotor flying a tracked trajectory in Georgia Tech's Indoor Flight Lab"></video>
               </div>
             </div>
           </summary>
