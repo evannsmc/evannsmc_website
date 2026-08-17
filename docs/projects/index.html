@@ -741,9 +741,19 @@ body.quarto-dark .project-name {
   margin-inline: auto;
 }
 
+/* Slide screenshots are 16:9, not the 1.4:1 the clips use, so they get their
+   own panel rather than being cropped by object-fit. */
+.project-preview-panel.slide-preview {
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+  max-width: 66%;
+  margin-inline: auto;
+}
+
 @media (max-width: 1100px) {
   /* Single-column layout already narrows the cards — don't shrink twice. */
-  .project-preview-panel.clip-preview {
+  .project-preview-panel.clip-preview,
+  .project-preview-panel.slide-preview {
     max-width: 82%;
   }
 }
@@ -1122,20 +1132,8 @@ body.quarto-dark .project-action.paper:focus {
                 </p>
                 <p class="project-cta-hint">Tap anywhere on this panel to open the project page.</p>
               </div>
-              <div class="project-preview-panel">
-                <div class="project-preview-custom">
-                  <p class="project-preview-title">NAHS 2025 submission</p>
-                  <div class="project-preview-lines">
-                    <div class="project-preview-line">Linear systems with bounded uncertainty</div>
-                    <div class="project-preview-line">Minimal runtime input correction</div>
-                    <div class="project-preview-line">Miniature autonomous blimp demo</div>
-                  </div>
-                  <div class="project-preview-metrics">
-                    <span class="project-preview-metric">iSTL</span>
-                    <span class="project-preview-metric">MILP</span>
-                    <span class="project-preview-metric">NAHS</span>
-                  </div>
-                </div>
+              <div class="project-preview-panel clip-preview">
+                <video src="../projects/nahs/istl_loop.mp4" autoplay="" muted="" loop="" playsinline="" preload="metadata" aria-label="Miniature autonomous blimp flying above the marked specification region during an interval STL runtime-assurance run"></video>
               </div>
             </div>
           </summary>
@@ -1345,7 +1343,7 @@ body.quarto-dark .project-action.paper:focus {
                 <div class="project-name-row">
                   <div class="project-name-group">
                     <span class="project-number">03</span>
-                    <p class="project-name">Quarto Georgia Tech Slides</p>
+                    <p class="project-name">Quarto Georgia Tech Slide Template</p>
                   </div>
                   <button class="project-toggle" type="button" aria-label="Hide or show details"></button>
                 </div>
@@ -1354,20 +1352,8 @@ body.quarto-dark .project-action.paper:focus {
                 </p>
                 <p class="project-cta-hint">Tap anywhere on this panel to open the project page.</p>
               </div>
-              <div class="project-preview-panel">
-                <div class="project-preview-custom">
-                  <p class="project-preview-title">Quarto GT Theme for your presentation needs</p>
-                  <div class="project-preview-lines">
-                    <div class="project-preview-line">Official GT palette</div>
-                    <div class="project-preview-line">Title + section backgrounds</div>
-                    <div class="project-preview-line">RevealJS fragments + callouts</div>
-                  </div>
-                  <div class="project-preview-metrics">
-                    <span class="project-preview-metric">Quarto</span>
-                    <span class="project-preview-metric">RevealJS</span>
-                    <span class="project-preview-metric">SCSS</span>
-                  </div>
-                </div>
+              <div class="project-preview-panel slide-preview">
+                <img src="../projects/gatech-slides/proposal_title_slide.png" alt="Title slide of a Ph.D. thesis proposal built with the Georgia Tech Quarto slide theme">
               </div>
             </div>
           </summary>

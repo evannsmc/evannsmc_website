@@ -1,5 +1,5 @@
 ---
-title: "Quarto Georgia Tech Slides"
+title: "Quarto Georgia Tech Slide Template"
 description: "Official Georgia Tech-branded RevealJS presentations, installable in one command."
 categories: [Quarto, Tools]
 ---

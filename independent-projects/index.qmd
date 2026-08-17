@@ -554,7 +554,7 @@ title-block-banner: true
             <div class="project-name-row">
               <div class="project-name-group">
                 <span class="project-number">05</span>
-                <p class="project-name">Quarto Georgia Tech Slides</p>
+                <p class="project-name">Quarto Georgia Tech Slide Template</p>
               </div>
               <span class="project-toggle"></span>
             </div>
