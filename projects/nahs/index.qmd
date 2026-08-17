@@ -4,6 +4,17 @@ description: "Runtime assurance for uncertain systems using interval signal temp
 categories: [Safety, Formal Methods, Hybrid Systems, Research]
 ---
 
+::: {.d-flex .gap-2 .flex-wrap .mb-3}
+[NAHS 2025 Paper (Preprint PDF)](https://papers.ssrn.com/sol3/Delivery.cfm?abstractid=6168587){.btn .btn-sm .btn-primary target="_blank"}
+[Blimp Demo Video](https://www.youtube.com/watch?v=NnzkQqTfHIM){.btn .btn-sm .btn-outline-primary target="_blank"}
+:::
+
+### Hardware Demonstration
+
+{{< video https://www.youtube.com/embed/NnzkQqTfHIM >}}
+
+Interval STL runtime assurance on a miniature autonomous blimp. The nominal trajectory violates the specification "if the blimp enters the square, it must leave within four seconds"; the runtime-assurance layer then enforces it, with the 2D trajectory and formula robustness shown alongside the flight.
+
 ```{=html}
 <style>
 .nahs-figure-shell {

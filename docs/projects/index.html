@@ -732,6 +732,23 @@ body.quarto-dark .project-name {
   aspect-ratio: 1.4 / 1;
 }
 
+/* Keep preview media at thumbnail scale. Full-bleed footage reads as a hero
+   image and overwhelms the card copy. Applied to the rtd gif as well so the
+   top row of both columns stays visually matched. */
+.project-preview-panel.rtd-preview,
+.project-preview-panel.clip-preview {
+  max-width: 66%;
+  margin-inline: auto;
+}
+
+@media (max-width: 1100px) {
+  /* Single-column layout already narrows the cards — don't shrink twice. */
+  .project-preview-panel.rtd-preview,
+  .project-preview-panel.clip-preview {
+    max-width: 82%;
+  }
+}
+
 .project-preview-custom {
   width: 100%;
   padding: 1.15rem;
@@ -1054,7 +1071,7 @@ body.quarto-dark .project-action.paper:focus {
                 <p class="project-cta-hint">Tap anywhere on this panel to open the project page.</p>
               </div>
               <div class="project-preview-panel clip-preview">
-                <video src="../projects/nmpc-acados/nmpc_loop.mp4" autoplay="" muted="" loop="" playsinline="" preload="metadata" aria-label="NMPC-controlled quadrotor tracking a horizontal circle in Georgia Tech's Indoor Flight Lab"></video>
+                <video src="../projects/nr-flow/nr_loop.mp4" autoplay="" muted="" loop="" playsinline="" preload="metadata" aria-label="Quadrotor tracking flight in Georgia Tech's Indoor Flight Lab"></video>
               </div>
             </div>
           </summary>
@@ -1138,6 +1155,7 @@ body.quarto-dark .project-action.paper:focus {
               <div class="project-actions">
                 <a class="project-action primary" href="../projects/nahs/">Open Project Page</a>
                 <a class="project-action paper" href="https://papers.ssrn.com/sol3/Delivery.cfm?abstractid=6168587" target="_blank">NAHS 2025 Paper (Preprint PDF) ↗</a>
+                <a class="project-action" href="https://www.youtube.com/watch?v=NnzkQqTfHIM" target="_blank">Blimp Demo Video ↗</a>
               </div>
             </div>
           </div>

@@ -485,7 +485,7 @@ body.quarto-dark .journey-map-photo {
           role="img"
           aria-labelledby="journey-map-title"
         >
-          <title id="journey-map-title">Journey map connecting Caguas, Grapevine, Arlington, Atlanta, Toronto, and Albuquerque</title>
+          <title id="journey-map-title">Journey map connecting Caguas, Grapevine, Arlington, Atlanta, Toronto, Albuquerque, and Phoenix</title>
         </svg>
       </div>
     </div>
@@ -553,11 +553,22 @@ body.quarto-dark .journey-map-photo {
             <span class="timeline-dot"></span>
             <div class="timeline-city-row">
               <p class="timeline-city">Albuquerque, NM</p>
-              <span class="timeline-badge">Upcoming</span>
             </div>
           </div>
           <p class="timeline-label">Sandia National Laboratories</p>
-          <p class="timeline-year">Summer 2026</p>
+          <p class="timeline-year">May 2026 - Present</p>
+        </button>
+
+        <button type="button" class="timeline-stop" data-stop="phx" style="--stop-color:#ea580c; --stop-tint:rgba(234, 88, 12, 0.1);">
+          <div class="timeline-topline">
+            <span class="timeline-dot"></span>
+            <div class="timeline-city-row">
+              <p class="timeline-city">Phoenix, AZ</p>
+              <span class="timeline-badge">Upcoming</span>
+            </div>
+          </div>
+          <p class="timeline-label">6<sup>th</sup> Modeling, Estimation and Control Conference</p>
+          <p class="timeline-year">Oct 2026</p>
         </button>
       </div>
     </aside>
@@ -671,17 +682,33 @@ document.addEventListener('DOMContentLoaded', function () {
       stateName: 'New Mexico',
       coordinates: [-106.6504, 35.0844],
       zoom: { center: [-106.6504, 35.0844], scale: 1800 },
-      year: 'Summer 2026',
-      role: 'Incoming intern at Sandia National Laboratories',
-      description: 'This upcoming summer I will be in Albuquerque, New Mexico for an internship at Sandia National Laboratories.',
+      year: 'May 2026 - Present',
+      role: 'Year-round graduate research intern at Sandia National Laboratories',
+      description: 'I am in Albuquerque, New Mexico as a year-round graduate research intern at Sandia National Laboratories, working on AI for Autonomy.',
       color: '#0f766e',
       tint: 'rgba(15, 118, 110, 0.1)',
       highlightFill: 'rgba(15, 118, 110, 0.18)',
       emoji: '🔬',
-      upcoming: true,
       image: '../files/journey/stops/snl.png',
       imageFit: 'cover',
       overviewLabel: { anchor: 'middle', x: 0, emojiY: -30, labelY: -14 }
+    },
+    {
+      id: 'phx',
+      city: 'Phoenix, AZ',
+      label: 'MECC 2026',
+      stateName: 'Arizona',
+      coordinates: [-112.0740, 33.4484],
+      zoom: { center: [-112.0740, 33.4484], scale: 1800 },
+      year: 'Oct 2026',
+      role: 'Presenting RTD-RAX at MECC 2026',
+      description: 'This October I will be in Phoenix, Arizona for the 6th Modeling, Estimation and Control Conference, presenting my RTD-RAX work on fast, safe trajectory planning for systems under unknown disturbances.',
+      color: '#ea580c',
+      tint: 'rgba(234, 88, 12, 0.1)',
+      highlightFill: 'rgba(234, 88, 12, 0.18)',
+      emoji: '📄',
+      upcoming: true,
+      overviewLabel: { anchor: 'end', x: -16, emojiY: -10, labelY: 5 }
     }
   ];
 
@@ -691,7 +718,8 @@ document.addEventListener('DOMContentLoaded', function () {
     ['uta', 'gt'],
     ['gt', 'tor'],
     ['tor', 'gt'],
-    ['gt', 'snl']
+    ['gt', 'snl'],
+    ['snl', 'phx']
   ];
 
   var DEFAULT_DETAIL_TITLE = 'Select a stop';
