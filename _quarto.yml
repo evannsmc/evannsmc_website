@@ -32,6 +32,12 @@ project:
     - files/thesis_proposal/figures
     - files/thesis_proposal/proposal_slides_files
     - files/thesis_proposal/_extensions
+    # Quarto auto-copies files referenced by <img src>, which is how the
+    # rtd-rax gifs reach docs/. It does NOT do the same for <video src>
+    # inside a raw ```{=html} block, so the looping card previews on the
+    # projects page have to be declared explicitly or they 404 in the
+    # built site while rendering perfectly in preview.
+    - projects/**/*.mp4
     - googleffaf8e4b1a20676c.html
 
 # Posts with `draft: true` in frontmatter should NOT render to docs/ at all

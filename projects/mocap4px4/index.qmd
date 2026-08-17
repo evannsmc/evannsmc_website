@@ -18,6 +18,12 @@ Running indoor flight experiments means solving the same infrastructure problem 
 
 Vicon4PX4 has been adopted and showcased by **Georgia Tech's Indoor Flight Lab (IFL)** as part of its [official codebase](https://gtae.gitbook.io/ifl/ifl-codebase/px4+ros2-vicon-receiver).
 
+### These Packages in Flight
+
+{{< video https://www.youtube.com/embed/kNnP4_LbdNk >}}
+
+Hardware experiments from my TCST 2025 paper. There is no GPS indoors, so every flight in this video closes its loop on motion-capture pose streamed into the PX4 EKF by these packages — the overhead segments show the tracked volume the drone is being localized in.
+
 ---
 
 ### The Problem

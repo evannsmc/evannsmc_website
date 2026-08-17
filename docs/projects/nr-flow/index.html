@@ -401,8 +401,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <p><strong>Links:</strong></p>
 <div class="d-flex gap-2 flex-wrap mb-3">
-<p><a href="https://arxiv.org/abs/2408.11197" class="btn btn-sm btn-primary" target="_blank">ACC 2024 Paper (PDF)</a> <a href="https://arxiv.org/abs/2508.14185" class="btn btn-sm btn-primary" target="_blank">TCST 2025 Paper (PDF)</a> <a href="https://github.com/evannsmc/newton_raphson_px4" class="btn btn-sm btn-outline-primary" target="_blank">View Python Version</a> <a href="https://github.com/evannsmc/newton_raphson_px4_cpp" class="btn btn-sm btn-outline-primary" target="_blank">View C++ Version</a></p>
+<p><a href="https://arxiv.org/abs/2408.11197" class="btn btn-sm btn-primary" target="_blank">ACC 2024 Paper (PDF)</a> <a href="https://arxiv.org/abs/2508.14185" class="btn btn-sm btn-primary" target="_blank">TCST 2025 Paper (PDF)</a> <a href="https://www.youtube.com/watch?v=kNnP4_LbdNk" class="btn btn-sm btn-outline-primary" target="_blank">Hardware Experiments Video</a> <a href="https://github.com/evannsmc/newton_raphson_px4" class="btn btn-sm btn-outline-primary" target="_blank">View Python Version</a> <a href="https://github.com/evannsmc/newton_raphson_px4_cpp" class="btn btn-sm btn-outline-primary" target="_blank">View C++ Version</a></p>
 </div>
+<section id="hardware-experiments" class="level3">
+<h3 class="anchored" data-anchor-id="hardware-experiments">Hardware Experiments</h3>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/kNnP4_LbdNk" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+<p>Full hardware demonstrations from the TCST 2025 paper, flown in Georgia Tech’s Indoor Flight Lab on a Holybro X500V2 with a Raspberry Pi 4 doing all onboard computation. Includes NR Flow helix, yawing-circle, and yawing-helix runs on the quadrotor, plus the miniature blimp, alongside the NMPC baseline for comparison.</p>
 <p>NR Flow reframes trajectory tracking as an optimization problem solved at each timestep by the Newton-Raphson method — yielding fast, accurate control that is more computationally efficient than NMPC while matching or exceeding its tracking performance. The result: a controller that runs comfortably on a Raspberry Pi 4 onboard a real quadrotor.</p>
 <p>Integral Control Barrier Functions (I-CBFs) are baked in to handle actuation limits without discontinuous switching, and all computations are JAX JIT-compiled for real-time deployment.</p>
 <p><strong>Key features:</strong></p>
@@ -437,6 +441,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <p><strong>Built with:</strong> Python · JAX · ROS 2 · PX4</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

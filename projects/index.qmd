@@ -324,6 +324,22 @@ body.quarto-dark .project-name {
   aspect-ratio: 1.4 / 1;
 }
 
+/* Looping hardware-footage previews (NMPC, NR Flow, MoCap). Clips are
+   encoded at 860x620 to match the RTD-RAX gif exactly, so every card
+   preview on the page shares one aspect ratio and the top row of the
+   two columns lines up. */
+.project-preview-panel video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.project-preview-panel.clip-preview {
+  min-height: 0;
+  aspect-ratio: 1.4 / 1;
+}
+
 .project-preview-custom {
   width: 100%;
   padding: 1.15rem;
@@ -651,20 +667,10 @@ body.quarto-dark .project-action.paper:focus {
                 </p>
                 <p class="project-cta-hint">Tap anywhere on this panel to open the project page.</p>
               </div>
-              <div class="project-preview-panel">
-                <div class="project-preview-custom">
-                  <p class="project-preview-title">Custom NMPC Implementation</p>
-                  <div class="project-preview-lines">
-                    <div class="project-preview-line">Fast Computation</div>
-                    <div class="project-preview-line">Aggressive Trajectory Control</div>
-                    <div class="project-preview-line">Smart, De-Coupled Yaw Tracking</div>
-                  </div>
-                  <div class="project-preview-metrics">
-                    <span class="project-preview-metric">Acados</span>
-                    <span class="project-preview-metric">QPOASES</span>
-                    <span class="project-preview-metric">ROS 2</span>
-                  </div>
-                </div>
+              <div class="project-preview-panel clip-preview">
+                <video src="../projects/nmpc-acados/nmpc_loop.mp4"
+                       autoplay muted loop playsinline preload="metadata"
+                       aria-label="NMPC-controlled quadrotor tracking a horizontal circle in Georgia Tech's Indoor Flight Lab"></video>
               </div>
             </div>
           </summary>
@@ -683,6 +689,7 @@ body.quarto-dark .project-action.paper:focus {
               <div class="project-actions">
                 <a class="project-action primary" href="../projects/nmpc-acados/">Open Project Page</a>
                 <a class="project-action paper" href="https://arxiv.org/abs/2508.14185" target="_blank">TCST 2025 Paper (PDF) ↗</a>
+                <a class="project-action" href="https://www.youtube.com/watch?v=kNnP4_LbdNk" target="_blank">Hardware Experiments Video ↗</a>
               </div>
               <div class="project-actions">
                 <a class="project-action" href="https://github.com/evannsmc/nmpc_acados_px4" target="_blank">Python Version ↗</a>
@@ -774,20 +781,10 @@ body.quarto-dark .project-action.paper:focus {
                 </p>
                 <p class="project-cta-hint">Tap anywhere on this panel to open the project page.</p>
               </div>
-              <div class="project-preview-panel">
-                <div class="project-preview-custom">
-                  <p class="project-preview-title">Fast, Efficient Control Algorithm</p>
-                  <div class="project-preview-lines">
-                    <div class="project-preview-line">ACC 2024</div>
-                    <div class="project-preview-line">TCST 2025</div>
-                    <div class="project-preview-line">Onboard Quadrotor Deployment</div>
-                  </div>
-                  <div class="project-preview-metrics">
-                    <span class="project-preview-metric">JAX JIT</span>
-                    <span class="project-preview-metric">ROS 2</span>
-                    <span class="project-preview-metric">PX4</span>
-                  </div>
-                </div>
+              <div class="project-preview-panel clip-preview">
+                <video src="../projects/nr-flow/nr_loop.mp4"
+                       autoplay muted loop playsinline preload="metadata"
+                       aria-label="Newton-Raphson Flow controller flying a quadrotor helix in Georgia Tech's Indoor Flight Lab"></video>
               </div>
             </div>
           </summary>
@@ -807,6 +804,7 @@ body.quarto-dark .project-action.paper:focus {
                 <a class="project-action primary" href="../projects/nr-flow/">Open Project Page</a>
                 <a class="project-action paper" href="https://arxiv.org/abs/2408.11197" target="_blank">ACC 2024 Paper (PDF) ↗</a>
                 <a class="project-action paper" href="https://arxiv.org/abs/2508.14185" target="_blank">TCST 2025 Paper (PDF) ↗</a>
+                <a class="project-action" href="https://www.youtube.com/watch?v=kNnP4_LbdNk" target="_blank">Hardware Experiments Video ↗</a>
                 <a class="project-action" href="https://github.com/evannsmc/newton_raphson_px4" target="_blank">Python Version ↗</a>
                 <a class="project-action" href="https://github.com/evannsmc/newton_raphson_px4_cpp" target="_blank">C++ Version ↗</a>
               </div>
@@ -847,21 +845,10 @@ body.quarto-dark .project-action.paper:focus {
                 </p>
                 <p class="project-cta-hint">Tap anywhere on this panel to open the project page.</p>
               </div>
-              <div class="project-preview-panel">
-                <div class="project-preview-custom">
-                  <p class="project-preview-title">Motion Capture → PX4 EKF Pipeline</p>
-                  <div class="project-preview-lines">
-                    <div class="project-preview-line">ENU → NED frame conversion</div>
-                    <div class="project-preview-line">External vision EKF fusion</div>
-                    <div class="project-preview-line">Full-state relay for control & logging</div>
-                  </div>
-                  <div class="project-preview-metrics">
-                    <span class="project-preview-metric">Vicon</span>
-                    <span class="project-preview-metric">OptiTrack</span>
-                    <span class="project-preview-metric">ROS 2</span>
-                    <span class="project-preview-metric">PX4</span>
-                  </div>
-                </div>
+              <div class="project-preview-panel clip-preview">
+                <video src="../projects/mocap4px4/mocap_loop.mp4"
+                       autoplay muted loop playsinline preload="metadata"
+                       aria-label="Overhead motion-capture view of a quadrotor flying inside the tracked volume"></video>
               </div>
             </div>
           </summary>

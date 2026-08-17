@@ -8,9 +8,16 @@ categories: [Control, Python, Research]
 
 ::: {.d-flex .gap-2 .flex-wrap .mb-3}
 [TCST 2025 Paper (PDF)](https://arxiv.org/abs/2508.14185){.btn .btn-sm .btn-primary target="_blank"}
+[Hardware Experiments Video](https://www.youtube.com/watch?v=kNnP4_LbdNk){.btn .btn-sm .btn-outline-primary target="_blank"}
 [View Python Version](https://github.com/evannsmc/nmpc_acados_px4){.btn .btn-sm .btn-outline-primary target="_blank"}
 [View C++ Version](https://github.com/evannsmc/nmpc_acados_px4_cpp){.btn .btn-sm .btn-outline-primary target="_blank"}
 :::
+
+### Hardware Experiments
+
+{{< video https://www.youtube.com/embed/kNnP4_LbdNk >}}
+
+Full hardware demonstrations from the TCST 2025 paper, flown in Georgia Tech's Indoor Flight Lab. This controller is the comparison baseline throughout — the side-view horizontal-circle and yawing-circle segments are the NMPC runs, where the shaking behavior discussed in the paper is visible.
 
 This package implements a 9-state NMPC using the Acados solver with QPOASES — a rigorous, well-understood approach that was used as the primary comparison baseline for the Newton-Raphson Flow work. If you need a solid NMPC reference implementation for your own quadrotor research, this is a clean starting point.
 
