@@ -6,4 +6,4 @@
 - **Development & DevOps Tools:** Docker, Continuous Integration, Git/GitHub
 - **Hardware & Experimentation:** UAV assembly, repair, and deployment
 - **Motion-Capture:** OptiTrack and Vicon
-- **Languages:** Spanish (Native), English (Native)
+- **Languages:** Spanish (Native), English (Native), Portuguese (B1)
