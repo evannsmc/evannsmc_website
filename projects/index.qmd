@@ -340,10 +340,10 @@ body.quarto-dark .project-name {
   aspect-ratio: 1.4 / 1;
 }
 
-/* Keep preview media at thumbnail scale. Full-bleed footage reads as a hero
-   image and overwhelms the card copy. Applied to the rtd gif as well so the
-   top row of both columns stays visually matched. */
-.project-preview-panel.rtd-preview,
+/* Keep the video previews at thumbnail scale — full-bleed footage reads as a
+   hero image and overwhelms the card copy. Deliberately scoped to .clip-preview
+   only: the rtd-rax gif stays full width, since it is a simulation plot whose
+   axis labels and annotations lose legibility when scaled down. */
 .project-preview-panel.clip-preview {
   max-width: 66%;
   margin-inline: auto;
@@ -351,7 +351,6 @@ body.quarto-dark .project-name {
 
 @media (max-width: 1100px) {
   /* Single-column layout already narrows the cards — don't shrink twice. */
-  .project-preview-panel.rtd-preview,
   .project-preview-panel.clip-preview {
     max-width: 82%;
   }
