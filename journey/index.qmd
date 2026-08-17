@@ -549,6 +549,7 @@ body.quarto-dark .journey-map-photo {
               <p class="timeline-city">Atlanta, GA</p>
             </div>
           </div>
+          <p class="timeline-label">Robotics PhD</p>
           <p class="timeline-label">Georgia Tech</p>
           <p class="timeline-year">Aug 2022 - Present</p>
         </button>
@@ -571,6 +572,7 @@ body.quarto-dark .journey-map-photo {
               <p class="timeline-city">Albuquerque, NM</p>
             </div>
           </div>
+          <p class="timeline-label">AI for Autonomy Intern</p>
           <p class="timeline-label">Sandia National Laboratories</p>
           <p class="timeline-year">May 2026 - Present</p>
           <p class="timeline-year timeline-year-note">Onsite: May - August 2026</p>
@@ -701,7 +703,7 @@ document.addEventListener('DOMContentLoaded', function () {
       coordinates: [-106.6504, 35.0844],
       zoom: { center: [-106.6504, 35.0844], scale: 1800 },
       year: 'May 2026 - Present (on-site for Summer 2026)',
-      role: 'Graduate research intern at Sandia National Laboratories',
+      role: 'AI for Autonomy Intern at Sandia National Laboratories',
       description: 'I was on-site in Albuquerque, New Mexico from May to August 2026 for a graduate research internship at Sandia National Laboratories, working on AI for Autonomy. I have continued with the team remotely since.',
       color: '#0f766e',
       tint: 'rgba(15, 118, 110, 0.1)',
