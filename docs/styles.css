@@ -897,3 +897,22 @@ body.quarto-dark .btn-outline-primary:focus {
   border-color: rgba(96, 165, 250, 0.4);
   color: #bfdbfe;
 }
+
+/* ---------------------------------------------------------------------------
+   Restore <strong> / <b> emphasis.
+
+   The Lux theme sets `strong { font-weight: 400 }`, which is identical to
+   --bs-body-font-weight (also 400). The result is that NOTHING bolded on this
+   site rendered as bold: not the author name in publication entries, not the
+   **emphasis** in blog or tech-zone posts. The markup was always correct; the
+   theme was cancelling it.
+
+   600, not 700: Lux loads Nunito Sans at only two weights
+   (family=Nunito+Sans:wght@400;600). Asking for 700 gives the browser no real
+   face to use, so it synthesizes faux-bold, which renders with uneven,
+   smeared strokes. 600 is a genuine designed weight.
+   --------------------------------------------------------------------------- */
+strong,
+b {
+  font-weight: 600;
+}
