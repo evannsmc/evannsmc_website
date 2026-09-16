@@ -135,7 +135,11 @@ document.addEventListener('DOMContentLoaded', function () {
   items.forEach(function (item, index) {
     var marker = document.createElement('span');
     marker.className = 'pub-marker';
-    marker.textContent = '[' + (total - index) + '] ';
+    // Numbering runs oldest-to-newest starting at [0], so the UT Arlington
+    // undergraduate honors thesis -- the last item in document order -- is [0]
+    // and everything counts up from there. Using (total - index) instead would
+    // start the oldest entry at [1].
+    marker.textContent = '[' + (total - 1 - index) + '] ';
     var paragraph = item.querySelector(':scope > p');
     if (paragraph) {
       paragraph.insertBefore(marker, paragraph.firstChild);
