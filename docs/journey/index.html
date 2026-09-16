@@ -1109,7 +1109,7 @@ document.addEventListener('DOMContentLoaded', function () {
       stateName: 'Arizona',
       coordinates: [-112.0740, 33.4484],
       zoom: { center: [-112.0740, 33.4484], scale: 1800 },
-      year: 'Oct 2026',
+      year: 'Oct 25-28, 2026',
       role: 'Presenting RTD-RAX at MECC 2026',
       description: 'This October I will be in Phoenix, Arizona for the 6th Modeling, Estimation and Control Conference, presenting my RTD-RAX work on fast, safe trajectory planning for systems under unknown disturbances.',
       color: '#ea580c',
@@ -1118,6 +1118,23 @@ document.addEventListener('DOMContentLoaded', function () {
       emoji: '📄',
       upcoming: true,
       image: '../files/journey/stops/mecc2026.jpg',
+      overviewLabel: { anchor: 'end', x: -16, emojiY: -10, labelY: 5 }
+    },
+    {
+      id: 'ind',
+      city: 'Indianapolis, IN',
+      label: 'SHPE 2026',
+      stateName: 'Indiana',
+      coordinates: [-86.1581, 39.7684],
+      zoom: { center: [-86.1581, 39.7684], scale: 1800 },
+      year: 'Oct 28-31, 2026',
+      role: 'Attending SHPE National Convention 2026',
+      description: 'Straight from Phoenix to Indianapolis for the SHPE National Convention — the two events overlap by a day — to connect with the national community of Hispanic engineers and scientists.',
+      color: '#7c3aed',
+      tint: 'rgba(124, 58, 237, 0.1)',
+      highlightFill: 'rgba(124, 58, 237, 0.18)',
+      emoji: '🤝',
+      upcoming: true,
       overviewLabel: { anchor: 'end', x: -16, emojiY: -10, labelY: 5 }
     }
   ];
@@ -1129,7 +1146,8 @@ document.addEventListener('DOMContentLoaded', function () {
     ['gt', 'tor'],
     ['tor', 'gt'],
     ['gt', 'snl'],
-    ['snl', 'phx']
+    ['snl', 'phx'],
+    ['phx', 'ind']
   ];
 
   var DEFAULT_DETAIL_TITLE = 'Select a stop';
