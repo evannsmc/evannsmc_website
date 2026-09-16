@@ -501,7 +501,7 @@ body.quarto-dark .journey-map-photo {
           role="img"
           aria-labelledby="journey-map-title"
         >
-          <title id="journey-map-title">Journey map connecting Caguas, Grapevine, Arlington, Atlanta, Toronto, Albuquerque, Phoenix, and Indianapolis</title>
+          <title id="journey-map-title">Journey map connecting Caguas, Grapevine, Arlington, Atlanta, Toronto, Albuquerque, Phoenix, Indianapolis, and Curitiba</title>
         </svg>
       </div>
     </div>
@@ -601,6 +601,18 @@ body.quarto-dark .journey-map-photo {
           <p class="timeline-label">SHPE National Convention 2026</p>
           <p class="timeline-year">Oct 28-31, 2026</p>
         </button>
+
+        <button type="button" class="timeline-stop" data-stop="cwb" style="--stop-color:#16a34a; --stop-tint:rgba(22, 163, 74, 0.1);">
+          <div class="timeline-topline">
+            <span class="timeline-dot"></span>
+            <div class="timeline-city-row">
+              <p class="timeline-city">Curitiba, Brazil</p>
+              <span class="timeline-badge">Tentative</span>
+            </div>
+          </div>
+          <p class="timeline-label">Visiting Scholar, UTFPR / LACTEC</p>
+          <p class="timeline-year">Late Nov 2026 (tentative)</p>
+        </button>
       </div>
     </aside>
   </div>
@@ -614,7 +626,11 @@ document.addEventListener('DOMContentLoaded', function () {
   var HEIGHT = 720;
   var GEO_URL = '../files/journey/data/countries-110m.json';
   var US_STATES_URL = '../files/journey/data/us-states.json';
-  var OVERVIEW = { center: [-86.5752, 31.7951], scale: 1080 };
+  // Framed to fit every stop from Phoenix to Curitiba. Computed with
+  // d3.geoMercator().fitExtent() over all stop coordinates with a 70px margin.
+  // The previous North-America framing (center [-86.5752, 31.7951], scale 1080)
+  // put Curitiba at y=1489 in a 720px-tall viewport -- 769px off the bottom.
+  var OVERVIEW = { center: [-80.6736, 11.0849], scale: 443.5 };
   var stops = [
     {
       id: 'pr',
@@ -751,13 +767,29 @@ document.addEventListener('DOMContentLoaded', function () {
       zoom: { center: [-86.1581, 39.7684], scale: 1800 },
       year: 'Oct 28-31, 2026',
       role: 'Attending SHPE National Convention 2026',
-      description: 'Straight from Phoenix to Indianapolis for the SHPE National Convention — the two events overlap by a day — to connect with the national community of Hispanic engineers and scientists.',
+      description: 'Straight from Phoenix to Indianapolis for the SHPE National Convention to connect with the national community of Hispanic engineers and scientists.',
       color: '#7c3aed',
       tint: 'rgba(124, 58, 237, 0.1)',
       highlightFill: 'rgba(124, 58, 237, 0.18)',
       emoji: '🤝',
       upcoming: true,
       overviewLabel: { anchor: 'end', x: -16, emojiY: -10, labelY: 5 }
+    },
+    {
+      id: 'cwb',
+      city: 'Curitiba, Brazil',
+      label: 'UTFPR / LACTEC',
+      coordinates: [-49.2731, -25.4284],
+      zoom: { center: [-49.2731, -25.4284], scale: 1800 },
+      year: 'Late Nov 2026 (tentative)',
+      role: 'Visiting Scholar at UTFPR / LACTEC',
+      description: 'A tentative late-November visit to Curitiba, Brazil as a Visiting Scholar with UTFPR and LACTEC, working with collaborators there on robotics and control research.',
+      color: '#16a34a',
+      tint: 'rgba(22, 163, 74, 0.1)',
+      highlightFill: 'rgba(22, 163, 74, 0.18)',
+      emoji: '🇧🇷',
+      upcoming: true,
+      overviewLabel: { anchor: 'middle', x: 0, emojiY: -30, labelY: -14 }
     }
   ];
 
@@ -769,7 +801,8 @@ document.addEventListener('DOMContentLoaded', function () {
     ['tor', 'gt'],
     ['gt', 'snl'],
     ['snl', 'phx'],
-    ['phx', 'ind']
+    ['phx', 'ind'],
+    ['ind', 'cwb']
   ];
 
   var DEFAULT_DETAIL_TITLE = 'Select a stop';
