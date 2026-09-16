@@ -14,3 +14,4 @@ log/
 docs/blog/posts/2025-01-15-example-post/
 docs/blog/posts/2025-01-20-another-example/
 docs/blog/posts/2025-01-22-citations-example/
+**/*.quarto_ipynb

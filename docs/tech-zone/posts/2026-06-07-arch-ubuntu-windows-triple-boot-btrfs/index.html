@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.34">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,16 @@
 
 <title>Triple-Boot Arch + Ubuntu + Windows (Plain Btrfs, No Encryption) – evannsmc</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -75,14 +81,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-befe23ebd2f54d8af2c8a89d1a1611f1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../../site_libs/bootstrap/bootstrap-dark-71d377fd5de2ab829bf86f8ce9e65e3a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../../site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-53ee116f6cfa453b1a6123e796a711ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-039cfb03a475ba00630291d45709659f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-53ee116f6cfa453b1a6123e796a711ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -348,7 +354,8 @@ document.addEventListener('DOMContentLoaded', function () {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a href="../../../index.html" class="navbar-brand navbar-brand-logo">
-    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo">
+    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo light-content">
+    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo dark-content">
     </a>
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">evannsmc</span>
@@ -473,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Disclaimer: a reasoned rebuild-in-place blueprint, not yet a live-tested run
+<span class="screen-reader-only">Warning</span>Disclaimer: a reasoned rebuild-in-place blueprint, not yet a live-tested run
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -493,7 +500,7 @@ Disclaimer: a reasoned rebuild-in-place blueprint, not yet a live-tested run
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-What this is
+<span class="screen-reader-only">Note</span>What this is
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -519,7 +526,7 @@ What this is
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-What you give up by dropping encryption
+<span class="screen-reader-only">Important</span>What you give up by dropping encryption
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -540,7 +547,7 @@ What you give up by dropping encryption
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-This guide deletes partitions. Identify before you act.
+<span class="screen-reader-only">Warning</span>This guide deletes partitions. Identify before you act.
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -553,7 +560,7 @@ This guide deletes partitions. Identify before you act.
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-How to read the commands in this guide
+<span class="screen-reader-only">Important</span>How to read the commands in this guide
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -564,7 +571,7 @@ How to read the commands in this guide
 <section id="part-1-the-disk-layout" class="level1">
 <h1>Part 1 — The disk layout</h1>
 <p>You start with a drive that already boots Windows and (until now) an old Ubuntu. The exact partition order and numbering are whatever the previous installs produced; identify yours with:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,PARTTYPENAME,LABEL /dev/nvme0n1   <span class="co"># substitute your real device</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,PARTTYPENAME,LABEL /dev/nvme0n1   <span class="co"># substitute your real device</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>A representative <em>before</em> picture — <strong>yours will differ, match by size and type, not by number:</strong></p>
 <table class="caption-top table">
 <colgroup>
@@ -695,7 +702,7 @@ How to read the commands in this guide
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Doing the math for your disk
+<span class="screen-reader-only">Note</span>Doing the math for your disk
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -708,7 +715,7 @@ Doing the math for your disk
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Leave the tiny partitions at the end alone
+<span class="screen-reader-only">Warning</span>Leave the tiny partitions at the end alone
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -721,7 +728,7 @@ Leave the tiny partitions at the end alone
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Why reuse the existing ESP, and why mount it at <code>/boot/efi</code> (not <code>/boot</code>)
+<span class="screen-reader-only">Important</span>Why reuse the existing ESP, and why mount it at <code>/boot/efi</code> (not <code>/boot</code>)
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -734,7 +741,7 @@ Why reuse the existing ESP, and why mount it at <code>/boot/efi</code> (not <cod
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Why there’s no Windows↔︎Linux exchange partition
+<span class="screen-reader-only">Tip</span>Why there’s no Windows↔︎Linux exchange partition
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -750,23 +757,23 @@ Why there’s no Windows↔︎Linux exchange partition
 <h2 class="anchored" data-anchor-id="chapter-0-verify-the-iso-boot-the-live-usb-confirm-uefi">Chapter 0: Verify the ISO, boot the live USB, confirm UEFI</h2>
 <p>Same bootstrap as every article in the series. <strong>Done it before? Skim to <a href="#chapter-1-delete-the-old-linux-partitions-create-the-new-ones">Chapter 1</a>.</strong></p>
 <p>On a machine you trust, grab the ISO, its <code>.sig</code>, and <code>sha256sums.txt</code> from the <a href="https://archlinux.org/download/" target="_blank" rel="noopener">Arch download page</a> into one directory:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Downloads/Arch</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Downloads/Arch</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> <span class="at">-c</span> sha256sums.txt</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># archlinux-2026.05.01-x86_64.iso: OK          # bytes match the published checksum</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--auto-key-locate</span> clear,wkd <span class="at">-v</span> <span class="at">--locate-external-key</span> pierre@archlinux.org</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--verify</span> archlinux-2026.05.01-x86_64.iso.sig archlinux-2026.05.01-x86_64.iso</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># gpg: Good signature from "Pierre Schmitz &lt;pierre@archlinux.org&gt;" [unknown]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># gpg: Good signature from "Pierre Schmitz &lt;pierre@archlinux.org&gt;" [unknown]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The <code>WARNING: The key's User ID is not certified</code> line is expected. Flash the verified ISO with <a href="https://etcher.balena.io/" target="_blank" rel="noopener">balenaEtcher</a> or <code>dd</code> (mind <code>of=</code>). Boot it, interrupt boot (<code>F2</code>/<code>F10</code>/<code>F12</code>/<code>Esc</code>), pick the USB, choose <em>“Arch Linux install medium.”</em> Confirm UEFI:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /sys/firmware/efi/fw_platform_size</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 64   (32 on very old hardware; if the file is absent you booted BIOS — fix in firmware)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /sys/firmware/efi/fw_platform_size</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 64   (32 on very old hardware; if the file is absent you booted BIOS — fix in firmware)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Turn off Secure Boot now, while you’re in firmware
+<span class="screen-reader-only">Important</span>Turn off Secure Boot now, while you’re in firmware
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -778,10 +785,10 @@ Turn off Secure Boot now, while you’re in firmware
 <section id="chapter-1-delete-the-old-linux-partitions-create-the-new-ones" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-1-delete-the-old-linux-partitions-create-the-new-ones">Chapter 1: Delete the old Linux partitions, create the new ones</h2>
 <p>Confirm the disk first, then look hard at the table — you are about to delete partitions:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,PARTTYPENAME,LABEL /dev/nvme0n1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,PARTTYPENAME,LABEL /dev/nvme0n1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Pin down, <strong>by size and type</strong>, which partition is which: the <strong>EFI System</strong> partition, <strong>Windows C:</strong> (NTFS, ~174.93 GiB), the <strong>old Ubuntu</strong> root (~419.1 GiB), the <strong>old swap</strong> (Linux swap, ~32.6 GiB), and the <strong>tiny</strong> recovery/MSR/OEM partitions at the end. You will delete only the old Ubuntu root and the old swap.</p>
 <p>Open <code>cfdisk</code> on the GPT disk (a graphical <a href="https://gparted.org/" target="_blank" rel="noopener">GParted</a> session from an Ubuntu/GParted-Live USB does the same job if you prefer pointing and clicking):</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Inside <code>cfdisk</code>, move the highlight with <code>↑</code>/<code>↓</code> (or vim’s <code>j</code>/<code>k</code>) and press <code>Enter</code> to choose. Then:</p>
 <ol type="1">
 <li>Highlight the <strong>old Ubuntu root</strong> (~419.1 GiB) → <code>Delete</code>.</li>
@@ -801,7 +808,7 @@ Turn off Secure Boot now, while you’re in firmware
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-If the free space comes out fragmented
+<span class="screen-reader-only">Warning</span>If the free space comes out fragmented
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -812,15 +819,15 @@ If the free space comes out fragmented
 <section id="chapter-2-re-identify-the-new-partitions-and-set-your-variables" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-2-re-identify-the-new-partitions-and-set-your-variables">Chapter 2: Re-identify the new partitions and set your variables</h2>
 <p>Deleting and recreating can renumber things, so re-read the table and map each new partition to a shell variable. <strong>Run this in every environment</strong> where you’ll touch the disk (here, the Arch chroot in Part 4, and the Ubuntu live session in Part 6) — a fresh shell doesn’t remember them.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,PARTTYPENAME,LABEL /dev/nvme0n1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,PARTTYPENAME,LABEL /dev/nvme0n1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Set the four variables from what you see (replace each <code>X</code> with the real number; the <code>X</code> is deliberately invalid so an un-edited line errors instead of hitting the wrong disk):</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="va">EFI</span><span class="op">=</span>/dev/nvme0n1pX        <span class="co"># existing ~584 MiB EFI System — DO NOT format</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="va">EFI</span><span class="op">=</span>/dev/nvme0n1pX        <span class="co"># existing ~584 MiB EFI System — DO NOT format</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="va">DATA</span><span class="op">=</span>/dev/nvme0n1pX       <span class="co"># new 125 GiB shared Btrfs</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="va">ARCH</span><span class="op">=</span>/dev/nvme0n1pX       <span class="co"># new ~260 GiB Arch root</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="va">UBUNTU</span><span class="op">=</span>/dev/nvme0n1pX     <span class="co"># new ~390 GiB Ubuntu root</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="va">UBUNTU</span><span class="op">=</span>/dev/nvme0n1pX     <span class="co"># new ~390 GiB Ubuntu root</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Sanity-check before continuing — sizes must match, and <code>$EFI</code> must be the <strong>FAT32 EFI System</strong> partition you are <em>keeping</em>:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,PARTTYPENAME <span class="st">"</span><span class="va">$EFI</span><span class="st">"</span> <span class="st">"</span><span class="va">$DATA</span><span class="st">"</span> <span class="st">"</span><span class="va">$ARCH</span><span class="st">"</span> <span class="st">"</span><span class="va">$UBUNTU</span><span class="st">"</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">poweroff</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,PARTTYPENAME <span class="st">"</span><span class="va">$EFI</span><span class="st">"</span> <span class="st">"</span><span class="va">$DATA</span><span class="st">"</span> <span class="st">"</span><span class="va">$ARCH</span><span class="st">"</span> <span class="st">"</span><span class="va">$UBUNTU</span><span class="st">"</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">poweroff</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>We format nothing here: the ESP already exists and stays as-is, and the Btrfs filesystems get made during the Arch install in Part 4. Next stop is the existing Windows, to tame it before GRUB lands.</p>
 <hr>
 </section>
@@ -848,7 +855,7 @@ If the free space comes out fragmented
 <section id="make-windows-use-utc-for-the-hardware-clock" class="level3">
 <h3 class="anchored" data-anchor-id="make-windows-use-utc-for-the-hardware-clock">Make Windows use UTC for the hardware clock</h3>
 <p>Without this, your clock jumps by your UTC offset every time you switch OS. From an <strong>Administrator</strong> Command Prompt or PowerShell:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>reg add <span class="st">"HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation"</span> <span class="op">/</span>v RealTimeIsUniversal <span class="op">/</span>t REG_DWORD <span class="op">/</span>d <span class="dv">1</span> <span class="op">/</span>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>reg add <span class="st">"HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation"</span> <span class="op">/</span>v RealTimeIsUniversal <span class="op">/</span>t REG_DWORD <span class="op">/</span>d <span class="dv">1</span> <span class="op">/</span>f</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Reboot Windows once so it re-reads the clock. From here on, all three OSes agree the hardware clock is UTC.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -856,7 +863,7 @@ If the free space comes out fragmented
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Why we fix the clock on the Windows side
+<span class="screen-reader-only">Note</span>Why we fix the clock on the Windows side
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -871,20 +878,20 @@ Why we fix the clock on the Windows side
 <h1>Part 4 — Install Arch into the Arch partition (plain Btrfs)</h1>
 <p>Boot the Arch live USB again. From here the Arch install is the standard plain-Btrfs build — the same Btrfs subvolumes, the shared <code>/data</code>, per-OS hibernation — with two differences from a single-boot: the partitions already exist (so we <strong>don’t</strong> repartition), and the ESP is the <strong>existing</strong> one, mounted at <code>/boot/efi</code>.</p>
 <p>First, re-set the partition variables in this fresh live session (Chapter 2):</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,PARTTYPENAME /dev/nvme0n1</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,PARTTYPENAME /dev/nvme0n1</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="va">EFI</span><span class="op">=</span>/dev/nvme0n1pX        <span class="co"># existing EFI System — DO NOT format</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="va">DATA</span><span class="op">=</span>/dev/nvme0n1pX       <span class="co"># 125 GiB shared</span></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="va">ARCH</span><span class="op">=</span>/dev/nvme0n1pX       <span class="co"># ~260 GiB Arch root</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="va">UBUNTU</span><span class="op">=</span>/dev/nvme0n1pX     <span class="co"># ~390 GiB Ubuntu root (formatted later)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="va">UBUNTU</span><span class="op">=</span>/dev/nvme0n1pX     <span class="co"># ~390 GiB Ubuntu root (formatted later)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <section id="chapter-5-format-the-two-arch-side-btrfs-filesystems" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-5-format-the-two-arch-side-btrfs-filesystems">Chapter 5: Format the two Arch-side Btrfs filesystems</h2>
 <p><code>$DATA</code> is the shared data partition; <code>$ARCH</code> is the Arch root. Leave <code>$UBUNTU</code> for Ubuntu, and <strong>never</strong> run <code>mkfs</code> against <code>$EFI</code>:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> shared <span class="st">"</span><span class="va">$DATA</span><span class="st">"</span>     <span class="co"># shared data</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> arch   <span class="st">"</span><span class="va">$ARCH</span><span class="st">"</span>     <span class="co"># Arch root</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> shared <span class="st">"</span><span class="va">$DATA</span><span class="st">"</span>     <span class="co"># shared data</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> arch   <span class="st">"</span><span class="va">$ARCH</span><span class="st">"</span>     <span class="co"># Arch root</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="chapter-6-create-the-btrfs-subvolumes" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-6-create-the-btrfs-subvolumes">Chapter 6: Create the Btrfs subvolumes</h2>
-<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="st">"</span><span class="va">$ARCH</span><span class="st">"</span> /mnt</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="st">"</span><span class="va">$ARCH</span><span class="st">"</span> /mnt</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@home</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@snapshots</span>
@@ -894,12 +901,12 @@ Why we fix the clock on the Windows side
 <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="st">"</span><span class="va">$DATA</span><span class="st">"</span> /mnt</span>
 <span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@data</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> /mnt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Five subvolumes on the Arch root, one on the shared partition. <code>@</code> and <code>@home</code> are split so a system rollback never reverts your home directory; <code>@snapshots</code> is where Snapper writes; <code>@var_log</code> keeps noisy logs out of root snapshots; <code>@swap</code> is isolated for the NoCOW hibernation swap file. <code>@data</code> is the single subvolume on the shared partition.</p>
 </section>
 <section id="chapter-7-mount-everything-with-the-esp-at-bootefi" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-7-mount-everything-with-the-esp-at-bootefi">Chapter 7: Mount everything (with the ESP at <code>/boot/efi</code>)</h2>
-<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@ <span class="st">"</span><span class="va">$ARCH</span><span class="st">"</span> /mnt</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@ <span class="st">"</span><span class="va">$ARCH</span><span class="st">"</span> /mnt</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/<span class="dt">{home</span><span class="op">,</span><span class="dt">.snapshots</span><span class="op">,</span><span class="dt">var/log</span><span class="op">,</span><span class="dt">swap</span><span class="op">,</span><span class="dt">data</span><span class="op">,</span><span class="dt">boot/efi}</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@home      <span class="st">"</span><span class="va">$ARCH</span><span class="st">"</span> /mnt/home</span>
@@ -908,12 +915,12 @@ Why we fix the clock on the Windows side
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,subvol=@swap                      <span class="st">"</span><span class="va">$ARCH</span><span class="st">"</span> /mnt/swap</span>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="st">"</span><span class="va">$EFI</span><span class="st">"</span> /mnt/boot/efi</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@data <span class="st">"</span><span class="va">$DATA</span><span class="st">"</span> /mnt/data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> noatime,compress=zstd:3,subvol=@data <span class="st">"</span><span class="va">$DATA</span><span class="st">"</span> /mnt/data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>@swap</code> mounts <strong>without</strong> compression — a swap file must never sit on a compressed mount. The ESP mounts at <code>/mnt/boot/efi</code> (not <code>/mnt/boot</code>), so <code>/boot</code> itself stays on the Btrfs <code>@</code> root and holds the kernels. We mount <code>/data</code> now so <code>genfstab</code> captures it automatically in the next step.</p>
 </section>
 <section id="chapter-8-pacstrap-fstab-chroot" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-8-pacstrap-fstab-chroot">Chapter 8: Pacstrap, fstab, chroot</h2>
-<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">reflector</span> <span class="at">--country</span> <span class="st">'United States'</span> <span class="at">--protocol</span> https <span class="at">--latest</span> 20 <span class="at">--age</span> 12 <span class="dt">\</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">reflector</span> <span class="at">--country</span> <span class="st">'United States'</span> <span class="at">--protocol</span> https <span class="at">--latest</span> 20 <span class="at">--age</span> 12 <span class="dt">\</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">--sort</span> rate <span class="at">--save</span> /etc/pacman.d/mirrorlist</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="ex">pacstrap</span> <span class="at">-K</span> /mnt <span class="dt">\</span></span>
@@ -926,18 +933,18 @@ Why we fix the clock on the Windows side
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    zram-generator inotify-tools reflector</span>
 <span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Use <code>amd-ucode</code> on AMD hardware. The one addition over a single-boot install is <strong><code>os-prober</code></strong>, so GRUB discovers <strong>Windows</strong> (Ubuntu gets a manual chainload entry in Part 7). After <code>genfstab</code>, <code>cat /etc/fstab</code> should show five Arch-root subvolume lines (the same UUID, different <code>subvol=</code>), one line for <code>/data</code> on the shared filesystem’s UUID, and a <code>vfat</code> line for <code>/boot/efi</code> on the ESP’s UUID.</p>
 </section>
 <section id="chapter-9-configure-the-system-inside-the-chroot" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-9-configure-the-system-inside-the-chroot">Chapter 9: Configure the system inside the chroot</h2>
 <p>This chapter covers locale/user (with the pinned UID), the <code>/data</code> hardening, the hibernation swap file, zram, and <code>mkinitcpio</code>. The fresh chroot shell doesn’t know your variables, so re-declare them first.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="va">EFI</span><span class="op">=</span>/dev/nvme0n1pX        <span class="co"># same partitions you set in Chapter 4</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="va">EFI</span><span class="op">=</span>/dev/nvme0n1pX        <span class="co"># same partitions you set in Chapter 4</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="va">DATA</span><span class="op">=</span>/dev/nvme0n1pX</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="va">ARCH</span><span class="op">=</span>/dev/nvme0n1pX</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="va">ARCH</span><span class="op">=</span>/dev/nvme0n1pX</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <section id="locale-time-hostname-user-with-a-pinned-uid-1000" class="level3">
 <h3 class="anchored" data-anchor-id="locale-time-hostname-user-with-a-pinned-uid-1000">Locale, time, hostname, user, with a pinned UID 1000</h3>
-<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/bin/nvim /usr/local/bin/vi</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/bin/nvim /usr/local/bin/vi</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'export EDITOR=nvim'</span> <span class="op">&gt;&gt;</span> /etc/profile</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/<span class="op">&lt;</span>TIMEZONE<span class="op">&gt;</span> /etc/localtime    <span class="co"># e.g. America/Chicago</span></span>
@@ -961,23 +968,23 @@ Why we fix the clock on the Windows side
 <span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-G</span> wheel,video,audio,input <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
 <span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
 <span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/'</span> /etc/sudoers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/'</span> /etc/sudoers</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The <strong>pinned UID/GID 1000</strong> is what makes file ownership on the shared <code>/data</code> match between Arch and Ubuntu. Linux stores ownership as integers, not names: if the same person is UID 1000 on Arch but 1001 on Ubuntu, <code>/data</code> ownership can’t line up in both directions. Pin 1000 on both sides — use the <strong>same username and <code>-u 1000 -g 1000</code></strong> when you create the Ubuntu user later.</p>
 </section>
 <section id="harden-the-shared-data-and-hand-it-to-your-user" class="level3">
 <h3 class="anchored" data-anchor-id="harden-the-shared-data-and-hand-it-to-your-user">Harden the shared <code>/data</code> and hand it to your user</h3>
 <p>The shared partition is plain Btrfs that <code>genfstab</code> already recorded. Soft-fail the mount and fix ownership:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Soft-fail the /data mount (boot continues even if it's briefly missing)</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Soft-fail the /data mount (boot continues even if it's briefly missing)</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s#subvol=/@data#subvol=/@data,nofail,x-systemd.device-timeout=10s#'</span> /etc/fstab</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Hand the shared @data subvolume to your UID-1000 user — a fresh Btrfs subvolume is root-owned,</span></span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co"># so without this the first-boot probe (echo … &gt; /data/probe-arch.txt as your user) is Permission denied.</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">chown</span> 1000:1000 /data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">chown</span> 1000:1000 /data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Ownership is stored in the filesystem, so Ubuntu (also UID 1000) will see these files as its own user automatically — no second <code>chown</code> needed from Ubuntu. The numeric <code>1000:1000</code> (not a username) is deliberate: it’s the integer ownership that has to match across both OSes, and it works even though Ubuntu’s user doesn’t exist yet.</p>
 </section>
 <section id="hibernation-swap-file-zram" class="level3">
 <h3 class="anchored" data-anchor-id="hibernation-swap-file-zram">Hibernation swap file + zram</h3>
-<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> filesystem mkswapfile <span class="at">--size</span> 36g <span class="at">--uuid</span> clear /swap/swapfile     <span class="co"># size ≥ your RAM</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> filesystem mkswapfile <span class="at">--size</span> 36g <span class="at">--uuid</span> clear /swap/swapfile     <span class="co"># size ≥ your RAM</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'/swap/swapfile none swap defaults,pri=-2 0 0'</span> <span class="op">&gt;&gt;</span> /etc/fstab</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile                   <span class="co"># save the integer → &lt;RESUME_OFFSET&gt;</span></span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -987,45 +994,45 @@ Why we fix the clock on the Windows side
 <span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="st">compression-algorithm = zstd</span></span>
 <span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="st">swap-priority = 100</span></span>
 <span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="st">fs-type = swap</span></span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Don’t <code>swapon</code> from inside the chroot — activating the swap file from the live USB’s kernel blocks clean unmounting later, and <code>/etc/fstab</code> picks it up on first boot anyway. The two-tier arrangement: <strong>zram</strong> (priority 100) is compressed swap living in RAM, so it absorbs nearly all everyday memory pressure with zero SSD writes; the <strong>NoCOW Btrfs swap file</strong> (priority -2) is touched only on hibernation, when the kernel writes the full RAM image out to disk. <code>mkswapfile</code> creates it NoCOW and unfragmented, which is what makes a single, stable resume offset possible.</p>
 </section>
 <section id="mkinitcpio" class="level3">
 <h3 class="anchored" data-anchor-id="mkinitcpio">mkinitcpio</h3>
 <p>Open the mkinitcpio config:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvim</span> /etc/mkinitcpio.conf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvim</span> /etc/mkinitcpio.conf</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Set these two lines:</p>
 <pre class="text"><code>MODULES=(btrfs)
 HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)</code></pre>
 <p><code>MODULES=(btrfs)</code> lets the initramfs read a Btrfs root. The <code>HOOKS</code> line is the standard <code>systemd</code> set; the root mounts directly from the Arch Btrfs partition at boot. Save, then rebuild:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkinitcpio</span> <span class="at">-P</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkinitcpio</span> <span class="at">-P</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 </section>
 <section id="chapter-10-grub-cmdline-os-prober-install" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-10-grub-cmdline-os-prober-install">Chapter 10: GRUB, cmdline, os-prober, install</h2>
 <p>The cmdline needs two machine-specific values: the <strong>Arch root Btrfs filesystem UUID</strong> and the <strong>swap-file resume offset</strong>. Print both now so you can paste them straight in without scrolling back.</p>
 <p>Arch root Btrfs filesystem UUID:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value <span class="st">"</span><span class="va">$ARCH</span><span class="st">"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value <span class="st">"</span><span class="va">$ARCH</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Resume offset — the byte offset (in pages) of the swap file’s first extent, the same integer you saved when you created the swap file earlier in this part. Re-print it here; the swap file already exists, so this is just a read:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Now open the GRUB defaults file:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvim</span> /etc/default/grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvim</span> /etc/default/grub</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Set the <code>GRUB_CMDLINE_LINUX_DEFAULT</code> line, pasting in the two values you just printed (<strong>no angle brackets in the file</strong>):</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="va">GRUB_CMDLINE_LINUX_DEFAULT</span><span class="op">=</span><span class="st">"loglevel=3 quiet zswap.enabled=0 resume=UUID=&lt;ARCH_BTRFS_UUID&gt; resume_offset=&lt;RESUME_OFFSET&gt;"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="va">GRUB_CMDLINE_LINUX_DEFAULT</span><span class="op">=</span><span class="st">"loglevel=3 quiet zswap.enabled=0 resume=UUID=&lt;ARCH_BTRFS_UUID&gt; resume_offset=&lt;RESUME_OFFSET&gt;"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The resume target is the only thing you add by hand — <code>grub-mkconfig</code> auto-detects the root partition and <code>subvol=@</code> for you.</p>
 <p>Enable <code>os-prober</code> so GRUB discovers <strong>Windows</strong> — its boot manager is reliably detected on the ESP. (Ubuntu doesn’t exist yet; when it does, its Btrfs root won’t auto-detect, so it gets a chainload entry in Part 7.)</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/'</span> /etc/default/grub</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_DISABLE_OS_PROBER='</span> /etc/default/grub      <span class="co"># GRUB_DISABLE_OS_PROBER=false</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/'</span> /etc/default/grub</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_DISABLE_OS_PROBER='</span> /etc/default/grub      <span class="co"># GRUB_DISABLE_OS_PROBER=false</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Install GRUB to the <strong>existing</strong> ESP (mounted at <code>/boot/efi</code>) and generate the config:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot/efi <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot/efi <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>os-prober</code> already has something to find, <strong>Windows</strong>:</p>
 <pre class="text"><code>Found Windows Boot Manager on /dev/nvme0n1pXX@/EFI/Microsoft/Boot/bootmgfw.efi</code></pre>
 <p>…and <code>grub.cfg</code> will contain an Arch entry plus a <strong>Windows Boot Manager</strong> entry that chainloads <code>bootmgfw.efi</code>. Ubuntu doesn’t exist yet.</p>
 </section>
 <section id="chapter-11-enable-services-sanity-check-reboot" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-11-enable-services-sanity-check-reboot">Chapter 11: Enable services, sanity-check, reboot</h2>
-<div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager sshd fstrim.timer reflector.timer <span class="dt">\</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager sshd fstrim.timer reflector.timer <span class="dt">\</span></span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>                 snapper-timeline.timer snapper-cleanup.timer grub-btrfsd.service</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co"># quick sanity pass</span></span>
@@ -1033,11 +1040,11 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 <span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^HOOKS='</span>                      /etc/mkinitcpio.conf</span>
 <span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_CMDLINE_LINUX_DEFAULT='</span> /etc/default/grub</span>
 <span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^GRUB_DISABLE_OS_PROBER='</span>     /etc/default/grub</span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-E</span> <span class="st">'subvol=|swap|/data|/boot/efi'</span> /etc/fstab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-E</span> <span class="st">'subvol=|swap|/data|/boot/efi'</span> /etc/fstab</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Leave the chroot and reboot:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> <span class="at">-R</span> /mnt</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Pull the USB. Expected first boot: firmware → <strong>GRUB menu</strong> (listing <em>Arch Linux</em> and <em>Windows Boot Manager</em>) → pick Arch → kernel/initramfs → <code>@</code> mounts as <code>/</code> → <code>/data</code> mounts, zram comes up → login. If you drop into emergency mode, jump to the <a href="#emergency-failure-modes">🚨 emergency section</a>.</p>
 <hr>
 </section>
@@ -1045,26 +1052,26 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 <section id="part-5-arch-first-boot-verify-partitions-snapper-hibernation" class="level1">
 <h1>Part 5 — Arch first boot: verify partitions, snapper, hibernation</h1>
 <p>Log in as your user:</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /            <span class="co"># subvol=/@, on your Arch partition</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /            <span class="co"># subvol=/@, on your Arch partition</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /home        <span class="co"># subvol=/@home</span></span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /boot/efi    <span class="co"># vfat, on the existing EFI partition</span></span>
 <span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data        <span class="co"># subvol=/@data, on the shared partition</span></span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>        <span class="co"># zram0 (pri 100) + /swap/swapfile (pri -2)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>        <span class="co"># zram0 (pri 100) + /swap/swapfile (pri -2)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Reconnect Wi-Fi, re-enable NTP, verify the timezone:</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> radio wifi on</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> radio wifi on</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nmcli</span> device wifi connect <span class="st">"&lt;SSID&gt;"</span> password <span class="st">"&lt;WIFI_PASSWORD&gt;"</span></span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 3 ping.archlinux.org</span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> timedatectl set-ntp true</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> status      <span class="co"># correct Time zone, "System clock synchronized: yes", "RTC in local TZ: no"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> status      <span class="co"># correct Time zone, "System clock synchronized: yes", "RTC in local TZ: no"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <section id="verify-the-shared-data-partition-is-owned-by-you" class="level3">
 <h3 class="anchored" data-anchor-id="verify-the-shared-data-partition-is-owned-by-you">Verify the shared data partition is owned by you</h3>
-<div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"from arch"</span> <span class="op">&gt;</span> /data/probe-arch.txt                <span class="co"># Linux-only (Windows can't read Btrfs)</span></span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g'</span> /data/probe-arch.txt                   <span class="co"># 1000 1000 — confirms the pinned UID</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"from arch"</span> <span class="op">&gt;</span> /data/probe-arch.txt                <span class="co"># Linux-only (Windows can't read Btrfs)</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g'</span> /data/probe-arch.txt                   <span class="co"># 1000 1000 — confirms the pinned UID</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="configure-snapper-for" class="level3">
 <h3 class="anchored" data-anchor-id="configure-snapper-for">Configure snapper for <code>/</code></h3>
 <p>A plain <code>create-config</code> collides with the <code>@snapshots</code> we already mounted; the Arch-recommended dance avoids it:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> umount /.snapshots</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> umount /.snapshots</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> rm <span class="at">-rf</span> /.snapshots</span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root create-config /</span>
 <span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs subvolume delete /.snapshots</span>
@@ -1075,11 +1082,11 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 <span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root set-config <span class="dt">\</span></span>
 <span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>    TIMELINE_LIMIT_HOURLY=5 TIMELINE_LIMIT_DAILY=7 <span class="dt">\</span></span>
 <span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>    TIMELINE_LIMIT_WEEKLY=2 TIMELINE_LIMIT_MONTHLY=1 TIMELINE_LIMIT_YEARLY=0</span>
-<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root list      <span class="co"># at least one row</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root list      <span class="co"># at least one row</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="test-hibernation-before-installing-ubuntu" class="level3">
 <h3 class="anchored" data-anchor-id="test-hibernation-before-installing-ubuntu">Test hibernation before installing Ubuntu</h3>
-<div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Press power to resume; expect your exact session restored (no passphrase prompt). If it boots fresh, re-check <code>resume=</code>/<code>resume_offset=</code> and re-run <code>mkinitcpio -P &amp;&amp; grub-mkconfig -o /boot/grub/grub.cfg</code>.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1087,7 +1094,7 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Verify hibernation <strong>now</strong>, while only Arch + Windows exist
+<span class="screen-reader-only">Important</span>Verify hibernation <strong>now</strong>, while only Arch + Windows exist
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1101,7 +1108,7 @@ Verify hibernation <strong>now</strong>, while only Arch + Windows exist
 <h1>Part 6 — Install Ubuntu 24 LTS into the Ubuntu partition</h1>
 <p>We build Ubuntu’s root by hand with <code>debootstrap</code>, into <code>$UBUNTU</code>. Windows being present changes nothing about the Ubuntu steps; the unified menu gets built from Arch’s GRUB in Part 7.</p>
 <p>From the Arch side, snapshot the current NVRAM so you can compare after Ubuntu reorders it:</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span> <span class="at">-v</span> <span class="op">&gt;</span> ~/efi-before-ubuntu.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">efibootmgr</span> <span class="at">-v</span> <span class="op">&gt;</span> ~/efi-before-ubuntu.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Boot a verified Ubuntu 24.04 LTS Desktop USB and pick <strong>“Try Ubuntu”</strong>, then build Ubuntu’s root by hand from the live session with <code>debootstrap</code>.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1109,7 +1116,7 @@ Verify hibernation <strong>now</strong>, while only Arch + Windows exist
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Driving it remotely over SSH?
+<span class="screen-reader-only">Tip</span>Driving it remotely over SSH?
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1117,11 +1124,11 @@ Driving it remotely over SSH?
 </div>
 </div>
 <p>Open a terminal, <code>sudo -i</code>, <code>apt update &amp;&amp; apt install -y debootstrap</code>, then <strong>set the partition variables in this Ubuntu live session</strong> (their numbers are the same as before; re-confirm with <code>lsblk</code>):</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,PARTTYPENAME,LABEL /dev/nvme0n1</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-o</span> NAME,SIZE,FSTYPE,PARTTYPENAME,LABEL /dev/nvme0n1</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="va">EFI</span><span class="op">=</span>/dev/nvme0n1pX        <span class="co"># existing EFI System — do NOT reformat</span></span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="va">DATA</span><span class="op">=</span>/dev/nvme0n1pX       <span class="co"># 125 GiB shared (LABEL=shared)</span></span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="va">UBUNTU</span><span class="op">=</span>/dev/nvme0n1pX     <span class="co"># ~390 GiB Ubuntu root</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 — format the Ubuntu partition as Btrfs + subvolumes</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="va">UBUNTU</span><span class="op">=</span>/dev/nvme0n1pX     <span class="co"># ~390 GiB Ubuntu root</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 — format the Ubuntu partition as Btrfs + subvolumes</span></span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> ubuntu <span class="st">"</span><span class="va">$UBUNTU</span><span class="st">"</span></span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="st">"</span><span class="va">$UBUNTU</span><span class="st">"</span> /mnt</span>
 <span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@ <span class="kw">&amp;&amp;</span> <span class="ex">btrfs</span> subvolume create /mnt/@home <span class="kw">&amp;&amp;</span> <span class="fu">umount</span> /mnt</span>
@@ -1143,9 +1150,9 @@ Driving it remotely over SSH?
 <span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 4 — chroot</span></span>
 <span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> /etc/resolv.conf /mnt/etc/resolv.conf</span>
 <span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> dev dev/pts proc sys run<span class="kw">;</span> <span class="cf">do</span> <span class="fu">mount</span> <span class="at">--rbind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span> <span class="dv">2</span><span class="op">&gt;</span>/dev/null <span class="kw">||</span> <span class="fu">mount</span> <span class="at">--bind</span> /<span class="va">$d</span> /mnt/<span class="va">$d</span><span class="kw">;</span> <span class="cf">done</span></span>
-<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a><span class="fu">chroot</span> /mnt /bin/bash</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a><span class="fu">chroot</span> /mnt /bin/bash</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Inside the chroot, widen the sources list, install the system (a plain <code>grub-install</code> onto the existing ESP at <code>/boot/efi</code>), and create the UID-1000 user:</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> /etc/apt/sources.list <span class="op">&lt;&lt;EOF</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> /etc/apt/sources.list <span class="op">&lt;&lt;EOF</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://archive.ubuntu.com/ubuntu  noble           main restricted universe multiverse</span></span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://archive.ubuntu.com/ubuntu  noble-updates   main restricted universe multiverse</span></span>
 <span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="st">deb http://security.ubuntu.com/ubuntu noble-security  main restricted universe multiverse</span></span>
@@ -1156,18 +1163,18 @@ Driving it remotely over SSH?
 <span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot/efi <span class="at">--bootloader-id</span><span class="op">=</span>Ubuntu <span class="at">--recheck</span></span>
 <span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a><span class="ex">update-grub</span>                                          <span class="co"># builds Ubuntu's own GRUB menu</span></span>
 <span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a><span class="ex">groupadd</span> <span class="at">-g</span> 1000 <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span><span class="kw">;</span> <span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-u</span> 1000 <span class="at">-g</span> 1000 <span class="at">-s</span> /bin/bash <span class="at">-G</span> sudo,adm,cdrom,dip,plugdev <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span> <span class="kw">&amp;&amp;</span> <span class="fu">passwd</span> <span class="op">&lt;</span>USERNAME<span class="op">&gt;</span></span>
-<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-desktop-minimal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a><span class="ex">apt</span> install <span class="at">-y</span> ubuntu-desktop-minimal</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The shared <code>/data</code> line is already in <code>fstab</code> from step 3, so there’s nothing more to add. Exit and reboot:</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sync</span></span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Why <code>reboot</code> instead of unmounting by hand
+<span class="screen-reader-only">Note</span>Why <code>reboot</code> instead of unmounting by hand
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1180,7 +1187,7 @@ Why <code>reboot</code> instead of unmounting by hand
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Ubuntu reorders NVRAM to boot its own GRUB first
+<span class="screen-reader-only">Warning</span>Ubuntu reorders NVRAM to boot its own GRUB first
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1190,29 +1197,29 @@ Ubuntu reorders NVRAM to boot its own GRUB first
 <section id="chapter-12-add-ubuntus-hibernation-swap-file" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-12-add-ubuntus-hibernation-swap-file">Chapter 12: Add Ubuntu’s hibernation swap file</h2>
 <p>Boot <strong>Ubuntu</strong> from the GRUB menu, log in, and mirror Arch’s per-OS hibernation:</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /                                                    <span class="co"># your Ubuntu partition</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /                                                    <span class="co"># your Ubuntu partition</span></span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs subvolume create /swap</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs filesystem mkswapfile <span class="at">--size</span> 36g <span class="at">--uuid</span> clear /swap/swapfile</span>
 <span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'/swap/swapfile none swap defaults,pri=-2 0 0'</span> <span class="kw">|</span> <span class="fu">sudo</span> tee <span class="at">-a</span> /etc/fstab</span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile   <span class="co"># save → &lt;UBUNTU_RESUME_OFFSET&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> btrfs inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile   <span class="co"># save → &lt;UBUNTU_RESUME_OFFSET&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Point Ubuntu’s cmdline and initramfs at its <em>own</em> Btrfs filesystem (never Arch’s). The resume offset is the integer you printed just above with <code>map-swapfile</code>; print the Ubuntu root UUID too:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> <span class="at">-no</span> SOURCE /     <span class="co"># the device under your Ubuntu root, e.g. /dev/nvme0n1pXX</span></span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> blkid <span class="at">-s</span> UUID <span class="at">-o</span> value <span class="st">"</span><span class="va">$(</span><span class="ex">findmnt</span> <span class="at">-no</span> SOURCE / <span class="kw">|</span> <span class="fu">sed</span> <span class="st">'s/\[.*\]//'</span><span class="va">)</span><span class="st">"</span>   <span class="co"># this is &lt;UBUNTU_BTRFS_UUID&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> <span class="at">-no</span> SOURCE /     <span class="co"># the device under your Ubuntu root, e.g. /dev/nvme0n1pXX</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> blkid <span class="at">-s</span> UUID <span class="at">-o</span> value <span class="st">"</span><span class="va">$(</span><span class="ex">findmnt</span> <span class="at">-no</span> SOURCE / <span class="kw">|</span> <span class="fu">sed</span> <span class="st">'s/\[.*\]//'</span><span class="va">)</span><span class="st">"</span>   <span class="co"># this is &lt;UBUNTU_BTRFS_UUID&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Open the GRUB defaults file as root. <code>sudoedit</code> uses your <code>$EDITOR</code>, and a fresh Ubuntu hasn’t set one — so it opens <strong>nano</strong> (edit, then <code>Ctrl-O</code>, <code>Enter</code> to save and <code>Ctrl-X</code> to exit). Prefer nvim? Run <code>sudo apt install -y neovim &amp;&amp; export EDITOR=nvim</code> first.</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sudoedit</span> /etc/default/grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sudoedit</span> /etc/default/grub</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Ubuntu’s <code>GRUB_CMDLINE_LINUX_DEFAULT</code> typically reads <code>quiet splash</code>. Add <code>resume=</code> and <code>resume_offset=</code>, pasting in the two values (no angle brackets in the file):</p>
 <pre class="text"><code>GRUB_CMDLINE_LINUX_DEFAULT="quiet splash resume=UUID=&lt;UBUNTU_BTRFS_UUID&gt; resume_offset=&lt;UBUNTU_RESUME_OFFSET&gt;"</code></pre>
 <p>Tell Ubuntu’s initramfs about the resume device, then rebuild both the initramfs and GRUB:</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"RESUME=UUID=&lt;UBUNTU_BTRFS_UUID&gt;"</span> <span class="kw">|</span> <span class="fu">sudo</span> tee /etc/initramfs-tools/conf.d/resume</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"RESUME=UUID=&lt;UBUNTU_BTRFS_UUID&gt;"</span> <span class="kw">|</span> <span class="fu">sudo</span> tee /etc/initramfs-tools/conf.d/resume</span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-initramfs <span class="at">-u</span> <span class="at">-k</span> all</span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-grub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> update-grub</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Expected: <code>update-initramfs</code> warns “no matching swap device is available”
+<span class="screen-reader-only">Important</span>Expected: <code>update-initramfs</code> warns “no matching swap device is available”
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1223,10 +1230,10 @@ W: but no matching swap device is available.</code></pre>
 </div>
 </div>
 <p>Confirm Ubuntu sees the shared partition, then test hibernation:</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> /data</span>
 <span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                    <span class="co"># zram + /swap/swapfile</span></span>
 <span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> /data                      <span class="co"># files written from Arch appear, owned by user</span></span>
-<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate         <span class="co"># resumes into Ubuntu, separate from Arch's image</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate         <span class="co"># resumes into Ubuntu, separate from Arch's image</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 </section>
@@ -1235,8 +1242,8 @@ W: but no matching swap device is available.</code></pre>
 <p>All three OSes now exist, but Ubuntu’s install made <em>its</em> GRUB the EFI default — and neither distro’s <code>os-prober</code> reliably auto-detects the <em>other Linux</em> (a Btrfs <code>@</code>-subvolume root isn’t seen on a bare mount). <strong>Windows, though, is detected reliably.</strong> So we drive the menu from <strong>Arch’s</strong> GRUB: os-prober supplies the Windows entry, and we add a chainload entry for Ubuntu by hand.</p>
 <p><strong>1 — Boot Arch.</strong> Ubuntu’s menu won’t list Arch, so reach Arch’s bootloader directly: at power-on, open the firmware one-time boot menu (<code>F12</code>/<code>Esc</code>, vendor-dependent) and pick the <strong>GRUB</strong> entry (Arch’s; Ubuntu’s is <strong>Ubuntu</strong>, Windows’ is <strong>Windows Boot Manager</strong>).</p>
 <p><strong>2 — Confirm Ubuntu’s EFI path, then add the chainload entry.</strong> The directory name on the ESP matches the <code>--bootloader-id</code> you used (<code>Ubuntu</code> → <code>/EFI/Ubuntu/</code>). Confirm it, since case matters in the chainloader line:</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> /boot/efi/EFI            <span class="co"># look for the Ubuntu directory (e.g. Ubuntu or ubuntu)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="sourceCode" id="cb49"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="va">ESP_DEV</span><span class="op">=</span><span class="va">$(</span><span class="ex">findmnt</span> <span class="at">-no</span> SOURCE /boot/efi<span class="va">)</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> /boot/efi/EFI            <span class="co"># look for the Ubuntu directory (e.g. Ubuntu or ubuntu)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb49"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="va">ESP_DEV</span><span class="op">=</span><span class="va">$(</span><span class="ex">findmnt</span> <span class="at">-no</span> SOURCE /boot/efi<span class="va">)</span></span>
 <span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="va">ESP_UUID</span><span class="op">=</span><span class="va">$(</span><span class="ex">blkid</span> <span class="at">-s</span> UUID <span class="at">-o</span> value <span class="st">"</span><span class="va">$ESP_DEV</span><span class="st">"</span><span class="va">)</span></span>
 <span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"</span><span class="va">$ESP_UUID</span><span class="st">"</span>            <span class="co"># sanity: a short FAT id like 7F6E-D6AA</span></span>
 <span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -1251,15 +1258,15 @@ W: but no matching swap device is available.</code></pre>
 <span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a><span class="st">    chainloader /EFI/Ubuntu/grubx64.efi</span></span>
 <span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
 <span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
-<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod +x /etc/grub.d/40_custom</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod +x /etc/grub.d/40_custom</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>cat /etc/grub.d/40_custom</code> to confirm the <code>search …</code> line ends with your UUID on one line, the <code>chainloader</code> path matches what <code>ls /boot/efi/EFI</code> showed, and the block closes with <code>}</code> (a wrapped paste is the one thing that breaks it), then regenerate so os-prober also picks up Windows:</p>
-<div class="sourceCode" id="cb50"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> grub-mkconfig <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb50"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> grub-mkconfig <span class="at">-o</span> /boot/grub/grub.cfg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>You should see os-prober report Windows:</p>
 <pre class="text"><code>Found Windows Boot Manager on /dev/nvme0n1pXX@/EFI/Microsoft/Boot/bootmgfw.efi</code></pre>
 <p><code>grub.cfg</code> now lists <strong>Arch</strong> (direct), <strong>Windows Boot Manager</strong> (os-prober), and <strong>Ubuntu 24.04 LTS</strong> (your chainload entry). There’s no “Found Ubuntu” line, and that’s expected — Ubuntu comes from <code>40_custom</code>, not os-prober.</p>
 <p><strong>3 — Make Arch’s GRUB the EFI default:</strong></p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr                            <span class="co"># find the BootNNNN for "GRUB", "Ubuntu", "Windows Boot Manager"</span></span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> <span class="op">&lt;</span>GRUB_NUM<span class="op">&gt;</span>,<span class="op">&lt;</span>UBUNTU_NUM<span class="op">&gt;</span> <span class="co"># Arch's GRUB first; Windows stays reachable via the GRUB menu</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb52"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr                            <span class="co"># find the BootNNNN for "GRUB", "Ubuntu", "Windows Boot Manager"</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> <span class="op">&lt;</span>GRUB_NUM<span class="op">&gt;</span>,<span class="op">&lt;</span>UBUNTU_NUM<span class="op">&gt;</span> <span class="co"># Arch's GRUB first; Windows stays reachable via the GRUB menu</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Reboot. Arch’s GRUB lists all three: Arch boots directly, Ubuntu chainloads its own GRUB, Windows chainloads its boot manager.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1267,7 +1274,7 @@ W: but no matching swap device is available.</code></pre>
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Why Ubuntu is a chainload but Windows isn’t
+<span class="screen-reader-only">Note</span>Why Ubuntu is a chainload but Windows isn’t
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1284,7 +1291,7 @@ Why Ubuntu is a chainload but Windows isn’t
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-The pass condition
+<span class="screen-reader-only">Tip</span>The pass condition
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1292,10 +1299,10 @@ The pass condition
 </div>
 </div>
 <p><strong>From Arch / Ubuntu</strong> (run on each):</p>
-<div class="sourceCode" id="cb53"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> / /home /boot/efi /data</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb53"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> / /home /boot/efi /data</span>
 <span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                       <span class="co"># zram + that OS's own /swap/swapfile</span></span>
 <span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate            <span class="co"># resumes into the same OS</span></span>
-<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>          <span class="co"># all 1000 — pinned-UID parity</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stat</span> <span class="at">-c</span> <span class="st">'%u %g %n'</span> /data/<span class="pp">*</span>          <span class="co"># all 1000 — pinned-UID parity</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><strong>From Windows</strong>: confirm the clock is correct after switching from Linux (proves the <code>RealTimeIsUniversal</code> fix), that Windows boots normally with no BitLocker prompt, and that its own partitions and recovery options are intact.</p>
 <hr>
 <p><span id="emergency-failure-modes"></span></p>
@@ -1305,7 +1312,7 @@ The pass condition
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-🚨 Emergency: triple-boot-specific failure modes
+<span class="screen-reader-only">Important</span>🚨 Emergency: triple-boot-specific failure modes
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1331,8 +1338,8 @@ The pass condition
 <section id="a-windows-update-stole-the-boot-order-boots-straight-to-windows" class="level3">
 <h3 class="anchored" data-anchor-id="a-windows-update-stole-the-boot-order-boots-straight-to-windows">2. A Windows update stole the boot order (boots straight to Windows)</h3>
 <p>Boot Linux (force the firmware boot menu once), then:</p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr                                  <span class="co"># note the GRUB and Windows BootNNNN numbers</span></span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> <span class="op">&lt;</span>GRUB_NUM<span class="op">&gt;</span>,<span class="op">&lt;</span>WINDOWS_NUM<span class="op">&gt;</span>      <span class="co"># put GRUB first again</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb54"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr                                  <span class="co"># note the GRUB and Windows BootNNNN numbers</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> efibootmgr <span class="at">-o</span> <span class="op">&lt;</span>GRUB_NUM<span class="op">&gt;</span>,<span class="op">&lt;</span>WINDOWS_NUM<span class="op">&gt;</span>      <span class="co"># put GRUB first again</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Nothing was lost, only the <em>order</em> changed. GRUB still chainloads Windows fine.</p>
 </section>
 <section id="clock-is-wrong-after-switching-os" class="level3">
@@ -1361,7 +1368,7 @@ The pass condition
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Attribution
+<span class="screen-reader-only">Note</span>Attribution
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1437,13 +1444,14 @@ Attribution
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

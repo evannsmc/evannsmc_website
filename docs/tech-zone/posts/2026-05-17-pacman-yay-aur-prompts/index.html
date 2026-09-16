@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.34">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,16 @@
 
 <title>Pacman, Yay, Paru, and the AUR: What Every Prompt Actually Means – evannsmc</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -75,14 +81,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-befe23ebd2f54d8af2c8a89d1a1611f1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../../site_libs/bootstrap/bootstrap-dark-71d377fd5de2ab829bf86f8ce9e65e3a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../../site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-53ee116f6cfa453b1a6123e796a711ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-039cfb03a475ba00630291d45709659f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-53ee116f6cfa453b1a6123e796a711ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -348,7 +354,8 @@ document.addEventListener('DOMContentLoaded', function () {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a href="../../../index.html" class="navbar-brand navbar-brand-logo">
-    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo">
+    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo light-content">
+    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo dark-content">
     </a>
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">evannsmc</span>
@@ -461,7 +468,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-What this is
+<span class="screen-reader-only">Note</span>What this is
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -575,7 +582,7 @@ Click to expand: what each command does
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Read this if you only remember three of those
+<span class="screen-reader-only">Tip</span>Read this if you only remember three of those
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1055,11 +1062,11 @@ Click to expand: what each answer means
 <p><code>paru</code> is the second well-maintained AUR helper most Arch users settle on. It does the same job as yay (clone PKGBUILD → makepkg → hand result to pacman) and most of its prompts read identically. <strong>The differences worth knowing are the defaults, the configuration model, and a few quality-of-life flags that yay doesn’t have or shapes differently.</strong> This section mirrors Part 6 with paru-specific notes.</p>
 <section id="installing-paru" class="level2">
 <h2 class="anchored" data-anchor-id="installing-paru">Installing paru</h2>
-<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> pacman <span class="at">-S</span> <span class="at">--needed</span> git base-devel</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> pacman <span class="at">-S</span> <span class="at">--needed</span> git base-devel</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://aur.archlinux.org/paru-bin.git /tmp/paru-bin</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /tmp/paru-bin</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="ex">makepkg</span> <span class="at">-si</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <details>
 <summary>
 Click to expand: what each package does
@@ -1098,7 +1105,7 @@ Click to expand: what each package does
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-yay and paru can both be installed at the same time
+<span class="screen-reader-only">Tip</span>yay and paru can both be installed at the same time
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1122,7 +1129,7 @@ yay and paru can both be installed at the same time
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Want top-down output instead?
+<span class="screen-reader-only">Tip</span>Want top-down output instead?
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1184,13 +1191,13 @@ Click to expand: where yay and paru’s cache lives
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-paru’s distinctive “interactive review” mode
+<span class="screen-reader-only">Tip</span>paru’s distinctive “interactive review” mode
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <p>Where paru differs from yay: you can flip a setting in <code>~/.config/paru/paru.conf</code> to make the <strong>diffs and PKGBUILD-editing prompts default to interactive</strong> instead of <code>N</code>. Add:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode ini code-with-copy"><code class="sourceCode ini"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[options]</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Review</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode ini code-with-copy"><code class="sourceCode ini"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[options]</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Review</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Now every AUR install drops you into a <code>less</code>-style pager showing the PKGBUILD before the build, and asks “edit? [y/N]” for each one. <strong>This is the AUR-trust-but-verify workflow.</strong> Yay has <code>--review</code> as a per-invocation flag but no persistent equivalent.</p>
 <p>This is the single feature most people install paru <em>for</em>. If you don’t care to review PKGBUILDs, the persistent-review mode is wasted on you; if you do care, paru saves you from typing <code>--review</code> every time.</p>
 </div>
@@ -1215,7 +1222,7 @@ paru’s distinctive “interactive review” mode
 <h2 class="anchored" data-anchor-id="parus-configuration-file">paru’s configuration file</h2>
 <p>This is where paru differs most visibly from yay. paru reads <code>/etc/paru.conf</code> and <code>~/.config/paru/paru.conf</code> in pacman.conf style (INI-with-blanks, no <code>=</code>), while yay reads <code>~/.config/yay/config.json</code> in JSON.</p>
 <p>A typical <code>~/.config/paru/paru.conf</code>:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode ini code-with-copy"><code class="sourceCode ini"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode ini code-with-copy"><code class="sourceCode ini"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ~/.config/paru/paru.conf</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -1229,7 +1236,7 @@ paru’s distinctive “interactive review” mode
 <span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="kw">[bin]</span></span>
 <span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="dt">FileManager </span><span class="ot">=</span><span class="st"> ranger           # optional — used when you press 'f' in the review pager</span></span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="dt">Sudo </span><span class="ot">=</span><span class="st"> sudo                    # alternative: doas</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="dt">Sudo </span><span class="ot">=</span><span class="st"> sudo                    # alternative: doas</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <details>
 <summary>
 Click to expand: what each common option does
@@ -1287,7 +1294,7 @@ Click to expand: what each common option does
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Don’t mix yay’s config.json semantics with paru.conf
+<span class="screen-reader-only">Warning</span>Don’t mix yay’s config.json semantics with paru.conf
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1374,7 +1381,7 @@ Click to expand: side-by-side flag comparison
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Quick decision rubric
+<span class="screen-reader-only">Tip</span>Quick decision rubric
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1556,7 +1563,7 @@ Click to expand: what each prompt means
 <section id="the-answer-stow-your-personal-overlay-not-the-bundle" class="level2">
 <h2 class="anchored" data-anchor-id="the-answer-stow-your-personal-overlay-not-the-bundle">The answer: stow your <em>personal overlay</em>, not the bundle</h2>
 <p><code>stow</code> (GNU Stow) is a symlink-farm manager. Install it once:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> pacman <span class="at">-S</span> stow</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> pacman <span class="at">-S</span> stow</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Then structure your personal additions in a separate repo:</p>
 <pre class="text"><code>~/dotfiles/                         &lt;- YOUR repo (separate from any bundle)
 ├── fish/                           &lt;- a "stow package"
@@ -1576,19 +1583,19 @@ Click to expand: what each prompt means
                 └── plugins/
                     └── my-extras.lua    &lt;- adds a LazyVim plugin without touching starter</code></pre>
 <p>Then from <code>~/dotfiles/</code>:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">stow</span> fish        <span class="co"># symlinks ~/.config/fish/conf.d/99-aliases.fish → ../dotfiles/fish/.config/fish/conf.d/99-aliases.fish</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">stow</span> fish        <span class="co"># symlinks ~/.config/fish/conf.d/99-aliases.fish → ../dotfiles/fish/.config/fish/conf.d/99-aliases.fish</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">stow</span> hypr</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ex">stow</span> nvim</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ex">stow</span> nvim</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Each top-level directory under <code>~/dotfiles/</code> becomes a <em>stow package</em> you can install or remove independently. <code>stow -D fish</code> removes the symlinks; <code>stow -R fish</code> re-stows (useful after pulling new files).</p>
 <p>The recovery flow on a fresh machine becomes:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Install Arch + bundle as normal (e.g., this guide's Section 6)</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Install Arch + bundle as normal (e.g., this guide's Section 6)</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/caelestia-dots/caelestia.git ~/.local/share/caelestia</span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="ex">~/.local/share/caelestia/install.fish</span> <span class="at">--aur-helper</span><span class="op">=</span>yay</span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Add your overlay</span></span>
 <span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/<span class="op">&lt;</span>you<span class="op">&gt;</span>/dotfiles.git ~/dotfiles</span>
 <span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/dotfiles</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="ex">stow</span> <span class="pp">*</span>/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="ex">stow</span> <span class="pp">*</span>/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="two-rules-that-keep-this-clean" class="level2">
 <h2 class="anchored" data-anchor-id="two-rules-that-keep-this-clean">Two rules that keep this clean</h2>
@@ -1656,7 +1663,7 @@ Click to expand: what each prompt means
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Attribution
+<span class="screen-reader-only">Note</span>Attribution
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1732,13 +1739,14 @@ Attribution
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

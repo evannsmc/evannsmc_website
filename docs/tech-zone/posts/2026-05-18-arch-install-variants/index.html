@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.34">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,16 @@
 
 <title>Three Single-Boot Arch Variants: Btrfs, LUKS, or Both – evannsmc</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -75,14 +81,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-befe23ebd2f54d8af2c8a89d1a1611f1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../../site_libs/bootstrap/bootstrap-dark-71d377fd5de2ab829bf86f8ce9e65e3a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../../site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-53ee116f6cfa453b1a6123e796a711ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-039cfb03a475ba00630291d45709659f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-53ee116f6cfa453b1a6123e796a711ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -348,7 +354,8 @@ document.addEventListener('DOMContentLoaded', function () {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a href="../../../index.html" class="navbar-brand navbar-brand-logo">
-    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo">
+    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo light-content">
+    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo dark-content">
     </a>
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">evannsmc</span>
@@ -464,7 +471,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-If something doesn’t work, go to the source
+<span class="screen-reader-only">Note</span>If something doesn’t work, go to the source
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -490,30 +497,30 @@ If something doesn’t work, go to the source
 </ul>
 <p>Each tab is <strong>fully self-contained</strong>: it walks you from verifying the ISO all the way to the first-boot check, with every command in between. You never have to jump to another article or another tab, so there’s deliberate repetition between the tabs, that’s the point. All three assume a UEFI machine and a single NVMe disk (<code>/dev/nvme0n1</code>); substitute your own device path everywhere it appears.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Arch + Btrfs</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Arch + LUKS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Arch + LUKS + Btrfs</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Arch + Btrfs</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Arch + LUKS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">Arch + LUKS + Btrfs</a></li></ul>
 <div class="tab-content">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <p>A plain, unencrypted Arch install whose root filesystem is <strong>Btrfs with proper subvolumes</strong> instead of ext4. That buys you bootable snapshots via <code>snapper</code> + <code>grub-btrfs</code>, copy-on-write compression (<code>compress=zstd:3</code>), and the ability to roll the whole system back to a known-good state after a bad upgrade, with no passphrase prompt at boot.</p>
 <section id="verify-the-iso-then-boot-the-live-usb" class="level3">
 <h3 class="anchored" data-anchor-id="verify-the-iso-then-boot-the-live-usb">Verify the ISO, then boot the live USB</h3>
 <p>On a machine you trust, grab the ISO, its <code>.sig</code>, and <code>sha256sums.txt</code> from the <a href="https://archlinux.org/download/" target="_blank" rel="noopener">Arch download page</a>, then verify both the checksum and the signature:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Downloads/Arch</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Downloads/Arch</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> <span class="at">-c</span> sha256sums.txt        <span class="co"># expect: archlinux-…-x86_64.iso: OK</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--auto-key-locate</span> clear,wkd <span class="at">-v</span> <span class="at">--locate-external-key</span> pierre@archlinux.org</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--verify</span> archlinux-2026.05.01-x86_64.iso.sig archlinux-2026.05.01-x86_64.iso</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># expect: Good signature from "Pierre Schmitz &lt;pierre@archlinux.org&gt;"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># expect: Good signature from "Pierre Schmitz &lt;pierre@archlinux.org&gt;"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The “key’s User ID is not certified” warning is expected for a one-off personal install, the signature itself is still valid. Flash the ISO to a USB stick (balenaEtcher, or <code>dd</code> if you’re careful with <code>of=</code>), boot the target machine from it, and pick the default install entry. Confirm you booted in <strong>UEFI</strong> mode:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /sys/firmware/efi/fw_platform_size   <span class="co"># 64 (or 32 on old hardware); a missing file means BIOS mode</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /sys/firmware/efi/fw_platform_size   <span class="co"># 64 (or 32 on old hardware); a missing file means BIOS mode</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="get-online-and-sync-the-clock" class="level3">
 <h3 class="anchored" data-anchor-id="get-online-and-sync-the-clock">Get online and sync the clock</h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">iwctl</span>                 <span class="co"># then inside: station wlan0 connect "My SSID"   (skip if you're on wired DHCP)</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">iwctl</span>                 <span class="co"># then inside: station wlan0 connect "My SSID"   (skip if you're on wired DHCP)</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 5 ping.archlinux.org</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-ntp true</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">loadkeys</span> us</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-timezone America/New_York   <span class="co"># substitute your zone</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-timezone America/New_York   <span class="co"># substitute your zone</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Identify the disk you’re about to wipe, these examples use <code>/dev/nvme0n1</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="partition-layout" class="level3">
 <h3 class="anchored" data-anchor-id="partition-layout">Partition layout</h3>
@@ -559,7 +566,7 @@ If something doesn’t work, go to the source
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Inside <code>cfdisk</code>, move with <code>↑</code>/<code>↓</code> (or vim <code>j</code>/<code>k</code>) and <code>Enter</code> to choose. Press <code>d</code> on every existing partition to delete it (nothing is committed until <code>w</code>), then <code>n</code> to create each new one. Every partition starts as <strong>Linux filesystem</strong>; to change the type press <code>t</code> and pick from the list:</p>
 <ol type="1">
 <li>1 GiB, then <code>t</code> → <strong>EFI System</strong></li>
@@ -567,45 +574,45 @@ If something doesn’t work, go to the source
 <li>remainder, <strong>leave as</strong> Linux filesystem (default)</li>
 </ol>
 <p>Press <code>w</code>, type <code>yes</code>, then format:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.fat</span> <span class="at">-F32</span> /dev/nvme0n1p1</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.fat</span> <span class="at">-F32</span> /dev/nvme0n1p1</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkswap</span> /dev/nvme0n1p2</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> arch /dev/nvme0n1p3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> arch /dev/nvme0n1p3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="create-subvolumes" class="level3">
 <h3 class="anchored" data-anchor-id="create-subvolumes">Create subvolumes</h3>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p3 /mnt</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p3 /mnt</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@home</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@snapshots</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> subvolume create /mnt/@var_log</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> /mnt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The four-subvolume layout is the snapper-friendly standard: <code>@</code> is root, <code>@home</code> is <code>/home</code>, <code>@snapshots</code> holds the snapshots themselves (must be a subvolume, not a directory, so <code>snapper</code> can roll back without recursive trouble), and <code>@var_log</code> keeps logs out of any root snapshots you take.</p>
 </section>
 <section id="mount-subvolumes-with-the-right-options" class="level3">
 <h3 class="anchored" data-anchor-id="mount-subvolumes-with-the-right-options">Mount subvolumes with the right options</h3>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> subvol=@,compress=zstd:3,noatime /dev/nvme0n1p3 /mnt</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> subvol=@,compress=zstd:3,noatime /dev/nvme0n1p3 /mnt</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/<span class="dt">{boot</span><span class="op">,</span><span class="dt">home</span><span class="op">,</span><span class="dt">.snapshots</span><span class="op">,</span><span class="dt">var/log}</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> subvol=@home,compress=zstd:3,noatime      /dev/nvme0n1p3 /mnt/home</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> subvol=@snapshots,compress=zstd:3,noatime /dev/nvme0n1p3 /mnt/.snapshots</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> subvol=@var_log,compress=zstd:3,noatime   /dev/nvme0n1p3 /mnt/var/log</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> /dev/nvme0n1p2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> /dev/nvme0n1p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>compress=zstd:3</code> is the level the Arch wiki recommends, good ratio, low CPU. <code>noatime</code> prevents needless metadata churn on every read.</p>
 </section>
 <section id="pacstrap-fstab" class="level3">
 <h3 class="anchored" data-anchor-id="pacstrap-fstab">Pacstrap + fstab</h3>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacstrap</span> <span class="at">-K</span> /mnt base base-devel linux linux-firmware linux-headers <span class="dt">\</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacstrap</span> <span class="at">-K</span> /mnt base base-devel linux linux-firmware linux-headers <span class="dt">\</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  btrfs-progs grub efibootmgr networkmanager <span class="dt">\</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  vim nano sudo git man-db man-pages texinfo intel-ucode</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The Btrfs-specific package is <strong><code>btrfs-progs</code></strong>. Swap <code>intel-ucode</code> for <code>amd-ucode</code> on an AMD CPU. <code>genfstab -U</code> detects the subvolume mount options correctly and emits four <code>subvol=@…</code> lines plus the EFI and swap entries. Sanity-check:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-E</span> <span class="st">'subvol=|UUID='</span> /mnt/etc/fstab   <span class="co"># expect four subvol=@… lines with compress=zstd:3,noatime</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-E</span> <span class="st">'subvol=|UUID='</span> /mnt/etc/fstab   <span class="co"># expect four subvol=@… lines with compress=zstd:3,noatime</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="inside-the-chroot-base-config" class="level3">
 <h3 class="anchored" data-anchor-id="inside-the-chroot-base-config">Inside the chroot — base config</h3>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Set locale, time, hostname, root password, and your user:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/America/New_York /etc/localtime   <span class="co"># substitute your zone</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/America/New_York /etc/localtime   <span class="co"># substitute your zone</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">hwclock</span> <span class="at">--systohc</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/'</span> /etc/locale.gen   <span class="co"># or edit by hand</span></span>
@@ -620,7 +627,7 @@ If something doesn’t work, go to the source
 <span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> user</span>
 <span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="va">EDITOR</span><span class="op">=</span>vim <span class="ex">visudo</span>                         <span class="co"># uncomment:  %wheel ALL=(ALL:ALL) ALL</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="mkinitcpio-and-grub" class="level3">
 <h3 class="anchored" data-anchor-id="mkinitcpio-and-grub"><code>mkinitcpio</code> and GRUB</h3>
@@ -628,31 +635,31 @@ If something doesn’t work, go to the source
 <pre class="text"><code>BINARIES=(btrfs)
 HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)</code></pre>
 <p>The default <code>HOOKS=</code> line already covers a Btrfs root, no encryption hook is needed because there’s no LUKS layer. Rebuild:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkinitcpio</span> <span class="at">-P</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkinitcpio</span> <span class="at">-P</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>GRUB on a Btrfs root needs <strong>no kernel-cmdline changes</strong> vs.&nbsp;a plain ext4 install, Btrfs is detected and mounted automatically from the root device’s UUID:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="snapper-grub-btrfs-the-payoff" class="level3">
 <h3 class="anchored" data-anchor-id="snapper-grub-btrfs-the-payoff">Snapper + grub-btrfs (the payoff)</h3>
 <p>Still inside the chroot:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacman</span> <span class="at">-S</span> snapper grub-btrfs snap-pac</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacman</span> <span class="at">-S</span> snapper grub-btrfs snap-pac</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">snapper</span> <span class="at">-c</span> root create-config /</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable snapper-timeline.timer snapper-cleanup.timer</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable grub-btrfsd.service</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable grub-btrfsd.service</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>snap-pac</code> is the pacman hook that takes pre+post snapshots around every pacman transaction, so every <code>pacman -Syu</code> is reversible. <code>grub-btrfsd</code> watches <code>@snapshots</code> and rebuilds the GRUB menu so you can boot into a snapshot.</p>
 </section>
 <section id="verify-exit-reboot" class="level3">
 <h3 class="anchored" data-anchor-id="verify-exit-reboot">Verify, exit, reboot</h3>
-<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span>                          <span class="co"># leave chroot</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span>                          <span class="co"># leave chroot</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> <span class="at">-R</span> /mnt</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="ex">swapoff</span> <span class="at">-a</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>After first boot:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> <span class="at">-t</span> btrfs <span class="at">-o</span> TARGET,SOURCE,OPTIONS</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> <span class="at">-t</span> btrfs <span class="at">-o</span> TARGET,SOURCE,OPTIONS</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># expect 4 rows: /, /home, /.snapshots, /var/log — all with subvol=@…,compress=zstd:3</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root list</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># expect at least the post-install snapshot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># expect at least the post-install snapshot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>If both look right, the variant is working as designed.</p>
 </section>
 </div>
@@ -661,23 +668,23 @@ HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont bl
 <section id="verify-the-iso-then-boot-the-live-usb-1" class="level3">
 <h3 class="anchored" data-anchor-id="verify-the-iso-then-boot-the-live-usb-1">Verify the ISO, then boot the live USB</h3>
 <p>On a machine you trust, grab the ISO, its <code>.sig</code>, and <code>sha256sums.txt</code> from the <a href="https://archlinux.org/download/" target="_blank" rel="noopener">Arch download page</a>, then verify both the checksum and the signature:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Downloads/Arch</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Downloads/Arch</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> <span class="at">-c</span> sha256sums.txt        <span class="co"># expect: archlinux-…-x86_64.iso: OK</span></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--auto-key-locate</span> clear,wkd <span class="at">-v</span> <span class="at">--locate-external-key</span> pierre@archlinux.org</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--verify</span> archlinux-2026.05.01-x86_64.iso.sig archlinux-2026.05.01-x86_64.iso</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># expect: Good signature from "Pierre Schmitz &lt;pierre@archlinux.org&gt;"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># expect: Good signature from "Pierre Schmitz &lt;pierre@archlinux.org&gt;"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The “key’s User ID is not certified” warning is expected for a one-off personal install, the signature itself is still valid. Flash the ISO to a USB stick (balenaEtcher, or <code>dd</code> if you’re careful with <code>of=</code>), boot the target machine from it, and pick the default install entry. Confirm you booted in <strong>UEFI</strong> mode:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /sys/firmware/efi/fw_platform_size   <span class="co"># 64 (or 32 on old hardware); a missing file means BIOS mode</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /sys/firmware/efi/fw_platform_size   <span class="co"># 64 (or 32 on old hardware); a missing file means BIOS mode</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="get-online-and-sync-the-clock-1" class="level3">
 <h3 class="anchored" data-anchor-id="get-online-and-sync-the-clock-1">Get online and sync the clock</h3>
-<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">iwctl</span>                 <span class="co"># then inside: station wlan0 connect "My SSID"   (skip if you're on wired DHCP)</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">iwctl</span>                 <span class="co"># then inside: station wlan0 connect "My SSID"   (skip if you're on wired DHCP)</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 5 ping.archlinux.org</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-ntp true</span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">loadkeys</span> us</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-timezone America/New_York   <span class="co"># substitute your zone</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-timezone America/New_York   <span class="co"># substitute your zone</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Identify the disk you’re about to wipe, these examples use <code>/dev/nvme0n1</code>:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="partition-layout-1" class="level3">
 <h3 class="anchored" data-anchor-id="partition-layout-1">Partition layout</h3>
@@ -729,7 +736,7 @@ HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont bl
 <li>The simplest 2026 pattern is to <strong>skip the swap partition entirely</strong> and use zram. If you’d rather do that, omit <code>p2</code> below and add <code>zram-generator</code> after first boot.</li>
 </ul>
 <p>Partition:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Inside <code>cfdisk</code>, move with <code>↑</code>/<code>↓</code> (or vim <code>j</code>/<code>k</code>) and <code>Enter</code> to choose. Press <code>d</code> on every existing partition, then <code>n</code> to create each new one; press <code>t</code> to set a type from the list:</p>
 <ol type="1">
 <li>1 GiB, then <code>t</code> → <strong>EFI System</strong></li>
@@ -741,20 +748,20 @@ HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont bl
 <section id="format-and-open-the-luks-container" class="level3">
 <h3 class="anchored" data-anchor-id="format-and-open-the-luks-container">Format and open the LUKS container</h3>
 <p>Create the LUKS2 container on the root partition, then open it:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> luksFormat <span class="at">--type</span> luks2 /dev/nvme0n1p3</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> luksFormat <span class="at">--type</span> luks2 /dev/nvme0n1p3</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Type YES, then enter a strong passphrase twice.</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> open /dev/nvme0n1p3 cryptroot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> open /dev/nvme0n1p3 cryptroot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Now <code>/dev/mapper/cryptroot</code> is the unlocked block device. Format ext4 inside it (and the EFI + swap partitions outside it):</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.fat</span> <span class="at">-F32</span> /dev/nvme0n1p1</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.fat</span> <span class="at">-F32</span> /dev/nvme0n1p1</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkswap</span> /dev/nvme0n1p2</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.ext4</span> <span class="at">-L</span> arch /dev/mapper/cryptroot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.ext4</span> <span class="at">-L</span> arch /dev/mapper/cryptroot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-The mapper name <code>cryptroot</code> matters
+<span class="screen-reader-only">Important</span>The mapper name <code>cryptroot</code> matters
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -764,7 +771,7 @@ The mapper name <code>cryptroot</code> matters
 </section>
 <section id="mount-pacstrap-fstab" class="level3">
 <h3 class="anchored" data-anchor-id="mount-pacstrap-fstab">Mount, pacstrap, fstab</h3>
-<div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/mapper/cryptroot /mnt</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/mapper/cryptroot /mnt</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/boot</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot</span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> /dev/nvme0n1p2</span>
@@ -773,14 +780,14 @@ The mapper name <code>cryptroot</code> matters
 <span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  cryptsetup grub efibootmgr networkmanager <span class="dt">\</span></span>
 <span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  vim nano sudo git man-db man-pages texinfo intel-ucode</span>
 <span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The LUKS-specific package is <strong><code>cryptsetup</code></strong> (so the running system can re-open the container after boot, even though the initramfs already opened it). Swap <code>intel-ucode</code> for <code>amd-ucode</code> on an AMD CPU. <code>genfstab -U</code> writes <code>/dev/mapper/cryptroot</code> as the root device using its UUID, that’s fine, the initramfs hook below does the actual unlocking.</p>
 </section>
 <section id="inside-the-chroot-base-config-1" class="level3">
 <h3 class="anchored" data-anchor-id="inside-the-chroot-base-config-1">Inside the chroot — base config</h3>
-<div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Set locale, time, hostname, root password, and your user:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/America/New_York /etc/localtime   <span class="co"># substitute your zone</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/America/New_York /etc/localtime   <span class="co"># substitute your zone</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">hwclock</span> <span class="at">--systohc</span></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/'</span> /etc/locale.gen   <span class="co"># or edit by hand</span></span>
@@ -795,7 +802,7 @@ The mapper name <code>cryptroot</code> matters
 <span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> user</span>
 <span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="va">EDITOR</span><span class="op">=</span>vim <span class="ex">visudo</span>                         <span class="co"># uncomment:  %wheel ALL=(ALL:ALL) ALL</span></span>
-<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="mkinitcpio-grub-cmdline-crypttab" class="level3">
 <h3 class="anchored" data-anchor-id="mkinitcpio-grub-cmdline-crypttab"><code>mkinitcpio</code>, GRUB cmdline, crypttab</h3>
@@ -806,9 +813,9 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 <pre class="text"><code># Legacy (busybox-based) — pairs with kernel cmdline cryptdevice=…
 HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck)</code></pre>
 <p>The two are equivalent in outcome but use different kernel cmdline syntax (below). Once chosen, rebuild:</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkinitcpio</span> <span class="at">-P</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkinitcpio</span> <span class="at">-P</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Get the <strong>partition</strong> UUID of the LUKS container (not the mapper UUID):</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">blkid</span> /dev/nvme0n1p3 <span class="at">-s</span> UUID <span class="at">-o</span> value      <span class="co"># this is &lt;LUKS-UUID&gt; below</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">blkid</span> /dev/nvme0n1p3 <span class="at">-s</span> UUID <span class="at">-o</span> value      <span class="co"># this is &lt;LUKS-UUID&gt; below</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>For <code>sd-encrypt</code>, set the GRUB cmdline in <code>/etc/default/grub</code>:</p>
 <pre class="text"><code>GRUB_CMDLINE_LINUX_DEFAULT="quiet loglevel=3 rd.luks.name=&lt;LUKS-UUID&gt;=cryptroot root=/dev/mapper/cryptroot rw"</code></pre>
 <p>For the legacy <code>encrypt</code> hook instead:</p>
@@ -819,7 +826,7 @@ HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont bl
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<code>GRUB_ENABLE_CRYPTODISK=y</code>, when you need it
+<span class="screen-reader-only">Tip</span><code>GRUB_ENABLE_CRYPTODISK=y</code>, when you need it
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -827,8 +834,8 @@ HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont bl
 </div>
 </div>
 <p>Install GRUB:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>If you used the <code>sd-encrypt</code> hook, an <code>/etc/crypttab.initramfs</code> entry makes the configuration discoverable post-install (optional but recommended):</p>
 <pre class="text"><code># /etc/crypttab.initramfs
 cryptroot UUID=&lt;LUKS-UUID&gt; none luks</code></pre>
@@ -836,14 +843,14 @@ cryptroot UUID=&lt;LUKS-UUID&gt; none luks</code></pre>
 </section>
 <section id="verify-exit-reboot-1" class="level3">
 <h3 class="anchored" data-anchor-id="verify-exit-reboot-1">Verify, exit, reboot</h3>
-<div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> <span class="at">-R</span> /mnt</span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="ex">swapoff</span> <span class="at">-a</span></span>
 <span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> close cryptroot</span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Expected boot sequence: GRUB menu → kernel loads → “Please enter passphrase for disk … (cryptroot):” → ext4 root mounts → login. After login:</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status cryptroot   <span class="co"># active LUKS2 mapping pointing at /dev/nvme0n1p3</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-f</span>                           <span class="co"># nvme0n1p3 = crypto_LUKS, mapper cryptroot = ext4 mounted at /</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status cryptroot   <span class="co"># active LUKS2 mapping pointing at /dev/nvme0n1p3</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span> <span class="at">-f</span>                           <span class="co"># nvme0n1p3 = crypto_LUKS, mapper cryptroot = ext4 mounted at /</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
@@ -851,23 +858,23 @@ cryptroot UUID=&lt;LUKS-UUID&gt; none luks</code></pre>
 <section id="verify-the-iso-then-boot-the-live-usb-2" class="level3">
 <h3 class="anchored" data-anchor-id="verify-the-iso-then-boot-the-live-usb-2">Verify the ISO, then boot the live USB</h3>
 <p>On a machine you trust, grab the ISO, its <code>.sig</code>, and <code>sha256sums.txt</code> from the <a href="https://archlinux.org/download/" target="_blank" rel="noopener">Arch download page</a>, then verify both the checksum and the signature:</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Downloads/Arch</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Downloads/Arch</span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> <span class="at">-c</span> sha256sums.txt        <span class="co"># expect: archlinux-…-x86_64.iso: OK</span></span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--auto-key-locate</span> clear,wkd <span class="at">-v</span> <span class="at">--locate-external-key</span> pierre@archlinux.org</span>
 <span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--verify</span> archlinux-2026.05.01-x86_64.iso.sig archlinux-2026.05.01-x86_64.iso</span>
-<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="co"># expect: Good signature from "Pierre Schmitz &lt;pierre@archlinux.org&gt;"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="co"># expect: Good signature from "Pierre Schmitz &lt;pierre@archlinux.org&gt;"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The “key’s User ID is not certified” warning is expected for a one-off personal install, the signature itself is still valid. Flash the ISO to a USB stick (balenaEtcher, or <code>dd</code> if you’re careful with <code>of=</code>), boot the target machine from it, and pick the default install entry. Confirm you booted in <strong>UEFI</strong> mode:</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /sys/firmware/efi/fw_platform_size   <span class="co"># 64 (or 32 on old hardware); a missing file means BIOS mode</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /sys/firmware/efi/fw_platform_size   <span class="co"># 64 (or 32 on old hardware); a missing file means BIOS mode</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="get-online-and-sync-the-clock-2" class="level3">
 <h3 class="anchored" data-anchor-id="get-online-and-sync-the-clock-2">Get online and sync the clock</h3>
-<div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">iwctl</span>                 <span class="co"># then inside: station wlan0 connect "My SSID"   (skip if you're on wired DHCP)</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">iwctl</span>                 <span class="co"># then inside: station wlan0 connect "My SSID"   (skip if you're on wired DHCP)</span></span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 5 ping.archlinux.org</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-ntp true</span>
 <span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="fu">loadkeys</span> us</span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-timezone America/New_York   <span class="co"># substitute your zone</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-timezone America/New_York   <span class="co"># substitute your zone</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Identify the disk you’re about to wipe, these examples use <code>/dev/nvme0n1</code>:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="partition-layout-2" class="level3">
 <h3 class="anchored" data-anchor-id="partition-layout-2">Partition layout</h3>
@@ -907,7 +914,7 @@ cryptroot UUID=&lt;LUKS-UUID&gt; none luks</code></pre>
 </tbody>
 </table>
 <p>Partition:</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Inside <code>cfdisk</code>, move with <code>↑</code>/<code>↓</code> (or vim <code>j</code>/<code>k</code>) and <code>Enter</code> to choose. Press <code>d</code> on every existing partition, then <code>n</code> to create each new one; press <code>t</code> to set a type from the list:</p>
 <ol type="1">
 <li>1 GiB, then <code>t</code> → <strong>EFI System</strong></li>
@@ -917,7 +924,7 @@ cryptroot UUID=&lt;LUKS-UUID&gt; none luks</code></pre>
 </section>
 <section id="format-open-lay-out-subvolumes" class="level3">
 <h3 class="anchored" data-anchor-id="format-open-lay-out-subvolumes">Format, open, lay out subvolumes</h3>
-<div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.fat</span> <span class="at">-F32</span> /dev/nvme0n1p1</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.fat</span> <span class="at">-F32</span> /dev/nvme0n1p1</span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> luksFormat <span class="at">--type</span> luks2 /dev/nvme0n1p2</span>
 <span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> open /dev/nvme0n1p2 cryptroot</span>
 <span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.btrfs</span> <span class="at">-L</span> arch /dev/mapper/cryptroot</span>
@@ -926,34 +933,34 @@ cryptroot UUID=&lt;LUKS-UUID&gt; none luks</code></pre>
 <span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sv <span class="kw">in</span> @ @home @snapshots @var_log @swap<span class="kw">;</span> <span class="cf">do</span></span>
 <span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>  <span class="ex">btrfs</span> subvolume create <span class="st">"/mnt/</span><span class="va">$sv</span><span class="st">"</span></span>
 <span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
-<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> /mnt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="mount-with-the-right-options" class="level3">
 <h3 class="anchored" data-anchor-id="mount-with-the-right-options">Mount with the right options</h3>
-<div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> subvol=@,compress=zstd:3,noatime /dev/mapper/cryptroot /mnt</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> subvol=@,compress=zstd:3,noatime /dev/mapper/cryptroot /mnt</span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/<span class="dt">{boot</span><span class="op">,</span><span class="dt">home</span><span class="op">,</span><span class="dt">.snapshots</span><span class="op">,</span><span class="dt">var/log</span><span class="op">,</span><span class="dt">swap}</span></span>
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> subvol=@home,compress=zstd:3,noatime      /dev/mapper/cryptroot /mnt/home</span>
 <span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> subvol=@snapshots,compress=zstd:3,noatime /dev/mapper/cryptroot /mnt/.snapshots</span>
 <span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> subvol=@var_log,compress=zstd:3,noatime   /dev/mapper/cryptroot /mnt/var/log</span>
 <span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="at">-o</span> subvol=@swap,noatime                      /dev/mapper/cryptroot /mnt/swap</span>
-<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>@swap</code> is mounted <strong>without</strong> <code>compress</code>, a swap file can’t live on a compressed subvolume.</p>
 </section>
 <section id="pacstrap-fstab-1" class="level3">
 <h3 class="anchored" data-anchor-id="pacstrap-fstab-1">Pacstrap + fstab</h3>
-<div class="sourceCode" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacstrap</span> <span class="at">-K</span> /mnt base base-devel linux linux-firmware linux-headers <span class="dt">\</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacstrap</span> <span class="at">-K</span> /mnt base base-devel linux linux-firmware linux-headers <span class="dt">\</span></span>
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  btrfs-progs cryptsetup grub efibootmgr networkmanager <span class="dt">\</span></span>
 <span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  snapper snap-pac grub-btrfs zram-generator <span class="dt">\</span></span>
 <span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  vim nano sudo git man-db man-pages texinfo intel-ucode</span>
 <span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Swap <code>intel-ucode</code> for <code>amd-ucode</code> on an AMD CPU.</p>
 </section>
 <section id="inside-the-chroot-base-config-2" class="level3">
 <h3 class="anchored" data-anchor-id="inside-the-chroot-base-config-2">Inside the chroot — base config</h3>
-<div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Set locale, time, hostname, root password, and your user:</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/America/New_York /etc/localtime   <span class="co"># substitute your zone</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/America/New_York /etc/localtime   <span class="co"># substitute your zone</span></span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="ex">hwclock</span> <span class="at">--systohc</span></span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/'</span> /etc/locale.gen   <span class="co"># or edit by hand</span></span>
@@ -968,66 +975,66 @@ cryptroot UUID=&lt;LUKS-UUID&gt; none luks</code></pre>
 <span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> user</span>
 <span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a><span class="va">EDITOR</span><span class="op">=</span>vim <span class="ex">visudo</span>                         <span class="co"># uncomment:  %wheel ALL=(ALL:ALL) ALL</span></span>
-<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <section id="mkinitcpio.conf" class="level4">
 <h4 class="anchored" data-anchor-id="mkinitcpio.conf"><code>mkinitcpio.conf</code></h4>
 <pre class="text"><code>BINARIES=(btrfs)
 HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)</code></pre>
-<div class="sourceCode" id="cb50"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkinitcpio</span> <span class="at">-P</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb50"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkinitcpio</span> <span class="at">-P</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="swap-file-for-hibernation-nocow-inside-swap" class="level4">
 <h4 class="anchored" data-anchor-id="swap-file-for-hibernation-nocow-inside-swap">Swap file for hibernation (NoCOW, inside <code>@swap</code>)</h4>
-<div class="sourceCode" id="cb51"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> /swap/swapfile</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb51"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> /swap/swapfile</span>
 <span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">chattr</span> +C /swap/swapfile         <span class="co"># disable copy-on-write (required before any data is written)</span></span>
 <span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> 600 /swap/swapfile</span>
 <span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="ex">fallocate</span> <span class="at">-l</span> 20G /swap/swapfile  <span class="co"># size ≥ RAM for full hibernation</span></span>
 <span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a><span class="ex">mkswap</span> /swap/swapfile</span>
 <span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Don't `swapon` from inside the chroot — add the fstab entry instead:</span></span>
-<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"/swap/swapfile none swap defaults,pri=-2 0 0"</span> <span class="op">&gt;&gt;</span> /etc/fstab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"/swap/swapfile none swap defaults,pri=-2 0 0"</span> <span class="op">&gt;&gt;</span> /etc/fstab</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Find the resume offset for hibernation:</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile</span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the printed offset — paste it into the GRUB cmdline below as resume_offset=&lt;OFFSET&gt;.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb52"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="ex">btrfs</span> inspect-internal map-swapfile <span class="at">-r</span> /swap/swapfile</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the printed offset — paste it into the GRUB cmdline below as resume_offset=&lt;OFFSET&gt;.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="zram-generator-for-everyday-compressed-swap" class="level4">
 <h4 class="anchored" data-anchor-id="zram-generator-for-everyday-compressed-swap"><code>zram-generator</code> for everyday compressed swap</h4>
-<div class="sourceCode" id="cb53"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> /etc/systemd/zram-generator.conf <span class="op">&lt;&lt;'EOF'</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb53"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> /etc/systemd/zram-generator.conf <span class="op">&lt;&lt;'EOF'</span></span>
 <span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="st">[zram0]</span></span>
 <span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="st">zram-size = ram / 2</span></span>
 <span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="st">compression-algorithm = zstd</span></span>
 <span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="st">swap-priority = 100</span></span>
-<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>zram comes up at boot at priority 100, higher than the swap file’s <code>pri=-2</code>, so the kernel uses zram first and falls through to the swap file only under memory pressure or hibernation.</p>
 </section>
 <section id="grub" class="level4">
 <h4 class="anchored" data-anchor-id="grub">GRUB</h4>
 <p>Get the <strong>partition</strong> UUID of the LUKS container:</p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="ex">blkid</span> /dev/nvme0n1p2 <span class="at">-s</span> UUID <span class="at">-o</span> value      <span class="co"># this is &lt;LUKS-UUID&gt; below</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb54"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="ex">blkid</span> /dev/nvme0n1p2 <span class="at">-s</span> UUID <span class="at">-o</span> value      <span class="co"># this is &lt;LUKS-UUID&gt; below</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Set the cmdline in <code>/etc/default/grub</code> (<code>&lt;OFFSET&gt;</code> is the number <code>map-swapfile</code> printed above):</p>
 <pre class="text"><code>GRUB_CMDLINE_LINUX_DEFAULT="quiet loglevel=3 rd.luks.name=&lt;LUKS-UUID&gt;=cryptroot root=/dev/mapper/cryptroot rootflags=subvol=@ rw resume=/dev/mapper/cryptroot resume_offset=&lt;OFFSET&gt;"</code></pre>
-<div class="sourceCode" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
-<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="snapper-grub-btrfs" class="level4">
 <h4 class="anchored" data-anchor-id="snapper-grub-btrfs">snapper + grub-btrfs</h4>
-<div class="sourceCode" id="cb57"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ex">snapper</span> <span class="at">-c</span> root create-config /</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb57"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ex">snapper</span> <span class="at">-c</span> root create-config /</span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="fu">chown</span> :wheel /.snapshots <span class="kw">&amp;&amp;</span> <span class="fu">chmod</span> 750 /.snapshots</span>
 <span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable snapper-timeline.timer snapper-cleanup.timer</span>
-<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable grub-btrfsd.service</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable grub-btrfsd.service</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>snap-pac</code> is already installed and active, it’ll start taking pre/post snapshots around every pacman transaction automatically.</p>
 </section>
 </section>
 <section id="verify-exit-reboot-2" class="level3">
 <h3 class="anchored" data-anchor-id="verify-exit-reboot-2">Verify, exit, reboot</h3>
-<div class="sourceCode" id="cb58"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb58"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span>
 <span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> <span class="at">-R</span> /mnt</span>
 <span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="ex">cryptsetup</span> close cryptroot</span>
-<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Expected boot: GRUB → passphrase prompt → Btrfs root mounts → login. After login:</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status cryptroot           <span class="co"># LUKS2 mapping active</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb59"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cryptsetup status cryptroot           <span class="co"># LUKS2 mapping active</span></span>
 <span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="ex">findmnt</span> <span class="at">-t</span> btrfs <span class="at">-o</span> TARGET,SOURCE,OPTIONS  <span class="co"># five subvolumes mounted</span></span>
 <span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span>                              <span class="co"># zram0 priority 100, swap file priority -2</span></span>
 <span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> snapper <span class="at">-c</span> root list                  <span class="co"># at least the post-install snapshot</span></span>
-<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate                   <span class="co"># hibernation works (re-test after a few uses)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl hibernate                   <span class="co"># hibernation works (re-test after a few uses)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="next-pick-a-desktop-layer" class="level3">
 <h3 class="anchored" data-anchor-id="next-pick-a-desktop-layer">Next: pick a desktop layer</h3>
@@ -1038,7 +1045,7 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Path A → Custom Hyprland (upcoming)
+<span class="screen-reader-only">Tip</span>Path A → Custom Hyprland (upcoming)
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1051,7 +1058,7 @@ Path A → Custom Hyprland (upcoming)
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Path B → Something else entirely
+<span class="screen-reader-only">Tip</span>Path B → Something else entirely
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1075,7 +1082,7 @@ Path B → Something else entirely
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Further reading (optional)
+<span class="screen-reader-only">Note</span>Further reading (optional)
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1093,7 +1100,7 @@ Further reading (optional)
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Attribution
+<span class="screen-reader-only">Note</span>Attribution
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1169,13 +1176,14 @@ Attribution
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

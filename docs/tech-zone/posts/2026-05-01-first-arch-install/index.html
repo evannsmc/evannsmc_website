@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.34">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,16 @@
 
 <title>My First Arch Linux Install: A Basic Setup on an Old Laptop – evannsmc</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -75,14 +81,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-befe23ebd2f54d8af2c8a89d1a1611f1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-c8ad9e5dbd60b7b70b38521ab19b7da4.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../../site_libs/bootstrap/bootstrap-dark-71d377fd5de2ab829bf86f8ce9e65e3a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../../site_libs/bootstrap/bootstrap-aa9b08c41d776d9daeee5b56fe0ceaec.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-53ee116f6cfa453b1a6123e796a711ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-039cfb03a475ba00630291d45709659f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-53ee116f6cfa453b1a6123e796a711ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -348,7 +354,8 @@ document.addEventListener('DOMContentLoaded', function () {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a href="../../../index.html" class="navbar-brand navbar-brand-logo">
-    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo">
+    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo light-content">
+    <img src="../../../files/site_icon/favicon.png" alt="" class="navbar-logo dark-content">
     </a>
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">evannsmc</span>
@@ -461,7 +468,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-What this is
+<span class="screen-reader-only">Note</span>What this is
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -493,8 +500,8 @@ What this is
 </ol>
 <section id="verify-the-checksum" class="level3">
 <h3 class="anchored" data-anchor-id="verify-the-checksum">Verify the checksum</h3>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Downloads/Arch</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> <span class="at">-c</span> sha256sums.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Downloads/Arch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> <span class="at">-c</span> sha256sums.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>You should see:</p>
 <pre class="text"><code>archlinux-2026.05.01-x86_64.iso: OK</code></pre>
 <p>This confirms the file you have on disk byte-for-byte matches the one published in the checksum file. A bad mirror or a corrupted download would fail here.</p>
@@ -502,8 +509,8 @@ What this is
 <section id="verify-the-signature" class="level3">
 <h3 class="anchored" data-anchor-id="verify-the-signature">Verify the signature</h3>
 <p>A checksum tells you the file matches what the mirror serves. A signature tells you it was actually published by the Arch Linux release engineer (Pierre Schmitz at the time of writing). Both are worth checking.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--auto-key-locate</span> clear,wkd <span class="at">-v</span> <span class="at">--locate-external-key</span> pierre@archlinux.org</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--verify</span> archlinux-2026.05.01-x86_64.iso.sig archlinux-2026.05.01-x86_64.iso</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--auto-key-locate</span> clear,wkd <span class="at">-v</span> <span class="at">--locate-external-key</span> pierre@archlinux.org</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--verify</span> archlinux-2026.05.01-x86_64.iso.sig archlinux-2026.05.01-x86_64.iso</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>You should see:</p>
 <pre class="text"><code>gpg: Good signature from "Pierre Schmitz &lt;pierre@archlinux.org&gt;" [unknown]</code></pre>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -512,7 +519,7 @@ What this is
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-About the “key is not certified” warning
+<span class="screen-reader-only">Tip</span>About the “key is not certified” warning
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -538,10 +545,10 @@ gpg:          There is no indication that the signature belongs to the owner.</c
 <li>From the Arch ISO boot menu, pick the default “Arch Linux install medium” entry.</li>
 </ol>
 <p>Once you land at the root shell, verify you booted in <strong>UEFI</strong> mode (everything below assumes UEFI, not legacy BIOS):</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /sys/firmware/efi/fw_platform_size</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /sys/firmware/efi/fw_platform_size</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>You should see <code>64</code> (or <code>32</code> on very old hardware). If the file does not exist at all, you booted in BIOS mode and you’ll need to fix your firmware settings before continuing.</p>
 <p>If your console font is too small to read comfortably on a high-DPI display, bump it up:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setfont</span> ter-132b</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setfont</span> ter-132b</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 <section id="chapter-2-optional-ssh-in-from-another-computer" class="level2">
@@ -549,7 +556,7 @@ gpg:          There is no indication that the signature belongs to the owner.</c
 <p>I do this every time. My old test laptop’s keyboard is partly broken and I’d rather not type a full install through it. SSHing in from my newer machine also means I can keep the install guide open on one monitor while running commands on the other.</p>
 <section id="get-on-wi-fi-with-iwctl" class="level3">
 <h3 class="anchored" data-anchor-id="get-on-wi-fi-with-iwctl">Get on Wi-Fi with <code>iwctl</code></h3>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">iwctl</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">iwctl</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Inside the interactive prompt:</p>
 <pre class="text"><code>device list
 station wlan0 scan
@@ -557,25 +564,25 @@ station wlan0 get-networks
 station wlan0 connect "My SSID Name"</code></pre>
 <p>Use quotes around any SSID with spaces. Replace <code>wlan0</code> with whatever your card is actually called from <code>device list</code>. Then <code>exit</code> to leave <code>iwctl</code>.</p>
 <p>Confirm you have a connection:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 5 ping.archlinux.org</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 5 ping.archlinux.org</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="find-your-ip" class="level3">
 <h3 class="anchored" data-anchor-id="find-your-ip">Find your IP</h3>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ip</span> addr show</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ip</span> addr show</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Look at the <code>wlan0</code> block for an <code>inet xxx.xxx.xxx.xxx/yy</code> line. That’s the address you’ll SSH into.</p>
 </section>
 <section id="make-sure-the-ssh-daemon-is-running" class="level3">
 <h3 class="anchored" data-anchor-id="make-sure-the-ssh-daemon-is-running">Make sure the SSH daemon is running</h3>
-<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> status sshd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> status sshd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>If it isn’t already running:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable <span class="at">--now</span> sshd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable <span class="at">--now</span> sshd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-openssh vs.&nbsp;ssh vs.&nbsp;sshd
+<span class="screen-reader-only">Note</span>openssh vs.&nbsp;ssh vs.&nbsp;sshd
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -591,9 +598,9 @@ openssh vs.&nbsp;ssh vs.&nbsp;sshd
 </section>
 <section id="set-a-root-password-and-connect-from-your-other-machine" class="level3">
 <h3 class="anchored" data-anchor-id="set-a-root-password-and-connect-from-your-other-machine">Set a root password and connect from your other machine</h3>
-<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This is only for the live environment, you’ll set a separate password for the installed system later. Then from any other computer on the same network:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> root@<span class="op">&lt;</span>ip-address-from-earlier<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> root@<span class="op">&lt;</span>ip-address-from-earlier<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The rest of this guide is much more comfortable from a real keyboard.</p>
 <hr>
 </section>
@@ -602,24 +609,24 @@ openssh vs.&nbsp;ssh vs.&nbsp;sshd
 <h2 class="anchored" data-anchor-id="chapter-3-keyboard-timezone-and-time-sync">Chapter 3: Keyboard, Timezone, and Time Sync</h2>
 <section id="keymap" class="level3">
 <h3 class="anchored" data-anchor-id="keymap">Keymap</h3>
-<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">localectl</span> list-keymaps    <span class="co"># see all available layouts</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">loadkeys</span> us               <span class="co"># I use a US layout</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">localectl</span> list-keymaps    <span class="co"># see all available layouts</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">loadkeys</span> us               <span class="co"># I use a US layout</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="timezone" class="level3">
 <h3 class="anchored" data-anchor-id="timezone">Timezone</h3>
-<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> list-timezones <span class="kw">|</span> <span class="fu">grep</span> America</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-timezone America/New_York</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> list-timezones <span class="kw">|</span> <span class="fu">grep</span> America</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-timezone America/New_York</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="enable-ntp" class="level3">
 <h3 class="anchored" data-anchor-id="enable-ntp">Enable NTP</h3>
-<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-ntp true</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">timedatectl</span> set-ntp true</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-What <code>set-ntp true</code> actually does
+<span class="screen-reader-only">Note</span>What <code>set-ntp true</code> actually does
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -677,13 +684,13 @@ What <code>set-ntp true</code> actually does
 <p>Separate <code>/</code> and <code>/home</code> partitions mean I can reinstall Arch later without nuking my home directory. Not strictly necessary, but it’s the kind of habit that pays off the first time you want to wipe and try again.</p>
 <section id="find-the-ssd" class="level3">
 <h3 class="anchored" data-anchor-id="find-the-ssd">Find the SSD</h3>
-<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fdisk</span> <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fdisk</span> <span class="at">-l</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The disk you want is the big one, usually <code>nvme0n1</code> on modern laptops (the <code>NVMe</code> naming reflects how SSDs talk to the motherboard over PCIe). Note its full path: <code>/dev/nvme0n1</code>.</p>
 </section>
 <section id="edit-the-partition-table" class="level3">
 <h3 class="anchored" data-anchor-id="edit-the-partition-table">Edit the partition table</h3>
 <p><code>cfdisk</code> is a TUI tool that makes partitioning much less painful than raw <code>fdisk</code>:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cfdisk</span> /dev/nvme0n1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Inside <code>cfdisk</code>, move the highlight with <code>↑</code>/<code>↓</code> (or vim’s <code>j</code> and <code>k</code>) and press <code>Enter</code> to choose. Every new partition starts as <strong>Linux filesystem</strong>; to set a different type, highlight it, press <code>t</code>, and pick from the list the same way:</p>
 <ol type="1">
 <li>Press <code>d</code> on every existing partition to delete it. Nothing is committed until you press <code>w</code>, so this is your scratch space.</li>
@@ -697,8 +704,8 @@ What <code>set-ntp true</code> actually does
 <li>Press <code>w</code> to write, type <code>yes</code> to confirm.</li>
 </ol>
 <p>Verify the new layout:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">fdisk</span> <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">fdisk</span> <span class="at">-l</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>You should see <code>nvme0n1p1</code> … <code>nvme0n1p4</code> with the sizes you set.</p>
 <hr>
 </section>
@@ -708,27 +715,27 @@ What <code>set-ntp true</code> actually does
 <p>The partition table tells the disk <em>which bytes belong to which slice</em>. The filesystem tells the kernel <em>how to read and write files inside that slice</em>. Two different things, two separate commands.</p>
 <section id="format" class="level3">
 <h3 class="anchored" data-anchor-id="format">Format</h3>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.fat</span> <span class="at">-F32</span> /dev/nvme0n1p1    <span class="co"># EFI System Partition (FAT32 — required by UEFI spec)</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.fat</span> <span class="at">-F32</span> /dev/nvme0n1p1    <span class="co"># EFI System Partition (FAT32 — required by UEFI spec)</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkswap</span>        /dev/nvme0n1p2    <span class="co"># Swap area</span></span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.ext4</span>     /dev/nvme0n1p3    <span class="co"># Root filesystem</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.ext4</span>     /dev/nvme0n1p4    <span class="co"># Home filesystem</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="ex">mkfs.ext4</span>     /dev/nvme0n1p4    <span class="co"># Home filesystem</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The EFI partition <em>must</em> be FAT32, the UEFI specification mandates it. Everything else is your choice; I’m going with <code>ext4</code> because it is rock-solid, well-understood, and has no exotic features I’ll need before I rebuild with Btrfs in the next article.</p>
 </section>
 <section id="mount" class="level3">
 <h3 class="anchored" data-anchor-id="mount">Mount</h3>
 <p>Mounting is how you attach a partition to a directory tree so the OS can actually use it. The Arch install lives in <code>/mnt</code> from the live environment’s point of view, that becomes <code>/</code> from the installed system’s point of view after reboot.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p3 /mnt              <span class="co"># mount root first</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p3 /mnt              <span class="co"># mount root first</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/<span class="dt">{boot</span><span class="op">,</span><span class="dt">home}</span>              <span class="co"># create mount points inside the new root</span></span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot         <span class="co"># EFI partition at /boot</span></span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p4 /mnt/home         <span class="co"># /home</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> /dev/nvme0n1p2                  <span class="co"># activate swap</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> /dev/nvme0n1p2                  <span class="co"># activate swap</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Order matters
+<span class="screen-reader-only">Important</span>Order matters
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -738,15 +745,15 @@ Order matters
 </section>
 <section id="verify" class="level3">
 <h3 class="anchored" data-anchor-id="verify">Verify</h3>
-<div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsblk</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="kw">|</span> <span class="fu">grep</span> /mnt</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> <span class="at">--show</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>You should see all three partitions mounted under <code>/mnt</code> and the swap device active.</p>
 </section>
 <section id="recovery-starting-the-mount-step-over" class="level3">
 <h3 class="anchored" data-anchor-id="recovery-starting-the-mount-step-over">Recovery: starting the mount step over</h3>
 <p>If you mis-mounted something or activated swap twice, nothing is broken, you can cleanly reset the mount state and start over.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">swapoff</span> /dev/nvme0n1p2     <span class="co"># ignore errors if swap isn't on</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">swapoff</span> /dev/nvme0n1p2     <span class="co"># ignore errors if swap isn't on</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> <span class="at">-R</span> /mnt             <span class="co"># recursively unmount everything under /mnt</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> <span class="kw">|</span> <span class="fu">grep</span> /mnt          <span class="co"># should print nothing</span></span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -755,7 +762,7 @@ Order matters
 <span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /mnt/<span class="dt">{boot</span><span class="op">,</span><span class="dt">home}</span></span>
 <span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p1 /mnt/boot</span>
 <span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mount</span> /dev/nvme0n1p4 /mnt/home</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> /dev/nvme0n1p2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="ex">swapon</span> /dev/nvme0n1p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 </section>
@@ -768,7 +775,7 @@ Order matters
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Why this order matters
+<span class="screen-reader-only">Note</span>Why this order matters
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -778,20 +785,20 @@ Why this order matters
 <section id="refresh-the-mirror-list" class="level3">
 <h3 class="anchored" data-anchor-id="refresh-the-mirror-list">1. Refresh the mirror list</h3>
 <p><code>pacman</code> downloads packages from mirrors. The default mirror list is geographically random — <code>reflector</code> ranks them by speed and recency so your installs are fast.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">reflector</span> <span class="dt">\</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">reflector</span> <span class="dt">\</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--country</span> <span class="st">'United States'</span> <span class="dt">\</span></span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--protocol</span> https <span class="dt">\</span></span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--latest</span> 20 <span class="dt">\</span></span>
 <span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--age</span> 12 <span class="dt">\</span></span>
 <span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--sort</span> rate <span class="dt">\</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--save</span> /etc/pacman.d/mirrorlist</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--save</span> /etc/pacman.d/mirrorlist</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>You can preview the current list first with <code>less /etc/pacman.d/mirrorlist</code>.</p>
 </section>
 <section id="bootstrap-the-base-system" class="level3">
 <h3 class="anchored" data-anchor-id="bootstrap-the-base-system">2. Bootstrap the base system</h3>
-<div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacstrap</span> <span class="at">-K</span> /mnt base linux linux-firmware <span class="dt">\</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacstrap</span> <span class="at">-K</span> /mnt base linux linux-firmware <span class="dt">\</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    grub efibootmgr networkmanager sudo neovim <span class="dt">\</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    git base-devel intel-ucode</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    git base-devel intel-ucode</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The <code>-K</code> flag initializes a fresh pacman keyring inside <code>/mnt</code>. Without it, <code>pacman</code> running inside the chroot later would inherit the live ISO’s keyring, which can cause confusing key-trust errors during your first <code>pacman -Syu</code>.</p>
 <p>Here’s what each package is for:</p>
 <details>
@@ -860,8 +867,8 @@ Click to expand: what each package does
 </section>
 <section id="generate-fstab-and-chroot-in" class="level3">
 <h3 class="anchored" data-anchor-id="generate-fstab-and-chroot-in">3. Generate <code>fstab</code> and chroot in</h3>
-<div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">genfstab</span> <span class="at">-U</span> /mnt <span class="op">&gt;&gt;</span> /mnt/etc/fstab</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">arch-chroot</span> /mnt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>genfstab</code> scans the currently mounted partitions and writes their UUIDs into <code>/mnt/etc/fstab</code>. Using <code>-U</code> (UUIDs) instead of <code>-L</code> (labels) is the safer default — UUIDs survive disk renaming. The <code>&gt;&gt;</code> appends to the file; do <em>not</em> use <code>&gt;</code> (it would overwrite anything already there).</p>
 <p><code>arch-chroot /mnt</code> is a smarter <code>chroot</code>, it mounts <code>/proc</code>, <code>/sys</code>, <code>/dev</code>, and a few other API filesystems inside <code>/mnt</code> first, so things like <code>pacman</code> work normally from inside the new system. After this command, your shell prompt is “inside” the new Arch install.</p>
 <hr>
@@ -872,14 +879,14 @@ Click to expand: what each package does
 <p>This chapter is the configuration walk-through that runs <em>inside</em> the chroot: setting the editor, locale, timezone, hostname, root password, user account, and a second wave of useful packages. Each step writes to a config file in <code>/etc/</code> or runs a one-shot command that takes effect after reboot.</p>
 <section id="make-neovim-the-default-editor" class="level3">
 <h3 class="anchored" data-anchor-id="make-neovim-the-default-editor">0. Make Neovim the default editor</h3>
-<div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'export EDITOR=nvim'</span> <span class="op">&gt;&gt;</span> ~/.bashrc</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> ~/.bashrc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'export EDITOR=nvim'</span> <span class="op">&gt;&gt;</span> ~/.bashrc</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> ~/.bashrc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This applies inside the chroot session. For my user account I’ll set it again later.</p>
 </section>
 <section id="timezone-and-hardware-clock" class="level3">
 <h3 class="anchored" data-anchor-id="timezone-and-hardware-clock">1. Timezone and hardware clock</h3>
-<div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/America/New_York /etc/localtime</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="ex">hwclock</span> <span class="at">--systohc</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> /usr/share/zoneinfo/America/New_York /etc/localtime</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="ex">hwclock</span> <span class="at">--systohc</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li>The <code>ln -sf</code> creates a symlink from <code>/etc/localtime</code> to the zoneinfo file that describes how to interpret your local time (UTC offsets, DST transitions). Programs read this to display “wall clock” time.</li>
 <li><code>hwclock --systohc</code> writes the <em>current</em> system time back to the motherboard’s hardware (RTC) clock. The hardware clock is what the system reads on power-up before NTP kicks in, so syncing it now means the first few seconds of every boot show roughly correct time.</li>
@@ -887,31 +894,31 @@ Click to expand: what each package does
 </section>
 <section id="locale" class="level3">
 <h3 class="anchored" data-anchor-id="locale">2. Locale</h3>
-<div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvim</span> /etc/locale.gen</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvim</span> /etc/locale.gen</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Inside <code>locale.gen</code>, find and uncomment the two <code>en_US.UTF-8</code> lines (or whichever locale you want). Save and exit, then:</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">locale-gen</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">locale-gen</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"LANG=en_US.UTF-8"</span> <span class="op">&gt;</span> /etc/locale.conf</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"KEYMAP=us"</span> <span class="op">&gt;</span> /etc/vconsole.conf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"KEYMAP=us"</span> <span class="op">&gt;</span> /etc/vconsole.conf</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>locale-gen</code> compiles the uncommented locales into binary form. <code>locale.conf</code> sets the system-wide language; <code>vconsole.conf</code> sets the keymap that the virtual console uses before any graphical session starts.</p>
 </section>
 <section id="hostname" class="level3">
 <h3 class="anchored" data-anchor-id="hostname">3. Hostname</h3>
-<div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"your-hostname-here"</span> <span class="op">&gt;</span> /etc/hostname</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"your-hostname-here"</span> <span class="op">&gt;</span> /etc/hostname</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This is the machine’s name on your network (<code>hostname</code> reads it, NetworkManager publishes it via mDNS if you have <code>avahi</code> running later).</p>
 </section>
 <section id="enable-networkmanager-at-boot" class="level3">
 <h3 class="anchored" data-anchor-id="enable-networkmanager-at-boot">4. Enable NetworkManager at boot</h3>
-<div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Without this, the installed system will reboot into a state with no Wi-Fi or Ethernet manager running.</p>
 </section>
 <section id="set-the-root-password" class="level3">
 <h3 class="anchored" data-anchor-id="set-the-root-password">5. Set the root password</h3>
-<div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="create-your-user-account" class="level3">
 <h3 class="anchored" data-anchor-id="create-your-user-account">6. Create your user account</h3>
-<div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-g</span> users <span class="at">-G</span> wheel user</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> user</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">useradd</span> <span class="at">-m</span> <span class="at">-g</span> users <span class="at">-G</span> wheel user</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">passwd</span> user</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Replace <code>user</code> with whatever your username should be. Flag-by-flag:</p>
 <ul>
 <li><code>-m</code>, create a home directory at <code>/home/user</code>.</li>
@@ -922,7 +929,7 @@ Click to expand: what each package does
 </section>
 <section id="enable-sudo-for-the-wheel-group" class="level3">
 <h3 class="anchored" data-anchor-id="enable-sudo-for-the-wheel-group">7. Enable sudo for the wheel group</h3>
-<div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">visudo</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">visudo</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Find this commented-out line:</p>
 <pre class="text"><code>## Uncomment to allow members of group wheel to execute any command
 # %wheel ALL=(ALL:ALL) ALL</code></pre>
@@ -930,7 +937,7 @@ Click to expand: what each package does
 </section>
 <section id="install-more-core-packages" class="level3">
 <h3 class="anchored" data-anchor-id="install-more-core-packages">8. Install more core packages</h3>
-<div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacman</span> <span class="at">-Syu</span> <span class="dt">\</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacman</span> <span class="at">-Syu</span> <span class="dt">\</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  linux-headers <span class="dt">\</span></span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  mtools <span class="dt">\</span></span>
 <span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>  network-manager-applet <span class="dt">\</span></span>
@@ -938,7 +945,7 @@ Click to expand: what each package does
 <span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  iptables-nft <span class="dt">\</span></span>
 <span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>  ipset <span class="dt">\</span></span>
 <span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>  firewalld <span class="dt">\</span></span>
-<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>  reflector</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>  reflector</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <details>
 <summary>
 Click to expand: what each package does
@@ -993,7 +1000,7 @@ Click to expand: what each package does
 </section>
 <section id="install-more-useful-packages" class="level3">
 <h3 class="anchored" data-anchor-id="install-more-useful-packages">9. Install more useful packages</h3>
-<div class="sourceCode" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacman</span> <span class="at">-Syu</span> <span class="dt">\</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pacman</span> <span class="at">-Syu</span> <span class="dt">\</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  man-db man-pages texinfo <span class="dt">\</span></span>
 <span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  bluez bluez-utils bluez-deprecated-tools <span class="dt">\</span></span>
 <span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  alsa-utils <span class="dt">\</span></span>
@@ -1001,7 +1008,7 @@ Click to expand: what each package does
 <span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  sof-firmware <span class="dt">\</span></span>
 <span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  ttf-iosevka-nerd <span class="dt">\</span></span>
 <span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  kitty <span class="dt">\</span></span>
-<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  firefox</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  firefox</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>When <code>pacman</code> asks which JACK provider to use, pick <code>pipewire-jack</code>. When it asks which font provider for emoji, pick <code>noto-fonts</code>.</p>
 <details>
 <summary>
@@ -1062,33 +1069,33 @@ Click to expand: what each package does
 <p>This is the home stretch: install GRUB so the machine can actually boot the kernel from disk, and enable the systemd services that should come up on every boot.</p>
 <section id="install-grub-to-the-efi-partition" class="level3">
 <h3 class="anchored" data-anchor-id="install-grub-to-the-efi-partition">1. Install GRUB to the EFI partition</h3>
-<div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-install</span> <span class="at">--target</span><span class="op">=</span>x86_64-efi <span class="at">--efi-directory</span><span class="op">=</span>/boot <span class="at">--bootloader-id</span><span class="op">=</span>GRUB</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This writes the GRUB EFI binary into <code>/boot/EFI/GRUB/</code>, registers it with the firmware via <code>efibootmgr</code>, and sets up <code>/boot/grub/</code> for the runtime config.</p>
 <p>You can confirm everything landed:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> /boot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> /boot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Expected (something close to):</p>
 <pre class="text"><code>EFI  grub  initramfs-linux.img  intel-ucode.img  vmlinuz-linux</code></pre>
 </section>
 <section id="generate-the-grub-configuration" class="level3">
 <h3 class="anchored" data-anchor-id="generate-the-grub-configuration">2. Generate the GRUB configuration</h3>
-<div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ex">grub-mkconfig</span> <span class="at">-o</span> /boot/grub/grub.cfg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>grub-mkconfig</code> scans your kernels (<code>/boot/vmlinuz-*</code>), microcode images, and <code>/etc/default/grub</code> and writes a complete boot menu config to <code>/boot/grub/grub.cfg</code>. The output you see should end with <code>done</code>.</p>
 </section>
 <section id="enable-services-at-boot" class="level3">
 <h3 class="anchored" data-anchor-id="enable-services-at-boot">3. Enable services at boot</h3>
-<div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager    <span class="co"># network management</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable NetworkManager    <span class="co"># network management</span></span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable bluetooth         <span class="co"># Bluetooth</span></span>
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable sshd              <span class="co"># SSH server</span></span>
 <span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable firewalld         <span class="co"># firewall</span></span>
 <span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable reflector.timer   <span class="co"># weekly mirror re-rank</span></span>
-<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable fstrim.timer      <span class="co"># weekly SSD trim</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> enable fstrim.timer      <span class="co"># weekly SSD trim</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Why <code>.timer</code> units instead of cron
+<span class="screen-reader-only">Note</span>Why <code>.timer</code> units instead of cron
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1098,9 +1105,9 @@ Why <code>.timer</code> units instead of cron
 </section>
 <section id="exit-unmount-and-reboot" class="level3">
 <h3 class="anchored" data-anchor-id="exit-unmount-and-reboot">4. Exit, unmount, and reboot</h3>
-<div class="sourceCode" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span>              <span class="co"># leave the chroot</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span>              <span class="co"># leave the chroot</span></span>
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">umount</span> <span class="at">-R</span> /mnt    <span class="co"># unmount everything</span></span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="ex">reboot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Pull the USB drive out as the laptop reboots, and the firmware should hand off to GRUB, GRUB should hand off to the kernel, and the kernel should hand off to systemd. If everything went well, you’ll get a login prompt for your new user.</p>
 <hr>
 </section>
@@ -1109,7 +1116,7 @@ Why <code>.timer</code> units instead of cron
 <section id="part-2-running-arch" class="level1">
 <h1>Part 2 — Running Arch</h1>
 <p>Once you’re logged in, the first thing I do is reconnect to Wi-Fi from NetworkManager (<code>nmcli device wifi connect &lt;SSID&gt; password &lt;pw&gt;</code> works well via SSH), then install a small set of build tools so I can start playing:</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> pacman <span class="at">-Syu</span> git wget curl gcc make cmake</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> pacman <span class="at">-Syu</span> git wget curl gcc make cmake</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>From here, the rest of “making Arch <em>yours</em>” is a series of separate articles — Neovim from scratch, picking a tiling or scrolling window manager, dotfiles management, audio routing, fonts. Those will land in this Tech Zone as I go.</p>
 <hr>
 <section id="whats-next" class="level2">
@@ -1122,7 +1129,7 @@ Why <code>.timer</code> units instead of cron
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Attribution
+<span class="screen-reader-only">Note</span>Attribution
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1199,13 +1206,14 @@ Attribution
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
