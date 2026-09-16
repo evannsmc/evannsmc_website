@@ -898,112 +898,9 @@ body.quarto-dark .journey-map-photo {
 
     <aside class="journey-sidebar">
       <p class="journey-sidebar-heading">Timeline:<br>click on the stops below</p>
-      <div class="journey-stops">
-        <button type="button" class="timeline-stop" data-stop="pr" style="--stop-color:#ef3340; --stop-tint:rgba(239, 51, 64, 0.1);">
-          <div class="timeline-topline">
-            <span class="timeline-dot"></span>
-            <div class="timeline-city-row">
-              <p class="timeline-city">Caguas, PR</p>
-            </div>
-          </div>
-          <p class="timeline-label">Mi Patria</p>
-          <p class="timeline-year">Early years</p>
-        </button>
-
-        <button type="button" class="timeline-stop" data-stop="chhs" style="--stop-color:#2563eb; --stop-tint:rgba(37, 99, 235, 0.1);">
-          <div class="timeline-topline">
-            <span class="timeline-dot"></span>
-            <div class="timeline-city-row">
-              <p class="timeline-city">Grapevine, TX</p>
-            </div>
-          </div>
-          <p class="timeline-label">Colleyville Heritage HS</p>
-          <p class="timeline-year">High school</p>
-        </button>
-
-        <button type="button" class="timeline-stop" data-stop="uta" style="--stop-color:#f97316; --stop-tint:rgba(249, 115, 22, 0.1);">
-          <div class="timeline-topline">
-            <span class="timeline-dot"></span>
-            <div class="timeline-city-row">
-              <p class="timeline-city">Arlington, TX</p>
-            </div>
-          </div>
-          <p class="timeline-label">UT Arlington</p>
-          <p class="timeline-year">Aug 2018 - May 2022</p>
-        </button>
-
-        <button type="button" class="timeline-stop" data-stop="gt" style="--stop-color:#b3a369; --stop-tint:rgba(179, 163, 105, 0.14);">
-          <div class="timeline-topline">
-            <span class="timeline-dot"></span>
-            <div class="timeline-city-row">
-              <p class="timeline-city">Atlanta, GA</p>
-            </div>
-          </div>
-          <p class="timeline-label">Robotics PhD at Georgia Tech</p>
-          <p class="timeline-year">Aug 2022 - Present</p>
-        </button>
-
-        <button type="button" class="timeline-stop" data-stop="tor" style="--stop-color:#dc2626; --stop-tint:rgba(220, 38, 38, 0.1);">
-          <div class="timeline-topline">
-            <span class="timeline-dot"></span>
-            <div class="timeline-city-row">
-              <p class="timeline-city">Toronto, ON</p>
-            </div>
-          </div>
-          <p class="timeline-label">64<sup>th</sup> American Control Conference</p>
-          <p class="timeline-year">July 2024</p>
-        </button>
-
-        <button type="button" class="timeline-stop" data-stop="snl" style="--stop-color:#0f766e; --stop-tint:rgba(15, 118, 110, 0.1);">
-          <div class="timeline-topline">
-            <span class="timeline-dot"></span>
-            <div class="timeline-city-row">
-              <p class="timeline-city">Albuquerque, NM</p>
-            </div>
-          </div>
-          <p class="timeline-label">AI for Autonomy Intern</p>
-          <p class="timeline-label">Sandia National Laboratories</p>
-          <p class="timeline-year">May 2026 - Present</p>
-          <p class="timeline-year timeline-year-note">Onsite: May - August 2026</p>
-          <p class="timeline-year timeline-year-note">Remote: August 2026 - Present</p>
-        </button>
-
-        <button type="button" class="timeline-stop" data-stop="phx" style="--stop-color:#ea580c; --stop-tint:rgba(234, 88, 12, 0.1);">
-          <div class="timeline-topline">
-            <span class="timeline-dot"></span>
-            <div class="timeline-city-row">
-              <p class="timeline-city">Phoenix, AZ</p>
-              <span class="timeline-badge">Upcoming</span>
-            </div>
-          </div>
-          <p class="timeline-label">6<sup>th</sup> Modeling, Estimation and Control Conference</p>
-          <p class="timeline-year">Oct 25-28, 2026</p>
-        </button>
-
-        <button type="button" class="timeline-stop" data-stop="ind" style="--stop-color:#7c3aed; --stop-tint:rgba(124, 58, 237, 0.1);">
-          <div class="timeline-topline">
-            <span class="timeline-dot"></span>
-            <div class="timeline-city-row">
-              <p class="timeline-city">Indianapolis, IN</p>
-              <span class="timeline-badge">Upcoming</span>
-            </div>
-          </div>
-          <p class="timeline-label">SHPE National Convention 2026</p>
-          <p class="timeline-year">Oct 28-31, 2026</p>
-        </button>
-
-        <button type="button" class="timeline-stop" data-stop="cwb" style="--stop-color:#16a34a; --stop-tint:rgba(22, 163, 74, 0.1);">
-          <div class="timeline-topline">
-            <span class="timeline-dot"></span>
-            <div class="timeline-city-row">
-              <p class="timeline-city">Curitiba, Brazil</p>
-              <span class="timeline-badge">Tentative</span>
-            </div>
-          </div>
-          <p class="timeline-label">Visiting Scholar, UTFPR / LACTEC</p>
-          <p class="timeline-year">Late Nov 2026 (tentative)</p>
-        </button>
-      </div>
+      <!-- Populated by renderTimeline() from the `stops` array below.
+           Do not hand-write buttons here: they would be erased on render. -->
+      <div class="journey-stops" id="journey-stops"></div>
     </aside>
   </div>
 </div>
@@ -1038,6 +935,7 @@ document.addEventListener('DOMContentLoaded', function () {
       emoji: '🇵🇷',
       image: '../files/journey/stops/pr.webp',
       imageFit: 'cover',
+      timelineLabels: ['Mi Patria'],
       overviewLabel: { anchor: 'middle', x: 0, emojiY: -30, labelY: -14 }
     },
     {
@@ -1056,6 +954,7 @@ document.addEventListener('DOMContentLoaded', function () {
       emoji: '🏫',
       image: '../files/journey/stops/chhs.webp',
       imageFit: 'cover',
+      timelineLabels: ['Colleyville Heritage HS'],
       overviewLabel: { anchor: 'end', x: -14, emojiY: -24, labelY: -8 }
     },
     {
@@ -1074,6 +973,7 @@ document.addEventListener('DOMContentLoaded', function () {
       emoji: '🎓',
       image: '../files/journey/stops/uta.jpg',
       imageFit: 'cover',
+      timelineLabels: ['UT Arlington'],
       overviewLabel: { anchor: 'start', x: 14, emojiY: -22, labelY: -8 }
     },
     {
@@ -1092,6 +992,7 @@ document.addEventListener('DOMContentLoaded', function () {
       emoji: '🐝',
       image: '../files/journey/stops/gt.jpg',
       imageFit: 'cover',
+      timelineLabels: ['Robotics PhD at Georgia Tech'],
       overviewLabel: { anchor: 'start', x: 16, emojiY: -10, labelY: 5 }
     },
     {
@@ -1110,6 +1011,7 @@ document.addEventListener('DOMContentLoaded', function () {
       emoji: '📄',
       image: '../files/journey/stops/tor.png',
       imageFit: 'cover',
+      timelineLabels: ['64<sup>th</sup> American Control Conference'],
       overviewLabel: { anchor: 'middle', x: 0, emojiY: -30, labelY: -14 }
     },
     {
@@ -1128,6 +1030,8 @@ document.addEventListener('DOMContentLoaded', function () {
       emoji: '🔬',
       image: '../files/journey/stops/snl.png',
       imageFit: 'cover',
+      timelineLabels: ['AI for Autonomy Intern', 'Sandia National Laboratories'],
+      yearNotes: ['Onsite: May - August 2026', 'Remote: August 2026 - Present'],
       overviewLabel: { anchor: 'middle', x: 0, emojiY: -30, labelY: -14 }
     },
     {
@@ -1146,6 +1050,8 @@ document.addEventListener('DOMContentLoaded', function () {
       emoji: '📄',
       upcoming: true,
       image: '../files/journey/stops/mecc2026.jpg',
+      timelineLabels: ['6<sup>th</sup> Modeling, Estimation and Control Conference'],
+      badge: 'Upcoming',
       overviewLabel: { anchor: 'end', x: -16, emojiY: -10, labelY: 5 }
     },
     {
@@ -1163,6 +1069,8 @@ document.addEventListener('DOMContentLoaded', function () {
       highlightFill: 'rgba(124, 58, 237, 0.18)',
       emoji: '🤝',
       upcoming: true,
+      timelineLabels: ['SHPE National Convention 2026'],
+      badge: 'Upcoming',
       overviewLabel: { anchor: 'end', x: -16, emojiY: -10, labelY: 5 }
     },
     {
@@ -1179,6 +1087,8 @@ document.addEventListener('DOMContentLoaded', function () {
       highlightFill: 'rgba(22, 163, 74, 0.18)',
       emoji: '🇧🇷',
       upcoming: true,
+      timelineLabels: ['Visiting Scholar, UTFPR / LACTEC'],
+      badge: 'Tentative',
       overviewLabel: { anchor: 'middle', x: 0, emojiY: -30, labelY: -14 }
     }
   ];
@@ -1217,6 +1127,83 @@ document.addEventListener('DOMContentLoaded', function () {
   var detailBadge = document.getElementById('journey-detail-badge');
   var detailRole = document.getElementById('journey-detail-role');
   var detailCopy = document.getElementById('journey-detail-copy');
+  // -------------------------------------------------------------------------
+  // The timeline sidebar is GENERATED from `stops` above rather than written
+  // by hand. It used to be a parallel block of <button> markup repeating each
+  // stop's city, label, year and badge, with nothing keeping the two in sync.
+  // Three of nine stops had silently drifted (tor, snl, pr), and a stop added
+  // to `stops` alone would appear on the map while never reaching this list --
+  // which is exactly how the SHPE stop went missing.
+  //
+  // Must run BEFORE the querySelectorAll below, which caches these buttons for
+  // click handling and active-state styling.
+  // -------------------------------------------------------------------------
+  function renderTimeline() {
+    var host = document.getElementById('journey-stops');
+    if (!host) return;
+    host.innerHTML = '';
+
+    stops.forEach(function (stop) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'timeline-stop';
+      btn.setAttribute('data-stop', stop.id);
+      btn.style.setProperty('--stop-color', stop.color);
+      btn.style.setProperty('--stop-tint', stop.tint);
+
+      var topline = document.createElement('div');
+      topline.className = 'timeline-topline';
+
+      var dot = document.createElement('span');
+      dot.className = 'timeline-dot';
+      topline.appendChild(dot);
+
+      var cityRow = document.createElement('div');
+      cityRow.className = 'timeline-city-row';
+
+      var city = document.createElement('p');
+      city.className = 'timeline-city';
+      city.textContent = stop.city;
+      cityRow.appendChild(city);
+
+      if (stop.badge) {
+        var badge = document.createElement('span');
+        badge.className = 'timeline-badge';
+        badge.textContent = stop.badge;
+        cityRow.appendChild(badge);
+      }
+
+      topline.appendChild(cityRow);
+      btn.appendChild(topline);
+
+      // timelineLabels are authored HTML fragments, not plain text: several
+      // carry markup such as 64<sup>th</sup>. Falls back to the short map
+      // label if a stop has none.
+      (stop.timelineLabels || [stop.label]).forEach(function (html) {
+        var el = document.createElement('p');
+        el.className = 'timeline-label';
+        el.innerHTML = html;
+        btn.appendChild(el);
+      });
+
+      var year = document.createElement('p');
+      year.className = 'timeline-year';
+      year.textContent = stop.year;
+      btn.appendChild(year);
+
+      (stop.yearNotes || []).forEach(function (text) {
+        var note = document.createElement('p');
+        note.className = 'timeline-year timeline-year-note';
+        note.textContent = text;
+        btn.appendChild(note);
+      });
+
+      host.appendChild(btn);
+    });
+  }
+
+  renderTimeline();
+
   var timelineStops = Array.prototype.slice.call(document.querySelectorAll('.timeline-stop'));
   var photoCard = document.getElementById('journey-map-photo');
   var photoImg = document.getElementById('journey-map-photo-img');
