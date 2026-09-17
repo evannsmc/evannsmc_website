@@ -80,6 +80,14 @@ page-layout: full
           <p class="home-meta-value">Fulbright Specialist</p>
           <span class="home-honor-card-cue" aria-hidden="true">↗</span>
         </a>
+        <a class="home-meta-card home-honor-card" href="https://www.nationalmerit.org/" target="_blank" rel="noopener">
+          <p class="home-meta-value">National Merit Scholar</p>
+          <span class="home-honor-card-cue" aria-hidden="true">↗</span>
+        </a>
+        <a class="home-meta-card home-honor-card" href="https://bigfuture.collegeboard.org/communities-events/national-recognition-programs" target="_blank" rel="noopener">
+          <p class="home-meta-value">National Hispanic Scholar</p>
+          <span class="home-honor-card-cue" aria-hidden="true">↗</span>
+        </a>
       </div>
       <div class="home-contact-list">
         <span class="home-contact-item">egm [at] gatech [dot] edu</span>
