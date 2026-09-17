@@ -1,0 +1,5 @@
+*.jsonl
+conversations/
+# Root .gitignore ignores *.md; keep memory files tracked
+!memory/
+!memory/*.md
