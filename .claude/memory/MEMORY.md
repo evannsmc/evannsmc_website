@@ -1,0 +1,1 @@
+- [Publish with ./push](publish-with-push-script.md) — full quarto render + commit + push via ./push, not partial render + git push
