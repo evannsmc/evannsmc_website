@@ -767,7 +767,7 @@ body.quarto-dark .about-feature-panel.about-feature-panel-collapsible:not(.is-ex
 
   <div class="about-bio">
     <p>
-      Armed with my Bachelors Degree in Electrical Engineering and a certificate in unmanned vehicle systems, I decided to make the jump from the DFW to Atlanta to pursue my Ph.D. in Robotics. Rather than getting a Masters, I am instead the not-sure-if-I'm-proud owner of 2 undergraduate minor degrees and 1 doctoral minor degree.
+      Armed with my Bachelor's degree in Electrical Engineering and a certificate in unmanned vehicle systems, I decided to make the jump from the DFW to Atlanta to pursue my Ph.D. in Robotics. Rather than getting a Master's, I am instead the proud owner of 2 undergraduate minor degrees and 1 doctoral minor degree.
     </p>
   </div>
 
@@ -1105,25 +1105,26 @@ body.quarto-dark .about-feature-panel.about-feature-panel-collapsible:not(.is-ex
   <section class="about-hobbies-panel">
     <p class="hobbies-title">Do Ph.D. Students Have Lives?</p>
     <p class="hobbies-copy">
-      When I'm not exercising my brain muscles I try to work out my other muscles, mainly so I can afford to indulge in my main hobby of cooking. And when I find the time and discipline, I also love practicing my salsa technique at my dance studio and out at socials, as well as reading books about history, psychology and, recently, memoirs.
+      Not really, but we try.
+      <!-- When I'm not exercising my brain muscles I try to work out my other muscles, mainly so I can afford to indulge in my main hobby of cooking. And when I find the time and discipline, I also love practicing my salsa technique at my dance studio and out at socials, as well as reading books about history, psychology and, recently, memoirs. -->
     </p>
 
     <div class="about-hobbies-grid">
       <article class="about-hobby-card">
         <p class="about-hobby-card-title">Fitness</p>
-        <p>To lift or not to lift, that is the question.</p>
+        <p>Trying to get a running streak going on Strava.</p>
       </article>
       <article class="about-hobby-card">
         <p class="about-hobby-card-title">Cooking</p>
-        <p>I'm my own private chef. And my client has exotic taste.</p>
+        <p>If you get invited to my cooking nights, you know you're cool.</p>
       </article>
       <article class="about-hobby-card">
         <p class="about-hobby-card-title">Dance</p>
-        <p>I swear I'm getting better.</p>
+        <p>I promise I'm getting better.</p>
       </article>
       <article class="about-hobby-card">
         <p class="about-hobby-card-title">Reading</p>
-        <p>I do eventually finish books I start after the fifth time I try reading them.</p>
+        <p>When I can.</p>
       </article>
     </div>
 

@@ -38,9 +38,9 @@ page-layout: full
       <p class="home-hero-kicker">Robotics Ph.D. student · Georgia Tech · Fulbright Specialist</p>
       <h1 class="home-hero-title">Evanns Morales-Cuadrado</h1>
       <p class="home-hero-summary">
-        I work on safe autonomy for hardware systems (mainly UAVs) focusing on aggressive low-level control, uncertainty-aware trajectory planning, and lightweight algorithms for computationally constrained platforms.<br>
+        I work on safe autonomy for hardware systems with a focus on uncertainty-aware safe trajectory planning, aggressive low-level control, and lightweight algorithms for computationally constrained platforms. My more recent work has brought me into the worlds of formal methods and deep reinforcement learning for real-world quadrotors.<br>
 
-        As part of my work I have also broken many drones, put them back together, and learned many lessons while working with hardware systems.
+        As part of my work, I have also had the pleasure of breaking many quadrotors and putting them back together.
       </p>
       <p class="home-edu-heading">Education</p>
       <div class="home-meta-grid">
@@ -119,7 +119,7 @@ page-layout: full
 
 I am a Robotics/ECE Ph.D. student in the Formal Methods & Autonomous Control of Transportation Systems ([FACTS](https://coogan.ece.gatech.edu/)) Lab at the Georgia Institute of Technology under the supervision of Dr. Samuel Coogan.
 
-My robotics work centers around hardware applications of safe autonomous control algorithms. In particular, I work on safe and efficient path planning and control synthesis in the face of onboard computational constraints. Much of my work involves hardware demonstrations of novel methods on quadrotor UAVs and unmanned ground vehicles (UGVs), so I've got some cool videos of drones flying autonomously and a lot of terrible videos of them crashing.
+My robotics work centers around hardware applications of safe autonomous control algorithms. In particular, I work on safe and efficient path planning and control synthesis in the face of onboard computational constraints. Much of my work involves hardware demonstrations of novel methods on quadrotor UAVs and unmanned ground vehicles (UGVs). As a result, I've accumulated some cool videos of things flying autonomously and a lot of terrible videos of them crashing.
 
 
 ## My Latest Project
@@ -163,22 +163,22 @@ My robotics work centers around hardware applications of safe autonomous control
       <p class="home-snapshot-kicker">Roots</p>
       <p class="home-snapshot-title">Boricua de pura cepa.</p>
       <p class="home-snapshot-copy">
-        Proud of where I'm from and always thinking of ways to connect with my culture.
+        <!-- Proud of where I'm from and always thinking of ways to connect with my culture. -->
         At Georgia Tech I helped co-found "BORI" to provide a welcoming place for Puerto Rican students and promote our culture across campus.
       </p>
     </div>
     <div class="home-snapshot-card">
       <p class="home-snapshot-kicker">Research</p>
-      <p class="home-snapshot-title">I love building cool things and <del>breaking them</del> making them work.</p>
+      <p class="home-snapshot-title">When at work</p>
       <p class="home-snapshot-copy">
         From undergraduate research at UT Arlington to my Ph.D. at Georgia Tech. After a summer in Albuquerque, NM at Sandia National Laboratories, I'm continuing there year-round as an AI for Autonomy research intern.
       </p>
     </div>
     <div class="home-snapshot-card">
       <p class="home-snapshot-kicker">Recreation</p>
-      <p class="home-snapshot-title">We like to enjoy life.</p>
+      <p class="home-snapshot-title">Life</p>
       <p class="home-snapshot-copy">
-        I spend whole days outside playing mediocre basketball when I'm able to. I'm also a somewhat decent salsa dancer (and getting better too).
+        I spend whole days outside playing basketball when I'm able to. These days, you can catch me at salsa & bachata socials.
       </p>
     </div>
   </div>
