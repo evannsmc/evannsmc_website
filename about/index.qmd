@@ -33,6 +33,7 @@ title-block-banner: true
   object-fit: cover;
   object-position: 50% 16%;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .about-kicker,
@@ -720,10 +721,14 @@ body.quarto-dark .about-feature-panel.about-feature-panel-collapsible:not(.is-ex
     padding: 2.5rem 1rem 4rem;
   }
 
-  .about-hero,
   .origin-card {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .about-avatar {
+    width: 80px;
+    height: 80px;
   }
 
   .origin-flag-wrap,
@@ -758,11 +763,11 @@ body.quarto-dark .about-feature-panel.about-feature-panel-collapsible:not(.is-ex
 <!-- Intro -->
 <div class="about-shell">
   <div class="about-hero">
-    <!-- <img class="about-avatar" src="../files/LabPhoto.png" alt="Evanns Morales-Cuadrado in the lab"> -->
     <div>
       <p class="about-kicker">About</p>
       <p class="about-title">A Little About Me.</p>
     </div>
+    <img class="about-avatar" src="../files/LabPhoto.png" alt="Evanns Morales-Cuadrado in the lab">
   </div>
 
   <div class="about-bio">
