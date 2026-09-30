@@ -28,10 +28,10 @@ title-block-banner: true
 
 .about-avatar {
   width: 160px;
-  height: 160px;
-  border-radius: 999px;
+  aspect-ratio: 3 / 4;
+  border-radius: 0.75rem;
   object-fit: cover;
-  object-position: 50% 16%;
+  object-position: 50% 0%;
   flex-shrink: 0;
   margin-left: auto;
 }
@@ -728,7 +728,6 @@ body.quarto-dark .about-feature-panel.about-feature-panel-collapsible:not(.is-ex
 
   .about-avatar {
     width: 112px;
-    height: 112px;
   }
 
   .origin-flag-wrap,
