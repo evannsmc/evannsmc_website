@@ -4,9 +4,9 @@
 *August 2022 - Present*
 
 - Advised by Dr. Samuel Coogan
-- Implemented novel aggressive tracking control methods on quadrotor hardware
-- Developed novel nonlinear control methods for safe autonomy
-- Published novel research at top conferences and journals in the fields of robotics and control theory
+- Developed planning and control methods for safe autonomous systems using machine learning, model-based control, optimization, and formal methods
+- Implemented and experimentally validated real-time autonomy algorithms on robotic hardware
+- Published original research in leading conferences and journals
 
 **Teaching Assistant** — Vertically Integrated Project in Robotics, Georgia Institute of Technology | Atlanta, GA\
 *January 2024 - Present*
@@ -20,7 +20,7 @@
 
 - Advised by Dr. Frank Lewis
 - Received personal mentorship from a leading researcher in the field of controls and reinforcement learning (ranked 12th in the USA and 23rd in the world during my time in his lab)
-- Aided graduate students on reinforcement learning research applied to quadrotor control
+- Aided graduate students with reinforcement learning research applied to quadrotor control
 
 **Teaching Assistant** — Graduate-Level Intelligent Systems Course, University of Texas at Arlington | Arlington, TX\
 *January 2022 - May 2022*

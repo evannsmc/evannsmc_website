@@ -4,5 +4,5 @@
 |---|---|
 | **Email** | evannsmc [at] gmail [dot] com |
 | **Research Website** | [https://www.evannsmc.com/](https://www.evannsmc.com/) |
-| **Github** | [https://github.com/evannsmc](https://github.com/evannsmc) |
+| **GitHub** | [https://github.com/evannsmc](https://github.com/evannsmc) |
 | **LinkedIn** | [https://www.linkedin.com/in/evanns-morales/](https://www.linkedin.com/in/evanns-morales/) |
