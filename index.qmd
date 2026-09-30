@@ -31,7 +31,7 @@ page-layout: full
     <div class="home-hero-copy">
       <div class="home-hero-photo-mobile" aria-hidden="true">
         <figure class="home-hero-portrait">
-          <img src="./files/LabPhoto.png" alt="" class="home-hero-photo">
+          <img src="./files/profesh.jpg" alt="" class="home-hero-photo">
           <figcaption class="home-hero-caption">C'est Moi.</figcaption>
         </figure>
       </div>
@@ -103,7 +103,7 @@ page-layout: full
     </div>
     <aside class="home-hero-sidebar">
       <figure class="home-hero-portrait">
-        <img src="./files/LabPhoto.png" alt="Evanns Morales-Cuadrado in the lab" class="home-hero-photo">
+        <img src="./files/profesh.jpg" alt="Evanns Morales-Cuadrado" class="home-hero-photo">
         <figcaption class="home-hero-caption">C'est Moi.</figcaption>
       </figure>
     </aside>
