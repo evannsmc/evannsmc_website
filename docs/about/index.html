@@ -435,8 +435,9 @@ document.addEventListener('DOMContentLoaded', function () {
   border-radius: 0.75rem;
   object-fit: cover;
   object-position: 50% 0%;
-  flex-shrink: 0;
-  margin-left: auto;
+  /* Float so the photo doesn't change the height of the title row or push the bio down */
+  float: right;
+  margin: 0 0 1rem 1.5rem;
 }
 
 .about-kicker,
@@ -468,6 +469,7 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 
 .about-metrics {
+  clear: both;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
@@ -1164,12 +1166,12 @@ body.quarto-dark .about-feature-panel.about-feature-panel-collapsible:not(.is-ex
 
 <!-- Intro -->
 <div class="about-shell">
+  <img class="about-avatar" src="../files/LabPhoto.png" alt="Evanns Morales-Cuadrado in the lab">
   <div class="about-hero">
     <div>
       <p class="about-kicker">About</p>
       <p class="about-title">A Little About Me.</p>
     </div>
-    <img class="about-avatar" src="../files/LabPhoto.png" alt="Evanns Morales-Cuadrado in the lab">
   </div>
 
   <div class="about-bio">
