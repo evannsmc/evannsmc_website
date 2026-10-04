@@ -1,3 +1,3 @@
 ### Summary
 
-Robotics PhD candidate specializing in safe autonomous systems, reinforcement learning, and real-time control, with a track record of taking new methods from theory to flight-tested hardware at Georgia Tech and Sandia National Laboratories.
+Robotics PhD candidate at Georgia Tech specializing in safe autonomy, reinforcement learning, and real-time control. Built a kinetic-intercept benchmark suite for the U.S. government at Sandia National Laboratories and leads a Lactec collaboration bringing \$20K to Georgia Tech.

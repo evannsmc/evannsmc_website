@@ -1,0 +1,3 @@
+### Summary
+
+Robotics PhD candidate in Dr. Samuel Coogan's FACTS Lab at Georgia Tech and graduate research intern at Sandia National Laboratories, developing safe, computationally efficient planning and control for aerial and multi-robot systems. At Sandia, built a kinetic-intercept benchmark suite for the U.S. government, approved for Unclassified Unlimited Release and submitted to ICRA 2027, and designed a new intercept control law benchmarked against guidance-law, NMPC, and reinforcement-learning methods. Leads a collaboration with Brazilian partners at Lactec that produced an ICRA 2027 submission and is bringing \$20K to Georgia Tech.
