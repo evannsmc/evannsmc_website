@@ -4,10 +4,9 @@
 *August 2022 - Present*
 
 - Advised by Dr. Samuel Coogan
-- Developed a lightweight Newton-Raphson tracking controller that beat PX4's native tracker in aggressive quadrotor flight (ACC'24) and matched or beat NMPC on blimp and quadrotor hardware at far lower computation time and CPU energy (TCST'26)
-- Built the lab's real-time flight-test stack (PX4, ROS 2, Raspberry Pi companion computers, Vicon/OptiTrack motion capture), enabling repeatable hardware validation of autonomy algorithms
+- Developed a lightweight Newton-Raphson tracking controller that beat PX4's native tracker in aggressive quadrotor flight and matched or beat NMPC on blimp and quadrotor hardware at far lower computation time and CPU energy
+- Built the lab's real-time flight-test stack on PX4, ROS 2, Raspberry Pi companion computers, and Vicon/OptiTrack motion capture, enabling repeatable hardware validation of autonomy algorithms
 - Developed safe planning and control methods that combine reachability analysis, formal methods, optimization, and learning to generate fast, provably safe trajectories under unknown disturbances
-- Authored 4 peer-reviewed publications (3 first-author) in IEEE TCST, IEEE OJ-CSYS, ACC, and MECC/ALDSC, plus 3 under review (2 at ICRA 2027)
 
 **Teaching Assistant** — Vertically Integrated Project in Robotics, Georgia Institute of Technology | Atlanta, GA\
 *January 2024 - May 2026*
@@ -19,7 +18,7 @@
 *November 2021 - May 2022*
 
 - Advised by Dr. Frank Lewis
-- Contributed to reinforcement-learning quadrotor control research in a top-ranked lab (advisor then ranked 12th in the USA, 23rd worldwide)
+- Contributed to reinforcement-learning quadrotor control research under Dr. Frank Lewis, then ranked 12th in the USA and 23rd worldwide
 - Completed UTA Honors College thesis on lightweight Newton-Raphson tracking control for computationally constrained aerial systems
 
 **Teaching Assistant** — Graduate-Level Intelligent Systems Course, University of Texas at Arlington | Arlington, TX\
