@@ -18,8 +18,8 @@
 *November 2021 - May 2022*
 
 - Advised by Dr. Frank Lewis
-- Contributed to reinforcement-learning quadrotor control research in Dr. Frank Lewis' lab
 - Trained in one of the most-cited control research groups in electrical engineering, with Dr. Lewis' work ranked 12th in the USA and 23rd worldwide by citation impact
+- Contributed to reinforcement-learning quadrotor control research
 
 **Teaching Assistant** — Graduate-Level Intelligent Systems Course, University of Texas at Arlington | Arlington, TX\
 *January 2022 - May 2022*
