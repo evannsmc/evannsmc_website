@@ -14,7 +14,7 @@ toc: true
 
 ---
 
-{{< include _sections/summary-cv.qmd >}}
+{{< include _sections/summary.qmd >}}
 
 ---
 
