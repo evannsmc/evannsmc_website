@@ -18,8 +18,7 @@
 *November 2021 - May 2022*
 
 - Advised by Dr. Frank Lewis
-- Contributed to reinforcement-learning quadrotor control research under Dr. Frank Lewis, then ranked 12th in the USA and 23rd worldwide
-- Completed UTA Honors College thesis on lightweight Newton-Raphson tracking control for computationally constrained aerial systems
+- Contributed to reinforcement-learning quadrotor control research under Dr. Frank Lewis, then ranked by Research.com as 12th in the USA and 23rd worldwide in electrical engineering
 
 **Teaching Assistant** — Graduate-Level Intelligent Systems Course, University of Texas at Arlington | Arlington, TX\
 *January 2022 - May 2022*
@@ -31,4 +30,4 @@
 *October 2019 - May 2022*
 
 - Advised by Dr. Yan Wan
-- Conducted original research on learning-based minimum-time and minimum-energy multi-vehicle path planning using ROS and OpenCV
+- Completed UTA Honors College thesis on learning-based minimum-time and minimum-energy multi-vehicle path planning
