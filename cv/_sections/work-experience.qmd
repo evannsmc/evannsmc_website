@@ -4,34 +4,32 @@
 *August 2022 - Present*
 
 - Advised by Dr. Samuel Coogan
-- Developed planning and control methods for safe autonomous systems using machine learning, model-based control, optimization, and formal methods
-- Implemented and experimentally validated real-time autonomy algorithms on robotic hardware
-- Published original research in leading conferences and journals
+- Developed a lightweight Newton-Raphson tracking controller that beat PX4's native tracker in aggressive quadrotor flight (ACC'24) and matched or beat NMPC on blimp and quadrotor hardware at far lower computation time and CPU energy (TCST'26)
+- Built the lab's real-time flight-test stack (PX4, ROS 2, Raspberry Pi companion computers, Vicon/OptiTrack motion capture), enabling repeatable hardware validation of autonomy algorithms
+- Developed safe planning and control methods that combine reachability analysis, formal methods, optimization, and learning to generate fast, provably safe trajectories under unknown disturbances
+- Authored 4 peer-reviewed publications (3 first-author) in IEEE TCST, IEEE OJ-CSYS, ACC, and MECC/ALDSC, plus 3 under review (2 at ICRA 2027)
 
 **Teaching Assistant** — Vertically Integrated Project in Robotics, Georgia Institute of Technology | Atlanta, GA\
 *January 2024 - May 2026*
 
-- Aided professor in his instruction of this research-based course
-- Provided promising undergraduates with guidance performing applied research in the field of robotics
-- Taught control theoretical concepts in an accessible manner for undergraduates
+- Mentored about 20 undergraduates per semester on hands-on robotics research, with multiple mentees going on to robotics PhD programs
+- Designed and delivered undergraduate lectures on ROS, Git/GitHub, Linux, and control theory, preparing students for research on hardware
 
 **Research Assistant** — Autonomous Systems Lab, University of Texas at Arlington | Arlington, TX\
 *November 2021 - May 2022*
 
 - Advised by Dr. Frank Lewis
-- Received personal mentorship from a leading researcher in the field of controls and reinforcement learning (ranked 12th in the USA and 23rd in the world during my time in his lab)
-- Aided graduate students with reinforcement learning research applied to quadrotor control
+- Contributed to reinforcement-learning quadrotor control research in a top-ranked lab (advisor then ranked 12th in the USA, 23rd worldwide)
+- Completed UTA Honors College thesis on lightweight Newton-Raphson tracking control for computationally constrained aerial systems
 
 **Teaching Assistant** — Graduate-Level Intelligent Systems Course, University of Texas at Arlington | Arlington, TX\
 *January 2022 - May 2022*
 
-- Aided professor in his instruction of the course
-- Hosted review sessions for students in preparation for exams
-- Gained teaching experience in a graduate-level course while still an undergraduate
+- Selected as an undergraduate to TA a graduate-level course
+- Led exam review sessions and graded homework, exams, and projects
 
 **Research Assistant** — Dynamical Networks and Control Lab, University of Texas at Arlington | Arlington, TX\
 *October 2019 - May 2022*
 
 - Advised by Dr. Yan Wan
-- Gained experience with Robot Operating System (ROS), OpenCV, and path planning
-- Original research in learning-based minimum time and energy path-planning for multi-vehicle systems
+- Conducted original research on learning-based minimum-time and minimum-energy multi-vehicle path planning using ROS and OpenCV
