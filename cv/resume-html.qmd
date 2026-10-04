@@ -18,6 +18,10 @@ resume
 
 ---
 
+{{< include _sections/summary.qmd >}}
+
+---
+
 {{< include _sections/technical-skills.qmd >}}
 
 ---

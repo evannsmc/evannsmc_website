@@ -4,9 +4,9 @@
 *August 2022 - Present*
 
 - Advised by Dr. Samuel Coogan
-- Developed a lightweight tracking control law that beat PX4's native tracker in aggressive quadrotor flight and matched or beat NMPC on blimp and quadrotor hardware at far lower computation time and CPU energy
+- Developed a lightweight tracking control law that beat PX4's native tracker in aggressive quadrotor flight and matched NMPC's tracking accuracy at far lower computation time and CPU energy
 - Developed safe planning and control methods that combine reachability analysis, formal methods, optimization, and learning to generate fast, provably safe trajectories under unknown disturbances
-- Built the lab's real-time flight-test stack, enabling repeatable hardware validation of autonomy algorithms
+- Built the lab's real-time flight-test stack, enabling repeatable hardware validation
 
 **Teaching Assistant** — Vertically Integrated Project in Robotics, Georgia Institute of Technology | Atlanta, GA\
 *January 2024 - May 2026*

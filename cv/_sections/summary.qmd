@@ -1,0 +1,3 @@
+### Summary
+
+Robotics PhD candidate specializing in safe autonomous systems, reinforcement learning, and real-time control, with a track record of taking new methods from theory to flight-tested hardware at Georgia Tech and Sandia National Laboratories.
