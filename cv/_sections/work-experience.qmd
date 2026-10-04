@@ -12,13 +12,14 @@
 *January 2024 - May 2026*
 
 - Mentored about 20 undergraduates per semester on hands-on robotics research, with multiple mentees going on to robotics PhD programs
-- Designed and delivered undergraduate lectures on ROS, Git/GitHub, Linux, and control theory, preparing students for research on hardware
+- Designed and delivered undergraduate lectures on ROS, Git/GitHub, Linux, and control theory, preparing students for research on robotics and autonomous control systems
 
 **Research Assistant** — Autonomous Systems Lab, University of Texas at Arlington | Arlington, TX\
 *November 2021 - May 2022*
 
 - Advised by Dr. Frank Lewis
-- Contributed to reinforcement-learning quadrotor control research in Dr. Frank Lewis' lab. Dr. Lewis' work ranked 12th in the USA and 23rd worldwide among electrical engineering researchers by citation impact
+- Contributed to reinforcement-learning quadrotor control research in Dr. Frank Lewis' lab
+- Trained in one of the most-cited control research groups in electrical engineering, with Dr. Lewis' work ranked 12th in the USA and 23rd worldwide by citation impact
 
 **Teaching Assistant** — Graduate-Level Intelligent Systems Course, University of Texas at Arlington | Arlington, TX\
 *January 2022 - May 2022*
