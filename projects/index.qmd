@@ -666,6 +666,7 @@ body.quarto-dark .project-action.paper:focus {
               <div class="project-actions">
                 <a class="project-action paper" href="https://arxiv.org/abs/2603.21635" target="_blank">MECC-ALDSC Paper (Preprint PDF) ↗</a>
                 <a class="project-action" href="https://github.com/evannsmc/rtd-rax" target="_blank">GitHub ↗</a>
+                <a class="project-action" href="../files/mecc2026/rtd_rax_mecc2026_slides.html" target="_blank">MECC 2026 Slides ↗</a>
               </div>
             </div>
           </div>

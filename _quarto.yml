@@ -32,6 +32,9 @@ project:
     - files/thesis_proposal/figures
     - files/thesis_proposal/proposal_slides_files
     - files/thesis_proposal/_extensions
+    # MECC 2026 RTD-RAX deck: single self-contained HTML (videos/math inlined),
+    # built in ~/Presentations/mecc2026 with `npm run standalone`.
+    - files/mecc2026/rtd_rax_mecc2026_slides.html
     # Quarto auto-copies files referenced by <img src>, which is how the
     # rtd-rax gifs reach docs/. It does NOT do the same for <video src>
     # inside a raw ```{=html} block, so the looping card previews on the
