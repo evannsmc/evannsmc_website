@@ -1,5 +1,12 @@
 ### Work Experience
 
+**Year-Round Graduate Research Intern** — AI for Autonomy, Sandia National Laboratories | Albuquerque, NM\
+*May 2026 - Present*
+
+- Applied reinforcement learning to autonomy problems in support of national security
+- Designed and deployed robotics and automation infrastructure that enables multi-robot experiments
+- Built C\#/.NET networking frameworks and execution scripts that coordinate communication and task execution across multi-robot systems, now used team-wide
+
 **Graduate Research Assistant** — FACTS Lab, Georgia Institute of Technology | Atlanta, GA\
 *August 2022 - Present*
 
@@ -24,7 +31,7 @@
 **Teaching Assistant** — Graduate-Level Intelligent Systems Course, University of Texas at Arlington | Arlington, TX\
 *January 2022 - May 2022*
 
-- Selected as an undergraduate to TA a graduate-level course
+- Selected as an undergraduate teaching assistant for a graduate-level course
 - Led exam review sessions and graded homework, exams, and projects
 
 **Research Assistant** — Dynamical Networks and Control Lab, University of Texas at Arlington | Arlington, TX\
