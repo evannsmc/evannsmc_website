@@ -3,28 +3,29 @@
 **Year-Round Graduate Research Intern** — AI for Autonomy, Sandia National Laboratories | Albuquerque, NM\
 *May 2026 - Present*
 
-- Applied reinforcement learning to autonomy problems in support of national security
-- Designed and deployed robotics and automation infrastructure that enables multi-robot experiments
-- Built C\#/.NET networking frameworks and execution scripts that coordinate communication and task execution across multi-robot systems, now used team-wide
+- Developed novel reinforcement learning-based quadrotor-vs-quadrotor interception strategies, reaching targets 2.4x sooner with 14.7x more impact energy than baselines
+- Created a novel Newton-Raphson (NR)-based interception law, raising interception success from 10% to 70% over standard NR
+- Introduced novel benchmarking for the terminal characteristics of quadrotor interceptions
+- Built C\#/.NET networking frameworks and execution scripts that coordinate multi-robot communication and task execution
 
-**Graduate Research Assistant** — FACTS Lab, Georgia Institute of Technology | Atlanta, GA\
+**Graduate Research Assistant** — FACTS Lab (Advisor: Dr. Samuel Coogan), Georgia Institute of Technology | Atlanta, GA\
 *August 2022 - Present*
 
-- Advised by Dr. Samuel Coogan
-- Developed a lightweight tracking control law that beat PX4's native tracker in aggressive quadrotor flight and matched NMPC's tracking accuracy at far lower computation time and CPU energy
-- Developed safe planning and control methods that combine reachability analysis, formal methods, optimization, and learning to generate fast, provably safe trajectories under unknown disturbances
+- Deployed a novel Newton-Raphson-based tracking control law on a quadrotor, cutting error 59% on average versus PX4’s native tracker
+- Outperformed NMPC on a quadrotor (5x faster computation, 3.6x less CPU energy) and a blimp (65x faster computation, 16x less CPU energy), with competitive quadrotor accuracy and 2.2x lower blimp error
+- Created RTD-RAX, a receding-horizon safe trajectory planner that plans less conservatively than baselines and stays safe in high-disturbance scenarios where baselines crash
+- Optimized and deployed Gaussian-process runtime assurance on a quadrotor for a 100 Hz control loop, landing safely in unknown wind from an industrial fan
 - Built the lab's real-time flight-test stack, enabling repeatable hardware validation
 
 **Teaching Assistant** — Vertically Integrated Project in Robotics, Georgia Institute of Technology | Atlanta, GA\
 *January 2024 - May 2026*
 
-- Mentored about 20 undergraduates per semester on hands-on robotics research, with multiple mentees going on to robotics PhD programs
+- Mentored 20 undergraduates per semester in hands-on robotics research, several of whom went on to robotics PhD programs
 - Designed and delivered undergraduate lectures on ROS, Git/GitHub, Linux, and control theory, preparing students for research on robotics and autonomous control systems
 
-**Research Assistant** — Autonomous Systems Lab, University of Texas at Arlington | Arlington, TX\
+**Research Assistant** — Autonomous Systems Lab (Advisor: Dr. Frank Lewis), University of Texas at Arlington | Arlington, TX\
 *November 2021 - May 2022*
 
-- Advised by Dr. Frank Lewis
 - Trained in one of the most-cited control research groups in electrical engineering, with Dr. Lewis' work ranked 12th in the USA and 23rd worldwide by citation impact
 - Contributed to reinforcement learning-based quadrotor control research
 
@@ -34,8 +35,7 @@
 - Selected as an undergraduate teaching assistant for a graduate-level course
 - Led exam review sessions and graded homework, exams, and projects
 
-**Research Assistant** — Dynamical Networks and Control Lab, University of Texas at Arlington | Arlington, TX\
+**Research Assistant** — Dynamical Networks and Control Lab (Advisor: Dr. Yan Wan), University of Texas at Arlington | Arlington, TX\
 *October 2019 - May 2022*
 
-- Advised by Dr. Yan Wan
 - Completed UTA Honors College thesis on learning-based minimum-time and minimum-energy multi-vehicle path planning
