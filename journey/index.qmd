@@ -652,16 +652,14 @@ document.addEventListener('DOMContentLoaded', function () {
       coordinates: [-112.0740, 33.4484],
       zoom: { center: [-112.0740, 33.4484], scale: 1800 },
       year: 'Oct 25-28, 2026',
-      role: 'Presenting RTD-RAX at MECC 2026',
-      description: 'This October I will be in Phoenix, Arizona for the 6th Modeling, Estimation and Control Conference, presenting my RTD-RAX work on fast, safe trajectory planning for systems under unknown disturbances.',
+      role: 'Presented RTD-RAX at MECC 2026',
+      description: 'In October I was in Phoenix, Arizona for the 6th Modeling, Estimation and Control Conference, where I presented my RTD-RAX work on fast, safe trajectory planning for systems under unknown disturbances.',
       color: '#ea580c',
       tint: 'rgba(234, 88, 12, 0.1)',
       highlightFill: 'rgba(234, 88, 12, 0.18)',
       emoji: '📄',
-      upcoming: true,
       image: '../files/journey/stops/mecc2026.jpg',
       timelineLabels: ['6<sup>th</sup> Modeling, Estimation and Control Conference'],
-      badge: 'Upcoming',
       overviewLabel: { anchor: 'end', x: -16, emojiY: -10, labelY: 5 }
     },
     {
@@ -672,18 +670,16 @@ document.addEventListener('DOMContentLoaded', function () {
       coordinates: [-86.1581, 39.7684],
       zoom: { center: [-86.1581, 39.7684], scale: 1800 },
       year: 'Oct 28-31, 2026',
-      role: 'Attending SHPE National Convention 2026',
-      description: 'Straight from Phoenix to Indianapolis for the SHPE National Convention to connect with the national community of Hispanic engineers and scientists.',
+      role: 'Attended SHPE National Convention 2026',
+      description: 'Straight from Phoenix, I headed to Indianapolis for the SHPE National Convention to connect with the national community of Hispanic engineers and scientists.',
       color: '#7c3aed',
       tint: 'rgba(124, 58, 237, 0.1)',
       highlightFill: 'rgba(124, 58, 237, 0.18)',
       emoji: '🤝',
-      upcoming: true,
       // Official SHPE NC2026 logo cropped above its "WELCOMES Latinas in Tech"
       // co-brand band, the only form SHPE publishes it in.
       image: '../files/journey/stops/ind.png',
       timelineLabels: ['SHPE National Convention 2026'],
-      badge: 'Upcoming',
       overviewLabel: { anchor: 'end', x: -16, emojiY: -10, labelY: 5 }
     },
     {
@@ -693,9 +689,9 @@ document.addEventListener('DOMContentLoaded', function () {
       countryId: '076',
       coordinates: [-49.2731, -25.4284],
       zoom: { center: [-49.2731, -25.4284], scale: 1800 },
-      year: 'Late Nov 2026 (tentative)',
+      year: 'Spring 2027',
       role: 'Visiting Scholar at UTFPR / LACTEC',
-      description: 'A tentative late-November visit to Curitiba, Brazil as a Visiting Scholar with UTFPR and LACTEC, working with collaborators there on robotics and control research.',
+      description: 'Next semester (Spring 2027) I will be in Curitiba, Brazil as a Visiting Scholar with UTFPR and LACTEC, working with collaborators there on robotics and control research.',
       color: '#16a34a',
       tint: 'rgba(22, 163, 74, 0.1)',
       highlightFill: 'rgba(22, 163, 74, 0.18)',
@@ -704,7 +700,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // UTFPR and LACTEC marks stacked into one card, since a stop takes one image.
       image: '../files/journey/stops/cwb.png',
       timelineLabels: ['Visiting Scholar, UTFPR / LACTEC'],
-      badge: 'Tentative',
+      badge: 'Upcoming',
       overviewLabel: { anchor: 'middle', x: 0, emojiY: -30, labelY: -14 }
     }
   ];
