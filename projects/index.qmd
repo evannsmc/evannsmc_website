@@ -324,6 +324,17 @@ body.quarto-dark .project-name {
   aspect-ratio: 1.4 / 1;
 }
 
+/* LIRRA: static figure crop, padded to the shared 1.4:1 preview ratio */
+.project-preview-panel.lirra-preview {
+  min-height: 0;
+  aspect-ratio: 1.4 / 1;
+  background: #fff;
+}
+
+.project-preview-panel.lirra-preview img {
+  object-fit: contain;
+}
+
 /* Looping hardware-footage previews (NMPC, NR Flow, MoCap). Clips are
    encoded at 860x620 to match the RTD-RAX gif exactly, so every card
    preview on the page shares one aspect ratio and the top row of the
@@ -604,7 +615,7 @@ body.quarto-dark .project-action.paper:focus {
       autocomplete="off"
     />
     <span class="projects-filter-count" aria-live="polite">
-      showing <strong id="projects-count-shown">8</strong> of <strong id="projects-count-total">8</strong>
+      showing <strong id="projects-count-shown">9</strong> of <strong id="projects-count-total">9</strong>
     </span>
   </div>
 
@@ -618,6 +629,55 @@ body.quarto-dark .project-action.paper:focus {
       </p>
 
       <div class="project-stack">
+        <details class="project-card" data-project-href="../projects/lirra/" open>
+          <summary>
+            <div class="project-summary">
+              <div class="project-copy">
+                <div class="project-tags">
+                  <span class="project-tag">Runtime Assurance</span>
+                  <span class="project-tag">Signal Temporal Logic</span>
+                  <span class="project-tag">Learning-Based Control</span>
+                </div>
+                <div class="project-name-row">
+                  <div class="project-name-group">
+                    <span class="project-number">01</span>
+                    <p class="project-name">LIRRA: Skip the Solve</p>
+                  </div>
+                  <button class="project-toggle" type="button" aria-label="Hide or show details"></button>
+                </div>
+                <p class="project-preview-copy">
+                  Learning-accelerated interval-STL runtime assurance: verify learned trajectory proposals instead of solving a mixed-integer program at every step, with guarantees that hold whatever the network does.
+                </p>
+                <p class="project-cta-hint">Tap anywhere on this panel to open the project page.</p>
+              </div>
+              <div class="project-preview-panel lirra-preview">
+                <img src="../projects/lirra/lirra_3d_preview.png" alt="3D view of a blimp following verified plans around an uncertain restricted region, with a rejected proposal and the fallback solver plan">
+              </div>
+            </div>
+          </summary>
+          <div class="project-body">
+            <div class="project-body-grid">
+              <div class="project-detail-copy">
+                <p>
+                  LIRRA builds on interval STL runtime assurance. A learned policy proposes trajectories, and each one is checked against the original synthesis constraints, including control-invariant terminal conditions. A rejected proposal triggers a delay-compensated fallback solve while the robot follows the last verified trajectory, so recursive feasibility and specification satisfaction never depend on the network or on solver timing.
+                </p>
+                <ul class="project-detail-list">
+                  <li>Fallback solves on only 0.6&ndash;1.3% of quadrotor planning steps and 4.1&ndash;7.7% of blimp planning steps.</li>
+                  <li>50&ndash;83x faster planning and 39&ndash;135x less CPU energy per step than standard MILP-based runtime assurance on a Skydio X2 quadrotor in MuJoCo.</li>
+                  <li>Joint work with Xinpei Ni (equal contribution), Luke Baird, Glen Chou, and Samuel Coogan; submitted to L4DC 2027.</li>
+                </ul>
+              </div>
+              <div class="project-actions">
+                <a class="project-action primary" href="../projects/lirra/">Open Project Page</a>
+                <a class="project-action secondary" href="https://evannsmc.github.io/rl-stl/" target="_blank">Project Website ↗</a>
+              </div>
+              <div class="project-actions">
+                <a class="project-action paper" href="../files/l4dc2027/27_L4DC_LIRRA.pdf" target="_blank">L4DC 2027 Paper (Preprint PDF) ↗</a>
+              </div>
+            </div>
+          </div>
+        </details>
+
         <details class="project-card" data-project-href="../projects/rtd-rax/" open>
           <summary>
             <div class="project-summary">
@@ -632,7 +692,7 @@ body.quarto-dark .project-action.paper:focus {
                 </div>
                 <div class="project-name-row">
                   <div class="project-name-group">
-                    <span class="project-number">01</span>
+                    <span class="project-number">02</span>
                     <p class="project-name">RTD-RAX</p>
                   </div>
                   <button class="project-toggle" type="button" aria-label="Hide or show details"></button>
@@ -684,7 +744,7 @@ body.quarto-dark .project-action.paper:focus {
                 </div>
                 <div class="project-name-row">
                   <div class="project-name-group">
-                    <span class="project-number">02</span>
+                    <span class="project-number">03</span>
                     <p class="project-name">NMPC for Quadrotors</p>
                   </div>
                   <button class="project-toggle" type="button" aria-label="Hide or show details"></button>
@@ -739,7 +799,7 @@ body.quarto-dark .project-action.paper:focus {
                 </div>
                 <div class="project-name-row">
                   <div class="project-name-group">
-                    <span class="project-number">03</span>
+                    <span class="project-number">04</span>
                     <p class="project-name">Interval STL Runtime Assurance</p>
                   </div>
                   <button class="project-toggle" type="button" aria-label="Hide or show details"></button>
@@ -789,7 +849,7 @@ body.quarto-dark .project-action.paper:focus {
                 </div>
                 <div class="project-name-row">
                   <div class="project-name-group">
-                    <span class="project-number">04</span>
+                    <span class="project-number">05</span>
                     <p class="project-name">Newton-Raphson Flow Control: Fast, Efficient, & Modular Control Algorithm</p>
                   </div>
                   <button class="project-toggle" type="button" aria-label="Hide or show details"></button>

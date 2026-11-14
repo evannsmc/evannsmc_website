@@ -38,7 +38,7 @@ page-layout: full
       <p class="home-hero-kicker">Robotics Ph.D. student · Georgia Tech · Fulbright Specialist</p>
       <h1 class="home-hero-title">Evanns Morales-Cuadrado</h1>
       <p class="home-hero-summary">
-        I work on safe autonomy for hardware systems with a focus on uncertainty-aware safe trajectory planning, aggressive low-level control, and lightweight algorithms for computationally constrained platforms. My more recent work has brought me into the worlds of formal methods and deep reinforcement learning for real-world quadrotors.<br>
+        I work on safe autonomy for hardware systems with a focus on uncertainty-aware safe trajectory planning, aggressive low-level control, and lightweight algorithms for computationally constrained platforms. My more recent work has brought me into the worlds of formal methods and deep reinforcement learning for real-world quadrotors, including <a href="projects/lirra/">LIRRA</a>, a learning-accelerated runtime-assurance method with formal guarantees (submitted to L4DC 2027).<br>
 
         As part of my work, I have also had the pleasure of breaking many quadrotors and putting them back together.
       </p>
