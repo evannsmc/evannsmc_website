@@ -546,6 +546,22 @@ main.content:has(.home-hero) h2.home-pedigree-heading {
   text-underline-offset: 3px;
 }
 
+/* ── Inside the Lab copy: larger type, readable line length ── */
+.home-lab-copy {
+  max-width: 76ch;
+}
+
+.home-lab-copy p {
+  margin: 0 0 0.85rem;
+  color: var(--ink-muted);
+  font-size: 1.12rem;
+  line-height: 1.65;
+}
+
+.home-lab-copy p:last-child {
+  margin-bottom: 0;
+}
+
 /* ── Education & mentors ── */
 .home-pedigree-grid {
   display: grid;
