@@ -125,6 +125,7 @@ My robotics work centers around hardware applications of safe autonomous control
 ## My Latest Projects
 
 ```{=html}
+<div class="home-latest-projects">
 <a class="home-latest-project home-latest-project--stacked" href="./projects/lirra/">
   <p class="home-latest-project-title"><code>LIRRA</code></p>
   <div class="home-latest-project-tags" aria-label="LIRRA topic tags">
@@ -174,6 +175,7 @@ My robotics work centers around hardware applications of safe autonomous control
     </div>
   </div>
 </a>
+</div>
 ```
 
 

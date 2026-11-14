@@ -676,6 +676,58 @@ body.quarto-dark .nav-footer-center a {
   order: 2;
 }
 
+/* Side-by-side pair (LIRRA | RTD-RAX): two equal columns spanning the full
+   content width. Inside the pair both cards use the same stacked rhythm
+   (title, tags, 16:9 video, text, link pinned to the bottom) so they line up. */
+.home-latest-projects {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: stretch;
+  margin: 1.05rem 0 2rem;
+}
+
+.home-latest-projects > .home-latest-project {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0;
+}
+
+.home-latest-projects .home-latest-project-preview {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: none;
+  flex-shrink: 0;
+}
+
+.home-latest-projects .home-latest-project-preview video {
+  object-fit: contain;
+  background: #fff;
+}
+
+.home-latest-projects .home-latest-project-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  flex: 1;
+}
+
+.home-latest-projects .home-latest-project-row .home-latest-project-preview {
+  order: 0;
+}
+
+.home-latest-projects .home-latest-project-copy {
+  flex: 1;
+}
+
+/* Push each card's "Open …" link to the bottom so the two links align. */
+.home-latest-projects .home-latest-project-link {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
 .home-latest-project:hover,
 .home-latest-project:focus {
   color: inherit;
@@ -870,6 +922,10 @@ body.quarto-dark .home-latest-project-link {
 
   /* Project goes single-column with capped video */
   .home-latest-project {
+    grid-template-columns: 1fr;
+  }
+
+  .home-latest-projects {
     grid-template-columns: 1fr;
   }
 
