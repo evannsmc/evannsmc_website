@@ -83,6 +83,10 @@ body.quarto-light .footer {
   --hairline: #e4e4e7;
   --hairline-strong: #d4d4d8;
   --paper: #ffffff;
+  --card-bg: #f6f7f9;
+  --card-border: #e2e5ea;
+  --accent-tint: rgba(37, 99, 235, 0.08);
+  --accent-tint-border: rgba(37, 99, 235, 0.35);
 }
 
 body.quarto-dark {
@@ -92,6 +96,10 @@ body.quarto-dark {
   --hairline: rgba(244, 244, 245, 0.14);
   --hairline-strong: rgba(244, 244, 245, 0.26);
   --paper: #0f1012;
+  --card-bg: #1a1c20;
+  --card-border: rgba(244, 244, 245, 0.12);
+  --accent-tint: rgba(96, 165, 250, 0.12);
+  --accent-tint-border: rgba(96, 165, 250, 0.35);
 }
 
 body {
@@ -355,8 +363,8 @@ body.quarto-dark .nav-footer-center a {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) clamp(11rem, 19vw, 15.5rem);
   gap: clamp(2rem, 5vw, 4.5rem);
-  align-items: center;
-  margin: 0 0 3.5rem;
+  align-items: start;
+  margin: 0 0 3rem;
 }
 
 .home-hero-copy {
@@ -390,24 +398,35 @@ body.quarto-dark .nav-footer-center a {
   line-height: 1.7;
 }
 
+/* Framed portrait (the original look): rounded-corner photo inside a soft card */
 .home-hero-portrait {
   margin: 0;
+  padding: 0.5rem;
+  border: 1px solid var(--card-border);
+  border-radius: 1.15rem;
+  background: var(--card-bg);
   text-align: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-hero-portrait:hover {
+  border-color: var(--accent-tint-border);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.08);
 }
 
 .home-hero-photo {
   display: block;
   width: 100%;
-  aspect-ratio: 1;
-  border-radius: 50%;
+  aspect-ratio: 3 / 4;
+  border-radius: 0.75rem;
   object-fit: cover;
-  object-position: 50% 18%;
-  box-shadow: 0 0 0 1px var(--hairline), 0 12px 32px rgba(9, 9, 11, 0.08);
+  object-position: 50% 16%;
 }
 
 .home-hero-caption {
-  margin: 0.75rem 0 0;
+  margin: 0.5rem 0 0.1rem;
   font-size: 0.85rem;
+  font-weight: 600;
   font-style: italic;
   color: var(--ink-subtle);
 }
@@ -473,17 +492,19 @@ body.quarto-dark .nav-footer-center a {
   gap: 0.5rem;
   min-height: 2.6rem;
   padding: 0.45rem 0.95rem;
-  border: 1px solid var(--hairline-strong);
-  border-radius: 0.5rem;
-  color: var(--ink);
+  border: 1px solid var(--accent-tint-border);
+  border-radius: 0.8rem;
+  background: var(--accent-tint);
+  color: var(--accent);
   font-size: 0.92rem;
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .home-icon-links a:hover,
 .home-icon-links a:focus-visible {
+  background: rgba(37, 99, 235, 0.15);
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -510,10 +531,10 @@ body.quarto-dark .nav-footer-center a {
 /* ── Section headings on the home page: heavy top rule, no underline ── */
 main.content:has(.home-hero) h2,
 .home-section-heading-row {
-  margin: 3.75rem 0 1.4rem;
-  padding: 0.9rem 0 0;
-  border-top: 2px solid var(--ink);
-  border-bottom: none;
+  margin: 3.25rem 0 1.4rem;
+  padding: 0 0 0.6rem;
+  border-top: none;
+  border-bottom: 1px solid var(--card-border);
 }
 
 main.content:has(.home-hero) h2 {
@@ -539,12 +560,12 @@ main.content:has(.home-hero) h2.home-pedigree-heading {
 
 .home-pedigree {
   margin: 0 0 1rem;
-  padding-top: 0.9rem;
-  border-top: 2px solid var(--ink);
 }
 
 main.content:has(.home-hero) h2.home-pedigree-heading {
-  margin-bottom: 1.6rem;
+  margin-bottom: 1.4rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--card-border);
 }
 
 .home-text-link {
@@ -563,7 +584,20 @@ main.content:has(.home-hero) h2.home-pedigree-heading {
 .home-pedigree-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 2.5rem;
+  gap: 1.25rem;
+}
+
+.home-pedigree-col {
+  padding: 1.35rem;
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  background: var(--card-bg);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-pedigree-col:hover {
+  border-color: var(--accent-tint-border);
+  box-shadow: 0 2px 12px rgba(37, 99, 235, 0.08);
 }
 
 .home-pedigree-col header {
@@ -682,19 +716,21 @@ main.content:has(.home-hero) h2.home-pedigree-heading {
   display: grid;
   gap: 1rem;
   padding: 1.5rem;
-  border: 1px solid var(--hairline);
-  border-radius: 0.75rem;
-  background: transparent;
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  background: var(--paper);
   color: inherit;
   text-decoration: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .home-latest-project:hover,
 .home-latest-project:focus {
   color: inherit;
   text-decoration: none;
-  border-color: var(--ink);
+  border-color: var(--accent-tint-border);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.1);
+  transform: translateY(-2px);
 }
 
 /* Side-by-side pair (LIRRA | RTD-RAX): two equal columns. Each card stacks
@@ -754,31 +790,32 @@ main.content:has(.home-hero) h2.home-pedigree-heading {
 }
 
 /* Tags as a quiet dot-separated line, not a cloud of pills */
+.home-latest-projects .home-latest-project-title {
+  align-self: center;
+}
+
 .home-latest-project-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.15rem 0.45rem;
-  margin-top: -0.4rem;
+  justify-content: center;
+  gap: 0.45rem;
 }
 
 .home-latest-project-tag {
+  padding: 0.25rem 0.65rem;
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
   color: var(--ink-subtle);
-  font-size: 0.86rem;
-  font-weight: 500;
-}
-
-.home-latest-project-tag + .home-latest-project-tag::before {
-  content: "·";
-  margin-right: 0.45rem;
-  color: var(--hairline-strong);
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 .home-latest-project-preview {
   width: 100%;
   aspect-ratio: 16 / 9;
   flex-shrink: 0;
-  border: 1px solid var(--hairline);
-  border-radius: 0.5rem;
+  border: 1px solid var(--card-border);
+  border-radius: 0.8rem;
   overflow: hidden;
   background: #fff;
 }
@@ -835,12 +872,21 @@ main.content:has(.home-hero) h2.home-pedigree-heading {
 .home-snapshot-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 2.5rem;
+  gap: 1.25rem;
 }
 
 .home-snapshot-card {
-  padding: 0.9rem 0 0;
-  border-top: 1px solid var(--hairline);
+  padding: 1.35rem;
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  background: var(--card-bg);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.home-snapshot-card:hover {
+  border-color: var(--accent-tint-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
 }
 
 .home-snapshot-kicker {
@@ -881,9 +927,10 @@ main.content:has(.home-hero) h2.home-pedigree-heading {
   justify-content: center;
   min-height: 2.75rem;
   padding: 0.6rem 1.15rem;
-  border: 1px solid var(--hairline-strong);
-  border-radius: 0.5rem;
-  color: var(--ink);
+  border: 1px solid #2563eb;
+  border-radius: 0.8rem;
+  background: #2563eb;
+  color: #fff;
   font-weight: 600;
   text-decoration: none;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
@@ -891,26 +938,15 @@ main.content:has(.home-hero) h2.home-pedigree-heading {
 
 .home-snapshot-link:hover,
 .home-snapshot-link:focus-visible {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.home-snapshot-link.primary {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--paper);
-}
-
-.home-snapshot-link.primary:hover,
-.home-snapshot-link.primary:focus-visible {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: #1d4ed8;
+  border-color: #1d4ed8;
   color: #fff;
 }
 
 /* ── Dark mode: same structure, the ink/hairline tokens flip ── */
-body.quarto-dark .home-hero-photo {
-  box-shadow: 0 0 0 1px var(--hairline), 0 12px 32px rgba(0, 0, 0, 0.4);
+/* #2563eb is too dark on near-black; use the light blue the original dark theme used */
+body.quarto-dark main.content:has(.home-hero) {
+  --accent: #93c5fd;
 }
 
 body.quarto-dark .home-latest-project-preview {
@@ -927,12 +963,8 @@ body.quarto-dark .home-latest-project-preview {
 
   .home-hero-portrait {
     order: -1;
-    width: 9.5rem;
+    width: 10rem;
     justify-self: start;
-  }
-
-  .home-hero-caption {
-    display: none;
   }
 
   .home-pedigree-grid {
@@ -974,7 +1006,7 @@ body.quarto-dark .home-latest-project-preview {
   }
 
   .home-hero-portrait {
-    width: 7.5rem;
+    width: 8.5rem;
   }
 
   .home-hero-summary {

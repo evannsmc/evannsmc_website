@@ -39,7 +39,7 @@ page-layout: full
     </div>
     <figure class="home-hero-portrait">
       <img src="./files/profesh.jpg" alt="Evanns Morales-Cuadrado" class="home-hero-photo">
-      <figcaption class="home-hero-caption">C'est moi.</figcaption>
+      <figcaption class="home-hero-caption">C'est Moi.</figcaption>
     </figure>
   </section>
 
