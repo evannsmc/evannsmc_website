@@ -38,7 +38,7 @@ page-layout: full
       <p class="home-hero-kicker">Robotics Ph.D. student · Georgia Tech · Fulbright Specialist</p>
       <h1 class="home-hero-title">Evanns Morales-Cuadrado</h1>
       <p class="home-hero-summary">
-        I work on safe autonomy for hardware systems with a focus on uncertainty-aware safe trajectory planning, aggressive low-level control, and lightweight algorithms for computationally constrained platforms. My more recent work has brought me into the worlds of formal methods and deep reinforcement learning for real-world quadrotors, including <a href="projects/lirra/">LIRRA</a>, a learning-accelerated runtime-assurance method with formal guarantees (submitted to L4DC 2027).<br>
+        I work on safe autonomy for hardware systems with a focus on uncertainty-aware safe trajectory planning, aggressive low-level control, and lightweight algorithms for computationally constrained platforms. My more recent work has brought me into the worlds of formal methods and deep reinforcement learning for real-world quadrotors.<br>
 
         As part of my work, I have also had the pleasure of breaking many quadrotors and putting them back together.
       </p>
@@ -122,9 +122,36 @@ I am a Robotics/ECE Ph.D. student in the Formal Methods & Autonomous Control of 
 My robotics work centers around hardware applications of safe autonomous control algorithms. In particular, I work on safe and efficient path planning and control synthesis in the face of onboard computational constraints. Much of my work involves hardware demonstrations of novel methods on quadrotor UAVs and unmanned ground vehicles (UGVs). As a result, I've accumulated some cool videos of things flying autonomously and a lot of terrible videos of them crashing.
 
 
-## My Latest Project
+## My Latest Projects
 
 ```{=html}
+<a class="home-latest-project" href="./projects/lirra/">
+  <div class="home-latest-project-copy">
+    <div class="home-latest-project-main">
+      <p class="home-latest-project-title"><code>LIRRA</code></p>
+      <div class="home-latest-project-tags" aria-label="LIRRA topic tags">
+        <span class="home-latest-project-tag">Runtime Assurance</span>
+        <span class="home-latest-project-tag">Signal Temporal Logic</span>
+        <span class="home-latest-project-tag">Learning-Based Control</span>
+        <span class="home-latest-project-tag">Formal Methods</span>
+        <span class="home-latest-project-tag">Safety</span>
+        <span class="home-latest-project-tag">Research</span>
+      </div>
+      <p class="home-latest-project-text">
+        Learning-augmented Interval-STL for Recursively-feasible Runtime Assurance (LIRRA), submitted to L4DC 2027. Instead of solving an expensive mixed-integer program at every planning step, a learned policy proposes trajectories and LIRRA verifies each one against the original synthesis constraints, falling back to a delay-compensated solve only when a proposal is rejected.
+
+        Guarantees hold no matter what the network does: on a Skydio X2 quadrotor in MuJoCo, planning is 50&ndash;83x faster and uses 39&ndash;135x less CPU energy than standard MILP-based runtime assurance.
+      </p>
+    </div>
+    <span class="home-latest-project-link">Open LIRRA</span>
+  </div>
+  <div class="home-latest-project-preview">
+    <video autoplay loop muted playsinline aria-label="Skydio X2 quadrotor in MuJoCo patrolling waypoints around a restricted cube region under LIRRA" loading="lazy">
+      <source src="./projects/lirra/x2_cube_mujoco.mp4" type="video/mp4">
+    </video>
+  </div>
+</a>
+
 <a class="home-latest-project" href="./projects/rtd-rax/">
   <div class="home-latest-project-copy">
     <div class="home-latest-project-main">
