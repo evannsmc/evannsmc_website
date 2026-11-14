@@ -722,6 +722,22 @@ body.quarto-dark .nav-footer-center a {
   flex: 1;
 }
 
+/* Desktop: break the pair out of the text column so it spans the page
+   (minus a 1.5rem gutter each side, capped at 1800px) and the videos are big.
+   The column is centered in the viewport, so a symmetric negative margin works. */
+main:has(.home-latest-projects) {
+  container-type: inline-size; /* 100cqw = main's width, which excludes the scrollbar (100vw doesn't) */
+}
+
+@media (min-width: 901px) {
+  .home-latest-projects {
+    --pair-w: min(calc(100cqw - 3rem), 1800px);
+    width: var(--pair-w);
+    margin-left: calc((100% - var(--pair-w)) / 2);
+    margin-right: calc((100% - var(--pair-w)) / 2);
+  }
+}
+
 /* Push each card's "Open …" link to the bottom so the two links align. */
 .home-latest-projects .home-latest-project-link {
   align-self: flex-start;
