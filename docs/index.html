@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content page-columns page-full column-page" id="quarto-document-content">
+<main class="content column-page" id="quarto-document-content">
 
 <a class="skip-to-content" href="#quarto-content">Skip to main content</a>
 
@@ -413,108 +413,83 @@ document.addEventListener('DOMContentLoaded', function () {
   display: none;
 }
 
-  .home-section-heading-row {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 0.33rem;
-  }
-
-  .home-section-heading-row h2 {
-    margin: 0;
-    font-size: clamp(1.75rem, 2.3vw, 2rem);
-    font-weight: 700;
-  }
 </style>
 
-<div class="home-page page-columns page-full">
-  <section class="home-hero page-columns page-full">
+<div class="home-page">
+  <section class="home-hero">
     <div class="home-hero-copy">
-      <div class="home-hero-photo-mobile" aria-hidden="true">
-        <figure class="home-hero-portrait figure">
-          <img src="./files/profesh.jpg" alt="" class="home-hero-photo figure-img">
-          <figcaption class="home-hero-caption">C'est Moi.</figcaption>
-        </figure>
-      </div>
       <p class="home-hero-kicker">Robotics Ph.D. student · Georgia Tech · Fulbright Specialist</p>
       <h1 class="home-hero-title">Evanns Morales-Cuadrado</h1>
       <p class="home-hero-summary">
-        I work on safe autonomy for hardware systems with a focus on uncertainty-aware safe trajectory planning, aggressive low-level control, and lightweight algorithms for computationally constrained platforms. My more recent work has brought me into the worlds of formal methods and deep reinforcement learning for real-world quadrotors.<br>
-
+        I work on safe autonomy for hardware systems with a focus on uncertainty-aware safe trajectory planning, aggressive low-level control, and lightweight algorithms for computationally constrained platforms. My more recent work has brought me into the worlds of formal methods and deep reinforcement learning for real-world quadrotors.
         As part of my work, I have also had the pleasure of breaking many quadrotors and putting them back together.
       </p>
-      <p class="home-edu-heading">Education</p>
-      <div class="home-meta-grid">
-        <div class="home-meta-card">
-          <div class="home-meta-card-header">
-            <img src="./files/about/Georgia_Tech_Yellow_Jackets_logo.svg.png" alt="Georgia Tech logo" class="home-meta-logo">
-            <div>
-              <p class="home-meta-value">Ph.D. in Robotics · Georgia Tech</p>
-              <p class="home-meta-subtle">4.0 GPA · Summa Cum Laude · Doctoral minor in Optimization Methods · Deploying Novel Safe Autonomy Algorithms on Hardware · 2022 - Present</p>
-            </div>
-          </div>
-          <span class="home-meta-badge">#2 Public ECE Program in the U.S.</span>
-          <span class="home-meta-badge">Ph.D. under Eckman Award winner, <a href="https://scholar.google.com/citations?user=mTf9sk8AAAAJ&amp;hl=en" target="_blank">Dr. Samuel Coogan</a></span>
-          <!-- , Eckman Award recipient</span> -->
-        </div>
-        <div class="home-meta-card">
-          <div class="home-meta-card-header">
-            <img src="./files/about/UTA_logomark.png" alt="UT Arlington logo" class="home-meta-logo">
-            <div>
-              <p class="home-meta-value">Honors B.S. in EE · University of Texas</p>
-              <p class="home-meta-subtle">Summa Cum Laude · Minors in Math &amp; Physics · Certificate in Unmanned Vehicle Systems</p>
-            </div>
-          </div>
-          <span class="home-meta-badge home-meta-badge-mentor">Mentored by:<br><a href="https://scholar.google.com/citations?user=rMRit3UAAAAJ" target="_blank">Dr. Frank Lewis</a> —<br>
-          <span class="home-meta-badge-subline">World #1 in Optimal Control &amp; Reinforcement Learning</span><br>
-          <span class="home-meta-badge-subline">Top 1% Cited Researcher in the World</span><br>
-          <a href="https://scholar.google.com/citations?user=SwJ_EToAAAAJ&amp;hl=en" target="_blank">Dr. Yan Wan</a> —<br>
-          <span class="home-meta-badge-subline">Distinguished Professor</span><br>
-          <span class="home-meta-badge-subline">NSF CAREER &amp; IEEE Outstanding Contribution Awards</span>
-          </span>
-        </div>
-      </div>
-      <p class="home-edu-heading">Honors</p>
-      <div class="home-honors-row">
-        <a class="home-meta-card home-honor-card" href="https://fulbrightspecialist.worldlearning.org/" target="_blank" rel="noopener">
-          <img src="./files/about/fulbright-mark.svg" alt="Fulbright Program logo" class="home-meta-logo">
-          <p class="home-meta-value">Fulbright Specialist</p>
-          <span class="home-honor-card-cue" aria-hidden="true">↗</span>
-        </a>
-        <a class="home-meta-card home-honor-card" href="https://www.nationalmerit.org/" target="_blank" rel="noopener">
-          <p class="home-meta-value">National Merit Scholar</p>
-          <span class="home-honor-card-cue" aria-hidden="true">↗</span>
-        </a>
-        <a class="home-meta-card home-honor-card" href="https://bigfuture.collegeboard.org/communities-events/national-recognition-programs" target="_blank" rel="noopener">
-          <p class="home-meta-value">National Hispanic Scholar</p>
-          <span class="home-honor-card-cue" aria-hidden="true">↗</span>
-        </a>
-      </div>
-      <div class="home-contact-list">
-        <span class="home-contact-item">egm [at] gatech [dot] edu</span>
-        <span class="home-contact-item">evannsmc [at] gmail [dot] com</span>
-        <span class="home-contact-item">Atlanta, GA</span>
-      </div>
-      <div class="home-link-row">
-        <a class="home-link-pill secondary" href="https://github.com/evannsmc" target="_blank">GitHub</a>
-        <a class="home-link-pill secondary" href="https://www.linkedin.com/in/evanns-morales/" target="_blank">LinkedIn</a>
-        <a class="home-link-pill secondary" href="https://scholar.google.com/citations?user=kuWXwJsAAAAJ&amp;hl=en&amp;oi=ao" target="_blank">Google Scholar</a>
-        <a class="home-link-pill secondary" href="https://orcid.org/0009-0000-3928-6243" target="_blank">ORCID</a>
+      <ul class="home-cred-strip" aria-label="Education and honors at a glance">
+        <li><a href="#education"><img src="./files/about/Georgia_Tech_Yellow_Jackets_logo.svg.png" alt=""><span><b>Ph.D. in Robotics</b>Georgia Tech</span></a></li>
+        <li><a href="#education"><img src="./files/about/UTA_logomark.png" alt=""><span><b>Honors B.S. in EE</b>University of Texas</span></a></li>
+        <li><a href="https://fulbrightspecialist.worldlearning.org/" target="_blank" rel="noopener"><img src="./files/about/fulbright-mark.svg" alt=""><span><b>Fulbright Specialist</b>U.S. Dept. of State</span></a></li>
+      </ul>
+      <div class="home-icon-links">
+        <a href="https://github.com/evannsmc" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i>GitHub</a>
+        <a href="https://www.linkedin.com/in/evanns-morales/" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i>LinkedIn</a>
+        <a href="https://scholar.google.com/citations?user=kuWXwJsAAAAJ&amp;hl=en&amp;oi=ao" target="_blank" rel="noopener"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i>Google Scholar</a>
+        <a href="https://orcid.org/0009-0000-3928-6243" target="_blank" rel="noopener"><svg class="home-orcid" viewbox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#A6CE39"></circle><path fill="#fff" d="M7.4 6.6a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8ZM6.7 9.6h1.4v8.2H6.7V9.6Zm3.4 0h3.7c3.5 0 5 2.5 5 4.1 0 1.8-1.4 4.1-5 4.1h-3.7V9.6Zm1.4 1.3v5.6h2.2c3.2 0 3.9-2.4 3.9-2.8 0-1.4-.9-2.8-3.8-2.8h-2.3Z"></path></svg>ORCID</a>
+        <a href="#" data-u="egm" data-d="gatech.edu" onclick="this.href='mailto:'+this.dataset.u+'@'+this.dataset.d" title="egm [at] gatech [dot] edu"><i class="bi bi-envelope-fill" aria-hidden="true"></i>Email</a>
+        <span class="home-icon-meta"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i>Atlanta, GA</span>
       </div>
     </div>
-    <aside class="home-hero-sidebar">
-      <figure class="home-hero-portrait figure">
-        <img src="./files/profesh.jpg" alt="Evanns Morales-Cuadrado" class="home-hero-photo figure-img">
-        <figcaption class="home-hero-caption">C'est Moi.</figcaption>
-      </figure>
-    </aside>
+    <figure class="home-hero-portrait figure">
+      <img src="./files/profesh.jpg" alt="Evanns Morales-Cuadrado" class="home-hero-photo figure-img">
+      <figcaption class="home-hero-caption">C'est moi.</figcaption>
+    </figure>
+  </section>
+
+  <section class="home-pedigree" id="education" aria-labelledby="education-heading">
+    <h2 id="education-heading" class="home-pedigree-heading anchored">Education &amp; mentors</h2>
+    <div class="home-pedigree-grid">
+      <article class="home-pedigree-col">
+        <header>
+          <img src="./files/about/Georgia_Tech_Yellow_Jackets_logo.svg.png" alt="Georgia Tech logo">
+          <div><p class="home-pedigree-label">Ph.D. · 2022–present</p><h3 class="anchored">Robotics, Georgia Tech</h3></div>
+        </header>
+        <p class="home-pedigree-detail">4.0 GPA · Summa Cum Laude · Doctoral minor in Optimization Methods · Deploying novel safe autonomy algorithms on hardware</p>
+        <p class="home-pedigree-detail">#2 public ECE program in the U.S.</p>
+        <dl class="home-pedigree-people">
+          <dt>Advisor</dt>
+          <dd><a href="https://scholar.google.com/citations?user=mTf9sk8AAAAJ&amp;hl=en" target="_blank" rel="noopener">Dr. Samuel Coogan</a><span>Eckman Award winner</span></dd>
+        </dl>
+      </article>
+      <article class="home-pedigree-col">
+        <header>
+          <img src="./files/about/UTA_logomark.png" alt="UT Arlington logo">
+          <div><p class="home-pedigree-label">Honors B.S.</p><h3 class="anchored">Electrical Engineering, University of Texas</h3></div>
+        </header>
+        <p class="home-pedigree-detail">Summa Cum Laude · Minors in Math &amp; Physics · Certificate in Unmanned Vehicle Systems</p>
+        <dl class="home-pedigree-people">
+          <dt>Mentors</dt>
+          <dd><a href="https://scholar.google.com/citations?user=rMRit3UAAAAJ" target="_blank" rel="noopener">Dr. Frank Lewis</a><span>World #1 in Optimal Control &amp; Reinforcement Learning · Top 1% cited researcher in the world</span></dd>
+          <dd><a href="https://scholar.google.com/citations?user=SwJ_EToAAAAJ&amp;hl=en" target="_blank" rel="noopener">Dr. Yan Wan</a><span>Distinguished Professor · NSF CAREER &amp; IEEE Outstanding Contribution Awards</span></dd>
+        </dl>
+      </article>
+      <article class="home-pedigree-col">
+        <header>
+          <img src="./files/about/fulbright-mark.svg" alt="Fulbright Program logo">
+          <div><p class="home-pedigree-label">Honors</p><h3 class="anchored">Fellowships &amp; recognition</h3></div>
+        </header>
+        <ul class="home-pedigree-honors">
+          <li><a href="https://fulbrightspecialist.worldlearning.org/" target="_blank" rel="noopener">Fulbright Specialist <span aria-hidden="true">↗</span></a></li>
+          <li><a href="https://www.nationalmerit.org/" target="_blank" rel="noopener">National Merit Scholar <span aria-hidden="true">↗</span></a></li>
+          <li><a href="https://bigfuture.collegeboard.org/communities-events/national-recognition-programs" target="_blank" rel="noopener">National Hispanic Scholar <span aria-hidden="true">↗</span></a></li>
+        </ul>
+      </article>
+    </div>
   </section>
 </div>
 <div class="home-section-heading-row">
 <h2 class="anchored">
 Inside the Lab
 </h2>
-<p><a class="home-link-pill primary" href="./projects/">See My Research</a></p>
+<p><a class="home-text-link" href="./projects/">See my research →</a></p>
 </div>
 <p>I am a Robotics/ECE Ph.D.&nbsp;student in the Formal Methods &amp; Autonomous Control of Transportation Systems (<a href="https://coogan.ece.gatech.edu/">FACTS</a>) Lab at the Georgia Institute of Technology under the supervision of Dr.&nbsp;Samuel Coogan.</p>
 <p>My robotics work centers around hardware applications of safe autonomous control algorithms. In particular, I work on safe and efficient path planning and control synthesis in the face of onboard computational constraints. Much of my work involves hardware demonstrations of novel methods on quadrotor UAVs and unmanned ground vehicles (UGVs). As a result, I’ve accumulated some cool videos of things flying autonomously and a lot of terrible videos of them crashing.</p>
@@ -601,7 +576,7 @@ Inside the Lab
   </div>
   <div class="home-snapshot-links">
     <a class="home-snapshot-link primary" href="./about/">More About Me</a>
-    <a class="home-snapshot-link primary" href="./journey/">Open Journey Map</a>
+    <a class="home-snapshot-link" href="./journey/">Open Journey Map</a>
   </div>
 </div>
 
