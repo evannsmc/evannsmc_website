@@ -7,8 +7,10 @@ categories: [Control, Python, JAX, Research]
 **Links:**
 
 ::: {.d-flex .gap-2 .flex-wrap .mb-3}
-[ACC 2024 Paper (PDF)](https://arxiv.org/abs/2408.11197){.btn .btn-sm .btn-primary target="_blank"}
-[TCST 2025 Paper (PDF)](https://arxiv.org/abs/2508.14185){.btn .btn-sm .btn-primary target="_blank"}
+[ACC 2024 Paper](https://ieeexplore.ieee.org/document/10644692){.btn .btn-sm .btn-primary target="_blank"}
+[ACC 2024 Preprint (arXiv)](https://arxiv.org/abs/2408.11197){.btn .btn-sm .btn-outline-secondary target="_blank"}
+[TCST 2026 Paper](https://ieeexplore.ieee.org/document/11551283){.btn .btn-sm .btn-primary target="_blank"}
+[TCST 2026 Preprint (arXiv)](https://arxiv.org/abs/2508.14185){.btn .btn-sm .btn-outline-secondary target="_blank"}
 [Hardware Experiments Video](https://www.youtube.com/watch?v=kNnP4_LbdNk){.btn .btn-sm .btn-outline-primary target="_blank"}
 [View Python Version](https://github.com/evannsmc/newton_raphson_px4){.btn .btn-sm .btn-outline-primary target="_blank"}
 [View C++ Version](https://github.com/evannsmc/newton_raphson_px4_cpp){.btn .btn-sm .btn-outline-primary target="_blank"}

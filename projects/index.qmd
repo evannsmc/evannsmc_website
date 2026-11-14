@@ -533,6 +533,21 @@ body.quarto-dark .project-toggle {
   color: #fff;
 }
 
+/* Free preprint of an already-published paper: quieter than the paper itself */
+.project-action.preprint {
+  border-style: dashed;
+  background: transparent;
+  color: var(--bs-secondary-color, #57534e);
+  font-weight: 500;
+  font-size: 0.92em;
+}
+
+.project-action.preprint:hover,
+.project-action.preprint:focus {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .project-action.paper {
   background: rgba(37, 99, 235, 0.1);
   border-color: rgba(37, 99, 235, 0.2);
@@ -773,7 +788,8 @@ body.quarto-dark .project-action.paper:focus {
               </div>
               <div class="project-actions">
                 <a class="project-action primary" href="../projects/nmpc-acados/">Open Project Page</a>
-                <a class="project-action paper" href="https://arxiv.org/abs/2508.14185" target="_blank">TCST 2025 Paper (PDF) ↗</a>
+                <a class="project-action paper" href="https://ieeexplore.ieee.org/document/11551283" target="_blank">TCST 2026 Paper ↗</a>
+                <a class="project-action preprint" href="https://arxiv.org/abs/2508.14185" target="_blank">(TCST 2026 preprint also available) ↗</a>
                 <a class="project-action" href="https://www.youtube.com/watch?v=kNnP4_LbdNk" target="_blank">Hardware Experiments Video ↗</a>
               </div>
               <div class="project-actions">
@@ -878,8 +894,10 @@ body.quarto-dark .project-action.paper:focus {
               </div>
               <div class="project-actions">
                 <a class="project-action primary" href="../projects/nr-flow/">Open Project Page</a>
-                <a class="project-action paper" href="https://arxiv.org/abs/2408.11197" target="_blank">ACC 2024 Paper (PDF) ↗</a>
-                <a class="project-action paper" href="https://arxiv.org/abs/2508.14185" target="_blank">TCST 2025 Paper (PDF) ↗</a>
+                <a class="project-action paper" href="https://ieeexplore.ieee.org/document/10644692" target="_blank">ACC 2024 Paper ↗</a>
+                <a class="project-action preprint" href="https://arxiv.org/abs/2408.11197" target="_blank">(ACC 2024 preprint also available) ↗</a>
+                <a class="project-action paper" href="https://ieeexplore.ieee.org/document/11551283" target="_blank">TCST 2026 Paper ↗</a>
+                <a class="project-action preprint" href="https://arxiv.org/abs/2508.14185" target="_blank">(TCST 2026 preprint also available) ↗</a>
                 <a class="project-action" href="https://www.youtube.com/watch?v=kNnP4_LbdNk" target="_blank">Hardware Experiments Video ↗</a>
                 <a class="project-action" href="https://github.com/evannsmc/newton_raphson_px4" target="_blank">Python Version ↗</a>
                 <a class="project-action" href="https://github.com/evannsmc/newton_raphson_px4_cpp" target="_blank">C++ Version ↗</a>
