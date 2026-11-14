@@ -137,17 +137,13 @@ document.addEventListener('DOMContentLoaded', function () {
 <link rel="stylesheet" href="../styles.css">
 <meta property="og:title" content="Projects – evannsmc">
 <meta property="og:description" content="Research projects in safe autonomy, nonlinear control, and quadrotor UAVs by Evanns Morales-Cuadrado at Georgia Tech.">
-<meta property="og:image" content="https://evannsmc.com/projects/lirra/lirra_3d_preview.png">
+<meta property="og:image" content="https://evannsmc.com/projects/rtd-rax/angled_repair_view_two_repairs.gif">
 <meta property="og:site_name" content="evannsmc">
-<meta property="og:image:alt" content="3D view of a blimp following verified plans around an uncertain restricted region, with a rejected proposal and the fallback solver plan">
-<meta property="og:image:height" content="612">
-<meta property="og:image:width" content="856">
+<meta property="og:image:alt" content="RTD-RAX angled obstacles with repair animation">
 <meta name="twitter:title" content="Projects – evannsmc">
 <meta name="twitter:description" content="Research projects in safe autonomy, nonlinear control, and quadrotor UAVs by Evanns Morales-Cuadrado at Georgia Tech.">
-<meta name="twitter:image" content="https://evannsmc.com/projects/lirra/lirra_3d_preview.png">
-<meta name="twitter:image:alt" content="3D view of a blimp following verified plans around an uncertain restricted region, with a rejected proposal and the fallback solver plan">
-<meta name="twitter:image-height" content="612">
-<meta name="twitter:image-width" content="856">
+<meta name="twitter:image" content="https://evannsmc.com/projects/rtd-rax/angled_repair_view_two_repairs.gif">
+<meta name="twitter:image:alt" content="RTD-RAX angled obstacles with repair animation">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -727,15 +723,11 @@ body.quarto-dark .project-name {
   aspect-ratio: 1.4 / 1;
 }
 
-/* LIRRA: static figure crop, padded to the shared 1.4:1 preview ratio */
+/* LIRRA: MuJoCo clip cropped (title bar removed) to the shared 1.4:1 preview ratio */
 .project-preview-panel.lirra-preview {
   min-height: 0;
   aspect-ratio: 1.4 / 1;
   background: #fff;
-}
-
-.project-preview-panel.lirra-preview img {
-  object-fit: contain;
 }
 
 /* Looping hardware-footage previews (NMPC, NR Flow, MoCap). Clips are
@@ -1048,7 +1040,7 @@ body.quarto-dark .project-action.paper:focus {
                 <p class="project-cta-hint">Tap anywhere on this panel to open the project page.</p>
               </div>
               <div class="project-preview-panel lirra-preview">
-                <img src="../projects/lirra/lirra_3d_preview.png" alt="3D view of a blimp following verified plans around an uncertain restricted region, with a rejected proposal and the fallback solver plan">
+                <video src="../projects/lirra/x2_mujoco_card.mp4" autoplay="" muted="" loop="" playsinline="" preload="metadata" aria-label="Skydio X2 quadrotor in MuJoCo patrolling waypoints around a restricted cube region under LIRRA"></video>
               </div>
             </div>
           </summary>

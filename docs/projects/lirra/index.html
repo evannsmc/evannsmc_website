@@ -418,6 +418,15 @@ document.addEventListener('DOMContentLoaded', function () {
 <p><a href="../../files/l4dc2027/27_L4DC_LIRRA.pdf" class="btn btn-sm btn-primary" target="_blank">L4DC 2027 Paper (Preprint PDF)</a> <a href="https://evannsmc.github.io/rl-stl/" class="btn btn-sm btn-outline-primary" target="_blank">Project Website: Code &amp; Videos</a></p>
 </div>
 <p><strong>Skip the Solve: Learning-Accelerated Recursively Feasible Interval-STL for Runtime Assurance</strong><br> Evanns Morales-Cuadrado*, Xinpei Ni*, Luke Baird, Glen Chou, and Samuel Coogan. Submitted to the 2027 Learning for Dynamics and Control Conference (L4DC). *<em>Equal contribution.</em></p>
+<section id="showreel" class="level3">
+<h3 class="anchored" data-anchor-id="showreel">Showreel</h3>
+<video controls="" muted="" playsinline="" preload="metadata" poster="./lirra_3d_showreel_poster.jpg" style="width: 100%; height: auto; border-radius: 0.75rem; border: 1px solid var(--bs-border-color, #dee2e6); background: #fff;" aria-label="Showreel of the 3D cube experiments on the Skydio X2 quadrotor and the GT-MAB blimp">
+  <source src="./lirra_3d_showreel.mp4" type="video/mp4">
+</video>
+<p>All eight 3D experiments from the paper (6 min): the Skydio X2 quadrotor and the Georgia Tech Miniature Autonomous Blimp (GT-MAB) patrolling around the restricted cube under four specifications, with and without uncertainty in the cube’s boundaries, each introduced by a title card. The banner shows whether the latest learned proposal passed the STL check and, if not, which condition it failed while a verified plan flies in the meantime. Left: a 3D view of the cube, the waypoints and the plan in force (blue: accepted proposal, yellow: fallback solver plan, grey: cached plan). Right: the MuJoCo view, the robustness of the realized trace, and the robustness of each proposal against the acceptance threshold. Individual clips are on the <a href="https://evannsmc.github.io/rl-stl/videos.html" target="_blank">project website</a>.</p>
+</section>
+<section id="from-the-paper" class="level3">
+<h3 class="anchored" data-anchor-id="from-the-paper">From the paper</h3>
 <style>
 .lirra-figure-card {
   margin: 1.75rem 0 2rem;
@@ -500,6 +509,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <p><strong>Built around:</strong> Runtime assurance · Signal temporal logic · Recursive feasibility · Amortized optimization · Learning-based control</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

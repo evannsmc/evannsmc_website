@@ -2,6 +2,12 @@
 title: "LIRRA: Skip the Solve"
 description: "Learning-accelerated, recursively feasible interval-STL runtime assurance (L4DC 2027 submission)."
 categories: [Safety, Formal Methods, Learning-Based Control, Research]
+# Referenced only from raw HTML (video poster/sources), which Quarto doesn't scan
+resources:
+  - lirra_3d_showreel.mp4
+  - lirra_3d_showreel_poster.jpg
+  - x2_mujoco_card.mp4
+  - x2_phi_plus_composite.mp4
 ---
 
 ::: {.d-flex .gap-2 .flex-wrap .mb-3}
@@ -12,6 +18,21 @@ categories: [Safety, Formal Methods, Learning-Based Control, Research]
 **Skip the Solve: Learning-Accelerated Recursively Feasible Interval-STL for Runtime Assurance**<br>
 Evanns Morales-Cuadrado\*, Xinpei Ni\*, Luke Baird, Glen Chou, and Samuel Coogan.
 Submitted to the 2027 Learning for Dynamics and Control Conference (L4DC). \**Equal contribution.*
+
+### Showreel
+
+```{=html}
+<video controls muted playsinline preload="metadata"
+       poster="./lirra_3d_showreel_poster.jpg"
+       style="width: 100%; height: auto; border-radius: 0.75rem; border: 1px solid var(--bs-border-color, #dee2e6); background: #fff;"
+       aria-label="Showreel of the 3D cube experiments on the Skydio X2 quadrotor and the GT-MAB blimp">
+  <source src="./lirra_3d_showreel.mp4" type="video/mp4">
+</video>
+```
+
+All eight 3D experiments from the paper (6 min): the Skydio X2 quadrotor and the Georgia Tech Miniature Autonomous Blimp (GT-MAB) patrolling around the restricted cube under four specifications, with and without uncertainty in the cube's boundaries, each introduced by a title card. The banner shows whether the latest learned proposal passed the STL check and, if not, which condition it failed while a verified plan flies in the meantime. Left: a 3D view of the cube, the waypoints and the plan in force (blue: accepted proposal, yellow: fallback solver plan, grey: cached plan). Right: the MuJoCo view, the robustness of the realized trace, and the robustness of each proposal against the acceptance threshold. Individual clips are on the [project website](https://evannsmc.github.io/rl-stl/videos.html){target="_blank"}.
+
+### From the paper
 
 ```{=html}
 <style>

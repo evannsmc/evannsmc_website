@@ -625,6 +625,33 @@ body.quarto-dark .nav-footer-center a {
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
+/* Stacked variant (LIRRA): centered title and tags, then a 16:9 multi-panel
+   video at full card width (contain, so no panel is cropped), then the text. */
+.home-latest-project.home-latest-project--stacked {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  gap: 0.9rem;
+}
+
+.home-latest-project--stacked .home-latest-project-tags {
+  justify-content: center;
+}
+
+.home-latest-project--stacked .home-latest-project-preview {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: none;
+  background: #fff;
+}
+
+.home-latest-project--stacked .home-latest-project-preview video {
+  object-fit: contain;
+}
+
+.home-latest-project--stacked .home-latest-project-text {
+  width: 100%;
+}
+
 .home-latest-project:hover,
 .home-latest-project:focus {
   color: inherit;
