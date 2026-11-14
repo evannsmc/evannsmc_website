@@ -87,11 +87,19 @@ page-layout: full
   <a class="home-text-link" href="./projects/">See my research →</a>
 </div>
 
-::: {.home-lab-copy}
-I am a Robotics/ECE Ph.D. student in the Formal Methods & Autonomous Control of Transportation Systems ([FACTS](https://coogan.ece.gatech.edu/)) Lab at the Georgia Institute of Technology under the supervision of Dr. Samuel Coogan.
-
-My robotics work centers around hardware applications of safe autonomous control algorithms. In particular, I work on safe and efficient path planning and control synthesis in the face of onboard computational constraints. Much of my work involves hardware demonstrations of novel methods on quadrotor UAVs and unmanned ground vehicles (UGVs). As a result, I've accumulated some cool videos of things flying autonomously and a lot of terrible videos of them crashing.
-:::
+```{=html}
+<div class="home-lab">
+  <div class="home-lab-copy">
+    <p class="home-lab-lede">I am a Robotics/ECE Ph.D. student in the Formal Methods &amp; Autonomous Control of Transportation Systems (<a href="https://coogan.ece.gatech.edu/" target="_blank" rel="noopener">FACTS</a>) Lab at the Georgia Institute of Technology under the supervision of Dr. Samuel Coogan.</p>
+    <p>My robotics work centers around hardware applications of safe autonomous control algorithms. In particular, I work on safe and efficient path planning and control synthesis in the face of onboard computational constraints. Much of my work involves hardware demonstrations of novel methods on quadrotor UAVs and unmanned ground vehicles (UGVs). As a result, I've accumulated some cool videos of things flying autonomously and a lot of terrible videos of them crashing.</p>
+  </div>
+  <dl class="home-lab-facts" aria-label="Lab at a glance">
+    <div><dt>Lab</dt><dd><a href="https://coogan.ece.gatech.edu/" target="_blank" rel="noopener">FACTS Lab</a>, Georgia Tech</dd></div>
+    <div><dt>Focus</dt><dd>Safe, efficient path planning and control synthesis under onboard computational constraints</dd></div>
+    <div><dt>Platforms</dt><dd>Quadrotor UAVs and unmanned ground vehicles</dd></div>
+  </dl>
+</div>
+```
 
 
 ## My Latest Projects
