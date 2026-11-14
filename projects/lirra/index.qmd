@@ -1,6 +1,6 @@
 ---
 title: "LIRRA: Skip the Solve"
-description: "Learning-accelerated, recursively feasible interval-STL runtime assurance (L4DC 2027 submission)."
+description: "Runtime assurance for complex temporal specifications under uncertain dynamics and uncertain predicates, balanced against the nominal mission and accelerated with verified learned proposals (L4DC 2027 submission)."
 categories: [Safety, Formal Methods, Learning-Based Control, Research]
 # Referenced only from raw HTML (video poster/sources), which Quarto doesn't scan
 resources:
@@ -64,7 +64,9 @@ All eight 3D experiments from the paper (6 min): the Skydio X2 quadrotor and the
 </figure>
 ```
 
-Long-term robot missions come with temporal requirements such as deadlines, regions to avoid, and recurring obligations, and these must hold despite disturbances and limited onboard computation. My [interval STL runtime assurance](../nahs/) work enforces such specifications under uncertainty in a receding-horizon loop, with terminal constraints that guarantee a feasible continuation always exists. The catch is that it solves a mixed-integer program at every planning step, which is expensive on small robots.
+**The problem.** Autonomous robots must satisfy complex temporal specifications (deadlines, restricted regions, recurring obligations) while carrying out a nominal mission, and they must do so despite uncertainty in both their dynamics and the specification's predicates, such as where a restricted region's boundaries really lie. Runtime assurance is a natural fit: a nominal controller pursues the mission, and an assurance layer intervenes only as needed to keep the specification satisfied. In a receding-horizon loop, satisfying the specification over the current horizon is not enough; every plan must also leave a feasible continuation for future planning steps (recursive feasibility).
+
+My [interval STL runtime assurance](../nahs/) work handles the uncertainty with interval signal temporal logic and guarantees recursive feasibility with control-invariant terminal constraints. The catch is that it solves a mixed-integer program at every planning step, which is expensive on small robots.
 
 LIRRA (Learning-augmented Interval-STL for Recursively-feasible Runtime Assurance) skips most of those solves. A learned policy proposes a trajectory, and LIRRA checks the proposal against the original synthesis constraints, including the control-invariant terminal conditions. Checking a candidate is far cheaper than finding one. If the proposal fails the check, LIRRA starts a delay-compensated fallback solve and keeps following the last verified trajectory, which already carries a specification-satisfying continuation even if the solver fails or runs late.
 

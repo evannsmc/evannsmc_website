@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Learning-accelerated, recursively feasible interval-STL runtime assurance (L4DC 2027 submission).">
+<meta name="description" content="Runtime assurance for complex temporal specifications under uncertain dynamics and uncertain predicates, balanced against the nominal mission and accelerated with verified learned proposals (L4DC 2027 submission).">
 
 <title>LIRRA: Skip the Solve – evannsmc</title>
 <style>
@@ -136,14 +136,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <link rel="stylesheet" href="../../styles.css">
 <meta property="og:title" content="LIRRA: Skip the Solve – evannsmc">
-<meta property="og:description" content="Learning-accelerated, recursively feasible interval-STL runtime assurance (L4DC 2027 submission).">
+<meta property="og:description" content="Runtime assurance for complex temporal specifications under uncertain dynamics and uncertain predicates, balanced against the nominal mission and accelerated with verified learned proposals (L4DC 2027 submission).">
 <meta property="og:image" content="https://evannsmc.com/projects/lirra/lirra_figure1.png">
 <meta property="og:site_name" content="evannsmc">
 <meta property="og:image:alt" content="Left: a 3D view of a blimp flying through waypoints around an uncertain restricted box region, with a rejected learned proposal and the fallback solver plan. Right: specification robustness over time and the robustness of the learned proposals at each check, marked accepted or rejected.">
 <meta property="og:image:height" content="712">
 <meta property="og:image:width" content="1793">
 <meta name="twitter:title" content="LIRRA: Skip the Solve – evannsmc">
-<meta name="twitter:description" content="Learning-accelerated, recursively feasible interval-STL runtime assurance (L4DC 2027 submission).">
+<meta name="twitter:description" content="Runtime assurance for complex temporal specifications under uncertain dynamics and uncertain predicates, balanced against the nominal mission and accelerated with verified learned proposals (L4DC 2027 submission).">
 <meta name="twitter:image" content="https://evannsmc.com/projects/lirra/lirra_figure1.png">
 <meta name="twitter:image:alt" content="Left: a 3D view of a blimp flying through waypoints around an uncertain restricted box region, with a rejected learned proposal and the fallback solver plan. Right: specification robustness over time and the robustness of the learned proposals at each check, marked accepted or rejected.">
 <meta name="twitter:image-height" content="712">
@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <div>
   <div class="description">
-    Learning-accelerated, recursively feasible interval-STL runtime assurance (L4DC 2027 submission).
+    Runtime assurance for complex temporal specifications under uncertain dynamics and uncertain predicates, balanced against the nominal mission and accelerated with verified learned proposals (L4DC 2027 submission).
   </div>
 </div>
 
@@ -454,7 +454,8 @@ document.addEventListener('DOMContentLoaded', function () {
     LIRRA on the Georgia Tech Miniature Autonomous Blimp with uncertain restricted-region boundaries. After a rejected proposal (dashed red), the vehicle (blue dot) follows the newly synthesized, delay-compensated fallback plan (solid yellow). Right: the realized robustness trace and the robustness of each learned proposal at every check, accepted or rejected.
   </figcaption>
 </figure>
-<p>Long-term robot missions come with temporal requirements such as deadlines, regions to avoid, and recurring obligations, and these must hold despite disturbances and limited onboard computation. My <a href="../nahs/">interval STL runtime assurance</a> work enforces such specifications under uncertainty in a receding-horizon loop, with terminal constraints that guarantee a feasible continuation always exists. The catch is that it solves a mixed-integer program at every planning step, which is expensive on small robots.</p>
+<p><strong>The problem.</strong> Autonomous robots must satisfy complex temporal specifications (deadlines, restricted regions, recurring obligations) while carrying out a nominal mission, and they must do so despite uncertainty in both their dynamics and the specification’s predicates, such as where a restricted region’s boundaries really lie. Runtime assurance is a natural fit: a nominal controller pursues the mission, and an assurance layer intervenes only as needed to keep the specification satisfied. In a receding-horizon loop, satisfying the specification over the current horizon is not enough; every plan must also leave a feasible continuation for future planning steps (recursive feasibility).</p>
+<p>My <a href="../nahs/">interval STL runtime assurance</a> work handles the uncertainty with interval signal temporal logic and guarantees recursive feasibility with control-invariant terminal constraints. The catch is that it solves a mixed-integer program at every planning step, which is expensive on small robots.</p>
 <p>LIRRA (Learning-augmented Interval-STL for Recursively-feasible Runtime Assurance) skips most of those solves. A learned policy proposes a trajectory, and LIRRA checks the proposal against the original synthesis constraints, including the control-invariant terminal conditions. Checking a candidate is far cheaper than finding one. If the proposal fails the check, LIRRA starts a delay-compensated fallback solve and keeps following the last verified trajectory, which already carries a specification-satisfying continuation even if the solver fails or runs late.</p>
 <p><strong>Key ideas:</strong></p>
 <ul>
