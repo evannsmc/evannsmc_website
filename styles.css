@@ -652,6 +652,30 @@ body.quarto-dark .nav-footer-center a {
   width: 100%;
 }
 
+/* Split variant (RTD-RAX): centered title and tags across the top, then the
+   description on the left and the video on the right (video first on phones). */
+.home-latest-project.home-latest-project--split {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  gap: 0.9rem;
+}
+
+.home-latest-project--split .home-latest-project-tags {
+  justify-content: center;
+}
+
+.home-latest-project-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 1.25rem;
+  align-items: center;
+  width: 100%;
+}
+
+.home-latest-project-row .home-latest-project-preview {
+  order: 2;
+}
+
 .home-latest-project:hover,
 .home-latest-project:focus {
   color: inherit;
@@ -847,6 +871,14 @@ body.quarto-dark .home-latest-project-link {
   /* Project goes single-column with capped video */
   .home-latest-project {
     grid-template-columns: 1fr;
+  }
+
+  .home-latest-project-row {
+    grid-template-columns: 1fr;
+  }
+
+  .home-latest-project-row .home-latest-project-preview {
+    order: 0;
   }
 
   .home-latest-project-preview {

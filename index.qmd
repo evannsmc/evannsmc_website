@@ -148,30 +148,30 @@ My robotics work centers around hardware applications of safe autonomous control
   <span class="home-latest-project-link">Open LIRRA</span>
 </a>
 
-<a class="home-latest-project" href="./projects/rtd-rax/">
-  <div class="home-latest-project-copy">
-    <div class="home-latest-project-main">
-      <p class="home-latest-project-title"><code>RTD-RAX</code></p>
-      <div class="home-latest-project-tags" aria-label="RTD-RAX topic tags">
-        <span class="home-latest-project-tag">Real-Time Planning</span>
-        <span class="home-latest-project-tag">Disturbance Handling</span>
-        <span class="home-latest-project-tag">Reachability Analysis</span>
-        <span class="home-latest-project-tag">Robotics</span>
-        <span class="home-latest-project-tag">Safety</span>
-        <span class="home-latest-project-tag">Research</span>
-      </div>
+<a class="home-latest-project home-latest-project--split" href="./projects/rtd-rax/">
+  <p class="home-latest-project-title"><code>RTD-RAX</code></p>
+  <div class="home-latest-project-tags" aria-label="RTD-RAX topic tags">
+    <span class="home-latest-project-tag">Real-Time Planning</span>
+    <span class="home-latest-project-tag">Disturbance Handling</span>
+    <span class="home-latest-project-tag">Reachability Analysis</span>
+    <span class="home-latest-project-tag">Robotics</span>
+    <span class="home-latest-project-tag">Safety</span>
+    <span class="home-latest-project-tag">Research</span>
+  </div>
+  <div class="home-latest-project-row">
+    <div class="home-latest-project-preview">
+      <video autoplay loop muted playsinline aria-label="RTD-RAX angled obstacles with repair animation" loading="lazy">
+        <source src="./projects/rtd-rax/angled_repair_view_two_repairs.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="home-latest-project-copy">
       <p class="home-latest-project-text">
         My Runtime-Assurance eXtension (RAX) of the Reachability-based Trajectory Design (RTD) framework for fast candidate trajectory generation paired with an online, disturbance-aware verification layer to produce trajectories that avoid obstacles and achieve mission objectives while facing uncertain dynamics and real-world disturbances.
-        
+    
         RTD-RAX extends traditional RTD by separating fast candidate generation from online safety certification. The planner stays agile, while a fast online verifier utilizing Mixed Monotone Reachability (MMR) certifies each trajectory under the actual measured conditions and repairs unsafe candidates before execution. 
       </p>
+      <span class="home-latest-project-link">Open RTD-RAX</span>
     </div>
-    <span class="home-latest-project-link">Open RTD-RAX</span>
-  </div>
-  <div class="home-latest-project-preview">
-    <video autoplay loop muted playsinline aria-label="RTD-RAX angled obstacles with repair animation" loading="lazy">
-      <source src="./projects/rtd-rax/angled_repair_view_two_repairs.mp4" type="video/mp4">
-    </video>
   </div>
 </a>
 ```
