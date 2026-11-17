@@ -778,6 +778,25 @@ main.content:has(.home-hero) h2.home-pedigree-heading {
   font-weight: 700;
 }
 
+/* Featured honor (Fulbright Specialist): accent-tinted card with a left accent rule */
+.home-pedigree-honors .home-honor-featured a {
+  padding: 0.95rem 1rem 0.95rem 1.1rem;
+  border-color: var(--accent-tint-border);
+  border-left: 4px solid var(--accent);
+  background: var(--accent-tint);
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.08);
+}
+
+.home-honor-featured .home-honor-name {
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.home-honor-featured .home-honor-meta {
+  color: var(--ink-muted);
+}
+
 /* ── Latest projects ── */
 .home-latest-project {
   display: grid;
