@@ -416,6 +416,17 @@ document.addEventListener('DOMContentLoaded', function () {
   --cv-border: var(--bs-border-color, #e7e5e4);
 }
 
+/* :root can't see the body.quarto-dark toggle, so re-point the CV tokens at
+   the site's own light/dark tokens (styles.css) on body. */
+body.quarto-dark {
+  --cv-accent: #60a5fa;
+  --cv-bg-secondary: var(--card-bg);
+  --cv-text-secondary: var(--ink-subtle);
+  --cv-border: var(--card-border);
+}
+body.quarto-dark .cv-button:not(.primary) { background: var(--paper); color: var(--ink); }
+body.quarto-dark .cv-button.primary { color: #0b1220; }
+
 .cv-shell {
   max-width: 100%;
   margin: 0 auto;

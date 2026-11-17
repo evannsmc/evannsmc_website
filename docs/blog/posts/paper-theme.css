@@ -57,6 +57,10 @@ body.quarto-dark .footer,
   margin-right: 0 !important;
 }
 
+/* <html> sits outside <body>, so it reads --rb-paper-bg from :root (cream)
+   unless :has() switches it when the dark toggle is on. */
+html:has(body.quarto-dark) { background: #1c2230 !important; }
+
 .page-footer, footer.footer, .nav-footer { border-top: none !important; }
 
 /* Article title + section headings in the paper-aesthetic serif. */

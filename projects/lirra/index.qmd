@@ -1,5 +1,5 @@
 ---
-title: "LIRRA: Skip the Solve"
+title: "LIRRA"
 description: "Runtime assurance for complex temporal specifications under uncertain dynamics and uncertain predicates, balanced against the nominal mission and accelerated with verified learned proposals (L4DC 2027 submission)."
 categories: [Safety, Formal Methods, Learning-Based Control, Research]
 # Referenced only from raw HTML (video poster/sources), which Quarto doesn't scan
@@ -15,9 +15,8 @@ resources:
 [Project Website: Code & Videos](https://evannsmc.github.io/rl-stl/){.btn .btn-sm .btn-outline-primary target="_blank"}
 :::
 
-**Skip the Solve: Learning-Accelerated Recursively Feasible Interval-STL for Runtime Assurance**<br>
 Evanns Morales-Cuadrado\*, Xinpei Ni\*, Luke Baird, Glen Chou, and Samuel Coogan.
-Submitted to the 2027 Learning for Dynamics and Control Conference (L4DC). \**Equal contribution.*
+Submitted to the 2027 Learning for Dynamics and Control Conference (L4DC). \**Equal contribution.* *(title redacted until the double-blind review process is complete)*
 
 ### Showreel
 

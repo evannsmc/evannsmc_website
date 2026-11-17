@@ -72,6 +72,10 @@ body.quarto-dark .page-footer, body.quarto-dark footer.footer, body.quarto-dark 
   background: #1c2230 !important;
 }
 
+/* <html> is outside <body>, so it needs :has() to follow the dark toggle
+   (otherwise overscroll / rubber-band areas flash cream in dark mode). */
+html:has(body.quarto-dark) { background: #1c2230 !important; }
+
 .page-footer, footer.footer, .nav-footer { border-top: none !important; }
 
 /* ─────────────────  Research Blog tokens  ───────────────── */
@@ -91,6 +95,7 @@ body.quarto-dark .page-footer, body.quarto-dark footer.footer, body.quarto-dark 
   --rb-card-shadow: 0 1px 0 rgba(0, 0, 0, 0.02), 0 6px 18px -10px rgba(124, 87, 22, 0.30);
   --rb-card-shadow-hover: 0 1px 0 rgba(0, 0, 0, 0.03), 0 14px 30px -10px rgba(124, 87, 22, 0.36);
 
+  --rb-page-bg:      #fefdf6;             /* the whole page sheet */
   --rb-paper-bg:     #f9f3e1;             /* warm off-white — the inner sheet + masthead body */
   --rb-paper-ink:    #1f2937;
   --rb-paper-rule:   #d6cfb5;
@@ -107,6 +112,7 @@ body.quarto-dark {
   --rb-card-shadow: 0 1px 0 rgba(0, 0, 0, 0.18), 0 8px 22px -10px rgba(0, 0, 0, 0.55);
   --rb-card-shadow-hover: 0 1px 0 rgba(0, 0, 0, 0.18), 0 14px 30px -10px rgba(0, 0, 0, 0.65);
 
+  --rb-page-bg:     #1c2230;
   --rb-paper-bg:    #1c2230;
   --rb-paper-ink:   #e5e7eb;
   --rb-paper-rule:  rgba(148, 163, 184, 0.35);
@@ -140,7 +146,7 @@ main.content.column-page { padding-left: 0 !important; padding-right: 0 !importa
   max-width: none;
   margin: 0;
   padding: clamp(2rem, 4vw, 3.5rem) clamp(1.5rem, 5vw, 5rem) clamp(4rem, 6vw, 6rem);
-  background: #fefdf6;     /* page bg = panel cream; inner abstract preview keeps the parchment */
+  background: var(--rb-page-bg);     /* page bg = panel cream (navy in dark mode); inner abstract preview keeps the parchment */
   color: var(--rb-paper-ink);
   border: none;
   border-radius: 0;
